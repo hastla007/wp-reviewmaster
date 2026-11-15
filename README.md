@@ -6,3 +6,4 @@ Projekt- und Implementierungsgrundlage für das Review- und Social-Proof-Plugin 
 - [Detailliertes To-do](TODO.md): taskweise Umsetzung von Scope-Freeze und API-Freigaben bis Core, Pro, fünf Plattformen, Suite-Adaptern und Release-Gates.
 
 Die Aufgabenliste ist nach Abhängigkeiten geordnet. Nicht bestätigte Anbieterzugänge und Folgefunktionen sind als Entscheidung bzw. gesonderter Release-Schritt gekennzeichnet.
+- [Ablauf und Mockup-Screenshots](konzept.md#17-abläufe-und-screenshot-mockups): Suite-Diagramme und UI-Beispiele.
