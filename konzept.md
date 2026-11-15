@@ -759,7 +759,7 @@ Damit ist Review Captain der Eigentümer von Einladung, Versand, Moderation, Rev
 
 ## 17. Abläufe und Screenshot-Mockups
 
-Die folgenden Diagramme zeigen den geplanten Datenfluss, die Einladungslogik und die Aufgabenteilung der Captain-Plugins. Die Screenshots sind **statische UI-Mockups mit Beispieldaten**, keine Screenshots einer bereits laufenden Software oder echter Kundenkonten.
+Die folgenden Diagramme zeigen den geplanten Datenfluss, die Einladungslogik und die Aufgabenteilung der Captain-Plugins. Die Adminansichten sind **statische WordPress-Admin-Mockups**: mit WordPress-Toolbar, linker Plugin-Navigation, Notices, Tabellen und Einstellungsfeldern statt einer eigenständigen SaaS-Oberfläche. Die Frontend-Ansicht zeigt dagegen eine Website-Ausgabe. Alle Screenshots sind Mockups mit Beispieldaten, keine Ansichten einer bereits laufenden Software oder echter Kundenkonten.
 
 ### 17.1 Gesamtfluss in der Captain Suite
 
@@ -817,7 +817,7 @@ sequenceDiagram
 
 Die Review-Seite wird niemals nach Zufriedenheit oder Sternen gefiltert. Das Ziel wird vor der Kampagne festgelegt und für alle geeigneten Empfänger gleich angewendet. Form-Captain-Einsendungen laufen separat in die lokale Moderation und sind nicht automatisch eine öffentliche Plattformbewertung.
 
-### 17.3 Admin-Screenshots: Konzeptmockups
+### 17.3 WordPress-Admin-Screenshots: Konzeptmockups
 
 Die Statusanzeigen und Kennzahlen in diesen Abbildungen sind illustrativ. Provider-Verbindungen, Echtbewertungen und Lizenzen sind noch nicht implementiert.
 
