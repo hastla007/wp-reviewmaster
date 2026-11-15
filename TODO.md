@@ -49,7 +49,7 @@ Diese Aufgaben werden nach dem MVP-Scope-Freeze und vor dem Bau der Admin-Seiten
 
 - [ ] **UX-001 – Zielnutzer und Nutzungsszenarien validieren.** Ergebnis: Gespräche mit Shopbetreibern, lokalen Unternehmen, App-Anbietern und Captain-Suite-Nutzern bestätigen die wichtigsten Abläufe.
 - [ ] **UX-002 – Nutzerabläufe skizzieren.** Ergebnis: Erstinstallation, Review erfassen, Plattform verbinden, Syncfehler beheben, Widget veröffentlichen, Anfrage konfigurieren und Pro-Lizenz verwalten sind als Flows beschrieben.
-- [ ] **UX-003 – Admin-Wireframes erstellen.** Ergebnis: Dashboard, Reviews, Quellen, Profile, Anfragen, Widgets, Testimonials/Trustmarks, Integrationen, Einstellungen, Diagnose und Lizenzseite haben abgestimmte Wireframes.
+- [ ] **UX-003 – Admin-Wireframes erstellen.** Ergebnis: Dashboard, Reviews, Quellen, Profile, Anfragen, Widgets, Testimonials/Trustmarks, Integrationen einschließlich Connector-Manager, Einstellungen, Diagnose und Lizenzseite haben abgestimmte Wireframes.
 - [ ] **UX-004 – Fehler- und Leerzustände gestalten.** Ergebnis: keine Quelle verbunden, unberechtigter API-Zugang, abgelaufener Token, fehlende Reviews, Lizenz ohne Zugriff und Queuefehler haben verständliche Zustände und konkrete nächste Schritte.
 - [ ] **UX-005 – Frontend-Widget-Prototypen erstellen.** Ergebnis: Trust-Leiste, Plattform-Scorekarten, Testimonial-Wall, Video-/Audio-Carousel, Auszeichnungsblock und schwebendes Badge sind auf Desktop und Mobil ausgearbeitet.
 - [ ] **UX-006 – Prototypen mit Nutzern prüfen.** Ergebnis: Testpersonen schließen „Quelle verbinden“ und „Bewertungsleiste veröffentlichen“ ohne Moderationshilfe ab; beobachtete Blocker sind behoben.
@@ -309,6 +309,41 @@ Diese Aufgaben liegen nach dem Release Candidate und vor bzw. unmittelbar nach �
 ## Änderungsverlauf
 
 - 2026-11-15: Erste ausführbare Aufgabenliste aus dem Review-Captain-Konzept erstellt.
+
+
+## Kundenspezifische Projekt-Connectoren
+
+Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile Erweiterungsmöglichkeit für kundeneigene Buchungs-, CRM-, ERP-, Mitglieder-, Kurs- und Branchensysteme. Lokale PHP-Connectoren gelten nur innerhalb derselben WordPress-Installation; andere Sites/Systeme verwenden signierte REST-/Webhook-Verträge.
+
+### Phase A – Contract und Erweiterbarkeit
+
+- [ ] **CON-001 – Connector-Use-Cases und Grenzen festlegen.** Ergebnis: Experience Source, Recipient Resolver, Review Import Source, Request Transport und Context Provider sind getrennte optionale Fähigkeiten; Suite-Adapter, lokale Connectoren und externe Webhooks/REST sind klar abgegrenzt.
+- [ ] **CON-002 – Versionierten Connector-Hauptvertrag spezifizieren.** Ergebnis: Registry-Hook, Interface-Metadaten (key, label, version, contract version, capabilities), eindeutige Connector-ID, Major-Kompatibilität und Deprecation-Frist sind dokumentiert. Vorschlag für den Hook: wp_review_captain_connectors_v1.
+- [ ] **CON-003 – Capability-Verträge einzeln definieren.** Ergebnis: ExperienceSource, RecipientResolver, ReviewSource, RequestTransport und ContextProvider haben minimale typisierte Methoden und Fixture-Payloads; ein Connector muss nur seine Fähigkeiten implementieren.
+- [ ] **CON-004 – Fachliche Event-Payloads vertraglich festlegen.** Ergebnis: Experience-ID, Event-ID, Source-Key, Objekt-Referenz, Recipient-Referenz, Locale, occurred_at, erlaubter Consent-/Versandstatus und Idempotency-Key sind Pflicht; Kontakt- und Reviewtexte werden nur über ausdrücklich erforderliche Fähigkeiten übertragen.
+- [ ] **CON-005 – Connector-Sicherheits- und Datenmatrix erstellen.** Ergebnis: jede Fähigkeit hat minimale Datenfelder, Capabilities, Consent-/Berechtigungsprüfung, Retention/Erase, Logging-Allowlist, Retry-Klassifikation und Disconnect-Verhalten. Das Framework ist als PHP-Code ausdrücklich keine Sandbox.
+- [ ] **CON-006 – Lizenzgrenze finalisieren.** Ergebnis: öffentlicher Contract und Basis-Registry bleiben im kostenlosen Core; generischer Pro-Manager und automatisierte Connector-Runtime nutzen review.custom_connectors; offizielle Captain-Adapter nutzen review.suite_integrations.
+- [ ] **CON-007 – Vertrags- und Kompatibilitätstests vorbereiten.** Ergebnis: Contract-Tests prüfen Pflichtmetadaten, unbekannte Major-Versionen, fehlende Capabilities, ungültige Payloads, Fehlercodes, Idempotenz und wiederholte Events.
+
+### Phase B – Core Registry und Pro-Verwaltung
+
+- [ ] **CON-008 – Core-Registry und Contract-Validator implementieren.** Ergebnis: registrierte Connectoren werden dedupliziert, validiert und ohne Fatal Error bei inkompatibler Version als pausiert ausgewiesen.
+- [ ] **CON-009 – Jobrunner-Erweiterung implementieren.** Ergebnis: versionierte Connectorjob-Typen laufen mit atomarem Claim/Lease, Idempotency-Key, Retry/Backoff, Dead-Letter und Hook für Connectorfehler (Vorschlag wp_review_captain_process_job_v1); keine Connector-Jobverarbeitung im Frontend-Request.
+- [ ] **CON-010 – Pro-Manager-Seite gestalten und bauen.** Ergebnis: Statuskarten zeigen Entwickler, Version, Fähigkeiten, Contract-Kompatibilität, Aktivstatus, letzte Ausführung, wartende Jobs und sanitisierten Fehler; Test, Pause, Disconnect und Wiederholen sind capability-/nonce-geschützt.
+- [ ] **CON-011 – Schema-basierte Connector-Konfiguration bereitstellen.** Ergebnis: Felder sind typisiert und validiert; Secrets werden maskiert/verschlüsselt gespeichert und erscheinen weder in Logs noch Diagnoseexporten; keine frei ausführbaren PHP-Felder.
+- [ ] **CON-012 – Dry-Run und Diagnose hinzufügen.** Ergebnis: Test-Fixture zeigt normalisierte Payload, Mapping, Eligibility-/Consent-/Dedupe-Entscheidung und erwartete Aktion, ohne reale E-Mail oder externe Schreibaktion auszulösen.
+- [ ] **CON-013 – Error-/Health-Vertrag umsetzen.** Ergebnis: stabile Fehlercodes für Authentifizierung, Rate Limit, Timeout, inkompatiblen Vertrag, ungültige Payload, temporären und permanenten Fehler; Status enthält nächste sinnvolle Admin-Aktion.
+- [ ] **CON-014 – Inkompatibilität und Plugin-Lifecycle behandeln.** Ergebnis: Deaktivierung oder Entfernung eines Quell-Plugins pausiert offene Connectorjobs und zeigt source_unavailable; erneute Aktivierung validiert Vertrag, Consent und Fristen vor einem Resume.
+
+### Phase C – Referenz-Connector, Developer Kit und Abnahme
+
+- [ ] **CON-015 – Beispiel-Connector bauen.** Ergebnis: separates Demo-Plugin emittiert ein abgeschlossenes Buchungs-/Kurs-Erlebnis über den öffentlichen Vertrag; es verwendet keine Core-Änderung oder fremden Datenbankzugriffe.
+- [ ] **CON-016 – Ende-zu-Ende-Fluss abnehmen.** Ergebnis: abgeschlossenes Erlebnis wird genau einmal normalisiert und geplant; Duplikat, Refund, Widerruf, Opt-out, fehlender Kontakt und nicht erlaubte Kommunikation blockieren korrekt.
+- [ ] **CON-017 – Connector-SDK-Skelett veröffentlichungsfähig machen.** Ergebnis: Plugin-Header, Beispielklasse, Capability-Manifeste, Beispielkonfiguration, Job-Handler und lokale Entwicklungsfixtures lassen sich als Ausgangspunkt kopieren.
+- [ ] **CON-018 – Developer-Dokumentation veröffentlichen.** Ergebnis: Setup, Contract-Versionierung, Datenmapping, Rechte, Consent, Empfängerresolver, Jobs, Fehlerbehandlung, Tests, Datenschutz und Releasekompatibilität sind mit vollständigen Beispielen beschrieben.
+- [ ] **CON-019 – Connector-Release-Gate ergänzen.** Ergebnis: kein Connector gilt als Pro-1.0-fertig, bevor Registry, Contract-Tests, Demo-Connector, Health-/Pause-Verhalten, Datenschutzprüfung und erfolgreiche Dedupe-/Retry-Abnahme bestehen.
+
+**Connector-Meilenstein ist erreicht, wenn:** eine Drittanbieter-Erweiterung ohne Core-Patch installiert werden kann, über den öffentlichen Vertrag ein reales abgeschlossenes Erlebnis meldet und Review Captain Regeln, Deduplizierung, Berechtigungen, Queue und Diagnose vollständig kontrolliert.
 
 ## Workflow Captain Provider-Vertrag
 
