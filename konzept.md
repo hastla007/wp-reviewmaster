@@ -18,7 +18,7 @@ Review Captain bündelt authentische Kundenbewertungen aus mehreren Plattformen 
 Das Produkt besteht aus einem eigenständig nützlichen, kostenlosen Kern und einem separat lizenzierten Pro-Add-on:
 
 - **Review Captain (Free):** lokale Reviews und manuell kuratierte externe Bewertungen, einfache Bewertungsdarstellung, Quellenangaben, Block/Shortcode, Basisstatistiken, Datenschutz- und Moderationswerkzeuge.
-- **Review Captain Pro:** offizielle Plattform-Verbindungen und Synchronisierung, mehrere Quellen und Profile, automatische Review-Anfragen, erweiterte Widgets, Filter und Auswertungen, WooCommerce- und Captain-Suite-Automationen, Export sowie Prioritätsfunktionen.
+- **Review Captain Pro:** offizielle Plattform-Verbindungen und Synchronisierung, mehrere Quellen und Profile, automatische Review-Anfragen, erweiterte Widgets, Filter und Auswertungen, WooCommerce- und Captain-Suite-Automationen einschließlich optionaler Form-Captain-Formularbrücke, Export sowie Prioritätsfunktionen.
 
 Das wichtigste Produktversprechen ist **eine sauber attribuierte, schnelle, barrierearme Review-Erfahrung in WordPress**, die externe Bewertungen und lokale Kundenstimmen in einer konsistenten Oberfläche zusammenführt – ohne Scraping, irreführende Zusammenfassung oder künstliche Bewertungen.
 
@@ -167,7 +167,7 @@ Free muss als eigenständiges Plugin sinnvoll bleiben und darf keine Lizenzprüf
 - **Schwebendes Trust-Badge:** optionaler, seitenbezogener, mobil anpassbarer Rating-/Käuferschutz-Teaser mit Quellenlink, Schließen-/Minimieren-Steuerung und Regeln gegen Überlagerung anderer Sticky-Elemente.
 - CSV-Export mit Spreadsheet-Formel-Schutz, planbare Reports und erweiterte Moderationsregeln.
 - Multi-Profile-Sync, Import-Logs, Integrationsdiagnose und Support-Tools.
-- Captain-Suite-Adapter für Coupon Captain, Pass Captain und Affiliate Captain (Details Abschnitt 7).
+- Captain-Suite-Adapter für Voucher Captain, Pass Captain und Affiliate Captain sowie optionaler Form-Captain-Formularadapter (Details Abschnitt 7). Form Captain Core reicht aus; auf Review-Seite ist das Entitlement review.suite_integrations erforderlich.
 - White-Label ist kein Startversprechen. Zunächst soll in allen Plänen derselbe Pro-Funktionsumfang enthalten sein; Pläne unterscheiden sich nach der Lizenzregel der Suite anhand Live-Websites und Support.
 
 ### Bewusst nicht im MVP
@@ -200,9 +200,9 @@ Das Core-Plugin kennt das Pro-Add-on nicht und enthält keinen Lizenzclient. Pro
 - **Produktschlüssel:** `review-captain-pro`; Rechtepräfix `review.`. Beide müssen im Lizenzserver-Katalog ergänzt und mit `wp-license`/Captain Pro abgestimmt werden.
 - Lizenzclient und Updateprozess aus `wp-license` exportieren; Add-on-Kernel und Namespaces in Captain Pro gemäß Architektur verwenden.
 - Plugin-Version, Core-Mindestversion, Textdomain und Update-URI nach dem bestehenden Captain-Pro-Buildstandard.
-- Planschlüssel voraussichtlich `single` (1 Live-Website), `business` (5), `agency` (25); Support-Level `standard` bzw. `priority`. Diese Zahlen sind der Suite-Preis-/Lizenzstruktur entnommen und vor dem Katalogeintrag zu bestätigen.
+- Planschlüssel: solo (1 Live-Website), studio (5), agency (25); Support-Level standard bzw. priority. Dieselben Site-Limits und Plan-IDs wie Form Captain, Pass Captain Pro und Voucher Captain Pro verwenden. Produktpreise bleiben je Produkt separat.
 - **Alle Pro-Funktionen in jedem bezahlten Plan.** Die Pläne differieren primär nach Live-Website-Limit und Support, nicht nach künstlich abgeschnittenen Funktionen.
-- Preise aus dem bestehenden Shopkatalog ableiten und mit den übrigen Captain-Pro-Produkten abstimmen. Keine Preise in diesem Konzept festsetzen.
+- Preise aus dem bestehenden Shopkatalog ableiten und mit den übrigen Captain-Pro-Produkten abstimmen. Die Produktstruktur und Site-Limits sind vereinheitlicht; Review-Preise bleiben eine eigene kommerzielle Entscheidung.
 - Staging-/Development-Aktivierungen entsprechend WP License Captain nicht als zusätzliche Live-Website werten.
 - Keine Lizenzabfrage pro Frontend-Request; signierter Snapshot/Offline-Zeitraum, Aktivierung, Kündigung und Updates wie in den bestehenden Add-ons.
 - Noch offen: Katalogeintrag, Feature-Schlüssel, Add-on-Verzeichnis/Build-Registry, Updateserver-Host/öffentliche Schlüssel und Mindestversion des Core-Plugins.
@@ -241,6 +241,7 @@ Review Captain soll sich mit den anderen Plugins wie ein gemeinsamer Produktverb
 | **Voucher Captain** | Gutschein ausgestellt/zugestellt, Gutschein eingelöst, Leistungspass abgeschlossen, Gutschein storniert/erstattet | Einladung erst nach Nutzung/Erlebnis planen; Gutschein- und Leistungs-Reviews unterscheiden; Ausschlüsse bei Storno/Refund übernehmen | Reviews/Score können in Gutschein-Landingpages und Gutschein-Produktseiten eingebettet werden. Kein Gutscheinwert oder Code im Review-System. |
 | **Pass Captain** | Veranstaltung/Termin beendet, Ticket eingecheckt, Service-Slot abgeschlossen, Bestellung storniert/erstattet, Termin/Event abgesagt | Einladung nach tatsächlicher Teilnahme oder Serviceleistung planen; Veranstaltung/Termin als Review-Kontext setzen; Einladungen bei Absage/Nichtteilnahme unterdrücken | Event-/Termin-Seiten erhalten passende Review-Widgets; aggregierte Erfahrungswerte können im Eventbericht erscheinen. Ticketcode und Check-in-Beleg bleiben in Pass Captain. |
 | **Affiliate Captain** | Verkaufsquelle/Partner- oder Kampagnen-ID als optionale, nicht personenbezogene Zuordnung; keine vollständigen Provisionen oder Kundenprofile | Review-Volumen und Rating aggregiert nach Kampagne/Partner auswerten, sofern Mindeststichprobe erreicht ist; freigegebene Widget-ID für Partner-Landingpages | Affiliate-Berichte zeigen aggregierte Qualitätsindikatoren; Partner sehen nur erlaubte, aggregierte Werte und freigegebene öffentliche Review-Widgets. Niemals einzelne Kundenreviews oder Käufer-PII ins Partnerportal geben. |
+| **Form Captain** | Nur wenn ein Administrator eine konkrete Form-Captain-Aktion „Review zur Moderation anlegen“ aktiviert und Sterne-/Reviewtext-Felder zuordnet. Ein generisches Entry-created-Ereignis ist keine Review-Einladung und kein Verifizierungsbeleg. | Über Form Captain Core wird eine explizit gemappte Einsendung als lokaler, zunächst wartender Review angelegt; source_entry_id und Idempotency-Key verhindern Duplikate. Die Herkunft bleibt „Form Captain“ und Standardstatus ist nicht verifiziert. | Form Captain behält Formular und Einsendung; Review Captain besitzt den Review-Datensatz, Moderation und Veröffentlichung. Form Captain funktioniert ohne Review Captain; Review Captain behält sein natives Bewertungsformular ohne Form Captain. |
 | **WP License Captain / Captain Pro** | Produkt-/Lizenzstatus nur im Add-on-Lizenzclient | Pro-Funktionen freischalten, Update-/Support-Status zeigen | Lizenz, Aktivierung und Updateablauf folgen dem bestehenden Captain-Pro-Muster. Keine Review- oder Kundendaten an den Lizenzserver senden. |
 | **WordPress-Kern** | Nutzerkonto-ID nur wenn für Rechte, Moderation oder Anfrageabwicklung notwendig; Rollen, Sprache, Privacy Export/Eraser | Review-Capabilities, Block-/Shortcode-Ausgabe, Datenexport/-löschung | Einheitliche WordPress-Identität und übersetzte UI; öffentliche Reviews bleiben von internen Nutzerprofilen getrennt. |
 
@@ -275,6 +276,16 @@ Das verhindert eine Review-Anfrage beim bloßen Kauf eines Geschenks, bevor die 
 
 Ein Review-Widget wird einmal in Review Captain erstellt und kann an verschiedenen Suite-Orten eingesetzt werden: WooCommerce-Produkt, Gutscheinprodukt/-Landingpage, Pass-Event/-Termin und Affiliate-Landingpage. Widget-ID und freigegebene Filter bleiben maßgeblich; jede Seite erhält nur die Reviews, deren Produkttyp, Profil, Sprache und Quelle dafür freigegeben sind. Änderungen an einem Widget aktualisieren alle Einsätze kontrolliert, ohne Inhalte in die anderen Plugins zu duplizieren.
 
+#### E. Form-Captain-Einsendung → lokale Review zur Moderation
+
+1. Beide Plugins bleiben eigenständig verwendbar; Form Captain Core ist keine Abhängigkeit von Review Captain und Review Captain behält sein eigenes Review-Formular.
+2. Wenn Review Captain Pro mit Entitlement review.suite_integrations und Form Captain Core aktiv sind, registriert Review Captain Pro die Aktion „Review Captain: lokale Review zur Moderation anlegen“ im Form-Captain-Editor.
+3. Ein Administrator ordnet ein Zahlen-, Options- oder Auswahlfeld mit zulässigen Werten 1–5 als Rating, Reviewtext, optional Titel/Anzeigename und Review-Kontext explizit zu. Ein spezielles Review-Feld ist für die erste Brücke nicht nötig. Die Aktion ist pro Formular standardmäßig aus.
+4. Nach erfolgreicher Form-Captain-Validierung und Speicherung legt der Adapter genau einen lokalen Review mit Status ausstehend an. Keine automatische Veröffentlichung, kein Plattformimport und keine Review-Anfrage-E-Mail.
+5. Review Captain speichert Herkunft source_plugin=form-captain und source_entry_id; der Idempotency-Key ist form-captain:{site_id}:{entry_id}. Ein Reviewtext kann nur nach Moderation öffentlich werden.
+6. Bewertungen aus diesem Weg sind zunächst nicht verifiziert. Ein verborgenes Feld, Formularwert oder beliebige Entry-Metadaten dürfen Kauf- oder Teilnahmebestätigung nicht setzen.
+7. Löscht der Betreiber den Form-Captain-Eintrag, löscht Review Captain den noch wartenden verknüpften Review. Freigegebene Reviews folgen der Review-Captain-Privacyregel; Link, Löschstatus und Auswirkungen sind in beiden Admins sichtbar.
+
 ### 7.4 Gemeinsamer technischer Ereignisvertrag
 
 Die bestehenden Suite-Verträge sind der Ausgangspunkt:
@@ -289,6 +300,11 @@ Für neue Review-Ereignisse wird eine versionierte, dokumentierte Schnittstelle 
 - `wp_review_captain_request_v1` – Integrationsadapter übermittelt eine zulässige Anfrage oder bittet Review Captain, eine geplante Anfrage anzulegen.
 - `wp_review_captain_widget_context_v1` – ein Suite-Plugin liefert den Darstellungsort/Objektkontext für eine Widget-Auswahl.
 - `wp_review_captain_review_summary_v1` – Review Captain stellt eine aggregierte, berechtigte Kennzahl für einen Suite-Bericht bereit.
+- Form Captain Core stellt form_captain_register_action_v1($key, $definition, $callback) als versionskompatiblen Erweiterungspunkt bereit. Review Captain Pro registriert dort die Action und eine eigene Feld-/Form-Mapping-Oberfläche.
+- Review Captain veröffentlicht wp_review_captain_create_local_review_v1($payload) als interne PHP-API. Zulässige Nutzdaten: rating (Ganzzahl 1–5), review_text, optional title/display_name, review_type/profile_id, source_plugin, source_entry_id, idempotency_key und verified=false. Der Aufruf wird serverseitig validiert und gibt success/code/review_id zurück.
+- Das Form-Captain-Entry-Ereignis ist erst nach dem Commit verfügbar. Review Captain liest ausschließlich die erlaubten Feld-IDs; rohe IP, ungemappte Antworten und Zahlungs-/Bestelldaten werden nicht übernommen.
+- Die Formularaktion ist eine Pro-Funktion von Review Captain (review.suite_integrations); Form Captain Core/API bleibt ohne Lizenzprüfung und Form Captain Pro ist hierfür nicht nötig.
+- Die Integration ist für dieselbe WordPress-Installation konzipiert. Site-übergreifende Weitergabe benötigt später einen eigenen signierten Connector und ist kein Teil dieser Brücke.
 
 Das gemeinsame minimale Payload sollte enthalten:
 
@@ -337,12 +353,15 @@ E-Mail-Adresse/Kontakt wird bei Bedarf erst unmittelbar vor dem Versand aus dem 
 - Reviews werden niemals zum Auszahlungs-, Gutschein- oder Ticketstatus-Schlüssel; keine Leistung wird wegen einer negativen Rezension gesperrt.
 - Änderungen an öffentlichen Reviews erfolgen nur über eine offizielle Plattformfunktion mit passender Berechtigung.
 - Der Lizenzserver erhält nur notwendige Lizenz-/Installationsdaten des Pro-Add-ons, keine Profil-, Bestell-, Review- oder Anfrageinhalte.
+- Form Captain bleibt Eigentümer von Formularen und Einsendungen; Review Captain bleibt Eigentümer von Review-Datensätzen, Quellen, Moderation und Widgets. Die Form-Captain-Brücke ist eine optionale Review-Captain-Pro-Aktion, kein gemeinsamer Datenspeicher.
+- Ein Form-Captain-Eintrag erzeugt niemals automatisch eine Review-Einladung. Einladungen entstehen ausschließlich aus vertrauenswürdigen Erlebnisereignissen mit experience_id, Berechtigungsprüfung, Kontaktresolver und Opt-out-Prüfung.
 - Für Plugin-übergreifende Arbeitsabläufe bleiben WordPress-Verträge lokal; für getrennte Installationen braucht es ein späteres, explizites, signiertes Connector-Produkt mit eigener Sicherheits- und Datenschutzprüfung.
 
 ### 7.8 Ergänzte Umsetzungs-To-dos für den Suite-Verbund
 
 - [ ] Verträge aus Pass Captain, Voucher Captain und Affiliate Captain als Integrationsinventar mit Version, stabilen IDs, Refund-/Cancel-/Delete-Ereignissen und Teststatus dokumentieren.
 - [ ] Einheitliches Review-Experience-Ereignisschema inklusive `experience_id`, Source-ID, Abbruchereignis, Sprache und Versandberechtigung spezifizieren.
+- [ ] Gemeinsame Form-Captain-Brücke spezifizieren: Action-Registrierung, Feldmapping, API-Payload, Idempotency-Key, Status ausstehend/nicht verifiziert, Datenschutz-Löschung und Admin-Diagnose. Kein Einladungsversand aus generischen Formular-Einsendungen.
 - [ ] Für jeden Produzenten Resolver für minimale Empfängerreferenz/Kontakt und verbindliche Opt-out-Prüfung definieren; E-Mail nicht standardmäßig in Ereignissen transportieren.
 - [ ] Ereignissemantik für Ticketkäufer vs. Teilnehmer und Gutschein-Käufer vs. Empfänger ausdrücklich festlegen.
 - [ ] Idempotenz- und Dedupe-Regeln für WooCommerce plus Gutschein-/Ticket-Plugin festlegen, damit ein Kundenerlebnis genau eine Anfrage erzeugt.
@@ -694,6 +713,7 @@ Die bereitgestellten Beispiele ergänzen das Produkt um drei klar getrennte Eben
 - [Captain Pro – Architektur](https://github.com/hastla007/captain-pro/blob/main/docs/ARCHITECTURE.md)
 - [Captain Pro – Tarife und Umfang](https://github.com/hastla007/captain-pro/blob/main/docs/TARIFE.md)
 - [WP Pass Captain – Hooks und Verträge](https://github.com/hastla007/wp-passmaster/blob/main/docs/HOOKS.md)
+- [Form Captain – Produktkonzept und Formularvertrag](https://github.com/hastla007/wp-formmaster/blob/main/konzept.md)
 
 ### Markt- und Plattformquellen
 
