@@ -755,3 +755,87 @@ Die Integrationsmatrix beschreibt Zielverhalten; sie bedeutet nicht, dass jeder 
 - **WP License Captain / Captain Pro:** Add-on-Kernel und Lizenzclient sind vorhanden; Review Captain Pro und seine Katalog-/Entitlement-Konfiguration sind noch umzusetzen.
 
 Damit ist Review Captain der Eigentümer von Einladung, Versand, Moderation, Review-Datensatz und Anzeige. Quell-Plugins bleiben Eigentümer von Kauf, Ticket/Gutschein, Teilnehmer- oder Kundendaten. Adapter verwenden ausschließlich versionierte öffentliche Services, minimale IDs und deduplizierte Jobs.
+
+
+## 17. Abläufe und Screenshot-Mockups
+
+Die folgenden Diagramme zeigen den geplanten Datenfluss, die Einladungslogik und die Aufgabenteilung der Captain-Plugins. Die Screenshots sind **statische UI-Mockups mit Beispieldaten**, keine Screenshots einer bereits laufenden Software oder echter Kundenkonten.
+
+### 17.1 Gesamtfluss in der Captain Suite
+
+```mermaid
+flowchart TD
+    Commerce["WooCommerce · Voucher Captain · Pass Captain"]
+    Contract["Versionierte Suite-Verträge"]
+    Engine["Review Captain Pro"]
+    Platforms["Google · Trustpilot · Trusted Shops · App Store · Play Store"]
+    Widgets["Review- und Social-Proof-Widgets"]
+    Pages["Shop · Gutscheinseite · Eventseite · Landingpage"]
+    Form["Form Captain"]
+    Draft["Opt-in-Einsendung als Review-Entwurf"]
+    Affiliate["Affiliate Captain"]
+    Metrics["Aggregierte, read-only Kennzahlen"]
+
+    Commerce --> Contract --> Engine
+    Engine --> Platforms
+    Engine --> Widgets --> Pages
+    Form --> Draft --> Engine
+    Engine --> Metrics --> Affiliate
+```
+
+**Verantwortung im Ablauf:**
+
+| Plugin / Dienst | Ereignis oder Datenfluss | Aufgabe von Review Captain |
+|---|---|---|
+| **WooCommerce** | Erfüllte Bestellung, Refund, Produktposition | Nur nach konfiguriertem Abschlusszeitpunkt eine Anfrage planen; native WooCommerce-Reviews getrennt lassen. |
+| **Voucher Captain** | Tatsächliche Gutschein-Einlösung oder Leistung | Anfrage an den berechtigten tatsächlichen Nutzer richten; Kauf/Ausstellung allein ist kein Erlebnis. |
+| **Pass Captain** | Gültiger Check-in oder bestätigte Teilnahme; Absage/Refund/No-show | Teilnahme als Erlebnis deduplizieren; Käufer und Teilnehmer entsprechend der Regel trennen. |
+| **Form Captain** | Vom Betreiber aktivierte Formularaktion mit Opt-in | Einsendung als lokalen, moderationspflichtigen Review-Entwurf übernehmen; keine automatische Veröffentlichung. |
+| **Affiliate Captain** | Optionale Partner-/Kampagnenreferenz | Nur aggregierte Reports ausgeben; Provision oder Partnerstatus lösen keine Review-Anfrage aus. |
+| **WP License Captain / Captain Pro** | Signierter Lizenzstatus und Pro-Entitlements | Add-on-Funktionen freischalten; keine Review-, Kunden- oder Plattformdaten an den Lizenzserver senden. |
+| **Review-Plattformen** | Offizielle API, erlaubter Widget-Fallback oder Profil-Link | Reviews quellentreu synchronisieren und Quellenlink, Skala, Datenstand und Löschung beachten. |
+
+### 17.2 Ablauf einer Review-Anfrage
+
+```mermaid
+sequenceDiagram
+    participant S as Suite-Quelle
+    participant R as Review Captain
+    participant E as Empfänger
+    participant P as Bewertungsplattform
+    participant W as Website-Widget
+
+    S->>R: Erlebnis abgeschlossen + stabile Referenz
+    R->>R: Versandberechtigung, Ausschlüsse und Duplikate prüfen
+    R->>R: Eine Anfrage je Erlebnis und Empfänger einplanen
+    R->>E: Neutrale Anfrage über gewählten Versandweg
+    E->>P: Echte Bewertung freiwillig abgeben
+    P-->>R: Review über erlaubte API synchronisieren
+    R-->>W: Review mit sichtbarer Quelle ausgeben
+    Note over R,P: Refund, Absage oder Opt-out stoppt offene Anfragen
+```
+
+Die Review-Seite wird niemals nach Zufriedenheit oder Sternen gefiltert. Das Ziel wird vor der Kampagne festgelegt und für alle geeigneten Empfänger gleich angewendet. Form-Captain-Einsendungen laufen separat in die lokale Moderation und sind nicht automatisch eine öffentliche Plattformbewertung.
+
+### 17.3 Admin-Screenshots: Konzeptmockups
+
+Die Statusanzeigen und Kennzahlen in diesen Abbildungen sind illustrativ. Provider-Verbindungen, Echtbewertungen und Lizenzen sind noch nicht implementiert.
+
+#### Dashboard
+
+![Review Captain Dashboard mit Kennzahlen, Plattformwerten und Suite-Status](docs/mockups/review-captain-dashboard.svg)
+
+#### Plattformverbindungen
+
+![Quellenübersicht für die fünf Plattformen und Captain-Suite-Plugins](docs/mockups/review-captain-sources.svg)
+
+#### Review-Anfrage einrichten
+
+![Kampagnenansicht mit Pass-, Voucher-, WooCommerce- und Form-Captain-Auslösern](docs/mockups/review-captain-campaign.svg)
+
+### 17.4 Frontend-Screenshot: Social-Proof-Wall
+
+Das Frontend-Mockup zeigt getrennte Bewertungen je Plattform, eine als Summe gekennzeichnete Gesamtanzahl, Video-/Audio-/Text-Testimonials, verifizierbare Trustmarks und ein schwebendes Bewertungs-Badge. Plattformwerte bleiben einzeln; die Gesamtanzahl behauptet keine plattformübergreifende Deduplizierung.
+
+![Social-Proof-Wall mit Plattformwerten, Testimonials und Trust-Badge](docs/mockups/review-captain-proof-wall.svg)
+
