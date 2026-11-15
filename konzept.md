@@ -908,3 +908,48 @@ Das Frontend-Mockup zeigt getrennte Bewertungen je Plattform, eine als Summe gek
 
 ![Social-Proof-Wall mit Plattformwerten, Testimonials und Trust-Badge](docs/mockups/review-captain-proof-wall.svg)
 
+## 18. Yoast SEO-Kompatibilität und SEO-Konzept
+
+Review Captain soll mit Yoast SEO zusammenspielen, ohne SEO-Metadaten, Canonical-URLs oder Schema-Ausgabe zu duplizieren. Review Captain liefert Reviews und Widgets als sichtbaren Seiteninhalt. Yoast bleibt für SEO-Titel, Meta-Description, Robots-Direktiven, Canonical, Open Graph, XML-Sitemap und den Hauptteil des strukturierten Daten-Graphs verantwortlich.
+
+### Yoast-Integration
+
+- Yoast SEO ab Version 14.0 stellt eine öffentliche Schema-API bereit. Bei einer kompatiblen Yoast-Version kann Review Captain einen bedingten Schema-Graph-Piece hinzufügen und an Yoasts Graph anschließen.
+- Review Captain ergänzt nur passende Review-Datenknoten. Es erzeugt keine zweite Organization, LocalBusiness, WebSite, WebPage oder Product-Entität. Vorhandene Yoast-Knoten werden anhand stabiler IDs referenziert oder nur bei eindeutiger fachlicher Eignung erweitert.
+- Schema wird nur ausgegeben, wenn der passende Gutenberg-Block bzw. das Widget auf der Seite sichtbar ist. Frontend-Widgets werden serverseitig gerendert, damit Inhalt und Markup übereinstimmen.
+- Review Captain erzeugt keine eigenen Canonical-, Title-, Description-, Robots-, Open-Graph- oder Twitter-Metatags. Es verändert keine Yoast-Indexables oder internen Tabellen und schreibt Yoast-Einstellungen nicht stillschweigend um.
+- Bei fehlendem Yoast bleibt die Review-Ausgabe funktionsfähig. Ein Schema-Fallback ist nur zulässig, wenn kein anderes SEO-/Schema-Plugin die strukturierte Ausgabe verantwortet und die Inhalts- und Richtlinienregeln erfüllt.
+- Bei inkompatibler Yoast-Version erzeugt Review Captain keine parallele JSON-LD-Ausgabe. Die Reviews bleiben sichtbar; Diagnose erklärt die fehlende Kompatibilität.
+
+### Schema- und Google-Richtlinien
+
+- Externe Plattformbewertungen aus Google, Trustpilot, Trusted Shops, App Store und Play Store dürfen sichtbar aggregiert werden, werden aber nicht als Review-/AggregateRating-Markup ausgezeichnet. Google verlangt, dass Review-Markup keine Bewertungen von anderen Websites zusammenfasst.
+- Eigene lokale Reviews über das Unternehmen oder die Organisation werden nicht als AggregateRating einer eigenen Organization-/LocalBusiness-Entität ausgezeichnet. Yoasts bestehender Unternehmensgraph bleibt unangetastet.
+- Eigene, auf der Website abgegebene Produktreviews können nur dann für Markup in Betracht kommen, wenn sie sich auf das konkrete Produkt beziehen, sichtbar sind, echte Erfahrungen wiedergeben und die aktuelle Google-Richtlinie erfüllen. Vorhandene WooCommerce-/Yoast-Produktknoten werden nicht dupliziert.
+- Ratings, Anzahl, Skala und Reviewtexte im Markup müssen dem sichtbaren, moderierten Inhalt entsprechen. Gemischte Quellen, Produktlisten und plattformübergreifende Summen werden nicht ausgezeichnet.
+- Das Plugin verspricht keine Sterne-Rich-Results. Schema bleibt für unzulässige Datenquellen gesperrt, auch wenn ein Nutzer es aktivieren möchte.
+
+### Indexierung und Seitenstruktur
+
+- Reviews bleiben standardmäßig in Review-Captain-Daten und werden auf vorhandenen, redaktionell gepflegten Seiten via serverseitig gerendertem Block/Shortcode ausgegeben. Es entstehen keine dünnen Einzel-Review-Seiten oder unmoderierten Review-Archive.
+- SEO-Titel, Meta-Description, Indexierbarkeit, Canonical und Social-Metadaten der Seite bleiben in Yoast konfigurierbar.
+- Admin-, Connector-, Such-, Filter-, Sortier-, AJAX-, Vorschau-, Testansichten und Verwaltung werden nicht indexierbar.
+- Paginierung und Filterparameter erzeugen keine unkontrollierbare Menge indexierbarer URLs; Canonical bleibt auf der redaktionellen Seite und Parameter verursachen keine doppelten Meta- oder Schemaausgaben.
+- Interne Review-Datensätze und Archive werden standardmäßig nicht an Yoasts Sitemap übergeben. Ein eigenständiger öffentlicher Content-Typ wäre eine spätere bewusste Produktentscheidung.
+- Reviewinhalte, die für Besucher wichtig sind, werden serverseitig gerendert. Externe Embeds laden nur nach erforderlicher Zustimmung.
+
+### WP-Admin und Nutzerführung
+
+- Eine kompakte Statusansicht „Einstellungen → SEO & Yoast“ zeigt Yoast-Erkennung/Kompatibilität, weitere erkannte Schema-Ausgabe, aktive und blockierte Review-Markups sowie den Grund für Blockierungen.
+- Widget-Editoren erklären, dass externe Bewertungen zwar angezeigt, aber nicht für Review-Rich-Result-Markup verwendet werden.
+- Für eigenes Produktreview-Markup zeigt die UI Voraussetzungen und den Hinweis, dass Google keine Sterne garantiert.
+- Eine zusätzliche Yoast-Metabox ist nicht erforderlich, wenn Review Captain Inhalte auf einer bereits von Yoast verwalteten Seite ausgibt. Redakteure pflegen SEO-Titel, Beschreibung und Indexierungsstatus weiterhin in Yoast.
+- Erkennt der Setup-Assistent konkurrierende Schema-Ausgabe, zeigt er eine Diagnose, statt andere Plugins automatisch abzuschalten.
+
+### Technische Abnahmekriterien
+
+- Eine Seite mit Review Captain und Yoast enthält einen kohärenten Schema-Graph und nur eine Canonical-URL.
+- Externe Plattformreviews erhalten kein Review-/AggregateRating-Markup; die Quellen bleiben im sichtbaren Frontend gekennzeichnet.
+- Zulässige eigene Produktreviews werden höchstens einmal und am passenden Produktknoten verbunden.
+- noindex-, Filter-, Vorschau-, Admin- und Connectoransichten gelangen nicht unbeabsichtigt in Index oder Sitemap.
+- Review Captain bleibt bei deaktiviertem Yoast benutzbar und erzeugt keine doppelte strukturierte Ausgabe neben anderen erkannten SEO-/Schema-Plugins.
