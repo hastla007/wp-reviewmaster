@@ -216,6 +216,7 @@ Entitlements werden nur für Funktionen im Add-on definiert. Wenn der Planumfang
 - `review.advanced_widgets` – Pro-Widget-Layouts/Filter.
 - `review.analytics` – erweiterte Reports.
 - `review.suite_integrations` – Ereignisverbindungen zu Captain-Plugins.
+- `review.custom_connectors` – Pro-Manager und Runtime-Funktionen für kundenspezifische lokale Connectoren; der öffentliche Core-Vertrag bleibt frei.
 - `review.platform_replies` – Antwortfunktionen (erst nach MVP, wenn API und Rechte bestätigt).
 
 Keine Kernfunktion erhält einen Lizenzschlüssel. Nicht verwendete Entitlements nicht vorab als Feature-Versprechen verkaufen.
@@ -435,6 +436,73 @@ Die folgenden Entscheidungen gelten als Architektur-Defaults für die nächste K
 - Disconnect, Plugin-Deaktivierung, Pro-Ablauf und Datenlöschung haben getrennte, getestete Folgen; keiner dieser Zustände löscht unbemerkt Review-Daten.
 - Eine Wiederherstellung aus Backup sendet keine alten Einladungen doppelt und stellt keine abgelaufenen oder widerrufenen Tokens als gültig dar.
 
+
+### 7.10 Kundenspezifische Projekt-Connectoren
+
+Neben den fest eingebauten Suite-Adaptern soll Review Captain kundenspezifische WordPress-Projekte über ein dokumentiertes Connector-Framework anbinden können. Typische Quellen sind Buchungs-, CRM-, ERP-, Mitglieder-, Kurs- oder Branchenlösungen; mögliche Ziele sind kundeneigene Versand-, CRM- oder Reporting-Systeme. Ein Connector wird als separates WordPress-Plugin bzw. Add-on installiert und registriert sich über einen versionierten öffentlichen Vertrag. Der Review-Captain-Core wird dafür nicht verändert.
+
+#### Abgrenzung der Integrationsarten
+
+| Art | Einsatz | Technischer Weg |
+|---|---|---|
+| Suite-Adapter | WooCommerce und Captain-Suite-Plugins | Von Review Captain gepflegte, getestete Adapter; versionierte Ereignis- und Service-Verträge |
+| Lokaler Projekt-Connector | Individuelle Software auf derselben WordPress-Installation | PHP-Connectorvertrag und Registry; typisierte Payloads, Fähigkeiten und asynchrone Jobs |
+| Externe Verbindung | Eigenständige Systeme oder andere WordPress-Installationen | Signierte Webhooks bzw. dokumentierte, scoped REST-API; niemals lokale PHP-Hooks über das Netzwerk simulieren |
+
+Connectoren sind Adapter, keine alternativen Review-Systeme. Review Captain bleibt Eigentümer der Review-Anfragen, Reviews, Moderation, Quellenzuordnung und Widgets. Ein Connector darf keine fremden Tabellen direkt lesen oder Review-Regeln umgehen.
+
+#### Connector-Fähigkeiten
+
+Jeder Connector deklariert explizit eine oder mehrere Fähigkeiten. Der Admin zeigt nur Aktionen, die der installierte Connector tatsächlich unterstützt:
+
+1. **Experience Source:** meldet ein abgeschlossenes Erlebnis mit stabiler Experience-ID, Ereignistyp, Objekt-Referenz, Empfänger-Referenz und Versandberechtigung. Beispiele: abgeschlossener Kurs, wahrgenommener Termin, erfüllte Buchung oder abgeschlossener Auftrag.
+2. **Recipient Resolver:** löst eine site-lokale Empfängerreferenz erst unmittelbar vor einer erlaubten Aktion in minimale Kontaktdaten auf. Unbekannte oder widerrufene Berechtigung bedeutet Abbruch.
+3. **Review Import Source:** liefert lokale bzw. kundeneigene Reviews nach dem gemeinsamen Schema, inklusive Herkunft und stabiler Quell-ID. Plattform-Reviews bleiben an die jeweiligen Anbieterbedingungen gebunden.
+4. **Request Transport:** übergibt eine bereits von Review Captain geprüfte Anfrage an einen erlaubten Transportweg, z. B. ein kundeneigenes CRM. Der Connector kann Ziel, Einladungsberechtigung, Opt-out und Deduplizierung nicht ändern.
+5. **Context Provider:** liefert nur freigegebene Objektbezeichnungen und Links, etwa Kurs, Standort, Service oder Produkt, für Vorlagen und passende Widgets.
+
+Custom Connectoren starten keine Einladung allein durch beliebige Formular- oder Datenbankänderungen: Sie müssen ein ausdrücklich freigegebenes Abschlussereignis liefern. Review Captain wendet anschließend die gemeinsame Grenze „eine Einladung pro tatsächlichem Erlebnis und Empfänger“ sowie Kampagnenziel, Suppression, Consent/Berechtigung und Ausschlüsse an.
+
+#### Öffentlicher technischer Vertrag
+
+Der vorgeschlagene öffentliche Vertrag folgt dem Pass-Captain-Muster (versionierte Connector-Registry, getrennte Provider-Services, Job-Verarbeitung und Connector-Fehler-Hook), wird aber auf Reviews und Erlebnisse zugeschnitten:
+
+- wp_review_captain_connectors_v1 registriert Connector-Instanzen. Der Core validiert Schlüssel, Contract-Major-Version, eindeutige IDs und deklarierte Fähigkeiten.
+- ReviewCaptain\Contracts\ConnectorInterface stellt stabile Metadaten bereit: key(), label(), version(), contract_version() und capabilities(). Optionale Verträge wie ExperienceSourceInterface, RecipientResolverInterface, ReviewSourceInterface und RequestTransportInterface trennen Fähigkeiten, statt eine große Pflichtschnittstelle zu erzwingen.
+- wp_review_captain_process_job_v1 erlaubt dem Connector, eigene typisierte Hintergrundjob-Arten im Review-Captain-Jobrunner zu verarbeiten; Payloads sind versioniert, begrenzt und idempotent.
+- wp_review_captain_connector_error_v1 meldet Connector-Key, Ereignis-/Jobtyp und sanitisierten Fehlercode. Keine Secrets, Reviewtexte oder vollständigen Empfängerdaten in Logs.
+- wp_review_captain_experience_event_v1 bleibt der fachliche Ereigniseingang. Ein Connector meldet experience_completed, experience_cancelled oder experience_refunded mit Event-ID, Experience-ID, Quellobjekt, Empfängerreferenz, Zeit, Locale und nachweisbarer Versandberechtigung.
+- Öffentliche Verträge erhalten Contract-Tests, semantische Versionierung, Kompatibilitätsprüfung und Deprecation-Frist. Inkompatible Major-Versionen werden als incompatible_contract ausgewiesen und nicht ausgeführt.
+
+Konkrete PHP-Klassennamen und Signaturen werden in Vertragsaufgaben festgelegt. Die Hook-Namen oben sind Konzeptvorschläge und müssen vor Implementierung gegen vorhandene Namensräume geprüft werden.
+
+#### Verwaltung und Connector-Konfiguration
+
+**Review Captain → Integrationen → Kundenspezifische Connectoren** zeigt installierte Connectoren als WordPress-nahe Statuskarten: Name, Entwickler, Version, Contract-Kompatibilität, bereitgestellte Fähigkeiten, Aktiv/Inaktiv, letzter erfolgreicher Lauf, offene Jobs und letzter sanitizierter Fehler. Betreiber können den Connector testen, einzeln aktivieren/deaktivieren, eine dokumentierte Konfiguration bearbeiten, einen Testlauf mit Fixture-Payload starten, fehlgeschlagene Jobs wiederholen und eine Diagnose exportieren.
+
+Konfiguration kommt aus einem vom Connector deklarierten, typisierten Schema (Text, URL, Auswahl, Zahl, Secret), nicht aus frei ausführbarem PHP. Secrets sind maskiert, verschlüsselt gespeichert und nie Teil eines Testexports. Testmodus zeigt vor Ausführung die normalisierte Payload und die jeweils geprüften Versand-/Dedupe-Entscheidungen ohne unnötige personenbezogene Daten.
+
+#### Sicherheit und Betriebsgrenzen
+
+- Ein Connector ist ausführbarer PHP-Code eines installierten WordPress-Plugins; das Framework ist keine Sandbox. Nur vertrauenswürdige, geprüfte Erweiterungen installieren. Review Captain verspricht keine Isolation gegen bösartige Plugins.
+- Capability-Prüfung, Nonce, explizite Konfiguration und Entitlement gelten für jede Admin-Aktion; keine Connector-Aktion wird automatisch nach Installation aktiviert.
+- Connectoren erhalten nur die Daten, die ihre deklarierte Fähigkeit braucht. Kontaktauflösung erfolgt zur Ausführungszeit und nur nach Berechtigungsprüfung. Rohbestellungen, Zahlungsdaten, vollständige Form-Entries und Ticket-/Gutscheincodes werden nicht pauschal übergeben.
+- Verarbeitung erfolgt außerhalb des Frontend-Requests über Queue/Jobrunner, mit Locking, stabiler Idempotenz-ID, Retry, Dead-Letter-Status und nachvollziehbarem Disconnect-/Pause-Verhalten.
+- Für externe Ziele gelten scoped Signaturen, HTTPS, SSRF-Schutz, Replay-Schutz, Zeitstempel und Schlüsselrotation. Der Connector darf keine beliebigen URL-Abrufe oder unbeschränkten Webhooks aus Admin-Feldern konfigurieren.
+- Datenexport, Aufbewahrung, Erase, Backup/Restore und Deaktivierung müssen pro Fähigkeit definiert sein; bei Inkompatibilität wird pausiert statt stillschweigend unvollständig weiterzuarbeiten.
+
+#### Free-/Pro- und Lizenzgrenze
+
+Der stabile öffentliche Connectorvertrag und die Dokumentation gehören zum kostenlosen Core, damit Suite- und Drittanbieter-Add-ons kompatible Erweiterungen bauen können. Das Pro-Add-on liefert den generischen Connector-Manager (Konfiguration, Testlauf, Health-Status, Queue-Diagnose) sowie automatisierte Experience-/Import-/Transport-Aktionen. Diese Runtime-Funktionen werden durch review.custom_connectors lizenziert. Ein Connector kann eigene Oberflächen mitbringen; der Core-Vertrag selbst bleibt lizenzfrei. Der bestehende Suite-Vertrag review.suite_integrations bleibt für offizielle Captain-Adapter zuständig. Cross-site Webhooks/REST werden separat über die jeweils geplanten Integrationsentitlements geregelt.
+
+#### MVP-Abnahme für Connectoren
+
+1. Drittanbieter kann ohne Core-Änderung einen Connector als separates Plugin registrieren.
+2. Ein Referenz-Connector meldet ein abgeschlossenes Erlebnis aus einer beispielhaften Buchungs-/CRM-Quelle; genau eine zulässige Einladung wird geplant.
+3. Doppelte, verspätete, widerrufene und inkompatible Ereignisse erzeugen keine falsche oder doppelte Aktion.
+4. Review Captain zeigt Contract-Version, Fähigkeiten, Testresultat, Queue- und Fehlerstatus und ermöglicht Pause/Disconnect.
+5. Connector-Contract-Tests und ein Developer-Kit-Beispiel dokumentieren Installation, Mapping, Berechtigungen, Fehler, Jobs und Release-Kompatibilität.
+
 ## 8. Admin-Menü und Pages: Struktur und Inhalt
 
 Menü-Hauptpunkt **Review Captain** mit verständlichen Seiten. Die Pro-Lizenzseite wird vom Add-on unter diesem Menü ergänzt.
@@ -494,10 +562,11 @@ Menü-Hauptpunkt **Review Captain** mit verständlichen Seiten. Die Pro-Lizenzse
 
 ### 8.8 Integrationen (Pro)
 
-- WooCommerce-, Voucher-Captain-, Pass-Captain- und Affiliate-Captain-Karten.
-- Status, Anforderungen, benötigte Minimalversionen, Triggerkonfiguration, Datenfelder und Testlauf.
-- Konflikt-/Dedupe-Logs und Retry-Warteschlange; deaktivierbare Adapter und Hinweis, falls eine Partnerintegration fehlt.
-- Keine automatische Aktivierung eines anderen Captain-Plugins oder seiner Funktionen.
+- Getrennte Bereiche für offizielle Captain-Suite-Adapter, kundenspezifische lokale Connectoren und externe Webhook-/REST-Verbindungen.
+- Suite-Karten für WooCommerce, Voucher Captain, Pass Captain, Affiliate Captain und Form Captain; Status, Minimalversion, Contract-Version, Triggerkonfiguration, Datenfelder, Testlauf, Dedupe-Logs und Retry.
+- Unterbereich **Kundenspezifische Connectoren** mit installierten Erweiterungen, Entwickler-/Versionsangabe, Fähigkeiten, Contract-Kompatibilität, Konfiguration nach deklariertem Schema, Verbindungstest, Jobstatus, Pause/Disconnect und sanitisiertem Fehlerbericht.
+- Keine automatische Aktivierung eines anderen Captain-Plugins oder Connectoren. Externe Verbindungen erhalten getrennte Credentials, Scopes und Signaturstatus.
+- Core zeigt den öffentlichen Connectorvertrag auch ohne Lizenz; Pro-Manager, automatische Verarbeitung und Queue-Diagnose benötigen review.custom_connectors.
 
 ### 8.9 Einstellungen
 
