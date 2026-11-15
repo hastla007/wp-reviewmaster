@@ -55,6 +55,11 @@ Diese Aufgaben werden nach dem MVP-Scope-Freeze und vor dem Bau der Admin-Seiten
 - [ ] **UX-006 – Prototypen mit Nutzern prüfen.** Ergebnis: Testpersonen schließen „Quelle verbinden“ und „Bewertungsleiste veröffentlichen“ ohne Moderationshilfe ab; beobachtete Blocker sind behoben.
 - [ ] **UX-007 – Designsystem und Editor-Handoff festlegen.** Ergebnis: Typografie, Farben, Abstände, Sterne, Quellenbadges, Fokuszustände, reduced-motion und Block-Steuerungen sind dokumentiert.
 - [ ] **UX-008 – Usability-Kennzahlen definieren.** Ergebnis: Zeit bis zur ersten Verbindung, Zeit bis zum ersten Widget und Einrichtungsabbrüche sind ohne unnötige personenbezogene Telemetrie messbar oder bewusst nicht erfasst.
+- [ ] **UX-009 – Einstellungsinventar erstellen.** Ergebnis: jede geplante Option ist mit Nutzerfrage, globalem/Profil-/Kampagnen-/Widget-Geltungsbereich, Free/Pro-Recht, sicherem Standardwert, Capability und Speicherort erfasst; doppelte Optionen sind entfernt.
+- [ ] **UX-010 – Einstellungen-Informationsarchitektur abstimmen.** Ergebnis: Seitennavigation, Tabnamen, Reihenfolge, Gruppierungen und Abgrenzung zu Quellen, Kampagnen, Widgets, Integrationen und Diagnose sind als WP-Admin-Wireframe freigegeben.
+- [ ] **UX-011 – Einfach-/Erweitert-Modus definieren.** Ergebnis: häufige Einstellungen sind sofort sichtbar; seltene technische Optionen liegen in aufklappbaren Erweitert-Bereichen; erforderliche Felder werden abhängig von Quelle, Versandweg und Lizenzstatus eingeblendet.
+- [ ] **UX-012 – Erstkonfiguration und Leerzustände entwerfen.** Ergebnis: Admin wird von Basisdaten und Absender über Quelle/Test bis zu erster Kampagne geführt; Setup-Schritte sind wiederaufnehmbar und lassen sich ohne Datenverlust überspringen.
+- [ ] **UX-013 – Begriffe und Hilfetexte testen.** Ergebnis: Betreiber verstehen Geltungsbereich, Wirkung und Risiko jeder Option; verständliche Beispiele und Statushinweise ersetzen interne Begriffe wie TTL, Backoff oder Entitlement.
 
 ## M1 – Verträge, Datenmodell und Architektur
 
@@ -354,3 +359,72 @@ Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile E
 - [ ] RC-WF-05 – Review-Admin um Workflow-Verbindung, Contract-Version, aktive Übergabe, Eventannahme, Ablehnungsgrund und Retrystatus ergänzen; fehlendes/inkompatibles Workflow lässt Review Core normal laufen.
 - [ ] RC-WF-06 – Pass-Check-in und qualifizierte Voucher-Leistung dürfen Anfrage planen; Refund, Absage, No-show, Consent fehlt, Opt-out und Duplikat blockieren. Form-Entry darf nur explizit gemappten pending/unverified Entwurf übergeben.
 - Abnahme: Workflow kann Review-Regeln, Moderation und Einwilligung nicht umgehen; höchstens eine Einladung je Experience/Empfänger/Kampagne.
+
+
+## Plugin-Einstellungen: Prioritäten, Sortierung und Umsetzung
+
+Die Einstellungsseite soll globale Standardwerte und Richtlinien enthalten. Objekte werden an ihren jeweiligen Verwaltungsseiten gepflegt: API-Konten und Profile unter **Quellen**, einzelne Kampagnen unter **Anfragen**, Widgets unter **Widgets**, Connectorverbindungen unter **Integrationen**. Dadurch werden dieselben Felder nicht an mehreren Stellen konfiguriert.
+
+### Empfohlene WP-Admin-Struktur
+
+| Reihenfolge | Einstellungsgruppe | Darin enthalten | Gehört nicht hierher |
+|---|---|---|---|
+| 1 | **Allgemein** | Firmen-/Markenname für Vorlagen, Standardsprache, Zeitzone, Datumsformat, Standards für neue Reviews | individuelle Widgetgestaltung |
+| 2 | **Quellen & Synchronisierung** | globale Sync-Zeitfenster, Mengen-/Rückblickgrenzen, Fehlerpause, Cache-/Löschverhalten; jeweilige API-Schlüssel und Profile verbleiben bei Quellen | Quellprofile oder manuelle Reviewpflege |
+| 3 | **Anfragen & Zustellung** | globaler Absender, Testempfänger, Sendezeitfenster, globale Frequenzgrenzen, Erinnerungsstandard, Versandstatus/Bounce-Verhalten, siteweite Abmeldesperre | einzelne Kampagnen und Kampagnenvorlagen |
+| 4 | **Einreichungen & Moderation** | Standardstatus neuer lokaler Reviews, Spam-Schutz, erlaubte Uploadtypen/-größen, Melden und Moderationshinweise | Moderation einzelner Reviews |
+| 5 | **Darstellung** | globale Voreinstellungen für Sterne, Quellenlabel, Datum, Autor-/Avataranzeige, leere Zustände und Barrierefreiheit | einzelne Widgetdefinitionen |
+| 6 | **Datenschutz & Aufbewahrung** | Aufbewahrung getrennt nach Review-Snapshots, Einladungsdaten, Job-/Fehlerlogs und Medien; Export-/Löschverhalten; Datenschutzhinweis | Zugangsdaten oder Lizenzstatus |
+| 7 | **Zugriff & Rollen** | Rollen-/Capability-Zuordnung für Quellenverbindungen, Reviews, Kampagnen, Datenschutz und globale Einstellungen; Multisite-Scope | Nutzer- und Rollenverwaltung außerhalb des Plugins |
+| 8 | **Erweitert** | Jobrunner-/Cron-Hinweise, Zeitlimits, begrenzte Debugoption, Im-/Export der Konfiguration, Deinstallations-/Datenlöschwahl | reguläre tägliche Bedienoptionen |
+| – | **Diagnose (separate Seite, read-only)** | Contract-/Plugin-Kompatibilität, letzte Jobs, Quoten, Tokenablauf ohne Secret, API-Fehler, Cron-/Queue-Gesundheit | editierbare Fachoptionen |
+| – | **Setup-Assistent (geführter Ablauf)** | notwendige Basisangaben und erster Verbindungstest mit sicheren Standardwerten | vollständige technische Konfiguration |
+
+**Menüempfehlung:** Dashboard, Reviews, Anfragen, Widgets, Quellen, Integrationen, Einstellungen, Diagnose und Lizenz. Unter „Einstellungen“ eine konsistente Tab-Navigation; keine zusätzlichen überladenen WordPress-Untermenüs für seltene Optionen.
+
+### Einstellungen, die fachlich ergänzt bzw. präzisiert werden müssen
+
+- **Geltungsbereich:** Jede Option benennt, ob sie global, pro Plattformprofil, pro Kampagne, pro Review-Formular oder pro Widget gilt. Vererbung und Override-Reihenfolge werden sichtbar angezeigt.
+- **Sichere Anfrage-Defaults:** eine Einladung pro tatsächlichem Erlebnis und Empfänger, keine Einladung bei fehlender/unbekannter Versandberechtigung, keine Bewertungsauswahl als Routingkriterium, Erinnerungen standardmäßig aus, globale Frequenz-/Cooldown-Grenze und siteweite Opt-out-Sperre.
+- **Versandbetrieb:** Absenderprüfung/Testmail, Versandfenster in Website-Zeitzone, tägliche Obergrenze, Retry-/Bounce-/Beschwerdeverhalten und verständliche Warnung, wenn die Absenderdomain nicht eingerichtet ist.
+- **Quellenbetrieb:** letzte erfolgreiche Synchronisierung, manuelles Sync-Limit, Provider-Ratenlimit, Cache-/Refreshgrenze je Plattform, Verhalten bei gelöschten Reviews und Pause nach Authentifizierungs-/Quota-Fehlern.
+- **Datenschutz:** getrennte Fristen für externe Review-Caches, Empfänger-/Einladungsdaten, Protokolle und hochgeladene Medien; sichere Standardfrist statt unbegrenzter Speicherung; Export, Eraser, Disconnect und Datenlöschung nach Produktdeinstallation getrennt behandeln.
+- **Zugriff:** getrennte Capabilities für Quellen verbinden/trennen, Reviews moderieren, Kampagnen versenden, Daten exportieren/löschen und globale Einstellungen ändern; Multisite ausdrücklich festlegen.
+- **Sicherheit und Wiederherstellung:** Secret-Felder maskieren, bei Export/Import standardmäßig ausschließen; getrennte „Verbindung trennen“, „Einstellungen zurücksetzen“ und „alle Plugin-Daten löschen“-Aktionen mit Bestätigung.
+- **Darstellung und Barrierefreiheit:** Quellenattribution nicht abschaltbar für externe Reviews; leere-/Fehlerzustände, Tastaturbedienung, Kontrast, reduced motion und externe Medien/Consent als klare Defaults.
+- **Free/Pro-Klarheit:** gesperrte Pro-Optionen erklären die Funktion und Lizenzvoraussetzung, bleiben aber sichtbar und verändern Core-Daten oder Einstellungen beim Ablauf nicht.
+
+### Umsetzungs-Tasks
+
+#### Phase A – Informationsarchitektur und Einstellungsvertrag
+
+- [ ] **SET-001 – Einstellungsinventar aus Konzept und Plugin-Flows ableiten.** Ergebnis: jede existierende/geplante Option ist einer Admin-Seite und einem Geltungsbereich zugeordnet; Einladungsziel, Quelle, Kampagne oder Widget hat genau einen fachlichen Besitzer.
+- [ ] **SET-002 – Einstellungsbaum und Tab-Reihenfolge finalisieren.** Ergebnis: Allgemein, Quellen & Synchronisierung, Anfragen & Zustellung, Einreichungen & Moderation, Darstellung, Datenschutz & Aufbewahrung, Zugriff & Rollen und Erweitert sind wireframed; Diagnose bleibt read-only separat.
+- [ ] **SET-003 – Optionsschema und Migration definieren.** Ergebnis: Optionsschlüssel, Typ, Validierung, Default, Site-/Network-Scope, Datenschutzklassifikation, Entitlement, UI-Geltungsbereich und Versionsmigration sind dokumentiert.
+- [ ] **SET-004 – Inheritance und Overrides spezifizieren.** Ergebnis: globaler Standard → Profil/Kampagne/Formular/Widget ist eindeutig; ungültige Overrides fallen kontrolliert zurück und zeigen, welcher Wert wirksam ist.
+- [ ] **SET-005 – Safe Defaults und Reset-Semantik festlegen.** Ergebnis: fehlende Consent-/Kontaktberechtigung blockiert Versand, Erinnerungen sind aus, externe Skripte sind aus, neue Reviews warten auf Moderation; Reset löscht keine Reviewdaten und Datenlöschung verlangt einen getrennten, bestätigten Weg.
+- [ ] **SET-006 – Einstellungs- und Pro-Rechte-Matrix erstellen.** Ergebnis: pro Feld ist festgelegt, ob Core oder Pro es besitzt; kein Free-Feld wird nach Lizenzablauf verändert oder geleert.
+
+#### Phase B – WP-Admin UX und Umsetzung
+
+- [ ] **SET-007 – Einstellungsseite mit Tabs und Abschnittsnavigation bauen.** Ergebnis: konsistente WordPress-native Formulare, Beschreibungen, Save-Status, Feldvalidierung und mobile Adminansicht; keine Optionswand auf einer langen Seite.
+- [ ] **SET-008 – Setup-Assistent und Erststart-Checkliste bauen.** Ergebnis: Marke/Locale, Verbindung, Test, Anfragepolitik und erstes Widget können einzeln erledigt, später fortgesetzt oder übersprungen werden; keine externe Verbindung wird automatisch aktiviert.
+- [ ] **SET-009 – Progressive Disclosure und Kontextfelder implementieren.** Ergebnis: Provider-/Versandweg-spezifische Felder erscheinen erst bei Bedarf; Erweitert-Optionen sind eingeklappt, Pro-Sperren und Abhängigkeiten verständlich.
+- [ ] **SET-010 – Allgemeine Website-Defaults implementieren.** Ergebnis: Standardsprache, Zeitzone, Marken-/Absenderidentität und Standardanzeige sind zentral definiert und in Vorschauen erkennbar.
+- [ ] **SET-011 – Quellen- und Sync-Defaults umsetzen.** Ergebnis: globale Jobfenster/-limits, Quota- und Fehlerpause sind einstellbar; individuelle Credentials, Profile und Anbieterscopes bleiben ausschließlich auf der Quellen-Seite.
+- [ ] **SET-012 – Globale Anfrage- und Versandrichtlinien umsetzen.** Ergebnis: Absender/Testmail, Versandzeitfenster, globale Frequenzgrenze, Erinnerungsstandard, Suppression/Opt-out und Bounce-/Fehlerstatus sind vorhanden; Kampagnenwerte werden an der Kampagne gepflegt.
+- [ ] **SET-013 – Einreichungs- und Moderationsdefaults umsetzen.** Ergebnis: neue lokale Reviews sind standardmäßig moderiert; Spam- und Uploadschutz sowie Formular-Standardfelder lassen sich zentral konfigurieren.
+- [ ] **SET-014 – globale Darstellungsdefaults umsetzen.** Ergebnis: Sterne, Attribution, Datum, Avatar/Autor, leere Zustände und Barrierefreiheitspräferenzen bilden die Voreinstellung neuer Widgets; externe Quellenangabe kann nicht entfernt werden.
+- [ ] **SET-015 – Datenschutz- und Aufbewahrungsseite umsetzen.** Ergebnis: Fristen für Snapshots, Anfragen, Logs und Medien sind getrennt; Export, Eraser, Disconnect, Settings-Reset und vollständige Datenlöschung haben klare getrennte Folgen.
+- [ ] **SET-016 – Rollen- und Multisite-Einstellungen umsetzen.** Ergebnis: Verbindung, Moderation, Anfrageversand, Datenschutz und Einstellungen sind getrennt berechtigt; Netzwerk- vs. Site-Einstellungen und Datenisolation sind klar.
+- [ ] **SET-017 – Erweitert- und Diagnosebereiche implementieren.** Ergebnis: Cron-/Queuezustand, Jobbudget, begrenzte Debugfunktion und Konfigurationsbackup sind zugänglich; Diagnoseexport enthält keine Secrets oder unnötige PII.
+- [ ] **SET-018 – Einstellungsimport/-export absichern.** Ergebnis: Schema-Version, Preview, Validierung und Rollback sind vorhanden; Secrets und personenbezogene Daten werden nicht exportiert, Credentials müssen nach Import erneut verbunden werden.
+- [ ] **SET-019 – Änderungshistorie und Audit-Semantik festlegen.** Ergebnis: sicherheits- und versandrelevante Änderungen (z. B. Absender, Frequenz, Berechtigung, Aufbewahrung) sind mit Nutzer/Zeitpunkt nachvollziehbar, ohne Secrets oder Reviewtext zu protokollieren.
+
+#### Phase C – Validierung und Release
+
+- [ ] **SET-020 – Einstellungs-Usability testen.** Ergebnis: Betreiber finden Quellenverbindung, Kampagnenpolitik, Datenschutzfrist und Rollen ohne Support; überflüssige oder doppelte Felder werden entfernt.
+- [ ] **SET-021 – Rollen-/Nonce-/Multisite-Sicherheit abnehmen.** Ergebnis: unberechtigte Nutzer können keine Einstellungen lesen/ändern; Site-Konfiguration bleibt in Multisite korrekt isoliert.
+- [ ] **SET-022 – Defaults und Migration regressionsprüfen.** Ergebnis: Neuinstallation, Upgrade, fehlende Optionen, Import, Lizenzablauf und Wiederherstellung behalten dokumentierte Defaults und verändern keine Core-Daten unerwartet.
+- [ ] **SET-023 – Einstellungsdokumentation erstellen.** Ergebnis: jede Einstellung erklärt Zweck, Scope, Standard, Folgen, Datenschutzbezug und erforderliche Anbieter-/Lizenzvoraussetzungen.
+- [ ] **SET-024 – Einstellungs-Release-Gate ergänzen.** Ergebnis: keine 1.0-Einstellung bleibt ohne Default, Validierung, Rechteprüfung, Migration, Export-/Löschregel und verständlichen Hilfetext.
