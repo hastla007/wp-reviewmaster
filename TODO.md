@@ -76,6 +76,28 @@ Diese Aufgaben werden nach dem MVP-Scope-Freeze und vor dem Bau der Admin-Seiten
 
 **Meilenstein M1 ist erreicht, wenn:** Core und alle Adapter dieselben Datenverträge, Lifecycle-Regeln und Dedupe-Schlüssel verwenden.
 
+## M1.5 – Technische Betriebs- und Sicherheitsgrundlagen
+
+Diese Infrastrukturentscheidungen müssen vor den davon abhängigen Core-/Pro-Implementierungen abgenommen werden. Allgemeine Aussagen wie „Retry“ oder „verschlüsseln“ reichen für den Produktionsbetrieb nicht aus.
+
+- [ ] **TEC-001 – Job-Runner-Vertrag festlegen.** Ergebnis: definiert ist, wann Action Scheduler genutzt wird, wie der Core ohne WooCommerce Jobs ausführt und wie WP-Cron, echter System-Cron und WP-CLI zusammenspielen.
+- [ ] **TEC-002 – Produktions-Cron und Verzögerung dokumentieren.** Ergebnis: zeitkritische Syncs/Review-Einladungen funktionieren mit empfohlenem System-Cron; Admin zeigt fällige/überfällige Jobs und keine angeblich präzisen Zeiten bei unzuverlässigem WP-Cron.
+- [ ] **TEC-003 – Job-Claiming und Lease implementieren.** Ergebnis: ein Job hat atomaren Besitzer, Ablaufzeit und Recovery nach Prozessabbruch; zwei Worker können denselben Job nicht gleichzeitig ausführen.
+- [ ] **TEC-004 – Idempotenz in der Datenbank erzwingen.** Ergebnis: Unique Constraints für externe Review-IDs, Experience-/Recipient-/Campaign-Schlüssel und Provider-Event-IDs verhindern Duplikate auch bei parallelen Hooks und Retry.
+- [ ] **TEC-005 – Race-Conditions spezifizieren und abnehmen.** Ergebnis: Tests decken gleichzeitig eintreffende Einlösung/Check-in, Refund vs. Einladungsversand, Tokenrefresh und zwei Sync-Läufe derselben Quelle ab.
+- [ ] **TEC-006 – Retry- und Dead-letter-Politik pro Fehlerklasse festlegen.** Ergebnis: temporär, permanent, Rate-Limit, Authentifizierungsfehler und Datenfehler haben getrennte Retry-/Pause-/Adminaktionsregeln; Retry-After wird beachtet.
+- [ ] **TEC-007 – API-Budgets und Parallelitätslimits implementieren.** Ergebnis: pro Quelle/Profile sind Seitenlimit, tägliches/zeitliches Budget, Backoff und Admin-Warnschwelle einstellbar; ein Sync kann Website oder Anbieterquote nicht ungebremst belasten.
+- [ ] **TEC-008 – Tokenverschlüsselung und Schlüsselrotation festlegen.** Ergebnis: Schlüsselquelle, Algorithmus/Nonce-Handling, Rotation, Backup/Wiederherstellung und Verhalten bei fehlendem/ungültigem Schlüssel sind dokumentiert und implementiert; Tokens erscheinen nie in Logs/Exporten.
+- [ ] **TEC-009 – Multisite- und Site-Isolation absichern.** Ergebnis: Tabellen, Optionen, OAuth-Verbindungen, Warteschlangen, Lizenzstatus und Datenexport sind je Site korrekt isoliert; Netzwerkdeaktivierung/Wiederaktivierung ist definiert.
+- [ ] **TEC-010 – REST-/OAuth-Grenzen härten.** Ergebnis: jede Route hat eine explizite permission_callback; Callback prüft State/Nonce, Redirect-URI und Berechtigung; Wiederholung/Replay und unautorisierte Profilwahl werden abgewehrt.
+- [ ] **TEC-011 – Cross-site-Schnittstellen explizit begrenzen.** Ergebnis: lokale Suite-Adapter verwenden PHP-Verträge; falls später REST/Webhooks nötig werden, sind Signatur, Timestamp, Replay-Schutz, Scope und Schlüsselrotation Voraussetzung.
+- [ ] **TEC-012 – Cache- und CDN-Verhalten spezifizieren.** Ergebnis: Provider-TTL, Pflichtrefresh, Tombstone/Löschung, Seiten-/Objektcache und CDN-Invalidierung sind pro Quelle abgestimmt; personenbezogene Anfrage-/Lizenzdaten werden nie öffentlich gecacht.
+- [ ] **TEC-013 – Frontend-Embed-Sicherheitsmodell umsetzen.** Ergebnis: feste Host-Allowlist, SSRF-Schutz, consent-basiertes Laden externer Player/Embeds und sichere Linkattribute verhindern beliebige serverseitige Abrufe und ungefragte Drittanbieterrequests.
+- [ ] **TEC-014 – Skalierungsgrenzen und Listenqueries messen.** Ergebnis: Testdaten mit mindestens 100.000 Reviews und 10.000 wartenden/abgeschlossenen Jobs zeigen indizierte Adminsuche, paginierte Exporte und begrenzte Joblaufzeit.
+- [ ] **TEC-015 – Upgrade-/Restore-Reconciliation härten.** Ergebnis: nach Schemaupgrade oder Backup-Restore werden Cursor, externe IDs, Jobleases und widerrufene Tokens geprüft; Wiederherstellung erzeugt keine doppelten Einladungen oder alten API-Schreibaktionen.
+
+**Meilenstein M1.5 ist erreicht, wenn:** Hintergrundjobs unter Parallelität sicher und wiederholbar laufen, Zugangsdaten kontrolliert wiederherstellbar sind und die Site bei Providerfehlern oder Cache-/Cronproblemen einen nachvollziehbaren Zustand zeigt.
+
 ## M2 – Kostenlosen Core bauen
 
 ### Plugin-Grundlage
@@ -266,13 +288,13 @@ Diese Aufgaben liegen nach dem Release Candidate und vor bzw. unmittelbar nach �
 
 ### Core v1.0
 
-- M0, M0.5, M1 und M2 abgeschlossen.
+- M0, M0.5, M1, M1.5 und M2 abgeschlossen.
 - Core funktioniert ohne Pro, WooCommerce und externe Konten.
 - Datenschutzexport/-löschung, Moderation, sichere Frontend-Ausgabe und Release-ZIP bestehen die freigegebenen Prüfungen.
 
 ### Pro v1.0
 
-- M3 abgeschlossen.
+- M1.5 und M3 abgeschlossen.
 - Mindestens die im Scope-Freeze für 1.0 zugesagten Provider haben echte Testverbindungen und dokumentierten Fallback.
 - Einladungsqueue, Einladungsgrenze, Opt-out, Authentifizierung, Sync-Diagnose und Medien-/Widget-Funktionen im vereinbarten 1.0-Scope sind abgeschlossen.
 - Lizenzablauf entzieht nur Add-on-Funktionen und löscht keine Reviews.
