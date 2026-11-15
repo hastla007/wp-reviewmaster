@@ -1,57 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 820" role="img" aria-label="Review Captain Admin Dashboard Mockup">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 820" role="img" aria-label="WordPress Admin Mockup: Review Captain Dashboard">
 <defs><style>
-*{font-family:Inter,Arial,sans-serif}.bg{fill:#f3f6fa}.nav{fill:#102f50}.card{fill:#fff;stroke:#e2e9f0;stroke-width:1}.muted{fill:#73849a}.ink{fill:#20364e}.blue{fill:#1685cf}.green{fill:#16835d}.line{stroke:#e8edf3;stroke-width:1}.tiny{font-size:11px}.small{font-size:13px}.body{font-size:14px}.h2{font-size:21px;font-weight:700}.h3{font-size:15px;font-weight:700}.white{fill:#fff}.tag{fill:#e9f7f0}.tagBlue{fill:#eaf4fb}
+*{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.canvas{fill:#f0f0f1}.adminbar{fill:#1d2327}.sidebar{fill:#1d2327}.sideText{fill:#f0f0f1;font-size:13px}.sideMuted{fill:#a7aaad;font-size:12px}.main{fill:#1d2327}.muted{fill:#646970}.ink{fill:#1d2327}.blue{fill:#2271b1}.green{fill:#008a20}.white{fill:#fff}.panel{fill:#fff;stroke:#c3c4c7;stroke-width:1}.line{stroke:#dcdcde;stroke-width:1}.h1{font-size:23px;font-weight:400}.h2{font-size:16px;font-weight:600}.small{font-size:13px}.tiny{font-size:11px}.button{fill:#f6f7f7;stroke:#2271b1;stroke-width:1}.primary{fill:#2271b1}.tag{fill:#edfaef;stroke:#b8e6bf}.warning{fill:#fcf9e8;stroke:#dba617}
 </style></defs>
-<rect class="bg" width="1280" height="820"/>
-<rect class="nav" width="230" height="820"/>
-<text x="28" y="42" class="white" font-size="20" font-weight="700">★ Review Captain</text>
-<text x="28" y="80" class="white tiny" opacity=".65">CAPTAIN SUITE</text>
-<rect x="15" y="105" width="200" height="40" rx="8" fill="#1d4a70"/><text x="48" y="131" class="white body" font-weight="700">◧  Übersicht</text>
-<text x="31" y="182" class="white body" opacity=".82">☆  Reviews</text>
-<text x="31" y="226" class="white body" opacity=".82">◎  Quellen &amp; Profile</text>
-<text x="31" y="270" class="white body" opacity=".82">↗  Anfragen</text>
-<text x="31" y="314" class="white body" opacity=".82">▣  Widgets</text>
-<text x="31" y="358" class="white body" opacity=".82">✦  Testimonials</text>
-<text x="31" y="402" class="white body" opacity=".82">⌘  Suite-Integrationen</text>
-<text x="31" y="446" class="white body" opacity=".82">⚙  Einstellungen</text>
-<line x1="24" y1="476" x2="205" y2="476" stroke="#50708d"/>
-<text x="31" y="512" class="white tiny" opacity=".7">PRO-LIZENZ</text>
-<text x="31" y="540" class="white small">Studio · 4 von 5 Sites</text>
-<rect x="248" y="0" width="1032" height="72" fill="#fff"/>
-<text x="275" y="31" class="muted small">Review Captain  /  Übersicht</text>
-<text x="275" y="56" class="ink h2">Dein Review-Cockpit</text>
-<rect x="1120" y="20" width="125" height="34" rx="8" fill="#1685cf"/><text x="1142" y="42" class="white small" font-weight="700">+ Quelle verbinden</text>
-<text x="275" y="111" class="muted small">Plattformwerte bleiben getrennt. Alle Kennzahlen unten sind illustrative Beispieldaten.</text>
-<g>
-<rect x="270" y="132" width="225" height="105" rx="12" class="card"/><text x="291" y="164" class="muted small">Sichtbare Reviews</text><text x="291" y="204" class="ink" font-size="28" font-weight="700">2.418</text><text x="413" y="204" class="green small">+8,4%</text>
-<rect x="512" y="132" width="225" height="105" rx="12" class="card"/><text x="533" y="164" class="muted small">Aktive Quellen</text><text x="533" y="204" class="ink" font-size="28" font-weight="700">4 / 5</text><text x="652" y="204" class="muted tiny">Demo</text>
-<rect x="754" y="132" width="225" height="105" rx="12" class="card"/><text x="775" y="164" class="muted small">Letzter erfolgreicher Sync</text><text x="775" y="204" class="ink h3">Heute, 09:42</text>
-<rect x="996" y="132" width="250" height="105" rx="12" class="card"/><text x="1017" y="164" class="muted small">Offene Integrationsfehler</text><text x="1017" y="204" class="ink" font-size="28" font-weight="700">1</text><text x="1051" y="204" class="blue small">Details ansehen →</text>
-</g>
-<rect x="270" y="258" width="620" height="245" rx="12" class="card"/>
-<text x="293" y="291" class="ink h3">Bewertungen nach Quelle</text><text x="716" y="291" class="blue small">Alle Profile →</text>
-<line x1="292" y1="310" x2="868" y2="310" class="line"/>
-<circle cx="307" cy="345" r="9" fill="#4285f4"/><text x="328" y="350" class="ink body">Google</text><text x="650" y="350" class="ink h3">5,0 / 5</text><text x="770" y="350" class="muted small">1.216 Reviews</text>
-<line x1="292" y1="369" x2="868" y2="369" class="line"/>
-<circle cx="307" cy="394" r="9" fill="#00a67d"/><text x="328" y="399" class="ink body">Trustpilot</text><text x="650" y="399" class="ink h3">4,9 / 5</text><text x="770" y="399" class="muted small">824 Reviews</text>
-<line x1="292" y1="418" x2="868" y2="418" class="line"/>
-<circle cx="307" cy="443" r="9" fill="#e3a200"/><text x="328" y="448" class="ink body">Trusted Shops</text><text x="650" y="448" class="ink h3">4,95 / 5</text><text x="770" y="448" class="muted small">306 Reviews</text>
-<line x1="292" y1="467" x2="868" y2="467" class="line"/>
-<text x="300" y="490" class="muted tiny">App Store und Google Play: in diesem Mockup noch nicht verbunden.</text>
-<rect x="910" y="258" width="336" height="245" rx="12" class="card"/>
-<text x="932" y="291" class="ink h3">Captain Suite</text><text x="932" y="314" class="muted tiny">Verbindungen dieser Website</text>
-<text x="932" y="351" class="ink small">WooCommerce</text><rect x="1140" y="334" width="78" height="24" rx="12" class="tag"/><text x="1154" y="351" class="green tiny">Aktiv</text>
-<text x="932" y="387" class="ink small">Voucher Captain</text><rect x="1140" y="370" width="78" height="24" rx="12" class="tag"/><text x="1154" y="387" class="green tiny">Aktiv</text>
-<text x="932" y="423" class="ink small">Pass Captain</text><rect x="1140" y="406" width="78" height="24" rx="12" class="tag"/><text x="1154" y="423" class="green tiny">Aktiv</text>
-<text x="932" y="459" class="ink small">Form Captain</text><rect x="1140" y="442" width="78" height="24" rx="12" class="tag"/><text x="1154" y="459" class="green tiny">Aktiv</text>
-<text x="932" y="488" class="muted tiny">Affiliate-Berichte: aggregiert, read-only</text>
-<rect x="270" y="524" width="976" height="250" rx="12" class="card"/>
-<text x="293" y="559" class="ink h3">Zuletzt eingegangen</text><text x="1090" y="559" class="blue small">Zur Inbox →</text>
-<line x1="292" y1="578" x2="1224" y2="578" class="line"/>
-<text x="297" y="612" class="ink small">★★★★★</text><text x="372" y="612" class="ink small" font-weight="700">„Sehr klare Kommunikation und schneller Support.“</text><text x="846" y="612" class="muted small">Google · Demo-Kunde</text><rect x="1104" y="593" width="102" height="24" rx="12" class="tagBlue"/><text x="1120" y="610" class="blue tiny">Freigegeben</text>
-<line x1="292" y1="630" x2="1224" y2="630" class="line"/>
-<text x="297" y="665" class="ink small">★★★★★</text><text x="372" y="665" class="ink small" font-weight="700">„Die Veranstaltung war hervorragend organisiert.“</text><text x="846" y="665" class="muted small">Pass Captain · Demo</text><rect x="1104" y="646" width="102" height="24" rx="12" fill="#fff4e5"/><text x="1120" y="663" fill="#a56a00" class="tiny">Prüfung</text>
-<line x1="292" y1="683" x2="1224" y2="683" class="line"/>
-<text x="297" y="718" class="ink small">★★★★★</text><text x="372" y="718" class="ink small" font-weight="700">„Das Produkt kam pünktlich und wie beschrieben.“</text><text x="846" y="718" class="muted small">WooCommerce · Demo</text><rect x="1104" y="699" width="102" height="24" rx="12" class="tagBlue"/><text x="1120" y="716" class="blue tiny">Freigegeben</text>
-<text x="270" y="803" class="muted tiny">UI-Mockup · illustrative Daten · keine Live-Verbindung</text>
+<rect class="canvas" width="1280" height="820"/><rect class="adminbar" width="1280" height="32"/>
+<text x="14" y="21" class="white" font-size="18" font-weight="700">W</text><text x="43" y="21" class="white small">Meine Website</text><text x="170" y="21" fill="#c3c4c7" class="small">↻ 3</text><text x="220" y="21" fill="#c3c4c7" class="small">◉ 0</text><text x="283" y="21" class="white small">+ Neu</text><text x="1091" y="21" fill="#c3c4c7" class="small">Willkommen, Admin</text><circle cx="1247" cy="16" r="10" fill="#8c8f94"/>
+<rect class="sidebar" x="0" y="32" width="160" height="788"/>
+<text x="15" y="62" class="sideText">▣  Dashboard</text><text x="15" y="91" class="sideText">▤  Beiträge</text><text x="15" y="120" class="sideText">▧  Medien</text><text x="15" y="149" class="sideText">▣  Seiten</text><text x="15" y="178" class="sideText">◉  Kommentare</text><text x="15" y="207" class="sideText">▣  WooCommerce</text><text x="15" y="236" class="sideText">▤  Produkte</text><text x="15" y="265" class="sideMuted">Voucher Captain</text><text x="15" y="294" class="sideMuted">Pass Captain</text><text x="15" y="323" class="sideMuted">Affiliate Captain</text><text x="15" y="352" class="sideMuted">Form Captain</text>
+<rect x="0" y="367" width="160" height="32" fill="#2271b1"/><path d="M160 376 L169 383 L160 390Z" fill="#f0f0f1"/><text x="15" y="388" class="white sideText" font-weight="600">★ Review Captain</text>
+<text x="28" y="423" class="white" font-size="12">Übersicht</text><text x="28" y="449" class="sideMuted">Reviews</text><text x="28" y="475" class="sideMuted">Quellen &amp; Profile</text><text x="28" y="501" class="sideMuted">Anfragen</text><text x="28" y="527" class="sideMuted">Widgets</text><text x="28" y="553" class="sideMuted">Testimonials</text><text x="28" y="579" class="sideMuted">Einstellungen</text><text x="15" y="626" class="sideMuted">Einstellungen</text><text x="15" y="655" class="sideMuted">Plugins</text>
+<text x="185" y="77" class="main h1">Review Captain</text><rect x="1101" y="52" width="150" height="31" rx="3" class="button"/><text x="1121" y="72" class="blue small">+ Quelle verbinden</text>
+<rect x="185" y="98" width="1065" height="39" fill="#fff" stroke="#c3c4c7"/><rect x="185" y="98" width="4" height="39" fill="#00a32a"/><text x="202" y="122" class="ink small">Review Captain ist eingerichtet. Plattformwerte bleiben getrennt nach Quelle.</text>
+<text x="185" y="166" class="muted small">Übersicht / Kennzahlen · Mockup-Daten, keine Live-Verbindung</text>
+<rect x="185" y="181" width="235" height="94" rx="2" class="panel"/><text x="203" y="208" class="muted small">Sichtbare Reviews</text><text x="203" y="248" class="ink" font-size="27" font-weight="600">2.418</text><text x="286" y="248" class="green small">+8,4%</text>
+<rect x="433" y="181" width="235" height="94" rx="2" class="panel"/><text x="451" y="208" class="muted small">Aktive Quellen</text><text x="451" y="248" class="ink" font-size="27" font-weight="600">4 / 5</text><text x="521" y="248" class="muted tiny">Beispiel</text>
+<rect x="681" y="181" width="275" height="94" rx="2" class="panel"/><text x="699" y="208" class="muted small">Letzter erfolgreicher Sync</text><text x="699" y="248" class="ink h2">Heute, 09:42</text>
+<rect x="969" y="181" width="281" height="94" rx="2" class="panel"/><text x="987" y="208" class="muted small">Offene Integrationsfehler</text><text x="987" y="248" class="ink" font-size="27" font-weight="600">1</text><text x="1030" y="248" class="blue small">Fehler ansehen</text>
+<rect x="185" y="293" width="630" height="230" class="panel"/><rect x="185" y="293" width="630" height="39" fill="#fff"/><text x="201" y="318" class="ink h2">Bewertungen nach Quelle</text><text x="728" y="318" class="blue small">Alle Profile</text><line x1="185" y1="332" x2="815" y2="332" class="line"/>
+<text x="203" y="365" class="ink small">Google</text><text x="560" y="365" class="ink small" font-weight="600">5,0 / 5</text><text x="681" y="365" class="muted small">1.216 Reviews</text><line x1="201" y1="378" x2="799" y2="378" class="line"/>
+<text x="203" y="405" class="ink small">Trustpilot</text><text x="560" y="405" class="ink small" font-weight="600">4,9 / 5</text><text x="681" y="405" class="muted small">824 Reviews</text><line x1="201" y1="418" x2="799" y2="418" class="line"/>
+<text x="203" y="445" class="ink small">Trusted Shops</text><text x="560" y="445" class="ink small" font-weight="600">4,95 / 5</text><text x="681" y="445" class="muted small">306 Reviews</text><line x1="201" y1="458" x2="799" y2="458" class="line"/>
+<text x="203" y="487" class="muted tiny">App Store und Google Play: in diesem Mockup nicht verbunden.</text>
+<rect x="833" y="293" width="417" height="230" class="panel"/><text x="850" y="318" class="ink h2">Captain-Suite-Status</text><line x1="833" y1="332" x2="1250" y2="332" class="line"/>
+<text x="852" y="362" class="ink small">WooCommerce</text><rect x="1142" y="344" width="84" height="22" rx="11" class="tag"/><text x="1159" y="359" class="green tiny">Verbunden</text>
+<text x="852" y="391" class="ink small">Voucher Captain</text><rect x="1142" y="373" width="84" height="22" rx="11" class="tag"/><text x="1159" y="388" class="green tiny">Verbunden</text>
+<text x="852" y="420" class="ink small">Pass Captain</text><rect x="1142" y="402" width="84" height="22" rx="11" class="tag"/><text x="1159" y="417" class="green tiny">Verbunden</text>
+<text x="852" y="449" class="ink small">Form Captain</text><rect x="1142" y="431" width="84" height="22" rx="11" class="tag"/><text x="1159" y="446" class="green tiny">Verbunden</text>
+<text x="852" y="486" class="muted tiny">Affiliate Captain: aggregierte Berichte, read-only</text>
+<rect x="185" y="541" width="1065" height="223" class="panel"/><text x="201" y="569" class="ink h2">Zuletzt eingegangen</text><text x="1161" y="569" class="blue small">Zur Review-Inbox</text><line x1="185" y1="581" x2="1250" y2="581" class="line"/>
+<text x="202" y="614" class="ink small">★★★★★</text><text x="271" y="614" class="ink small" font-weight="600">„Sehr klare Kommunikation und schneller Support.“</text><text x="778" y="614" class="muted small">Google · Demo-Kunde</text><text x="1100" y="614" class="green tiny">Freigegeben</text><line x1="201" y1="629" x2="1233" y2="629" class="line"/>
+<text x="202" y="660" class="ink small">★★★★★</text><text x="271" y="660" class="ink small" font-weight="600">„Die Veranstaltung war hervorragend organisiert.“</text><text x="778" y="660" class="muted small">Pass Captain · Demo</text><text x="1100" y="660" fill="#996800" class="tiny">Prüfung nötig</text><line x1="201" y1="675" x2="1233" y2="675" class="line"/>
+<text x="202" y="706" class="ink small">★★★★★</text><text x="271" y="706" class="ink small" font-weight="600">„Das Produkt kam pünktlich und wie beschrieben.“</text><text x="778" y="706" class="muted small">WooCommerce · Demo</text><text x="1100" y="706" class="green tiny">Freigegeben</text>
+<text x="185" y="793" class="muted tiny">WordPress-Admin-Mockup · illustrative Beispieldaten</text>
 </svg>
