@@ -176,38 +176,137 @@ Entitlements werden nur für Funktionen im Add-on definiert. Wenn der Planumfang
 
 Keine Kernfunktion erhält einen Lizenzschlüssel. Nicht verwendete Entitlements nicht vorab als Feature-Versprechen verkaufen.
 
-## 7. Captain-Suite-Integration
+## 7. Captain-Suite-Integration: die Suite als zusammenhängendes System
 
-Integration ist optional: Review Captain funktioniert ohne weitere Captain-Plugins. Keine direkte Abhängigkeit zwischen den Repositories und kein Zugriff auf fremde Plugin-Tabellen. Wo möglich, werden versionierte öffentliche Hooks oder dokumentierte Adapter-Verträge verwendet.
+Review Captain soll sich mit den anderen Plugins wie ein gemeinsamer Produktverbund verhalten. Das bedeutet: Ein Vorgang soll im richtigen Plugin ausgelöst, im passenden Kontext verarbeitet und im Review-Dashboard nachvollziehbar sein. Die Plugins bleiben dabei einzeln installierbar und behalten jeweils die Verantwortung für ihre eigenen Daten.
 
-### WooCommerce
+### 7.1 Leitprinzipien des Verbunds
 
-- Bestellereignis sendet nur erforderliche Felder an die Review-Queue: Order-ID als interne Referenz, Kundenkontakt nur wenn nötig, Produkt-IDs/-Namen, Sprache, Datum, erlaubter Versandstatus und Consent-/Opt-out-Zustand.
-- Einstellbare Trigger, z. B. Bestellung abgeschlossen, erfüllt/versandt plus Verzögerung; Schutz gegen doppelte und zu frühe Einladungen.
-- HPOS, Classic Checkout und Blocks kompatibel; keine Änderung des Zahlungsablaufs.
-- Die Review-Einladung selbst erhält Abmeldelink, Versandprotokoll und Widerrufs-/Unterdrückungslogik. Rechtliche Basis und Transparenz sind je Markt zu prüfen.
+1. **Ein Ereignis, ein Besitzer:** Pass Captain besitzt Event, Ticket und Check-in; Voucher Captain besitzt Gutschein und Einlösung; WooCommerce besitzt Shop-Bestellung und Erstattung; Affiliate Captain besitzt Partnerzuordnung und Provision; Review Captain besitzt Reviews, Review-Anfragen und die Review-Auswertung.
+2. **Öffentliche Verträge statt Datenbankkopplung:** kein Plugin liest oder schreibt Tabellen, interne Optionen oder Klassen eines anderen Plugins. Verwendet werden dokumentierte, versionierte Hooks/Funktionen und die vorhandenen Provider-Verträge.
+3. **Stabile Referenzen statt Datenkopien:** Ereignis- und Objekt-IDs reichen über den Vertrag. Kundenname, E-Mail, Adresse, Ticketcode, Gutscheincode oder Zahlungsdaten werden nicht pauschal in jedes Plugin kopiert.
+4. **Asynchron und idempotent:** Zeitversetzte Einladungen, API-Aufrufe und Folgeaktionen laufen über dauerhafte Hintergrundjobs. Jede Aktion hat eine stabile Ereignis-ID und darf bei Wiederholung keine Doppelbestellung, Einladung, Review oder Buchung erzeugen.
+5. **Opt-in je Verbindung:** jede Suite-Verbindung ist einzeln erkennbar, testbar und abschaltbar. Fehlt ein anderes Plugin, bleibt Review Captain benutzbar.
+6. **Keine Manipulation von Reviews:** Partnerstatus, Gutscheinwert oder Sterne bestimmen nicht, ob ein Kunde öffentlich um eine ehrliche Bewertung gebeten wird. Keine Vorteile für positive Sterne und kein Review-Gating.
 
-### Voucher Captain / wp-couponmaster
+### 7.2 Integrationsmatrix
 
-- Optionale Ereignisse nach Ausstellung bzw. Versand eines Gutscheins und – wichtiger – nach eingelöster Leistung; keine Einladung direkt zum Kauf, wenn die Kundenerfahrung noch nicht stattgefunden hat.
-- Personenbezogene Inhalte werden nicht in Reviews gespeichert. Gutschein-Code, Guthaben und PDF-Inhalt gehen nicht an externe Plattformen.
-- Einlösung ist ein Integrationssignal, nicht automatisch Beweis für positive Kundenerfahrung.
+| Quelle / Plugin | Ereignisse und Daten, die Review Captain abonnieren darf | Mögliche Aktionen in Review Captain | Ergebnis im anderen Plugin |
+|---|---|---|---|
+| **WooCommerce** | Bestellung bezahlt/abgeschlossen/versandt, Positionen, Teilerstattung/Storno, Kundensprache und erforderlicher Kontakt mit Versandberechtigung | Einladung für das echte Kauferlebnis planen; Produkte der Anfrage zuordnen; Reviews als Produkt-Review-Widget auf Produktseite ausgeben | Optionaler Review-Block für Produktseiten. Native WooCommerce-Bewertungen bleiben erhalten und werden nicht stillschweigend ersetzt. |
+| **Voucher Captain** | Gutschein ausgestellt/zugestellt, Gutschein eingelöst, Leistungspass abgeschlossen, Gutschein storniert/erstattet | Einladung erst nach Nutzung/Erlebnis planen; Gutschein- und Leistungs-Reviews unterscheiden; Ausschlüsse bei Storno/Refund übernehmen | Reviews/Score können in Gutschein-Landingpages und Gutschein-Produktseiten eingebettet werden. Kein Gutscheinwert oder Code im Review-System. |
+| **Pass Captain** | Veranstaltung/Termin beendet, Ticket eingecheckt, Service-Slot abgeschlossen, Bestellung storniert/erstattet, Termin/Event abgesagt | Einladung nach tatsächlicher Teilnahme oder Serviceleistung planen; Veranstaltung/Termin als Review-Kontext setzen; Einladungen bei Absage/Nichtteilnahme unterdrücken | Event-/Termin-Seiten erhalten passende Review-Widgets; aggregierte Erfahrungswerte können im Eventbericht erscheinen. Ticketcode und Check-in-Beleg bleiben in Pass Captain. |
+| **Affiliate Captain** | Verkaufsquelle/Partner- oder Kampagnen-ID als optionale, nicht personenbezogene Zuordnung; keine vollständigen Provisionen oder Kundenprofile | Review-Volumen und Rating aggregiert nach Kampagne/Partner auswerten, sofern Mindeststichprobe erreicht ist; freigegebene Widget-ID für Partner-Landingpages | Affiliate-Berichte zeigen aggregierte Qualitätsindikatoren; Partner sehen nur erlaubte, aggregierte Werte und freigegebene öffentliche Review-Widgets. Niemals einzelne Kundenreviews oder Käufer-PII ins Partnerportal geben. |
+| **WP License Captain / Captain Pro** | Produkt-/Lizenzstatus nur im Add-on-Lizenzclient | Pro-Funktionen freischalten, Update-/Support-Status zeigen | Lizenz, Aktivierung und Updateablauf folgen dem bestehenden Captain-Pro-Muster. Keine Review- oder Kundendaten an den Lizenzserver senden. |
+| **WordPress-Kern** | Nutzerkonto-ID nur wenn für Rechte, Moderation oder Anfrageabwicklung notwendig; Rollen, Sprache, Privacy Export/Eraser | Review-Capabilities, Block-/Shortcode-Ausgabe, Datenexport/-löschung | Einheitliche WordPress-Identität und übersetzte UI; öffentliche Reviews bleiben von internen Nutzerprofilen getrennt. |
 
-### Pass Captain / wp-passmaster
+### 7.3 End-to-End-Abläufe, die die Suite zusammenbringen
 
-- Optionale Anfrage nach Event-/Terminende oder nach Check-in, mit konfigurierbarem Verzögerungsfenster.
-- Absage, Erstattung, Nichtteilnahme und Opt-out unterdrücken oder verschieben Anfragen nach Betreiberregel.
-- Nur stabile öffentliche Events/Bestell-Referenzen und notwendige Kontaktinformationen in die Queue übernehmen.
+#### A. Shopkauf → Gutschein/Leistung → echte Nutzung → Review-Anfrage
 
-### Affiliate Captain / wpaffiliatemaster
+1. WooCommerce bestätigt eine Bestellung; der Ereignisadapter vergibt eine stabile `experience_id`.
+2. Voucher Captain stellt den Gutschein aus und meldet Zustellung sowie später Einlösung über seinen öffentlichen Vertrag.
+3. Review Captain plant die Einladung erst nach Einlösung oder nach einem vom Betreiber gesetzten Leistungszeitpunkt. Falls der Käufer und der Beschenkte unterschiedliche Personen sind, wird der Beschenkte nur mit zulässiger Kontakt- und Versandgrundlage adressiert.
+4. Refund/Storno, Einlösung bereits verarbeitet oder Opt-out stoppen die passende ausstehende Anfrage.
+5. Review wird später als Gutschein-/Leistungs-Review mit Quellen- und Produktkontext angezeigt, ohne Gutschein-Code, Kontostand oder Empfängernachricht.
 
-- Optionales Reporting-Kennzeichen (Kampagne/Partner-Referrer) für interne Auswertung, nur soweit Datenminimierung und Einwilligung es erlauben.
-- Keine Partnerprovision für positive Reviews und keine unterschiedliche Einladung nach Review-Sternebewertung.
-- Keine PII oder Review-Textinhalte in das Affiliate-Ledger schreiben.
+Das verhindert eine Review-Anfrage beim bloßen Kauf eines Geschenks, bevor die tatsächliche Leistung erlebt wurde.
 
-### Vertrag und Ereignisnamen (Vorschlag)
+#### B. Ticketkauf → Teilnahme → Event-Review → künftiger Ticketverkauf
 
-Core bietet einen versionierten Filter/Action-Vertrag wie `wp_review_captain_request_v1` / `review_captain_review_request_v1`. Integrationen übermitteln ein minimales, typisiertes Payload mit Ereignis-ID, Quelle, Zeitpunkt, optionalem Objektbezug, Sprache, Empfängerreferenz und erlaubter Versandberechtigung. Jeder Adapter muss idempotent sein. Nicht direkt in interne Datenbanktabellen anderer Plugins schreiben.
+1. Pass Captain meldet Check-in und später Event-/Terminende. Eine Ticketbestellung kann viele Tickets enthalten; der Betreiber wählt, ob Käufer oder Ticketinhaber eingeladen wird.
+2. Review Captain führt die Ereignisse auf eine einzige Erlebnisanfrage zusammen, damit bei Check-in plus Eventende keine zwei E-Mails entstehen.
+3. Absage, Refund oder Nichtteilnahme unterdrückt die Einladung gemäß konfigurierter Regel.
+4. Freigegebene Event-Reviews werden auf Eventseiten als passende Social Proofs angezeigt.
+5. Pass Captain kann im Eventbericht aggregierte Bewertung und Review-Anzahl ergänzen; es werden keine einzelnen Reviewtexte in Ticketdatensätze kopiert.
+
+#### C. Partnerempfehlung → Sale → Qualitätsbericht
+
+1. Affiliate Captain attribuiert den Verkauf intern über seine Vertragsfunktion; Review Captain erhält bei Freigabe nur eine Partner-/Kampagnenreferenz.
+2. Die normale, für alle Kunden gleiche Review-Anfrage wird anhand des Kaufs/Erlebnisses geplant. Attributionsdaten verändern weder Einladung noch Zielplattform.
+3. Aggregierte Review-Kennzahlen können in Affiliate-Campaign-Berichten erscheinen, nur ab einer konfigurierbaren Mindeststichprobe.
+4. Der Partner kann ein vom Händler freigegebenes Review-Widget in eine Landingpage übernehmen. Kundennamen/E-Mails und nicht öffentliche Reviews bleiben ausgeschlossen.
+
+#### D. Suiteweite Review-Anzeige
+
+Ein Review-Widget wird einmal in Review Captain erstellt und kann an verschiedenen Suite-Orten eingesetzt werden: WooCommerce-Produkt, Gutscheinprodukt/-Landingpage, Pass-Event/-Termin und Affiliate-Landingpage. Widget-ID und freigegebene Filter bleiben maßgeblich; jede Seite erhält nur die Reviews, deren Produkttyp, Profil, Sprache und Quelle dafür freigegeben sind. Änderungen an einem Widget aktualisieren alle Einsätze kontrolliert, ohne Inhalte in die anderen Plugins zu duplizieren.
+
+### 7.4 Gemeinsamer technischer Ereignisvertrag
+
+Die bestehenden Suite-Verträge sind der Ausgangspunkt:
+
+- Affiliate Captain stellt bereits einen versionierten Integrationsvertrag für Verkaufsquellen bereit; stabile Quellen-/Bestell-/Positions-IDs, Idempotenz, Währungsregeln und Datenminimierung sind dort definiert.
+- Pass Captain stellt versionierte Connector-, Voucher-Provider- und Check-in-Provider-Verträge bereit sowie Ereignisse für Zahlung, Absage, Refund und Check-in.
+- Voucher Captain und Pass Captain haben bzw. planen eine direkte Provider-Bridge für Gutschein-/Ticketabläufe; Review Captain soll über dieselben öffentlichen Ereignisse abonnieren und keine parallele Gutschein-Ticketlogik bauen.
+
+Für neue Review-Ereignisse wird eine versionierte, dokumentierte Schnittstelle pro Produzent ergänzt. Vorgeschlagene Ereignisnamen:
+
+- `wp_review_captain_experience_event_v1` – ein besitzendes Plugin meldet `experience_created`, `experience_completed`, `experience_cancelled` oder `experience_refunded`.
+- `wp_review_captain_request_v1` – Integrationsadapter übermittelt eine zulässige Anfrage oder bittet Review Captain, eine geplante Anfrage anzulegen.
+- `wp_review_captain_widget_context_v1` – ein Suite-Plugin liefert den Darstellungsort/Objektkontext für eine Widget-Auswahl.
+- `wp_review_captain_review_summary_v1` – Review Captain stellt eine aggregierte, berechtigte Kennzahl für einen Suite-Bericht bereit.
+
+Das gemeinsame minimale Payload sollte enthalten:
+
+| Feld | Zweck |
+|---|---|
+| `contract` | Major-/Minor-Version des Datenvertrags |
+| `source` | stabiler Plugin-Schlüssel, z. B. `woocommerce`, `voucher-captain`, `pass-captain` |
+| `event_id` | globale Idempotenzreferenz der Nachricht |
+| `experience_id` | Erlebnis, zu dem höchstens eine Anfrage je Richtlinie geplant werden soll |
+| `event_type` / `occurred_at` | abgeschlossene, abgesagte oder erstattete Aktion und UTC-Zeit |
+| `object_type` / `object_id` | öffentliche stabile Referenz auf Produkt, Gutscheinart, Event oder Termin |
+| `recipient_ref` | site-lokale Referenz; keine E-Mail im Event-Payload |
+| `locale` | Sprache für Vorlage und Kommunikation |
+| `consent` / `communication_allowed` | expliziter Status, Herkunft und Zeitpunkt der Versandberechtigung; unbekannt bedeutet nicht erlaubt |
+| `context` | optionale, begrenzte öffentliche Metadaten wie Kampagnen-ID; kein freies Bestellobjekt |
+
+E-Mail-Adresse/Kontakt wird bei Bedarf erst unmittelbar vor dem Versand aus dem zuständigen System über einen dokumentierten Resolver abgerufen. Ist das nicht möglich oder erlaubt, wird kein Versand ausgeführt. `experience_id` dedupliziert beispielsweise Check-in, Eventende und Voucher-Einlösung zu einer Einladung. Refund/Storno und Opt-out sind widerrufende Folgeereignisse und müssen geplante Jobs zuverlässig aufheben.
+
+### 7.5 Laufzeit, Queue und Fehlerdiagnose
+
+- Sync- und Review-Anfrage-Jobs verwenden Action Scheduler, wenn WooCommerce installiert ist, sonst den eigenen WP-Cron-/Job-Queue-Vertrag.
+- Verarbeitung mit Sperre pro Verbindung/Erlebnis, idempotentem Schlüssel, exponentiellem Backoff und `Retry-After`; nach endgültigem Fehler erscheint ein nachvollziehbarer Fehlerstatus.
+- Suite-Verbindungsseite zeigt: Plugin vorhanden/Version, Vertragsversion kompatibel, letzte erfolgreiche Ereignisannahme, wartende Jobs und letzte Fehler-ID.
+- Ein Plugin-Update, das einen inkompatiblen Vertrag findet, darf den Aufruf nicht fatal abbrechen. Es wird im Integrationsstatus als `incompatible_contract` ausgewiesen.
+- Reconnect/Deaktivieren nimmt keine bereits bestätigten Bestellungen, Tickets, Gutscheine oder Reviews zurück. Geplante Einladungen werden je Einstellung pausiert oder sauber abgeschlossen.
+- Cross-site-Verbindungen verwenden ausschließlich signierte Webhooks/REST-Verträge mit Timestamp, Nonce, Replay-Schutz, Scope und Rotation; PHP-Hooks gelten nur innerhalb derselben WordPress-Installation.
+- Manuelle „Testen“- und „Wiederholen“-Aktionen respektieren Rechte, Rate Limits, Abmeldungen und Plattformregeln.
+
+### 7.6 Weitere sinnvolle Suite-Integrationen
+
+- **Ein gemeinsamer Setup-Assistent:** erkennt installierte Captain-Plugins, erklärt mögliche Verbindungen, prüft Version/Vertragskompatibilität und richtet den ersten passenden Review-Widget-Kontext ein. Er aktiviert nichts ohne bewusste Auswahl.
+- **Ein gemeinsamer Integrationsstatus:** jede Suite-Seite kann den letzten Review-/Sync-Status verlinken, während Review Captain die Reviews und Quellen weiterhin besitzt.
+- **Kontextbezogene Vorlagen:** eine Review-Anfrage verwendet Marke und Sprache der Website sowie bei Bedarf Event-/Produktname und Erfahrungstermin. Gutschein- und Eventdetails werden aus dem Quell-Plugin gerendert, nicht redundant gespeichert.
+- **Gemeinsame Block-Auswahl:** Review-Block kann direkt im Woo-Produkt-, Pass-Event-, Voucher-Produkt- und Affiliate-Landingpage-Editor passend vorgefiltert werden.
+- **Einmalige Consent-/Preference-Übergabe:** die Quell-Plugin-Kommunikationsberechtigung wird als überprüfbarer Status übergeben; Review Captain speichert nur die für Versand und Nachweis nötige Referenz, nicht eine zweite vollständige Kontaktprofil-Datenbank.
+- **Suiteweite Lifecycle-Regeln:** Erstattung, Absage, Widerruf, Datenlöschanfrage und Plugin-Deaktivierung haben definierte Folgen für alle ausstehenden Review-Jobs.
+- **Aggregierte Qualitätsansicht:** Captain Dashboard kann Bewertungen nach Produktlinie, Event oder Gutscheinart zusammenfassen. Mindeststichprobe, Quelle, Zeitraum und Skala bleiben sichtbar; Einzelreviews und personenbezogene Attribution gehören nicht in ein Gesamt-Dashboard.
+- **Affiliate-Verkaufsqualität:** nur aggregierte Ratings und Anfrage-/Review-Zahlen pro Kampagne, keine „Review-Provision“ und keine Steuerung der Einladung nach Sternebewertung.
+- **Kundenkonto-Zusammenhang:** WooCommerce-Mein-Konto oder eine spätere Captain-Kundenübersicht kann anzeigen, dass eine Review-Anfrage versendet wurde bzw. erlaubte Kommunikationspräferenzen verwalten. Der öffentliche Reviewtext wird nicht ohne ausdrückliche Freigabe mit einem Kundenkonto verknüpft.
+- **Suiteweiter Datenexport/-löschlauf:** alle verbundenen Plugins können einen standardisierten Privacy-Erase-Hook für die zugehörigen Review-Anfrage-Referenzen ausführen. Die jeweiligen Fachdaten bleiben beim verantwortlichen Plugin.
+
+### 7.7 Grenzen der Integration
+
+- Review Captain ist der einzige Eigentümer der importierten Review-Datensätze, Widgets, API-Credentials und Review-Anfrage-Historie.
+- Voucher Captain, Pass Captain und Affiliate Captain dürfen nur den eigenen Vorgang melden und aggregierte Ausgaben anfordern, keine Reviewtexte oder Credentials auslesen.
+- Reviews werden niemals zum Auszahlungs-, Gutschein- oder Ticketstatus-Schlüssel; keine Leistung wird wegen einer negativen Rezension gesperrt.
+- Änderungen an öffentlichen Reviews erfolgen nur über eine offizielle Plattformfunktion mit passender Berechtigung.
+- Der Lizenzserver erhält nur notwendige Lizenz-/Installationsdaten des Pro-Add-ons, keine Profil-, Bestell-, Review- oder Anfrageinhalte.
+- Für Plugin-übergreifende Arbeitsabläufe bleiben WordPress-Verträge lokal; für getrennte Installationen braucht es ein späteres, explizites, signiertes Connector-Produkt mit eigener Sicherheits- und Datenschutzprüfung.
+
+### 7.8 Ergänzte Umsetzungs-To-dos für den Suite-Verbund
+
+- [ ] Verträge aus Pass Captain, Voucher Captain und Affiliate Captain als Integrationsinventar mit Version, stabilen IDs, Refund-/Cancel-/Delete-Ereignissen und Teststatus dokumentieren.
+- [ ] Einheitliches Review-Experience-Ereignisschema inklusive `experience_id`, Source-ID, Abbruchereignis, Sprache und Versandberechtigung spezifizieren.
+- [ ] Für jeden Produzenten Resolver für minimale Empfängerreferenz/Kontakt und verbindliche Opt-out-Prüfung definieren; E-Mail nicht standardmäßig in Ereignissen transportieren.
+- [ ] Ereignissemantik für Ticketkäufer vs. Teilnehmer und Gutschein-Käufer vs. Empfänger ausdrücklich festlegen.
+- [ ] Idempotenz- und Dedupe-Regeln für WooCommerce plus Gutschein-/Ticket-Plugin festlegen, damit ein Kundenerlebnis genau eine Anfrage erzeugt.
+- [ ] Versionierte Review-Hooks in den Quell-Repositories ergänzen, wo vorhandene Provider-/Connector-Verträge das Ereignis noch nicht abdecken.
+- [ ] Gemeinsame Adapter-Status-/Health-Schnittstelle und Admin-Setup-Assistent spezifizieren.
+- [ ] E2E-Matrix erstellen: Sale → Ausgabe → Nutzung/Check-in → Review-Anfrage, dazu Refund, Absage, Opt-out, Doppel-Events, fehlendes Plugin, veralteter Vertrag und API-Ausfall.
+- [ ] Cross-site-Kommunikation als getrennte spätere Architekturentscheidung behandeln; bis dahin nur lokale PHP-Hooks oder dokumentierte API-Adapter nutzen.
+- [ ] Datenschutz-/Aufbewahrungs-/Löschmatrix für anfragendes Plugin, Review Captain, WooCommerce und API-Provider abnehmen.
 
 ## 8. Admin-Menü und Pages: Struktur und Inhalt
 
