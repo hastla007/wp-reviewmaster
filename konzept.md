@@ -308,6 +308,55 @@ E-Mail-Adresse/Kontakt wird bei Bedarf erst unmittelbar vor dem Versand aus dem 
 - [ ] Cross-site-Kommunikation als getrennte spätere Architekturentscheidung behandeln; bis dahin nur lokale PHP-Hooks oder dokumentierte API-Adapter nutzen.
 - [ ] Datenschutz-/Aufbewahrungs-/Löschmatrix für anfragendes Plugin, Review Captain, WooCommerce und API-Provider abnehmen.
 
+### 7.9 Empfohlene Festlegungen für die Umsetzung
+
+Die folgenden Entscheidungen gelten als Architektur-Defaults für die nächste Konzept-/Implementierungsrunde. Anbieter-Ausnahmen werden pro Adapter dokumentiert und überschreiben den Default nur, wenn API-Vertrag oder Nutzungsbedingungen es verlangen.
+
+#### Erlebnis-ID und verantwortliches Plugin
+
+- **WooCommerce:** ist System of Record für Kauf und Bestellung. Es stellt die stabile Bestellreferenz bereit; Review Captain erzeugt daraus nicht selbst einen zweiten Kaufdatensatz.
+- **Voucher Captain:** besitzt das Erlebnis erst ab tatsächlicher Einlösung bzw. erbrachter Leistung. Die Review-Anfrage wird an dieses Ereignis gebunden, nicht an die Gutscheinausstellung. Bei Käufer und Beschenktem als verschiedenen Personen ist der tatsächliche Nutzer der bevorzugte Empfänger, sofern dessen Kontaktdaten und Versandberechtigung vorliegen.
+- **Pass Captain:** besitzt das Teilnahme-Erlebnis. Standardauslöser ist ein gültiger Check-in; für Events ohne Check-in kann der Betreiber ein versioniertes „Teilnahme bestätigt“-Ereignis aktivieren. Die Anfrage richtet sich nach Möglichkeit an den Ticketinhaber/Teilnehmer und nicht automatisch an den Käufer.
+- **Erlebnis-Schlüssel:** das Plugin, das die Leistung kontrolliert, erzeugt die stabile `experience_id` beim ersten gültigen Erlebnisereignis und ist deren System of Record. Schlüssel werden eindeutig aus Site-ID, Source-Key und Quellobjekt gebildet bzw. erzeugt und dauerhaft am Quellobjekt gespeichert; andere Plugins dürfen keinen Parallel-Schlüssel erfinden.
+- **Deduplizierung:** Review Captain plant maximal eine Einladung je `experience_id` + Empfängerreferenz + Anfragekampagne. Check-in plus Eventende oder Voucher-Einlösung plus Folgeaktion aktualisieren denselben Vorgang. Verschiedene Eventteilnahmen oder separate Gutscheinleistungen bleiben eigene Erlebnisse.
+- **Widerrufende Ereignisse:** Refund, Absage, ungültige/aufgehobene Einlösung, Nichtteilnahme und Opt-out stoppen einen noch ausstehenden Versand über dieselbe Erlebnisreferenz. Ein bereits gesendeter Review-Link wird nicht nachträglich als Erfolg gewertet.
+- **Kontaktresolver:** Quelle bleibt für den Kontakt zuständig. Review Captain erhält im Event zunächst nur eine interne Empfängerreferenz und fragt den Kontakt erst zur Versandzeit über einen eng begrenzten, dokumentierten Resolver ab. Fehlt der Kontakt oder ist die Erlaubnis unbekannt/widerrufen, wird nichts gesendet.
+
+#### System of Record für Bewertungsdaten
+
+- Native WooCommerce-Produktbewertungen bleiben in WooCommerce-Kommentaren bzw. WooCommerce-Daten und werden von Review Captain nur lesend eingebunden.
+- Eigene allgemeine Site-Reviews werden von Review Captain verwaltet; externe Reviews werden als quellgebundene, aktualisierbare Snapshots im Review-Captain-Datenspeicher gehalten.
+- Importierte Reviews werden **nicht** automatisch als WooCommerce-Kommentare angelegt und erhöhen nicht die native WooCommerce-Sternesumme oder Review-Anzahl.
+- Ein Widget darf mehrere Arten kombinieren, zeigt aber die Quelle je Review explizit. Ein Gesamtwert über WooCommerce und externe Quellen ist standardmäßig aus; falls später angeboten, muss jede Skala, Gewichtung, Anzahl und Berechnung sichtbar erklärt werden.
+- Für externe Reviews wird standardmäßig kein eigenes `AggregateRating`-Schema-Markup erzeugt. WooCommerce-Markup bleibt unverändert. Markup für lokale Review-Captain-Reviews wird nur dann ergänzt, wenn es laut aktueller Suchmaschinen- und Plattformrichtlinie zulässig ist.
+- „Synchronisieren“ bedeutet importieren/aktualisieren/entfernte Inhalte tombstonen – nie den Ursprungseintrag in der Plattform ändern. Externe Antwort-/Löschaktionen brauchen einen eigenen offiziellen API-Adapter und Audit-Eintrag.
+
+#### Authentifizierung und Eigentümerschaft der Verbindungen
+
+- **Kein gemeinsamer Review-Proxy im MVP.** Review-Daten, API-Tokens und Sync-Warteschlangen bleiben auf der WordPress-Site des Betreibers. Der WP License Captain erhält ausschließlich für die Lizenz notwendige Installations-/Produktdaten.
+- **Hybrides Modell je Provider:** Captain stellt, wo der Provider dies erlaubt und die App-Freigabe vorliegt, einen transparenten OAuth-Verbindungsablauf bereit. Wo ein Provider kundenindividuelle API-/App-Schlüssel oder Business-Tarifrechte verlangt, hinterlegt der Betreiber diese Zugangsdaten selbst.
+- Vor Implementierung wird pro Plattform ein Auth-Record erstellt: benötigter Kontotyp/Tarif, OAuth-Scopes, unterstützter Credential-Typ, Refresh-/Widerrufsweg, Schlüsselrotation, Rate Limits, Eigentümer der App und Freigabeprozess.
+- Beim Verbinden wird klar angezeigt, welches Konto und welche Profile/Apps zugänglich werden und welche Funktionen der Scope freischaltet. Es werden nur erforderliche Leserechte angefordert; Schreibrechte für Antworten oder Einladungen bleiben aus, bis sie als eigenes Feature eingerichtet und bestätigt sind.
+- Tokens werden verschlüsselt gespeichert, nie in Logs/URLs/Frontend ausgegeben, und sind je Verbindung widerrufbar. „Verbindung trennen“ stoppt sofort neue API-Aufrufe, widerruft den Token soweit unterstützt und setzt offene Providerjobs auf `cancelled`.
+- Nicht unterstützte API-Zugänge führen auf einen klaren Fallback (offizielles Widget, Profil-Link oder manuelle Kuratierung); keine HTML-Scrapes und keine Umgehung von Tarifen.
+
+#### Deaktivierung, Ablauf, Export und Wiederherstellung
+
+- **Pro-Lizenz läuft ab:** keine neuen Pro-Syncs, automatischen Review-Anfragen, API-Schreibaktionen oder Pro-Widgets mit dynamischen Plattformdaten; lokale, bereits gespeicherte Reviews bleiben gemäß Plattform-Cachepflicht lesbar, exportierbar und löschbar. Lizenzstatus darf keine Datenlöschung auslösen.
+- **Providerverbindung wird getrennt:** Sync und geplante, noch nicht abgesendete Provideraktionen werden gestoppt; die Site zeigt den getrennten Status. Gespeicherte externe Review-Snapshots bleiben nur innerhalb der jeweiligen Plattform-Aufbewahrungsfrist verfügbar und werden bei Lösch-/Widerrufsereignissen entfernt.
+- **Review Captain Pro wird deaktiviert/entfernt:** Kern-Reviewdaten und WordPress-eigene Reviews bleiben erhalten. Pro-Cronjobs und Pro-Adapter werden angehalten. Deinstallation löscht Daten standardmäßig nur, wenn der Betreiber die explizite Option „Alle Review-Captain-Daten löschen“ gewählt hat.
+- **Quell-Plugin wird deaktiviert/entfernt:** neue Ereignisse dieses Quell-Adapters stoppen. Wartende Anfragen werden standardmäßig pausiert und als `source_unavailable` angezeigt; es gibt keinen Versand ohne Resolver und gültige Berechtigung. Nach erneuter Aktivierung prüft der Adapter den Vertrag und verarbeitet nur gültige, nicht abgelaufene Events erneut.
+- **Datenschutz-Löschung:** die personenbezogene Empfängerreferenz und Versandnachweise werden entfernt/anonymisiert, während aggregierte Statistiken nur verbleiben, sofern sie nicht mehr personenbezogen sind und Anbieterbedingungen dies erlauben. Die Löschung wird an verknüpfte Jobs, Logs und Provider-Speicher weitergereicht, wo rechtlich/technisch erforderlich.
+- **Backup/Restore:** Job-IDs, externe Review-IDs, Sync-Cursor und Erlebnis-IDs müssen mit der Datenbank wiederherstellbar sein. Nach Restore läuft zuerst ein Reconciliation-Job, der doppelte Einladungen verhindert, OAuth-Verbindungen validiert und abgelaufene Plattform-Caches löscht.
+
+#### Abnahmekriterien
+
+- Derselbe Kauf-/Teilnahme-/Einlösungsvorgang kann durch Wiederholung, verzögerte Hooks oder mehrere beteiligte Plugins höchstens eine Anfrage je Erlebnis und Empfänger erzeugen.
+- Ein Widerruf oder Opt-out zwischen Planung und Versand verhindert den Versand.
+- Importierte externe Reviews verändern keine native WooCommerce-Bewertungszahl und werden im Export mit Quelle und Plattform-ID gekennzeichnet.
+- Disconnect, Plugin-Deaktivierung, Pro-Ablauf und Datenlöschung haben getrennte, getestete Folgen; keiner dieser Zustände löscht unbemerkt Review-Daten.
+- Eine Wiederherstellung aus Backup sendet keine alten Einladungen doppelt und stellt keine abgelaufenen oder widerrufenen Tokens als gültig dar.
+
 ## 8. Admin-Menü und Pages: Struktur und Inhalt
 
 Menü-Hauptpunkt **Review Captain** mit verständlichen Seiten. Die Pro-Lizenzseite wird vom Add-on unter diesem Menü ergänzt.
