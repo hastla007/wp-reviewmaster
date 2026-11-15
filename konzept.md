@@ -140,6 +140,7 @@ Free muss als eigenständiges Plugin sinnvoll bleiben und darf keine Lizenzprüf
 - Sterne/Score auf der ursprünglichen Plattformskala anzeigen; Quelllogo/Quellenlabel neben jeder externen Bewertung.
 - Review-Sammlung, Such-/Statusfilter, einfache Moderation und manuelle Einträge.
 - Ein Basis-Grid/Listen-Widget mit responsivem Layout sowie Review-Card-Block und Shortcode.
+- Einfache, manuell gepflegte Text-Testimonials, klar als Website-eigene Erfahrungsberichte gekennzeichnet und von Plattform-Reviews getrennt.
 - Manuelle Einbindung von Bewertungsprofilen („Auf Google/Trustpilot bewerten“) mit konfigurierbarem CTA.
 - Lokale Review-Einreichung mit Formular, Spam-Schutz (Nonce, Honeypot, Rate-Limit), Moderationswarteschlange und Opt-in-Feld.
 - Basis-Summary nur aus den angezeigten/ausgewählten Datensätzen und getrennte Kennzahl je Plattform; kein irreführender plattformübergreifender „Gesamtscore“ ohne klare Berechnung/Quellenangabe.
@@ -159,6 +160,11 @@ Free muss als eigenständiges Plugin sinnvoll bleiben und darf keine Lizenzprüf
 - Zusätzliche Widgets: Karussell, Badge/Score, Masonry, Produkt-/App-Rating, Trustbar, ausgewählte Testimonials, CTA; Gutenberg-Blocks, Widgets/Shortcodes und optionale Builder-Integrationspunkte.
 - Design-Controls für Layout, Anzahl, Sterne, Datum, Quelle, Sprache und „Mehr laden“; barrierearme Tastaturbedienung und reduced-motion.
 - Analytics: Reviews im Zeitverlauf, Quelle, App-/Produktbezug, Verteilung und Anfrage-/Antwortstatus. Kein Scraping von Wettbewerber-Reviews und keine KI-Sentimentanalyse im MVP.
+- **Social-Proof-Wall und Testimonial-Studio:** Text-, Bild-, Video- und Audio-Erfahrungsberichte mit Name/Bezeichnung, Einwilligungs-/Nutzungsrechtsnachweis, optionaler Sternebewertung und Zuordnung zu Produkt, Kurs, Event, App oder Seite. Eigene Testimonials bleiben als eigener Inhaltstyp erkennbar und werden nicht als Google-/Trustpilot-Review ausgegeben.
+- **Multimedia-Layouts:** Video-Testimonials, Audio-Erfahrungen und Text-Reviews als getrennte oder kombinierte Reihen/Karussells; Vorschaubild, Untertitel/Transkript, Quellen-/Erfahrungslabel und manuelle Moderation.
+- **Plattform-Bewertungsleiste:** pro Quelle getrenntes Logo, Rating mit Originalskala, Bewertungsanzahl, Zeitraum/Stand und Link zum Profil. Eine Gesamtanzahl kann als Summe der ausgewählten Plattform-Zähler angezeigt werden, ausdrücklich als Summe und mit Hinweis, dass plattformübergreifende Doppelbewertungen nicht dedupliziert werden. Kein Gesamt-Sterneschnitt ohne klar offengelegte, nachvollziehbare Berechnung.
+- **Vertrauenssignale:** verwaltbare Auszeichnungen, Zertifikate, Gütesiegel und Käuferschutz-Hinweise mit Herausgeber, Verleihungs-/Ablaufdatum, Verifizierungslink und korrekter Markenfreigabe. Offizielle Anbieter-Badges werden per zulässigem Embed oder freigegebenem Asset eingebunden.
+- **Schwebendes Trust-Badge:** optionaler, seitenbezogener, mobil anpassbarer Rating-/Käuferschutz-Teaser mit Quellenlink, Schließen-/Minimieren-Steuerung und Regeln gegen Überlagerung anderer Sticky-Elemente.
 - CSV-Export mit Spreadsheet-Formel-Schutz, planbare Reports und erweiterte Moderationsregeln.
 - Multi-Profile-Sync, Import-Logs, Integrationsdiagnose und Support-Tools.
 - Captain-Suite-Adapter für Coupon Captain, Pass Captain und Affiliate Captain (Details Abschnitt 7).
@@ -482,7 +488,15 @@ Tabs:
 7. **Rollen:** Capabilities für verwalten, moderieren, Quellen verbinden und Reports einsehen.
 8. **Diagnose:** Versions-/Kompatibilitätsstatus, letzte Jobs, API-Fehlercodes, Debug-Export ohne Secrets.
 
-### 8.10 Pro-Lizenz
+### 8.10 Testimonials und Vertrauenssignale
+
+- Zentrale Bibliothek für Text-, Bild-, Audio- und Video-Testimonials, jeweils mit Moderationsstatus, Berechtigungsnachweis, Ablauf-/Widerrufsstatus, Sprache, Produkt-/Event-/Kursbezug und Anzeigevorschau.
+- Separate Liste für Awards, Zertifikate und Trustmarks: Herausgeber, Badge-Datei/Embed, Prüf-Link, gültig ab/bis, erlaubte Einsatzorte und Rechtehinweis.
+- Ersteller für Bewertungsleisten: ausgewählte Plattformprofile, Quellscore, Skala, Anzahl, Zeitraum und Abrufstand. Die Vorschau benennt Summen als „Bewertungen über ausgewählte Plattformen“ und zeigt keine erfundene einheitliche Note.
+- Testimonial-Composer: Text-/Zitatkarten, Video-Carousel, Audio-Carousel, gemischte Testimonial-Wall, Hero-Testimonial und Trust-Badge; responsive Vorschau für Desktop und Mobil.
+- Jede Veröffentlichung kann nach Seite, Produkt, Veranstaltung, Gutschein oder App gefiltert werden. Nicht freigegebene Medien oder abgelaufene Auszeichnungen werden nicht ausgegeben.
+
+### 8.11 Pro-Lizenz
 
 - Gleiche Lizenzclient-/Updater-Integration wie die übrigen Captain-Pro-Add-ons.
 - Aktivieren, deaktivieren, Lizenzstatus, Site-/Aktivierungslimit, Ablauf/Verlängerung, Updates und Link zum Kundenkonto.
@@ -497,6 +511,10 @@ Tabs:
 - **Review-Einreichungs-Block:** Formular für eigene Reviews, Consent- und Datenschutztext konfigurierbar.
 - **Review-CTA-Block:** Schaltflächen zu offiziellen Profilen; keine vorselektierte 5-Sterne-Bewertung.
 - **Quellen-Badge-Block:** Score/Anzahl nach offizieller Plattformausgabe und Link zum Profil.
+- **Social-Proof-Leiste:** einzelne Quellwerte, ausgewählte Summenanzahl, Zeitraum und Datenstand.
+- **Testimonial-Wall / Video- / Audio-Carousel:** nur freigegebene Testimonial-Inhalte; mit Untertiteln/Transkripten und sichtbarem Abspielzustand.
+- **Award-/Trustmark-Block:** Badge plus Herausgeber, gültiger Zeitraum und Verifizierungsziel.
+- **Schwebendes Trust-Badge:** optional pro Seite aktivierbar und so positionierbar, dass es keine Navigation, Chat-Schaltflächen oder Kauf-/Ticketaktionen verdeckt.
 - Shortcodes für klassische Themes und Page Builder. Blocks bleiben ohne JS nutzbar, wo sinnvoll.
 
 ### Qualitätsanforderungen
@@ -505,6 +523,10 @@ Tabs:
 - Responsive Layout, keine Layout-Verschiebung, sichere HTML-Escapes und keine ungeprüften Review-HTML-Fragmente.
 - Lazy Loading für Avatare; externe Domains nur nach Einstellung und Datenschutzprüfung.
 - Reviews unabhängig von externen API-Verfügbarkeiten rendern; zuletzt zulässiger Cache bleibt bis zur erlaubten Aktualisierung sichtbar.
+- Video und Audio starten nie automatisch; Vorschaubild, Transkript/Untertitel und Bedienung per Tastatur sind Pflicht. Externe Player werden erst nach ausdrücklicher Interaktion geladen.
+- Ein Review-Text darf nicht ohne Zustimmung des Urhebers zu einem Testimonial, Voice-over oder Video umgearbeitet werden. Bild-/Ton-/Namensrechte sowie Widerruf und Ablauf müssen pro Testimonial nachvollziehbar sein.
+- Ein zusammengesetzter Review-Zähler zeigt Datenstand, Zeitraum und Summe der Quellen; identische Personen über mehrere Plattformen hinweg können nicht verlässlich dedupliziert werden und dürfen nicht als eindeutige Kunden ausgegeben werden.
+- Trustmarks und Auszeichnungen benötigen eine belegbare Herkunft, gültige Nutzungsrechte und – wo möglich – einen Prüf-Link. Abgelaufene oder widerrufene Siegel werden automatisch ausgeblendet.
 - Quellenname/-logo, Skala, Zeitstempel und externer Original-Link nachvollziehbar anzeigen.
 
 ## 10. Architektur und Daten
@@ -527,6 +549,8 @@ Tabs:
 - `wp_rc_profiles`: Provider, Profil-App-ID, öffentliche URL, Berechtigungsreferenz, Sprache/Region.
 - `wp_rc_sync_runs`: Start/Ende, Cursor, Ergebnis, Fehlercode (keine Secrets).
 - `wp_rc_widgets`: gespeicherte Widget-Regeln und Anzeigeoptionen.
+- `wp_rc_testimonials` (Pro): Inhaltstyp, Medien-/Attachment-Referenz, Transkript/Untertitel, Kontext/Tags, Berechtigungsnachweis, Status und Widerruf/Ablauf; Medien liegen nach Möglichkeit in der WordPress-Mediathek oder als datenschutzgerecht geklickte Einbettung.
+- `wp_rc_trust_assets` (Pro): Auszeichnung/Trustmark, Herausgeber, Asset-/Embed-Referenz, Verifizierungslink, gültig-ab/bis, Rechte-/Quellnachweis.
 - `wp_rc_request_queue` (Pro): Ereignis-Hash, Zeit, Zustand, Vorlage/Trigger, minimale Empfängerreferenz, Versand-/Opt-out-Status.
 - `wp_rc_audit_log`: Adminaktionen und Verbindungsvorgänge mit Datenminimierung.
 
@@ -610,6 +634,9 @@ Konkretes Schema, Indizes, Tabellenpräfix und Migrationen werden in der Impleme
 ### Phase 6 – Widgets, Reports und Release
 
 - [ ] Pro-Layouts/Filter, Produkt-/App-Reviews, Quellenbadges, responsive Vorschau.
+- [ ] Social-Proof-Wall und Testimonial-Studio für Text, Bild, Video und Audio mit Rechten, Widerruf, Untertiteln/Transkripten und Moderation.
+- [ ] Bewertungsleisten mit getrennten Plattformwerten, Datenstand, Zeitraum und erklärter Summenanzahl; Trustmark-/Award-Verwaltung mit Ablauf- und Prüf-Link.
+- [ ] Schwebendes Trust-Badge, seitenbezogene Positionierung und Konfliktprüfung mit Sticky-Chat-/Checkout-Elementen.
 - [ ] Analytics und datensparsame Exporte.
 - [ ] Barrierefreiheit, Übersetzungsprüfung, Performance/Cache-/Cron-Last und Multisite-Verhalten abnehmen.
 - [ ] API-/Marken-/Datenschutzbedingungen pro Provider im Plugin und in der Dokumentation aufführen.
@@ -624,7 +651,8 @@ Für ein kontrolliertes erstes Release:
 1. **Free Core:** lokale/manuell kuratierte Reviews, Quellennachweis, ein SSR-Grid-Block und Shortcode, Moderation und Privacy-Tools.
 2. **Pro 1.0:** Lizenz-/Updater-Integration, Google Business Profile für eigene verifizierte Standorte sowie App Store Connect und Google Play für eigene Apps; automatische Syncs und Pro-Widgets.
 3. **Pro 1.x:** Trusted Shops/eTrusted und Trustpilot nach verifiziertem API-Zugang/Tarif, dann WooCommerce-Anfrageautomationen.
-4. **Suite 2.x:** Voucher-/Pass-/Affiliate-Adapter und weiterführende Analytics.
+4. **Pro 1.x:** Suite-Adapter sowie Social-Proof-Wall, Media-Testimonials, Trustmarks/Awards und schwebendes Trust-Badge.
+5. **Suite 2.x:** weiterführende Analytics und zusätzliche Plattformadapter.
 5. **Antwortfunktionen** erst, wenn alle Plattform-Scopes, Moderationsrollen und Audit-Anforderungen praktisch validiert wurden.
 
 Trustpilot und Trusted Shops sind für Unternehmen relevante Quellen, aber ihre API-/Tarifzugänge können nicht als kostenlose oder allgemein verfügbare Basis vorausgesetzt werden. Das Produkt muss deshalb mit offiziellen Widgets/Profile-Links degradieren können, statt unerlaubt zu importieren.
@@ -651,6 +679,10 @@ Das Konzept deckt Produktidee, Funktionen, Seiten, Suite-Architektur und Wettbew
 5. **Datenmigration und geprüfte Herkunft.** Importquellen, unterstützte CSV-Formate, Dublettenregel, Rollback und Kennzeichnung importierter/ungeprüfter Reviews definieren. „Kauf verifiziert“, „Teilnahme bestätigt“ und „externe Plattformbewertung“ müssen getrennte, prüfbare Statuswerte sein. Ein Import darf eine externe Quelle nicht als WooCommerce-Kaufbeleg ausgeben.
 6. **Kompatibilitäts- und Release-Matrix.** Mindestversionen für WordPress, PHP und optional WooCommerce festlegen; HPOS, Block-Checkout, Multisite, Mehrsprachigkeit und wichtige Page Builder in der Supportmatrix abdecken. Zusätzlich Release-Gates für Plugin Check, Sicherheit, Migration, Performance, Barrierefreiheit und reale Anbieter-Sandboxen dokumentieren.
 7. **Lizenzkatalog und Preisentscheidung.** Produkt-Key, Entitlements, Site-Limits, Plan-Preise, Supportumfang und Verlängerung vor Verkaufsstart mit WP License Captain und Captain Pro abstimmen. Das Konzept schlägt die Suite-Struktur vor, enthält aber absichtlich noch keine bestätigten Review-Captain-Preise.
+
+### Ergänzung aus den Referenzbeispielen
+
+Die bereitgestellten Beispiele ergänzen das Produkt um drei klar getrennte Ebenen: (1) eine kompakte Leiste mit Rating und Anzahl je Plattform plus erklärter Summe, (2) eine Erfahrungsbericht-Wall mit Video-, Audio- und Textformaten sowie (3) Auszeichnungen/Trustmarks und ein optionales schwebendes Vertrauens-Badge. WhatsApp-Kontakt ist ein separates Chat-/Messaging-Feature; Review Captain soll solche Widgets nur bei der Platzierung berücksichtigen und nicht selbst einen Chatdienst betreiben.
 
 ## 16. Quellen und Referenzen
 
