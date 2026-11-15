@@ -11,6 +11,10 @@
 
 > Dieses Dokument ist die Produkt- und Umsetzungsgrundlage, keine Zusage, dass Anbieterzugänge, API-Freigaben oder Nutzungsrechte bereits vorliegen. Vor jeder Plattform-Veröffentlichung sind die jeweiligen API-, Marken-, Cache-, Datenschutz- und Tarifbedingungen erneut zu prüfen.
 
+## Lizenzmodell und Produktabgrenzung
+
+WP License Captain (License Captain Server) ist ein eigenständiges, separat verkauftes Server-Plugin und kein Bestandteil von Review Captain Pro. Review Captain Pro enthält nur die Client-Komponente, die wir zur Prüfung der eigenen PRO-Lizenzen an unserem Lizenzserver verwenden. Diese interne Lizenzierungsinfrastruktur hat für den Kunden keinen eigenständigen Produktnutzen und wird vor dem Kauf nicht als PRO-Leistung kommuniziert. Käufer benötigen keinen eigenen License Captain Server, um Review Captain Pro zu nutzen.
+
 ## 1. Zusammenfassung
 
 Review Captain bündelt authentische Kundenbewertungen aus mehreren Plattformen in WordPress, verwaltet ihre Anzeige und hilft Unternehmen, nach einer echten Kundeninteraktion fair um Feedback zu bitten. Das Plugin soll mindestens Google, Trustpilot, Trusted Shops, Apple App Store und Google Play als Quellen unterstützen.
