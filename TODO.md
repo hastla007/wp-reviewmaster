@@ -43,6 +43,19 @@ Diese Liste macht das Produktkonzept in umsetzbare Arbeitspakete. Aufgaben sind 
 
 **Meilenstein M0 ist erreicht, wenn:** 1.0-Scope, Kompatibilitätsziele, Lizenzmodell und die tatsächlichen Anbieterzugänge dokumentiert sind. Nicht verfügbare APIs werden sichtbar als Fallback geplant, nicht als zugesagte Synchronisierung verkauft.
 
+## M0.5 – Nutzerabläufe und Bildschirmdesign
+
+Diese Aufgaben werden nach dem MVP-Scope-Freeze und vor dem Bau der Admin-Seiten erledigt. Technische Verträge können parallel weiterlaufen.
+
+- [ ] **UX-001 – Zielnutzer und Nutzungsszenarien validieren.** Ergebnis: Gespräche mit Shopbetreibern, lokalen Unternehmen, App-Anbietern und Captain-Suite-Nutzern bestätigen die wichtigsten Abläufe.
+- [ ] **UX-002 – Nutzerabläufe skizzieren.** Ergebnis: Erstinstallation, Review erfassen, Plattform verbinden, Syncfehler beheben, Widget veröffentlichen, Anfrage konfigurieren und Pro-Lizenz verwalten sind als Flows beschrieben.
+- [ ] **UX-003 – Admin-Wireframes erstellen.** Ergebnis: Dashboard, Reviews, Quellen, Profile, Anfragen, Widgets, Testimonials/Trustmarks, Integrationen, Einstellungen, Diagnose und Lizenzseite haben abgestimmte Wireframes.
+- [ ] **UX-004 – Fehler- und Leerzustände gestalten.** Ergebnis: keine Quelle verbunden, unberechtigter API-Zugang, abgelaufener Token, fehlende Reviews, Lizenz ohne Zugriff und Queuefehler haben verständliche Zustände und konkrete nächste Schritte.
+- [ ] **UX-005 – Frontend-Widget-Prototypen erstellen.** Ergebnis: Trust-Leiste, Plattform-Scorekarten, Testimonial-Wall, Video-/Audio-Carousel, Auszeichnungsblock und schwebendes Badge sind auf Desktop und Mobil ausgearbeitet.
+- [ ] **UX-006 – Prototypen mit Nutzern prüfen.** Ergebnis: Testpersonen schließen „Quelle verbinden“ und „Bewertungsleiste veröffentlichen“ ohne Moderationshilfe ab; beobachtete Blocker sind behoben.
+- [ ] **UX-007 – Designsystem und Editor-Handoff festlegen.** Ergebnis: Typografie, Farben, Abstände, Sterne, Quellenbadges, Fokuszustände, reduced-motion und Block-Steuerungen sind dokumentiert.
+- [ ] **UX-008 – Usability-Kennzahlen definieren.** Ergebnis: Zeit bis zur ersten Verbindung, Zeit bis zum ersten Widget und Einrichtungsabbrüche sind ohne unnötige personenbezogene Telemetrie messbar oder bewusst nicht erfasst.
+
 ## M1 – Verträge, Datenmodell und Architektur
 
 - [ ] **RC-017 – System-of-Record-Regeln dokumentieren.** Ergebnis: WooCommerce besitzt Woo-Produktreviews; Review Captain besitzt lokale allgemeine Reviews, externe Review-Snapshots, Widgets, Testimonials und Anfragen.
@@ -235,11 +248,25 @@ Diese Aufgaben starten erst, wenn MVP-Funktionen und API-Rechte stabil sind. Sie
 - [ ] **RC-143 – Core und Pro veröffentlichen.** Abnahme: Core-Release auf dem vereinbarten Verteilungskanal; Pro-ZIP/Update ist mit gültiger Lizenz abrufbar.
 - [ ] **RC-144 – Erstes Supportfenster auswerten.** Abnahme: Installations-/Verbindungsprobleme, häufigste Fehlermeldungen und API-Ausfälle fließen in priorisierte Folgeaufgaben.
 
+## M9 – Pilot, Support und Produktbetrieb
+
+Diese Aufgaben liegen nach dem Release Candidate und vor bzw. unmittelbar nach öffentlicher Veröffentlichung.
+
+- [ ] **OPS-001 – Kunden-Onboarding erstellen.** Ergebnis: Installationshilfe, Erststart-Assistent, Verbindungsschritte und Widget-Veröffentlichung sind als kurze, getestete Anleitung verfügbar.
+- [ ] **OPS-002 – Plattform-Setup-Dokumentation veröffentlichen.** Ergebnis: pro Quelle gibt es eine aktuelle Anleitung für Kontozugriff, API-Rechte, Tokens, Profile, Kosten/Limit, Fehlerbehebung und Disconnect.
+- [ ] **OPS-003 – Support- und Eskalationsprozess festlegen.** Ergebnis: Zuständigkeit für Pluginfehler, Lizenzfehler und Anbieter-API-Ausfall sowie Antwort-/Eskalationswege sind dokumentiert.
+- [ ] **OPS-004 – Betriebs- und Incident-Runbook erstellen.** Ergebnis: Token-Leak, fehlerhafter Sync, Datenlöschanforderung, API-Ausfall, Update-Rollback und möglicher Datenverlust haben klare Schritte.
+- [ ] **OPS-005 – API-Änderungsroutine einrichten.** Ergebnis: verantwortliche Person, regelmäßige Prüfung offizieller Änderungsmitteilungen und Prozess zum Aktualisieren/Deaktivieren veralteter Adapter sind benannt.
+- [ ] **OPS-006 – Pilot-Websites auswählen.** Ergebnis: kleine Pilotgruppe testet echte Verbindungen, Migration, Einladungen, Widgets und Supportabläufe vor breitem Verkauf.
+- [ ] **OPS-007 – Pilotfeedback abarbeiten.** Ergebnis: kritische Einrichtungs- und Datenprobleme sind behoben; offene Wünsche sind priorisiert statt stillschweigend Teil des Releases zu werden.
+- [ ] **OPS-008 – Release-Nachbeobachtung durchführen.** Ergebnis: in den ersten 30 Tagen werden nur datensparsame Betriebskennzahlen, Supportfälle, Syncfehler und Updateprobleme ausgewertet; Folgeaufgaben sind erfasst.
+- [ ] **OPS-009 – Wartungs- und Supportverantwortung bestätigen.** Ergebnis: Anbieterzugänge, OAuth-App-Kontakt, Lizenzserverkontakt, Security-E-Mail und Release-Verantwortliche bleiben dauerhaft betreut.
+
 ## Release-Gates
 
 ### Core v1.0
 
-- M0, M1 und M2 abgeschlossen.
+- M0, M0.5, M1 und M2 abgeschlossen.
 - Core funktioniert ohne Pro, WooCommerce und externe Konten.
 - Datenschutzexport/-löschung, Moderation, sichere Frontend-Ausgabe und Release-ZIP bestehen die freigegebenen Prüfungen.
 
