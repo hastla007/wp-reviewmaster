@@ -791,9 +791,6 @@ Die bereitgestellten Beispiele ergänzen das Produkt um drei klar getrennte Eben
 
 ### Markt- und Plattformquellen
 
-- [Trustindex Google Reviews Plugin (WordPress.org)](https://wordpress.org/plugins/wp-reviews-plugin-for-google/)
-- [Trustindex Reviews Widgets (WordPress.org)](https://wordpress.org/plugins/reviews-widgets/)
-- [Site Reviews (WordPress.org)](https://wordpress.org/plugins/site-reviews/)
 - [Trustpilot WooCommerce Integration](https://woocommerce.com/products/trustpilot-reviews/)
 - [Trustpilot API Overview](https://developers.trustpilot.com/)
 - [Trustpilot Authentication](https://developers.trustpilot.com/authentication)
