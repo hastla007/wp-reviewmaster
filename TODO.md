@@ -309,3 +309,13 @@ Diese Aufgaben liegen nach dem Release Candidate und vor bzw. unmittelbar nach �
 ## Änderungsverlauf
 
 - 2026-11-15: Erste ausführbare Aufgabenliste aus dem Review-Captain-Konzept erstellt.
+
+## Workflow Captain Provider-Vertrag
+
+- [ ] RC-WF-01 – Öffentlichen Providervertrag v1 mit Schema-Version, stabiler Event-ID, Capability, Entitlement, Payload-Allowlist, Idempotency-Key und Deprecation-Regel dokumentieren.
+- [ ] RC-WF-02 – Post-Commit-Events für Anfrage geplant/übersprungen/gesendet/fehlgeschlagen, Erinnerung, Antwort, Review erstellt/moderiert/veröffentlicht/zurückgezogen und Opt-out bereitstellen; keine Reviewtexte, E-Mail oder Tokens in Logs.
+- [ ] RC-WF-03 – Services zum Planen/Abbrechen zulässiger Anfragen, Erstellen genehmigter Entwürfe und Lesen datensparsamer Aggregate anbieten. Workflow darf Einladungsberechtigung, Consent, Opt-out, Suppression, Frequenzlimits, Plattformziel oder Moderation nicht umgehen.
+- [ ] RC-WF-04 – Suite-Trigger und erweiterte Actions an Review-Pro-Recht binden, native Queue als Standard behalten und explizite Ownership-Übergabe unterstützen; parallele Woo/Pass/Voucher/Workflow-Einladungen deduplizieren.
+- [ ] RC-WF-05 – Review-Admin um Workflow-Verbindung, Contract-Version, aktive Übergabe, Eventannahme, Ablehnungsgrund und Retrystatus ergänzen; fehlendes/inkompatibles Workflow lässt Review Core normal laufen.
+- [ ] RC-WF-06 – Pass-Check-in und qualifizierte Voucher-Leistung dürfen Anfrage planen; Refund, Absage, No-show, Consent fehlt, Opt-out und Duplikat blockieren. Form-Entry darf nur explizit gemappten pending/unverified Entwurf übergeben.
+- Abnahme: Workflow kann Review-Regeln, Moderation und Einwilligung nicht umgehen; höchstens eine Einladung je Experience/Empfänger/Kampagne.
