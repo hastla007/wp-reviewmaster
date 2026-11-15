@@ -596,6 +596,8 @@ Konkretes Schema, Indizes, Tabellenpräfix und Migrationen werden in der Impleme
 
 ## 12. Umsetzungsschritte / To-do
 
+> Die verbindliche, taskweise Roadmap mit Task-IDs, Abhängigkeiten, Ergebnissen und Release-Gates steht in [TODO.md](TODO.md). Dieses Kapitel fasst die Meilensteine zusammen.
+
 ### Phase 0 – Produkt- und API-Freigaben
 
 - [ ] Review Captain Namens-/Slug-Entscheid treffen: `review-captain` als Core und `review-captain-pro` als Add-on bestätigen.
@@ -677,7 +679,7 @@ Für ein kontrolliertes erstes Release:
 3. **Pro 1.x:** Trusted Shops/eTrusted und Trustpilot nach verifiziertem API-Zugang/Tarif, dann WooCommerce-Anfrageautomationen.
 4. **Pro 1.x:** Suite-Adapter sowie Social-Proof-Wall, Media-Testimonials, Trustmarks/Awards und schwebendes Trust-Badge.
 5. **Suite 2.x:** weiterführende Analytics und zusätzliche Plattformadapter.
-5. **Antwortfunktionen** erst, wenn alle Plattform-Scopes, Moderationsrollen und Audit-Anforderungen praktisch validiert wurden.
+6. **Antwortfunktionen** erst, wenn alle Plattform-Scopes, Moderationsrollen und Audit-Anforderungen praktisch validiert wurden.
 
 Trustpilot und Trusted Shops sind für Unternehmen relevante Quellen, aber ihre API-/Tarifzugänge können nicht als kostenlose oder allgemein verfügbare Basis vorausgesetzt werden. Das Produkt muss deshalb mit offiziellen Widgets/Profile-Links degradieren können, statt unerlaubt zu importieren.
 
