@@ -312,6 +312,16 @@ E-Mail-Adresse/Kontakt wird bei Bedarf erst unmittelbar vor dem Versand aus dem 
 
 Die folgenden Entscheidungen gelten als Architektur-Defaults für die nächste Konzept-/Implementierungsrunde. Anbieter-Ausnahmen werden pro Adapter dokumentiert und überschreiben den Default nur, wenn API-Vertrag oder Nutzungsbedingungen es verlangen.
 
+#### Verbindliche Einladungsregel
+
+- Pro tatsächlichem Erlebnis und Empfänger wird höchstens **eine Einladung** versendet. Die Regel gilt über alle Suite-Auslöser hinweg und wird mit `experience_id` + Empfängerreferenz dedupliziert; eine Einladungskampagne darf keine zweite Einladung für denselben Vorgang erzeugen.
+- Als „tatsächliches Erlebnis“ zählt die abgeschlossene Nutzung/Teilnahme (z. B. Gutschein eingelöst oder Event besucht), nicht allein der Kauf, die Ausstellung oder der Versand.
+- Vor der ersten Einladung wird in der Kampagne das Bewertungsziel festgelegt. Für jeden berechtigten Empfänger derselben Kampagne gelten dieselben Ziele und dieselbe neutrale Formulierung. Die Auswahl darf nie anhand von Zufriedenheit, Sternebewertung, Beschwerde oder erwarteter Stimmung verändert werden.
+- Wenn eine Plattform eine eigene offizielle Einladungsfunktion für den verbundenen Account bereitstellt und diese eingerichtet ist, kann der Betreiber sie als Versandweg wählen. Sonst sendet Review Captain selbst eine neutrale E-Mail an das in der Kampagne konfigurierte Bewertungsziel. Der Versandweg, die Zielplattform und der Status werden protokolliert.
+- Weitere Bewertungsziele dürfen als gleichberechtigte Optionen angeboten werden. Vor dem Anzeigen oder Versand werden keine Sterne, Zufriedenheitsantworten oder Beschwerdeindikatoren abgefragt.
+- Es gibt keinen automatischen zweiten Plattformversand bei fehlender Antwort. Eine spätere Erinnerung muss ausdrücklich als Kampagnenregel aktiviert werden, neutral formuliert sein und innerhalb derselben Erlebnis-/Empfängergrenze bleiben.
+- Opt-out oder fehlende Versandberechtigung blockiert alle Review-Captain-Kampagnen für die betreffende Empfängerreferenz, bis ein zulässiger neuer Status vorliegt.
+
 #### Erlebnis-ID und verantwortliches Plugin
 
 - **WooCommerce:** ist System of Record für Kauf und Bestellung. Es stellt die stabile Bestellreferenz bereit; Review Captain erzeugt daraus nicht selbst einen zweiten Kaufdatensatz.
