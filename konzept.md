@@ -640,7 +640,19 @@ Trustpilot und Trusted Shops sind für Unternehmen relevante Quellen, aber ihre 
 - Pro wird im selben Lizenz- und Updatefluss wie Captain Pro ausgeliefert; Lizenzablauf löscht keine Review-Daten.
 - Jede Suite-Integration arbeitet über versionierte Verträge, minimale Daten und abschaltbare Adapter.
 
-## 15. Quellen und Referenzen
+## 15. Verbleibende Produkt- und Release-Entscheidungen
+
+Das Konzept deckt Produktidee, Funktionen, Seiten, Suite-Architektur und Wettbewerbsmerkmale ab. Vor Umsetzung bzw. Verkauf müssen noch die folgenden Punkte verbindlich entschieden werden:
+
+1. **Release-Scope der fünf Plattformen.** Die Funktionsliste nennt fünf Plattformen, die MVP-Empfehlung verteilt die native API-Synchronisierung aber auf mehrere Releases. Empfehlung: Review Captain Pro 1.0 unterstützt alle fünf Plattformen mit einem klar dokumentierten offiziellen Weg (API-Sync, offizielles Widget/Embed oder Profil-Link); native Synchronisierung wird je Plattform nur dann versprochen, wenn Zugang und Nutzungsrechte bestätigt sind.
+2. **Einladungsversand und Zustellbarkeit.** Die Regel „eine Einladung pro tatsächlichem Erlebnis und Empfänger“ steht fest. Noch festzulegen sind Versand über WordPress/WooCommerce oder einen separaten E-Mail-Dienst, Absender-/Domain-Prüfung, Bounce-/Unsubscribe-Verarbeitung, optionale Erinnerung und die Nutzung anbietereigener Einladungs-APIs je Kampagne. Empfehlung: Queue und Versandstatus im Plugin, Betreiber-eigener SMTP/Versanddienst, keine stille Abhängigkeit von `wp_mail()`; offizielle Anbieter-Einladung nur bei aktiver Kontoberechtigung.
+3. **MVP-Funktionsfreeze gegenüber der Wettbewerber-Roadmap.** Die Wettbewerberlücken nennen Migration, verifizierte Erfahrungen, Mehrprodukt-Formulare, Q&A, Medienreviews, QR und Merchant-Center-Feed; sie sind nicht alle im MVP-Empfehlungsabschnitt enthalten. Empfehlung: für 1.0 Migration, belastbares Verifizierungslabel und mehrsprachige/gebündelte Anfragen priorisieren; Medien, Q&A und Shopping-Feed nach Nutzung und Plattformfreigabe als Folge-Releases planen.
+4. **Authentifizierungs- und Tarifmatrix pro Quelle.** Vor dem Build je Anbieter dokumentieren: notwendiger Kontotyp/Tarif, API-/Partnerfreigabe, Authentifizierungsart, erlaubte Lese-/Schreib-/Einladungsfunktionen, Rate Limits, Speicher-/Löschfristen und getesteter Fallback. Die bereits vorgesehene hybride Authentifizierung ist ein Architekturprinzip; die konkreten Provider-Entscheidungen fehlen noch.
+5. **Datenmigration und geprüfte Herkunft.** Importquellen, unterstützte CSV-Formate, Dublettenregel, Rollback und Kennzeichnung importierter/ungeprüfter Reviews definieren. „Kauf verifiziert“, „Teilnahme bestätigt“ und „externe Plattformbewertung“ müssen getrennte, prüfbare Statuswerte sein. Ein Import darf eine externe Quelle nicht als WooCommerce-Kaufbeleg ausgeben.
+6. **Kompatibilitäts- und Release-Matrix.** Mindestversionen für WordPress, PHP und optional WooCommerce festlegen; HPOS, Block-Checkout, Multisite, Mehrsprachigkeit und wichtige Page Builder in der Supportmatrix abdecken. Zusätzlich Release-Gates für Plugin Check, Sicherheit, Migration, Performance, Barrierefreiheit und reale Anbieter-Sandboxen dokumentieren.
+7. **Lizenzkatalog und Preisentscheidung.** Produkt-Key, Entitlements, Site-Limits, Plan-Preise, Supportumfang und Verlängerung vor Verkaufsstart mit WP License Captain und Captain Pro abstimmen. Das Konzept schlägt die Suite-Struktur vor, enthält aber absichtlich noch keine bestätigten Review-Captain-Preise.
+
+## 16. Quellen und Referenzen
 
 ### Captain Suite / Architektur
 
