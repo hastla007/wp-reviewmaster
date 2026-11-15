@@ -369,6 +369,11 @@ E-Mail-Adresse/Kontakt wird bei Bedarf erst unmittelbar vor dem Versand aus dem 
 - [ ] Gemeinsame Adapter-Status-/Health-Schnittstelle und Admin-Setup-Assistent spezifizieren.
 - [ ] E2E-Matrix erstellen: Sale → Ausgabe → Nutzung/Check-in → Review-Anfrage, dazu Refund, Absage, Opt-out, Doppel-Events, fehlendes Plugin, veralteter Vertrag und API-Ausfall.
 - [ ] Cross-site-Kommunikation als getrennte spätere Architekturentscheidung behandeln; bis dahin nur lokale PHP-Hooks oder dokumentierte API-Adapter nutzen.
+- [ ] Pass- und Voucher-Contracts anhand der aktuellen öffentlichen Dokumentation implementieren; bestehende interne Actions nicht als API voraussetzen. Completion, Refund/Absage, No-show und Empfängerauflösung als getrennte Vertragspunkte abnehmen.
+- [ ] Für Voucher die einlösbare Produkt-/Leistungsart explizit klassifizieren; Ausgabe, Kauf, Rabatt und Guthaben dürfen keine Einladung starten.
+- [ ] Affiliate-Vertrag v1.3 nur als Verkaufs-/Provisionsquelle behandeln. Review-Aggregate erst nach Datenschutz- und Mindeststichprobenkonzept ergänzen; keine Einladungen oder Provisionen daraus.
+- [ ] Form-Captain-Brücke als Pro-Action nach dem Konzept umsetzen; keine E-Mail-Einladung, Verifizierung oder automatische Veröffentlichung aus einer Einsendung.
+- [ ] Review-Pro-Produktkey/Entitlements und Premium-Release mit Captain Pro/WP License Captain abstimmen.
 - [ ] Datenschutz-/Aufbewahrungs-/Löschmatrix für anfragendes Plugin, Review Captain, WooCommerce und API-Provider abnehmen.
 
 ### 7.9 Empfohlene Festlegungen für die Umsetzung
@@ -735,3 +740,16 @@ Die bereitgestellten Beispiele ergänzen das Produkt um drei klar getrennte Eben
 - [eTrusted Review Widgets](https://developers.etrusted.com/docs/review-widgets)
 
 **Hinweis zur Recherche:** Quellen und Anbieterbedingungen wurden am 15.11.2026 recherchiert. Die Integration ist nach den jeweils aktuellen Primärdokumenten vor Implementierung/Release erneut zu verifizieren; insbesondere API-Zugang, Tarifumfang, Lösch-/Refresh-Fristen und Markenregeln können sich ändern.
+
+
+## Integrationsstatus-Abgleich mit den gebauten Suite-Plugins (15.11.2026)
+
+Die Integrationsmatrix beschreibt Zielverhalten; sie bedeutet nicht, dass jeder Adapter bereits gebaut ist. Der Repository-Abgleich ergibt:
+
+- **Pass Captain:** Ticket-, Refund- und Check-in-Hooks/Services existieren. Die vorgefundenen Hooks sind nicht automatisch ein stabiler, datensparsamer Review-v1-Ereignisvertrag. Ein öffentlicher Completion-Vertrag, Kontaktresolver sowie Absage-/Refund-/No-show-Ausschlüsse sind offene Pass-Aufgaben.
+- **Voucher Captain:** Die versionierte PHP-API und externe Einlöse-/Connector-Verträge sind vorhanden. Ein Einlöseereignis gilt nur dann als Review-Auslöser, wenn die konfigurierte Art wirklich eine Leistung/Erfahrung bestätigt. Ausgabe, Kauf, Rabattcode und Guthabenaufladung genügen nicht.
+- **Affiliate Captain:** Verkaufs- und Provisionsvertrag v1.3 ist vorhanden; er enthält keine Review-Integration. Provisions-/Attributionsereignisse sind kein Einladungsauslöser. Ein möglicher Review-Bericht ist read-only, aggregiert und muss erst spezifiziert werden.
+- **Form Captain:** Vertrag v1 und Form→Review-Aktion sind im Konzept festgelegt, nicht als implementierte Schnittstelle zu behandeln. Die Funktion benötigt Review Captain Pro; Form Captain Core genügt als Formularquelle.
+- **WP License Captain / Captain Pro:** Add-on-Kernel und Lizenzclient sind vorhanden; Review Captain Pro und seine Katalog-/Entitlement-Konfiguration sind noch umzusetzen.
+
+Damit ist Review Captain der Eigentümer von Einladung, Versand, Moderation, Review-Datensatz und Anzeige. Quell-Plugins bleiben Eigentümer von Kauf, Ticket/Gutschein, Teilnehmer- oder Kundendaten. Adapter verwenden ausschließlich versionierte öffentliche Services, minimale IDs und deduplizierte Jobs.
