@@ -428,3 +428,31 @@ Die Einstellungsseite soll globale Standardwerte und Richtlinien enthalten. Obje
 - [ ] **SET-022 – Defaults und Migration regressionsprüfen.** Ergebnis: Neuinstallation, Upgrade, fehlende Optionen, Import, Lizenzablauf und Wiederherstellung behalten dokumentierte Defaults und verändern keine Core-Daten unerwartet.
 - [ ] **SET-023 – Einstellungsdokumentation erstellen.** Ergebnis: jede Einstellung erklärt Zweck, Scope, Standard, Folgen, Datenschutzbezug und erforderliche Anbieter-/Lizenzvoraussetzungen.
 - [ ] **SET-024 – Einstellungs-Release-Gate ergänzen.** Ergebnis: keine 1.0-Einstellung bleibt ohne Default, Validierung, Rechteprüfung, Migration, Export-/Löschregel und verständlichen Hilfetext.
+
+## Yoast SEO-Kompatibilität und Aufgaben
+
+### Phase A – Kompatibilität und Regeln
+
+- [ ] **SEO-001 – Yoast-/SEO-Plugin-Kompatibilitätsmatrix festlegen.** Ergebnis: Mindestversion für Yoast SEO, Verhalten mit Free/Premium, WooCommerce-/Yoast-Erweiterungen, Gutenberg, Caching/Minifizierung und konkurrierenden SEO-/Schema-Plugins sind festgelegt.
+- [ ] **SEO-002 – SEO-Ausgabebesitz dokumentieren.** Ergebnis: Yoast besitzt Title, Description, Canonical, Robots, Open Graph, Sitemap und Basisschema; Review Captain gibt keine konkurrierenden Head-Tags aus.
+- [ ] **SEO-003 – Schema-Eignungsmatrix erstellen.** Ergebnis: externe Reviews, lokale Unternehmensreviews, eigene Produktreviews, Kurs-/Eventreviews und gemischte Widgets sind anhand aktueller Google-Regeln freigegeben oder ausgeschlossen.
+- [ ] **SEO-004 – URL-/Indexierungsregeln spezifizieren.** Ergebnis: CPT/Custom-Table-Entscheidung, Indexierbarkeit, Archive, Filter, Parameter, Pagination, Canonical und Sitemap-Verhalten sind entschieden.
+
+### Phase B – Yoast-Integration
+
+- [ ] **SEO-005 – Yoast-Erkennung und Versionsprüfung umsetzen.** Ergebnis: Yoast wird ohne direkte Klassen-/Tabellenabhängigkeit erkannt; inkompatible oder fehlende Version fällt sicher auf sichtbare Widgets ohne Schema zurück.
+- [ ] **SEO-006 – Offizielle Yoast-Schema-API anbinden.** Ergebnis: bedingter Schema-Graph-Piece wird registriert, mit WebPage/Canonical verbunden und nutzt vorhandene @id-Knoten statt Duplikate zu erzeugen.
+- [ ] **SEO-007 – Schema nur bei sichtbarem Block-/Widgetinhalt ausgeben.** Ergebnis: serverseitig gerenderte Review-Blöcke und Shortcodes steuern die Ausgabe; leere oder unsichtbare Widgets erzeugen kein Review-Markup.
+- [ ] **SEO-008 – WooCommerce-Produkt-Schema konfliktfrei integrieren.** Ergebnis: vorhandene Yoast-/WooCommerce-Product-Knoten werden erkannt; es entsteht kein zweites Product- oder AggregateRating-Objekt.
+- [ ] **SEO-009 – Unzulässige Quellen technisch sperren.** Ergebnis: importierte Fremdplattformreviews, eigene Organization-/LocalBusiness-Ratings und plattformübergreifende Gesamtscores gelangen nie in Review-Schema.
+- [ ] **SEO-010 – Schema-Fallback und Plugin-Konflikte implementieren.** Ergebnis: ohne Yoast wird nur dann eigenes JSON-LD gerendert, wenn kein konkurrierender Schema-Besitzer aktiv ist und die Eignungsprüfung bestanden ist.
+- [ ] **SEO-011 – SEO-Metadaten unangetastet lassen.** Ergebnis: keine Review-Captain-Ausgabe dupliziert oder überschreibt Yoast-Titel, Beschreibung, Robots, Canonical, Open Graph oder Indexables.
+
+### Phase C – Admin, Indexierung und Abnahme
+
+- [ ] **SEO-012 – SEO-&-Yoast-Statusseite bauen.** Ergebnis: Version, Graph-Integration, erkannte Konflikte, blockierte Markups mit Grund und Hilfelinks sind verständlich sichtbar.
+- [ ] **SEO-013 – Widget- und Schema-Hinweise ergänzen.** Ergebnis: externe Reviews, Produktreviews und Unternehmensreviews erklären ihre Schema-Berechtigung ohne Rich-Result-Versprechen.
+- [ ] **SEO-014 – Noindex-, Sitemap- und Canonical-Regeln umsetzen.** Ergebnis: interne Reviewarchive, Filter-/Sortierparameter, Vorschau, Admin, Connectoren und AJAX-Routen sind nicht indexierbar; Nutzerseiten behalten Yoast-Kontrolle.
+- [ ] **SEO-015 – Crawlbare Server-Rendering-Ausgabe sicherstellen.** Ergebnis: sichtbare Reviewtexte, Quellen und Ratings sind ohne Client-JavaScript lesbar; externe Ressourcen bleiben consent-gesteuert.
+- [ ] **SEO-016 – Strukturierte Daten und Yoast-Konflikte abnehmen.** Ergebnis: Szenarien decken Review Captain allein, Yoast SEO, WooCommerce-Produkt, Fremdreviews, lokale Unternehmensreviews, zusätzliche Schema-Plugins und noindex-Seiten ab.
+- [ ] **SEO-017 – SEO-Dokumentation und Release-Checkliste veröffentlichen.** Ergebnis: Markupgrenzen, Yoast-Konfiguration, Rich-Results-Erwartung und Fehlerdiagnose sind dokumentiert und vor Release verifiziert.
