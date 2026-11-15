@@ -1,1 +1,477 @@
+# Review Captain – Produktkonzept
 
+**Status:** Konzept zur Abstimmung  
+**Stand:** 15. November 2026  
+**Produktname:** Review Captain  
+**Repository:** `hastla007/wp-reviewmaster`  
+**WordPress-Kernplugin:** `review-captain` (Vorschlag)  
+**Premium-Add-on:** `review-captain-pro` (Vorschlag)  
+**Lizenzserver-Produktschlüssel:** `review-captain-pro` (muss im WP License Captain-Katalog angelegt werden)  
+**Rechte-Präfix:** `review.`
+
+> Dieses Dokument ist die Produkt- und Umsetzungsgrundlage, keine Zusage, dass Anbieterzugänge, API-Freigaben oder Nutzungsrechte bereits vorliegen. Vor jeder Plattform-Veröffentlichung sind die jeweiligen API-, Marken-, Cache-, Datenschutz- und Tarifbedingungen erneut zu prüfen.
+
+## 1. Zusammenfassung
+
+Review Captain bündelt authentische Kundenbewertungen aus mehreren Plattformen in WordPress, verwaltet ihre Anzeige und hilft Unternehmen, nach einer echten Kundeninteraktion fair um Feedback zu bitten. Das Plugin soll mindestens Google, Trustpilot, Trusted Shops, Apple App Store und Google Play als Quellen unterstützen.
+
+Das Produkt besteht aus einem eigenständig nützlichen, kostenlosen Kern und einem separat lizenzierten Pro-Add-on:
+
+- **Review Captain (Free):** lokale Reviews und manuell kuratierte externe Bewertungen, einfache Bewertungsdarstellung, Quellenangaben, Block/Shortcode, Basisstatistiken, Datenschutz- und Moderationswerkzeuge.
+- **Review Captain Pro:** offizielle Plattform-Verbindungen und Synchronisierung, mehrere Quellen und Profile, automatische Review-Anfragen, erweiterte Widgets, Filter und Auswertungen, WooCommerce- und Captain-Suite-Automationen, Export sowie Prioritätsfunktionen.
+
+Das wichtigste Produktversprechen ist **eine sauber attribuierte, schnelle, barrierearme Review-Erfahrung in WordPress**, die externe Bewertungen und lokale Kundenstimmen in einer konsistenten Oberfläche zusammenführt – ohne Scraping, irreführende Zusammenfassung oder künstliche Bewertungen.
+
+## 2. Zielgruppen und Anwendungsfälle
+
+### Zielgruppen
+
+1. **WooCommerce-Händler:** Social Proof auf Shop-, Produkt-, Kassen- und Dankeseiten sowie zeitgesteuerte Bewertungsanfragen nach Versand oder Leistung.
+2. **Lokale Betriebe und Dienstleister:** Google- und Trusted-Shops-/Trustpilot-Profilbewertungen auf Start-, Kontakt- und Leistungsseiten.
+3. **App-Hersteller:** Rezensionen aus Apple App Store und Google Play auf Produkt-, Landing- und Supportseiten anzeigen.
+4. **Agenturen:** dieselbe Bedienlogik über mehrere Kundenwebsites, mit Rollen, wiederverwendbaren Vorlagen und sauberer Lizenzverwaltung.
+5. **Captain-Suite-Kunden:** Reviews an Gutschein-, Ticket- und Affiliate-Prozesse anschließen, ohne dieselben Integrationen mehrfach einzurichten.
+
+### Kernprobleme
+
+- Kunden müssen zwischen Plattform-Dashboards wechseln, um Reviews zu lesen und auf der Website zu verwenden.
+- Vorhandene Widgets unterscheiden sich stark im Design, laden externe Skripte oder haben harte Grenzen in Free-Tarifen.
+- Bewertungen von App-Stores und Shop-Plattformen landen selten in einem einheitlichen WordPress-Workflow.
+- Manuelle Review-Anfragen sind fehleranfällig; automatische Anfragen brauchen klare Ereignisse, Einwilligung, Frequenzgrenzen und Ausschlüsse.
+- Sterne-Schema und Zusammenfassungen können bei Plattform-Reviews rechtlich und richtlinienseitig heikel sein, wenn externe Bewertungen als eigene Reviews ausgegeben werden.
+
+## 3. Markt- und Wettbewerbsanalyse
+
+### Produktmuster und Positionierung
+
+| Wettbewerber / Kategorie | Sichtbare Stärken | Begrenzungen bzw. Chance für Review Captain |
+|---|---|---|
+| **Trustindex – Google Reviews / Reviews Widgets** | Viele vorbereitete Widget-Layouts, mehrere Review-Plattformen im größeren Angebot, schnelle Einbettung; Free-Angebot als Einstieg. | Plattform- und Widget-Umfang kann je Produkt/Tarif variieren; stärker widget- und serviceorientiert. Review Captain kann Suite-Automationen, WordPress-native Verwaltung und nachvollziehbare Quelltrennung verbinden. |
+| **Site Reviews** | Starkes kostenloses, WordPress-natives Erstellen, Moderieren, Sortieren und Ausgeben eigener Bewertungen; Formulare, Shortcodes/Blöcke und Integrationen für Mehrsprachigkeit. | Primär lokale/site-eigene Reviews, nicht das zentrale Import- und Anfragen-Dashboard für die fünf gewünschten Plattformen. |
+| **Trustpilot-eigene WooCommerce-Integration** | Offizielle Einladungen für Service- und Produktbewertungen, TrustBox-Einbettungen und Plattform-Workflow. | Bindung an Trustpilot-Konto/Leistungsumfang und deren Widget-Ökosystem; keine Suite-weite gemeinsame Oberfläche über die anderen vier Quellen. |
+| **ReviewsJet / Shapo / Repuso und ähnliche Aggregatoren** | Multi-Plattform-Aggregation, Filter, zentrale Widgets, teils externe Review-Inbox, Kampagnen oder Umfragen. | Externer SaaS-Kontrollpunkt, laufende Anbieterabhängigkeit und externe Skripte. Review Captain sollte wesentliche Daten und Widgets in WordPress verwalten, APIs regelkonform nutzen und externe Dienste transparent ausweisen. |
+| **App-Store-Widgets und manuelle Review-Importer** | Einfache Darstellung der App-Store-Bewertung und ausgewählter Rezensionen. | Häufig nur ein Store, eingeschränkte Synchronisierung, keine einheitliche Shop-/Local-Review-Ansicht. |
+
+### Produktchance
+
+Review Captain sollte nicht mit „noch mehr Widget-Layouts“ konkurrieren. Die Differenzierung liegt in vier Dingen:
+
+- **Suite-Verbindungen:** Review-Anfrage am passenden Punkt in Voucher, Pass, WooCommerce oder Affiliate auslösen.
+- **Betriebsmodell in WordPress:** Profile, Sync-Zustand, Review-Widgets und Anfrageprotokoll zentral im Dashboard.
+- **Quellentreue:** Herkunft, Direktlink, Bewertungsart (Service/Produkt/App), Veröffentlichungsdatum und Synchronisationszeit bleiben sichtbar.
+- **Kontrollierte Automatisierung:** kein Review-Gating (zufriedene Käufer zu öffentlichen Plattformen und unzufriedene nur intern lenken), keine Belohnung für positive Reviews, keine Anfrage ohne gültige Rechtsgrundlage.
+
+Die Wettbewerber-Funktionslisten und Anbieter-Tarife ändern sich regelmäßig. Vor Preis- und Launch-Entscheidungen muss ein dokumentierter Live-Vergleich der Free- und Paid-Tarife erstellt werden; Angaben in diesem Konzept sind qualitative Marktbeobachtungen, keine Preisempfehlung.
+
+## 4. Plattformen und Integrationswege
+
+Eine Plattform-Integration besteht aus **Verbindung**, **Import-/Sync-Vertrag**, **normalisiertem Review-Datensatz**, **Quellenkennzeichnung**, **Widget-Ausgabe**, **Fehlerbehandlung** und – falls offiziell erlaubt und technisch unterstützt – **Antwort- oder Einladungsaktionen**. Jede Plattform ist ein Adapter; ein Ausfall soll nicht die übrigen Quellen blockieren.
+
+| Plattform | Bevorzugter Integrationsweg | Anforderungen / Grenzen | MVP-Entscheidung |
+|---|---|---|---|
+| **Google** | Google Business Profile API für verifizierte und vom Kunden verwaltete Standorte (OAuth); Place Details API nur als begrenzter öffentlicher Fallback. | Business Profile Reviews setzen autorisierte Konten und verifizierte Standorte voraus. Places API zeigt in Place Details höchstens fünf Reviews; Rezensionstext- und Review-Felder liegen in einer teureren SKU-Stufe. Google-Inhalte müssen mit Quelle/Attribution nach den jeweils aktuellen Richtlinien dargestellt werden. Keine Scraping- oder HTML-Import-Lösung. | Pro: OAuth-Verbindung zu verwalteten Standorten und paginierter Sync. Free: Profil-Link und manuell gepflegte Auswahl, keine Google-Scrapes. |
+| **Trustpilot** | Offizielle Trustpilot-Widgets, wo für den Tarif zulässig; für eigene native Widgets Business-/Data-Solutions-API mit API-Key bzw. OAuth je Endpunkt/Tarif. | Öffentliche und private APIs unterscheiden sich. Private Endpunkte erfordern OAuth und Berechtigungen. Für angezeigte API-Inhalte gilt laut Trustpilot eine maximale Cache-Aktualisierung von 24 Stunden; Löschungen und Attribution sind zu berücksichtigen. API-Verfügbarkeit darf nicht als in jedem Trustpilot-Tarif garantiert werden. | Pro: Zugangsdaten und Business-Unit verbinden, sofern der Kunde API-Recht hat; andernfalls offizielles Widget/Profil-Link. |
+| **Trusted Shops / eTrusted** | eTrusted Customer Reviews API für berechtigte Kunden; offizieller Trustbadge-/Review-Widget-Code als Einbettungsoption. | API-Zugang und Berechtigungen hängen vom Trusted-Shops-Konto/Produkt ab. Öffentliche Common API ist nicht gleichbedeutend mit vollständigem Zugriff auf private Reviews; Trusted Shops stellt eigene APIs und Widgets bereit. Shop-ID/Kanal und API-Credentials sind nötig. | Pro: eTrusted-API-Verbindung nach erfolgreichem Credential-Test; Free: Profil-Link bzw. Embed-Code. Anbieterfreigabe und Vertrag vor Launch abklären. |
+| **Apple App Store** | App Store Connect API, `customerReviews` je App. | App-Store-Connect-Teamzugriff, App-Ressourcen-ID sowie API-Key/Issuer-ID/Key-ID (JWT) nötig. Abruf nur für Apps, die der Kunde verwaltet; Territory, Bewertung und Version können filterbar sein. Antworten sind getrennte Endpunkte und brauchen Rechte. | Pro: read-only Import und Sync für eigene Apps; Antworten später als eigener Umfang. |
+| **Google Play** | Google Play Developer API, Android Publisher `reviews.list`; Antwort-Endpunkt optional später. | OAuth-/Service-Account-Zugriff auf Play Console des App-Eigentümers; Paketname. Zugriff gilt nur für eigene Apps, nicht für beliebige Wettbewerber-Apps. API-Scopes und Google Play Bedingungen beachten. | Pro: read-only Import der eigenen App-Reviews; Antwort-Funktion nach MVP. |
+
+### Normalisiertes Review-Modell
+
+Minimalfelder:
+
+- interne ID, Plattform und eindeutige Plattform-ID;
+- Profil-/Kanal-ID und optionale Produkt-/App-Zuordnung;
+- Review-Typ (Service, Produkt, App oder lokal), Sterne/Rating-Skala, Titel, Text;
+- öffentlicher Anzeigename/Avatar-URL nur wenn Plattform das erlaubt;
+- Erstellungs-/Änderungsdatum, Sprache, Versions-/Produktbezug;
+- Plattform-Link, Quellenlabel und eventuell Anbieter-Attributionshinweis;
+- Antwortstatus bzw. öffentliche Antwort, falls API dies zulässt;
+- Importzeit, zuletzt erfolgreich geprüft, Lösch-/Widerrufsstatus;
+- Status „sichtbar“, „ausgeblendet“, „archiviert“; lokale Moderation darf nie die Quelle oder Bewertung verfälschen.
+
+Review-Kopien dürfen nur so lange und in dem Umfang gespeichert werden, wie Plattformbedingungen es erlauben. Das Modell muss eine Löschung bzw. Entfernung aus dem Cache abbilden; Reviews werden nicht in Schema-Markup umetikettiert, wenn sie nicht auf der eigenen Website abgegeben wurden.
+
+## 5. Funktionsumfang
+
+### Free – kostenloser Kern
+
+Free muss als eigenständiges Plugin sinnvoll bleiben und darf keine Lizenzprüfung benötigen.
+
+- WordPress-eigene Reviews/Testimonial-Datensätze anlegen und verwalten.
+- Externe Review-Links und einzelne, vom Websitebetreiber manuell ausgewählte Review-Auszüge mit Quelle, Direktlink, Datum und Originalbewertung pflegen.
+- Sterne/Score auf der ursprünglichen Plattformskala anzeigen; Quelllogo/Quellenlabel neben jeder externen Bewertung.
+- Review-Sammlung, Such-/Statusfilter, einfache Moderation und manuelle Einträge.
+- Ein Basis-Grid/Listen-Widget mit responsivem Layout sowie Review-Card-Block und Shortcode.
+- Manuelle Einbindung von Bewertungsprofilen („Auf Google/Trustpilot bewerten“) mit konfigurierbarem CTA.
+- Lokale Review-Einreichung mit Formular, Spam-Schutz (Nonce, Honeypot, Rate-Limit), Moderationswarteschlange und Opt-in-Feld.
+- Basis-Summary nur aus den angezeigten/ausgewählten Datensätzen und getrennte Kennzahl je Plattform; kein irreführender plattformübergreifender „Gesamtscore“ ohne klare Berechnung/Quellenangabe.
+- Schema-Markup nur für Reviews, die auf der eigenen Website gesammelt wurden und nach Schema-/Google-Richtlinien ausgezeichnet werden dürfen; keine selbstbezogenen Unternehmensbewertungen als Rich-Result-Abkürzung.
+- WordPress-Datenexport/-löschung, Datenaufbewahrungseinstellungen, Rollen/Rechte, Übersetzungsgrundlage und Multisite-Trennung.
+- Keine externe API-Abhängigkeit auf dem Frontend und keine Drittanbieter-Skripte ohne explizite Aktivierung.
+
+### Pro – separat lizenziertes Add-on
+
+- Offizielle OAuth/API-Verbindungen für die fünf unterstützten Quellen, jeweils einzeln aktivierbar.
+- Mehrere Geschäftsprofile, Standorte, Shops oder Apps pro Website.
+- Zeitgesteuerter Import mit Delta-Sync, Cron/Action-Scheduler-Jobs, Status, Retry und Ratenbegrenzung.
+- Plattformübergreifende Review-Inbox, mit Quellen-, Typ-, Zeitraum-, Sterne-, Sprache-, Produkt- und Sichtbarkeitsfiltern.
+- Automatische Review-Anfragen nach Kauf, Versand, Gutscheinverwendung oder Eventende über freigegebene Integrationspunkte. Vorlagen, Verzögerung, Ruhezeit, Ausschlussregeln, Opt-out und Audit.
+- WooCommerce-Integration für Order-Status/Ereignisse und Produktzuordnung, mit HPOS/Classic/Blocks-Checkout-Kompatibilität, ohne unnötige Übermittlung von Bestelldaten.
+- Antwort- oder Reply-Hilfen nur bei offizieller Plattform-API und freigegebenen Rechten. Keine automatische Veröffentlichung im MVP; Antworten vor Versand manuell bestätigen.
+- Zusätzliche Widgets: Karussell, Badge/Score, Masonry, Produkt-/App-Rating, Trustbar, ausgewählte Testimonials, CTA; Gutenberg-Blocks, Widgets/Shortcodes und optionale Builder-Integrationspunkte.
+- Design-Controls für Layout, Anzahl, Sterne, Datum, Quelle, Sprache und „Mehr laden“; barrierearme Tastaturbedienung und reduced-motion.
+- Analytics: Reviews im Zeitverlauf, Quelle, App-/Produktbezug, Verteilung und Anfrage-/Antwortstatus. Kein Scraping von Wettbewerber-Reviews und keine KI-Sentimentanalyse im MVP.
+- CSV-Export mit Spreadsheet-Formel-Schutz, planbare Reports und erweiterte Moderationsregeln.
+- Multi-Profile-Sync, Import-Logs, Integrationsdiagnose und Support-Tools.
+- Captain-Suite-Adapter für Coupon Captain, Pass Captain und Affiliate Captain (Details Abschnitt 7).
+- White-Label ist kein Startversprechen. Zunächst soll in allen Plänen derselbe Pro-Funktionsumfang enthalten sein; Pläne unterscheiden sich nach der Lizenzregel der Suite anhand Live-Websites und Support.
+
+### Bewusst nicht im MVP
+
+- Scraping von Google Maps, Trustpilot, Trusted Shops oder App Stores.
+- Anzeigen beliebiger Konkurrenz-Profile oder nicht autorisierter Apps über private API-Zugänge.
+- „Review-Gating“, bei dem nur zufriedene Kunden zur öffentlichen Bewertungsplattform geleitet werden.
+- Kauf/Anreiz positiver Bewertungen, automatisches Veröffentlichen manipulierter Reviews, Bewertungstexte verändern oder den Quellennachweis entfernen.
+- Plattformübergreifende Durchschnittsnote ohne ausdrückliche Skalen-Normalisierung und verständliche Erklärung.
+- KI-generierte Kundenrezensionen oder automatisches Verfassen/Publizieren von Antworten.
+- Garantierte Sterne-Rich-Snippets für importierte Reviews.
+- Cloud-SaaS-Konto als Voraussetzung für den WordPress-Kern.
+
+## 6. Free/Pro, Preise und Lizenzierung
+
+### Produktaufteilung
+
+Captain Suite setzt auf ein **vollwertiges kostenloses Kern-Plugin** und ein separates **Pro-Add-on**. Review Captain soll dasselbe Modell verwenden:
+
+| Bestandteil | Repository / Ordner | Aufgabe |
+|---|---|---|
+| Review Captain Core | `hastla007/wp-reviewmaster`, Plugin-Slug Vorschlag `review-captain` | lokale Reviews, manuelle externe Review-Kuration, Anzeige, Datenexport/-löschung, Integrationsverträge |
+| Review Captain Pro | `hastla007/captain-pro/addons/review-captain-pro/` | API-Verbindungen, automatischer Sync/Anfragen, erweiterte Widgets/Reports und lizenzierte Funktionen |
+| Lizenzsystem | `hastla007/wp-license` | Lizenzprodukte, Aktivierung, Entitlements, Updates und Websites-Limits |
+
+Das Core-Plugin kennt das Pro-Add-on nicht und enthält keinen Lizenzclient. Pro klinkt sich über stabile, dokumentierte Core-Hooks ein. Bei fehlendem oder abgelaufenem Entitlement bleiben die Core-Funktionen und vorhandenen Daten nutzbar; nur Pro-Aktionen werden deaktiviert. Lesende Anzeige und Export bereits vorhandener Reviews bleiben möglich.
+
+### Lizenzvertragsvorschlag
+
+- **Produktschlüssel:** `review-captain-pro`; Rechtepräfix `review.`. Beide müssen im Lizenzserver-Katalog ergänzt und mit `wp-license`/Captain Pro abgestimmt werden.
+- Lizenzclient und Updateprozess aus `wp-license` exportieren; Add-on-Kernel und Namespaces in Captain Pro gemäß Architektur verwenden.
+- Plugin-Version, Core-Mindestversion, Textdomain und Update-URI nach dem bestehenden Captain-Pro-Buildstandard.
+- Planschlüssel voraussichtlich `single` (1 Live-Website), `business` (5), `agency` (25); Support-Level `standard` bzw. `priority`. Diese Zahlen sind der Suite-Preis-/Lizenzstruktur entnommen und vor dem Katalogeintrag zu bestätigen.
+- **Alle Pro-Funktionen in jedem bezahlten Plan.** Die Pläne differieren primär nach Live-Website-Limit und Support, nicht nach künstlich abgeschnittenen Funktionen.
+- Preise aus dem bestehenden Shopkatalog ableiten und mit den übrigen Captain-Pro-Produkten abstimmen. Keine Preise in diesem Konzept festsetzen.
+- Staging-/Development-Aktivierungen entsprechend WP License Captain nicht als zusätzliche Live-Website werten.
+- Keine Lizenzabfrage pro Frontend-Request; signierter Snapshot/Offline-Zeitraum, Aktivierung, Kündigung und Updates wie in den bestehenden Add-ons.
+- Noch offen: Katalogeintrag, Feature-Schlüssel, Add-on-Verzeichnis/Build-Registry, Updateserver-Host/öffentliche Schlüssel und Mindestversion des Core-Plugins.
+
+### Vorgeschlagene Entitlements
+
+Entitlements werden nur für Funktionen im Add-on definiert. Wenn der Planumfang für jedes Pro-Paket gleich ist, kann der Katalog alle Schlüssel je Plan gewähren; die Site-Limit-Angabe bleibt separat.
+
+- `review.platform_sync` – externe APIs abrufen und synchronisieren.
+- `review.review_requests` – automatisierte Bewertungsanfragen.
+- `review.advanced_widgets` – Pro-Widget-Layouts/Filter.
+- `review.analytics` – erweiterte Reports.
+- `review.suite_integrations` – Ereignisverbindungen zu Captain-Plugins.
+- `review.platform_replies` – Antwortfunktionen (erst nach MVP, wenn API und Rechte bestätigt).
+
+Keine Kernfunktion erhält einen Lizenzschlüssel. Nicht verwendete Entitlements nicht vorab als Feature-Versprechen verkaufen.
+
+## 7. Captain-Suite-Integration
+
+Integration ist optional: Review Captain funktioniert ohne weitere Captain-Plugins. Keine direkte Abhängigkeit zwischen den Repositories und kein Zugriff auf fremde Plugin-Tabellen. Wo möglich, werden versionierte öffentliche Hooks oder dokumentierte Adapter-Verträge verwendet.
+
+### WooCommerce
+
+- Bestellereignis sendet nur erforderliche Felder an die Review-Queue: Order-ID als interne Referenz, Kundenkontakt nur wenn nötig, Produkt-IDs/-Namen, Sprache, Datum, erlaubter Versandstatus und Consent-/Opt-out-Zustand.
+- Einstellbare Trigger, z. B. Bestellung abgeschlossen, erfüllt/versandt plus Verzögerung; Schutz gegen doppelte und zu frühe Einladungen.
+- HPOS, Classic Checkout und Blocks kompatibel; keine Änderung des Zahlungsablaufs.
+- Die Review-Einladung selbst erhält Abmeldelink, Versandprotokoll und Widerrufs-/Unterdrückungslogik. Rechtliche Basis und Transparenz sind je Markt zu prüfen.
+
+### Voucher Captain / wp-couponmaster
+
+- Optionale Ereignisse nach Ausstellung bzw. Versand eines Gutscheins und – wichtiger – nach eingelöster Leistung; keine Einladung direkt zum Kauf, wenn die Kundenerfahrung noch nicht stattgefunden hat.
+- Personenbezogene Inhalte werden nicht in Reviews gespeichert. Gutschein-Code, Guthaben und PDF-Inhalt gehen nicht an externe Plattformen.
+- Einlösung ist ein Integrationssignal, nicht automatisch Beweis für positive Kundenerfahrung.
+
+### Pass Captain / wp-passmaster
+
+- Optionale Anfrage nach Event-/Terminende oder nach Check-in, mit konfigurierbarem Verzögerungsfenster.
+- Absage, Erstattung, Nichtteilnahme und Opt-out unterdrücken oder verschieben Anfragen nach Betreiberregel.
+- Nur stabile öffentliche Events/Bestell-Referenzen und notwendige Kontaktinformationen in die Queue übernehmen.
+
+### Affiliate Captain / wpaffiliatemaster
+
+- Optionales Reporting-Kennzeichen (Kampagne/Partner-Referrer) für interne Auswertung, nur soweit Datenminimierung und Einwilligung es erlauben.
+- Keine Partnerprovision für positive Reviews und keine unterschiedliche Einladung nach Review-Sternebewertung.
+- Keine PII oder Review-Textinhalte in das Affiliate-Ledger schreiben.
+
+### Vertrag und Ereignisnamen (Vorschlag)
+
+Core bietet einen versionierten Filter/Action-Vertrag wie `wp_review_captain_request_v1` / `review_captain_review_request_v1`. Integrationen übermitteln ein minimales, typisiertes Payload mit Ereignis-ID, Quelle, Zeitpunkt, optionalem Objektbezug, Sprache, Empfängerreferenz und erlaubter Versandberechtigung. Jeder Adapter muss idempotent sein. Nicht direkt in interne Datenbanktabellen anderer Plugins schreiben.
+
+## 8. Admin-Menü und Pages: Struktur und Inhalt
+
+Menü-Hauptpunkt **Review Captain** mit verständlichen Seiten. Die Pro-Lizenzseite wird vom Add-on unter diesem Menü ergänzt.
+
+### 8.1 Dashboard
+
+- KPI-Karten: Anzahl sichtbarer Reviews; durchschnittliche Bewertung je Quelle (klar getrennt); neue Reviews im Zeitraum; letzte erfolgreiche Synchronisierung; offene Verbindungsfehler.
+- „Zuletzt eingegangen“ mit Quelle, Rating, gekürztem Text, Datum und Aktionslink.
+- Quick Actions: Quelle verbinden, Review-Block erstellen, Review-Anfrage testen.
+- Setup-Checkliste: Profil angelegt, erste Quelle verbunden, Widget veröffentlicht, Datenschutzhinweise geprüft.
+- Free zeigt lokale/manuell gepflegte Daten; Pro-Karten erklären den Funktionsumfang und verlinken auf Upgrade, ohne Kernfunktionen zu blockieren.
+
+### 8.2 Reviews
+
+- Tabellenansicht: Quelle, Profil/App, Typ, Sterne, Titel/Textauszug, Datum, Sprache, Sichtbarkeit, letzter Sync.
+- Filter nach Quelle, Rating, Zeitraum, Typ, Sprache und Status; Suche über lokal gespeicherte zulässige Inhalte.
+- Detailseite/Drawer: Originaltext, Plattformlink, Quellhinweis, Produkt-/App-Version, Antwort/Status (wenn verfügbar), lokale Sichtbarkeit und Änderungsverlauf.
+- Aktionen: anzeigen/ausblenden, archivieren, Quelle öffnen, Auswahl zu Widget hinzufügen.
+- Keine Aktion, die eine externe Bewertung ohne Anbieter-API ändert oder löscht.
+
+### 8.3 Quellen
+
+- Liste mit Plattform-Status (nicht verbunden, verbunden, Warnung, Fehler), verbundenem Profil/App, letztem Sync, nächsten Sync und erforderlicher Berechtigung.
+- „Quelle hinzufügen“-Wizard: Plattform wählen → offizielle Verbindung/OAuth oder Profil-Link/Embed → Berechtigungen erklären → Verbindung prüfen → Profil auswählen → Sync-Optionen → Ergebnisvorschau.
+- Hinweise über eingeschränkte Zugriffe, Gebühren-/API-Kontingente, verlangte Rollen und Datenlöschung.
+- OAuth-Tokens verschlüsselt speichern, widerrufen/neu verbinden; Geheimnisse nie in Logs anzeigen.
+
+### 8.4 Profile und Apps
+
+- Pro Plattform eine Liste der verbundenen Unternehmensstandorte, Trustpilot Business Units, Trusted Shops-Kanäle, App Store Apps und Play Store-Pakete.
+- Anzeigename, Profil-URL, Land/Sprache, Bewertungsart und Zuordnung zu WP-Seite/Produkt/Event.
+- Mehrere Profile nur als Pro-Funktion; öffentliche Profil-Links können im Kern verwaltet werden.
+
+### 8.5 Review-Anfragen (Pro)
+
+- Regeln: Ereignis, Verzögerung, Empfänger, Produkt/Event/App, Häufigkeitslimit, Ausschlusszustände und erlaubte Plattformziele.
+- Nachrichtenvorlagen mit Marke, Sprache, Datenschutz-/Abmeldelink und Vorschau.
+- Queue-Tabelle: geplant, gesendet, übersprungen, fehlgeschlagen, abgemeldet; Grund und Retry-Aktion.
+- Testmodus und Vorschau; automatische Sendung standardmäßig aus, bis Einrichtung und Test abgeschlossen.
+- Keine Abzweigung nach Zufriedenheit/Rating, um nur positive Antworten zur externen Plattform zu lenken.
+
+### 8.6 Widgets
+
+- Widget-Liste mit Titel, Typ, Quellen, Auswahlregel, Layout, Vorschau und verwendeten Seiten.
+- Wizard: Quelle(n) → Reviews wählen/Filter → Layout → Anzeigeoptionen → Vorschau → Block/Shortcode kopieren.
+- Free: Grid/Listen-Grundlayout. Pro: Carousel, Badge, Trustbar, Produkt-/App-Widget, erweiterte Filter.
+- Gutenberg-Block mit Sidebar-Optionen; Shortcode stabil/versioniert, z. B. `[review_captain_widget id="123"]`.
+- HTML serverseitig rendern (SSR) und minimale CSS/JS-Dateien laden; keine Remote-Widgets oder unnötigen Frontend-Requests.
+
+### 8.7 Analytics (Pro)
+
+- Zeitreihe: neue Reviews und Durchschnitt je Quelle; Stichprobengröße stets sichtbar.
+- Verteilung nach Rating und Zeitraum; App-Version, Produkt oder Event als optionaler Drilldown.
+- Anfrage-Funnel: geplant → zugestellt → geklickt, nur wenn rechtmäßig und technisch datensparsam messbar.
+- Export als CSV und optionaler Zeitraumreport.
+- Keine personenbezogenen Profile, die einzelne Kundenverhalten sichtbar machen; kleine Kohorten/Anonymisierung berücksichtigen.
+
+### 8.8 Integrationen (Pro)
+
+- WooCommerce-, Voucher-Captain-, Pass-Captain- und Affiliate-Captain-Karten.
+- Status, Anforderungen, benötigte Minimalversionen, Triggerkonfiguration, Datenfelder und Testlauf.
+- Konflikt-/Dedupe-Logs und Retry-Warteschlange; deaktivierbare Adapter und Hinweis, falls eine Partnerintegration fehlt.
+- Keine automatische Aktivierung eines anderen Captain-Plugins oder seiner Funktionen.
+
+### 8.9 Einstellungen
+
+Tabs:
+
+1. **Allgemein:** Sprache/Datumsformat, Standardquelle, Standarddarstellung.
+2. **Sync:** Intervall, Mengenlimit, Rückblick, manuelles Sync, Zeitbudget und Cron-Hinweis.
+3. **Review-Einreichungen:** Moderation, Spam-Schutz, erlaubte Felder, Rate-Limits.
+4. **Anfragen:** Absender, Versand, Opt-out, Frequenz, Protokollaufbewahrung.
+5. **Darstellung:** CSS-Variablen, Sterne, Quellenlabel, Datum, Avatar.
+6. **Datenschutz:** Datenaufbewahrung, Export/Löschung, Datenschutzhinweis-Vorschlag, externe Dienste.
+7. **Rollen:** Capabilities für verwalten, moderieren, Quellen verbinden und Reports einsehen.
+8. **Diagnose:** Versions-/Kompatibilitätsstatus, letzte Jobs, API-Fehlercodes, Debug-Export ohne Secrets.
+
+### 8.10 Pro-Lizenz
+
+- Gleiche Lizenzclient-/Updater-Integration wie die übrigen Captain-Pro-Add-ons.
+- Aktivieren, deaktivieren, Lizenzstatus, Site-/Aktivierungslimit, Ablauf/Verlängerung, Updates und Link zum Kundenkonto.
+- Lizenzseite unter Review Captain, kein zusätzlicher Lizenzserver-Aufruf beim normalen Seitenaufruf.
+- Ohne gültige Lizenz keine neuen Pro-Syncs oder Pro-Aktionen; gespeicherte Reviews bleiben lesbar und exportierbar.
+
+## 9. Frontend- und Benutzererfahrung
+
+### Blöcke und Shortcodes
+
+- **Review-Widget-Block:** Widget-ID, Auswahl, Layout, Filter, Sichtbarkeit.
+- **Review-Einreichungs-Block:** Formular für eigene Reviews, Consent- und Datenschutztext konfigurierbar.
+- **Review-CTA-Block:** Schaltflächen zu offiziellen Profilen; keine vorselektierte 5-Sterne-Bewertung.
+- **Quellen-Badge-Block:** Score/Anzahl nach offizieller Plattformausgabe und Link zum Profil.
+- Shortcodes für klassische Themes und Page Builder. Blocks bleiben ohne JS nutzbar, wo sinnvoll.
+
+### Qualitätsanforderungen
+
+- Tastaturbedienung und Screenreader-Beschriftung; Sterne nicht nur durch Farbe darstellen.
+- Responsive Layout, keine Layout-Verschiebung, sichere HTML-Escapes und keine ungeprüften Review-HTML-Fragmente.
+- Lazy Loading für Avatare; externe Domains nur nach Einstellung und Datenschutzprüfung.
+- Reviews unabhängig von externen API-Verfügbarkeiten rendern; zuletzt zulässiger Cache bleibt bis zur erlaubten Aktualisierung sichtbar.
+- Quellenname/-logo, Skala, Zeitstempel und externer Original-Link nachvollziehbar anzeigen.
+
+## 10. Architektur und Daten
+
+### Core-Architektur
+
+- PHP/WP-konform; WooCommerce optionaler Adapter, kein Pflicht-Dependency.
+- Namespace-Vorschlag: `ReviewCaptain\`; Textdomain: `review-captain`.
+- Keine Lizenzprüfung im Kern, keine Tabellen anderer Captain-Plugins direkt lesen.
+- Providervertrag/Registry im Kern, z. B. `ReviewProviderInterface`, `ReviewRequestProviderInterface`, versionierte Hooks.
+- Reviews und lokale Einstellungen site-getrennt auf Multisite; Schema-Upgrades idempotent und über WP-Cron/WP-CLI statt Besucheraufrufe.
+- Review-Zeilen bei wachsendem Umfang in eigene Tabelle mit Indizes auf Provider-ID, Status, Rating, Created, Profile-ID; Konfiguration/Widgets separat.
+- Hintergrundjobs mit Wiederholungen, Sperren, Idempotency-Key, Backoff, Dead-letter-Status und Zeitbudget.
+- REST-Routen nur mit Capability-/Nonce- oder signierter Authentisierung; keine offenen Schreibendpunkte.
+- Provider-spezifische Tokens/Secrets verschlüsseln; Berechtigungen least privilege; Token-Refresh-/Revocation-Flow.
+
+### Schema-Skizze
+
+- `wp_rc_reviews`: normalisierte Review-Datensätze; externe IDs unique je Provider/Profile.
+- `wp_rc_profiles`: Provider, Profil-App-ID, öffentliche URL, Berechtigungsreferenz, Sprache/Region.
+- `wp_rc_sync_runs`: Start/Ende, Cursor, Ergebnis, Fehlercode (keine Secrets).
+- `wp_rc_widgets`: gespeicherte Widget-Regeln und Anzeigeoptionen.
+- `wp_rc_request_queue` (Pro): Ereignis-Hash, Zeit, Zustand, Vorlage/Trigger, minimale Empfängerreferenz, Versand-/Opt-out-Status.
+- `wp_rc_audit_log`: Adminaktionen und Verbindungsvorgänge mit Datenminimierung.
+
+Konkretes Schema, Indizes, Tabellenpräfix und Migrationen werden in der Implementierungsphase gegen erwartete Mengen und Datenschutzfristen geprüft. Plugin-Deinstallation löscht Daten nur gemäß expliziter Option; niemals Plattformdaten/Reviews aus Quellsystemen entfernen.
+
+## 11. Datenschutz, Sicherheit und Richtlinien
+
+- Jede Plattform erfordert eigene Datenschutzhinweise, API-Vertragsprüfung und Datensparsamkeit. Vor Start Review-Import, API-Auftragsverarbeitung, E-Mail-Einladung und Profilverknüpfung rechtlich prüfen.
+- Review-Einladung darf nicht ohne passende Rechtsgrundlage und dokumentierte Kundeninformation versendet werden. Einwilligung/Opt-out wird pro Kanal und Integrationsereignis respektiert; Einladungstext und Datenfluss sind nachvollziehbar.
+- Keine Zugangsdaten in URLs, HTML, Debug-Logs oder Frontend-Markup. OAuth-State/Nonce prüfen und redirect URIs strikt validieren.
+- Secrets verschlüsselt ablegen; WordPress-Keys sind nicht als dauerhaftes Secret-Management zu behandeln, wenn der Betreiber explizite Schlüssel konfigurieren muss.
+- API-Raten begrenzen, 401/403/429/5xx unterscheiden, `Retry-After` beachten und Plattformfehler verständlich übersetzen.
+- Externe Review-Löschungen bzw. Widerrufe regelmäßig in lokale Caches übernehmen; Trustpilot-Refresh-Fenster und andere Speicher-/Löschregeln je Quelle konfigurationsseitig erzwungen dokumentieren.
+- Capability-Checks, Nonces, prepared SQL, Escaping, CSRF/XSS-/SSRF-Schutz und URL-Allowlist für Verbindungen.
+- CSV-Formel-Injection und HTML-Sanitizing berücksichtigen.
+- WordPress Privacy Exporter/Eraser und Aufbewahrungsjobs für lokale Reviews, Anfragen, Logs und Tokens.
+- Anbieter-Markennutzung, Bewertungslogos, Schema-Auszeichnung, Consent-/Cookie-Relevanz und E-Mail-Recht vor Release juristisch bewerten.
+- Eine Fehlermeldung oder ungültige Verbindung soll keine Bewertungen verschwinden lassen oder Daten löschen.
+
+## 12. Umsetzungsschritte / To-do
+
+### Phase 0 – Produkt- und API-Freigaben
+
+- [ ] Review Captain Namens-/Slug-Entscheid treffen: `review-captain` als Core und `review-captain-pro` als Add-on bestätigen.
+- [ ] Kern-/Pro-Grenze in dieser Roadmap bestätigen; Kern muss ohne Lizenz und externe Dienste sinnvoll nutzbar sein.
+- [ ] Aktuelle Wettbewerber-Tarife und Funktionslisten live dokumentieren (Trustindex, Site Reviews, Trustpilot, ReviewsJet/Shapo sowie einschlägige App-Review-Widgets).
+- [ ] Je Plattform API-Zugriff, Nutzungsrechte, Cache-/Löschfristen, App-/Business-Eigentümernachweis, Branding und Kosten in einer Anbieter-Matrix verifizieren.
+- [ ] API-Freigaben/Developer-Projekte und Testkonten für Google, Apple, Google Play, Trustpilot und eTrusted beantragen/einrichten.
+- [ ] Produkt-Key `review-captain-pro`, Prefix `review.`, Plan-Mapping, Site-Limits und Support-Stufe im wp-license abstimmen; Katalogeintrag nicht als erledigt annehmen.
+- [ ] Entitlement-Schlüssel finalisieren; Captain Pro Build-Registry/Packages und Release-Checkliste erweitern.
+- [ ] Review-Request-Rechtsgrundlage und Datenschutzhinweise für Zielmärkte juristisch prüfen.
+
+### Phase 1 – Discovery und UX
+
+- [ ] User Flows erstellen: Erstinstallation, lokale Review, Profil verbinden, API-Verbindung fehlerhaft, Widget veröffentlichen, Anfrage einrichten, Lizenz abgelaufen.
+- [ ] Admin-Menü und Seiten-Wireframes für Dashboard, Reviews, Quellen, Widgets, Einstellungen, Diagnose, Pro-Lizenz erstellen.
+- [ ] Mobile Admin-Ansichten, leere Zustände, Setup-Checkliste, Fehlerzustände und Pro-Upgrades gestalten.
+- [ ] Terminologie/German/English Glossar, Capability-Matrix und Support-Texte definieren.
+- [ ] Datenflussdiagramm und Retention-/Deletion-Matrix je Quelle erstellen.
+
+### Phase 2 – Kostenloser Core
+
+- [ ] Plugin-Skeleton, Loader, Namespaces, Übersetzungen, readme, Plugin Check und Build-/CI-Grundlage.
+- [ ] Datenmodell, Migration, Multisite-Scope und WP CLI-/Cron-Wartungsjobs.
+- [ ] Lokale Review-Verwaltung, Moderation, Rollen, Suche/Filter, Audit- und Datenschutzexport/-löschung.
+- [ ] Manuell kuratierte externe Reviews mit Quellennachweis und Link; kein Scraping.
+- [ ] Gutenberg-Blocks, SSR-Frontend, Shortcodes und zugängliche Basis-Layouts.
+- [ ] Security-/Privacy-Settings, minimale Assets und keine externen Requests ohne Opt-in.
+- [ ] Entwicklervertrag für Provider- und Suite-Adapter dokumentieren und vor Pro stabilisieren.
+
+### Phase 3 – Pro-Gerüst und Lizenz
+
+- [ ] `review-captain-pro` in Captain Pro mit eigenem Namespace, Config, Mindest-Core-Version und Product Key registrieren.
+- [ ] Lizenzclient exportieren; Lizenzseite, Aktivieren/Deaktivieren, Entitlements und Update-URI konfigurieren.
+- [ ] `review.*`-Entitlements in wp-license ergänzen; Plan-Katalog und CSV-Mapping abstimmen.
+- [ ] Core-Versionserkennung, Read-only-Verhalten bei Ablauf, Fehlerhinweise und Lizenz-/Updater-E2E konfigurieren.
+- [ ] Keine API-Anfrage bei normalem Plugin-Laden; Connections nur mit aktiver Aktion/Cron.
+- [ ] Build, Release-ZIP, Textdomain, POT/Übersetzungen und Lizenztests in Captain-Pro-CI aufnehmen.
+
+### Phase 4 – Provider zuerst
+
+- [ ] Gemeinsamer Adaptervertrag: connect, test, list profiles, sync page/cursor, normalize, delete/tombstone, quota status.
+- [ ] Google Business Profile OAuth und verifizierte Location als ersten Unternehmensprovider umsetzen.
+- [ ] Google Places Fallback getrennt und deutlich limitiert evaluieren (maximal fünf Reviews bei Place Details; Kosten und Attribution).
+- [ ] App Store Connect API-Adapter und Test in eigener App implementieren.
+- [ ] Google Play Reviews-Adapter mit least-privilege OAuth/Service Account implementieren.
+- [ ] Trustpilot-Zugang nach API-/Tarifberechtigung; offizielles Widget als alternativer Einbettungspfad.
+- [ ] Trusted Shops/eTrusted API mit echtem berechtigtem Händlerzugang; Widget/Trustbadge-Option.
+- [ ] Providervertragstests mit Fixture-Daten, Rate-Limit-, Pagination-, Token-Refresh-, Lösch- und Fehlerfällen.
+- [ ] Dashboard-Konnektivität/Sync-Status und secrets-sichere Diagnose.
+
+### Phase 5 – Automationen & Suite
+
+- [ ] WooCommerce-Adapter: Statusauswahl, HPOS/Classic/Blocks, Idempotenz, Consent/Opt-out, Versandqueue und Tests.
+- [ ] Voucher-Captain-Adapter: Voucher-Ausstellung/Einlösung als Trigger; minimaler Payload.
+- [ ] Pass-Captain-Adapter: Event-Ende/Check-in/Erstattung als Trigger; definierte Ausschlüsse.
+- [ ] Affiliate-Captain-Adapter: freiwilliges internes Attribution-Reporting ohne Provision für Rezensionen.
+- [ ] Frequenz-Capping, Doppelbestellungs-Schutz, Abmeldung, Testlauf, Retry, Dead-letter und Protokollablauf.
+- [ ] Integration nur bei aktivem Add-on-Entitlement; Core-Suite-Verträge bleiben kostenlos und dokumentiert.
+
+### Phase 6 – Widgets, Reports und Release
+
+- [ ] Pro-Layouts/Filter, Produkt-/App-Reviews, Quellenbadges, responsive Vorschau.
+- [ ] Analytics und datensparsame Exporte.
+- [ ] Barrierefreiheit, Übersetzungsprüfung, Performance/Cache-/Cron-Last und Multisite-Verhalten abnehmen.
+- [ ] API-/Marken-/Datenschutzbedingungen pro Provider im Plugin und in der Dokumentation aufführen.
+- [ ] Migrations-, Backup-, Deinstallations-, Recovery- und Token-Widerrufspfade verifizieren.
+- [ ] Release-Readiness-Dokument, Support-Matrix, Mindestversionen und Rollback-Plan erstellen.
+- [ ] Verkauf erst freigeben, wenn reale Testverbindungen/Providerfreigaben, Lizenzkatalog, Live-Dokumentation und Datenschutzprüfung vollständig sind.
+
+## 13. MVP-Empfehlung
+
+Für ein kontrolliertes erstes Release:
+
+1. **Free Core:** lokale/manuell kuratierte Reviews, Quellennachweis, ein SSR-Grid-Block und Shortcode, Moderation und Privacy-Tools.
+2. **Pro 1.0:** Lizenz-/Updater-Integration, Google Business Profile für eigene verifizierte Standorte sowie App Store Connect und Google Play für eigene Apps; automatische Syncs und Pro-Widgets.
+3. **Pro 1.x:** Trusted Shops/eTrusted und Trustpilot nach verifiziertem API-Zugang/Tarif, dann WooCommerce-Anfrageautomationen.
+4. **Suite 2.x:** Voucher-/Pass-/Affiliate-Adapter und weiterführende Analytics.
+5. **Antwortfunktionen** erst, wenn alle Plattform-Scopes, Moderationsrollen und Audit-Anforderungen praktisch validiert wurden.
+
+Trustpilot und Trusted Shops sind für Unternehmen relevante Quellen, aber ihre API-/Tarifzugänge können nicht als kostenlose oder allgemein verfügbare Basis vorausgesetzt werden. Das Produkt muss deshalb mit offiziellen Widgets/Profile-Links degradieren können, statt unerlaubt zu importieren.
+
+## 14. Erfolgskriterien
+
+- Neue Website kann in wenigen Minuten lokale Reviews erfassen oder eine offizielle Quelle verbinden.
+- Widget bleibt auch bei API-Ausfall schnell und nutzbar; kein öffentlicher Request pro Besucheraufruf.
+- Jede externe Rezension zeigt Herkunft und führt zur Originalquelle.
+- Anbieterbedingungen einschließlich Cache- und Löschpflicht werden pro Adapter erzwungen.
+- Review-Anfragen sind idempotent, einwilligungs-/opt-out-fähig, auswertbar und nicht auf positive Sterne optimiert.
+- Free bleibt ohne Lizenz, WooCommerce und externe SaaS funktionsfähig.
+- Pro wird im selben Lizenz- und Updatefluss wie Captain Pro ausgeliefert; Lizenzablauf löscht keine Review-Daten.
+- Jede Suite-Integration arbeitet über versionierte Verträge, minimale Daten und abschaltbare Adapter.
+
+## 15. Quellen und Referenzen
+
+### Captain Suite / Architektur
+
+- [WP License Captain – REST API v1](https://github.com/hastla007/wp-license/blob/main/docs/API-V1.md)
+- [WP License Captain – Client Integration](https://github.com/hastla007/wp-license/blob/main/docs/CLIENT-INTEGRATION.md)
+- [WP License Captain – Entitlements](https://github.com/hastla007/wp-license/blob/main/docs/ENTITLEMENTS.md)
+- [Captain Pro – Architektur](https://github.com/hastla007/captain-pro/blob/main/docs/ARCHITECTURE.md)
+- [Captain Pro – Tarife und Umfang](https://github.com/hastla007/captain-pro/blob/main/docs/TARIFE.md)
+- [WP Pass Captain – Hooks und Verträge](https://github.com/hastla007/wp-passmaster/blob/main/docs/HOOKS.md)
+
+### Markt- und Plattformquellen
+
+- [Trustindex Google Reviews Plugin (WordPress.org)](https://wordpress.org/plugins/wp-reviews-plugin-for-google/)
+- [Trustindex Reviews Widgets (WordPress.org)](https://wordpress.org/plugins/reviews-widgets/)
+- [Site Reviews (WordPress.org)](https://wordpress.org/plugins/site-reviews/)
+- [Trustpilot WooCommerce Integration](https://woocommerce.com/products/trustpilot-reviews/)
+- [Trustpilot API Overview](https://developers.trustpilot.com/)
+- [Trustpilot Authentication](https://developers.trustpilot.com/authentication)
+- [Trustpilot Content Refresh Guidelines](https://developers.trustpilot.com/ds-caching-best-practices/)
+- [Google Business Profile: Review Data](https://developers.google.com/my-business/content/review-data)
+- [Google Business Profile API Policies](https://developers.google.com/my-business/content/policies)
+- [Google Places API: Place Details](https://developers.google.com/maps/documentation/places/web-service/place-details)
+- [Apple App Store Connect API: Customer Reviews](https://developer.apple.com/documentation/appstoreconnectapi/customer-reviews)
+- [Google Play Developer API: Reviews.list](https://developers.google.com/android-publisher/api-ref/rest/v3/reviews/list)
+- [Trusted Shops Common API](https://api.trustedshops.com/documentation/public/)
+- [Trusted Shops Restricted API](https://api.trustedshops.com/documentation/restricted/)
+- [eTrusted API: Getting Started](https://developers.etrusted.com/docs/getting-started)
+- [eTrusted Review Widgets](https://developers.etrusted.com/docs/review-widgets)
+
+**Hinweis zur Recherche:** Quellen und Anbieterbedingungen wurden am 15.11.2026 recherchiert. Die Integration ist nach den jeweils aktuellen Primärdokumenten vor Implementierung/Release erneut zu verifizieren; insbesondere API-Zugang, Tarifumfang, Lösch-/Refresh-Fristen und Markenregeln können sich ändern.
