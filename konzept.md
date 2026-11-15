@@ -61,6 +61,44 @@ Review Captain sollte nicht mit „noch mehr Widget-Layouts“ konkurrieren. Die
 - **Quellentreue:** Herkunft, Direktlink, Bewertungsart (Service/Produkt/App), Veröffentlichungsdatum und Synchronisationszeit bleiben sichtbar.
 - **Kontrollierte Automatisierung:** kein Review-Gating (zufriedene Käufer zu öffentlichen Plattformen und unzufriedene nur intern lenken), keine Belohnung für positive Reviews, keine Anfrage ohne gültige Rechtsgrundlage.
 
+### Konkrete Funktionslücken gegenüber Wettbewerbern
+
+Der aktuelle Konzeptumfang ist stark bei Plattform-Aggregation und Suite-Automatisierung. Gegen einzelne etablierte Plugins fehlen aber noch Funktionen aus den Bereichen Produktreviews, UGC und Kampagnen:
+
+| Funktion, die Wettbewerber anbieten | Beispiel aus dem Markt | Status im Review-Captain-Konzept | Einschätzung |
+|---|---|---|---|
+| **Foto- und Video-Reviews** | Customer Reviews for WooCommerce unterstützt Bilder/Videos; Site Reviews Premium hat Bild-Reviews und Galerie. | Nicht vorgesehen; das lokale Review-Formular sammelt bisher Text und Rating. | **Hohe Priorität für Phase 2.** Sichtbarer Social Proof. Mit Moderation, Größenlimit, Einwilligung, Malware-/Dateitypprüfung und sauberer Aufbewahrung umsetzen. Videos zunächst externe Einbettungslinks statt eigener Hosting-/Transcoding-Infrastruktur. |
+| **Fragen und Antworten auf Produktseiten** | Customer Reviews for WooCommerce hat ein Q&A-Modul für Fragen und Antworten rund um Produkte. | Nicht vorgesehen. | **Gute WooCommerce-Ergänzung.** Als eigenes Q&A-Objekt getrennt von externen Bewertungen halten; Händlerantworten und Moderation unterstützen. |
+| **Verifizierter Kauf / verifizierte Erfahrung** | WooCommerce/CusRev kann Kundenreviews mit Bestellbezug und Verifizierungsablauf darstellen; Site Reviews bietet Review-Verifizierung. | Review Captain unterscheidet bereits eigene/externe Reviews, spezifiziert aber noch kein einheitliches, belegbares Verifizierungskennzeichen für lokale Reviews. | **Wichtig für Glaubwürdigkeit.** Nur als „Kauf verifiziert“ kennzeichnen, wenn das Quellplugin eine echte bezahlte/erfüllte Bestellung geprüft hat. „Teilnahme bestätigt“ separat davon benennen. |
+| **Review-Formular für mehrere Positionen** | CusRev bietet ein Formular, mit dem ein Kunde mehrere gekaufte Produkte in einer Sitzung bewerten kann. | Anfrage- und Widgetregeln sind vorgesehen; gebündelte Review-Abgabe pro Bestellung ist nicht beschrieben. | **Hohe Priorität im WooCommerce-Flow.** Eine E-Mail pro Erlebnis kann dennoch mehrere klar getrennte Produktbewertungen erfassen; keine Bewertung vorauswählen oder erzwingen. |
+| **Kundenfragen, Community-Aktionen und Autorenfunktionen** | Site Reviews Premium bietet Upvotes, Melden/Übersetzen und Aktualisieren von Reviews durch Autoren; individuelle Review-Formulare mit Feldbedingungen. | Basisformular, Filter und Moderation sind vorgesehen, nicht aber Upvotes, Autorenbearbeitung, Meldeprozess oder benutzerdefinierte Feldgruppen. | **Auswahl für später.** Melden und Händlerantwort sind sinnvoll; Upvotes/öffentliche Übersetzung nur bei klarer Moderation, Missbrauchsschutz und Mehrwert. |
+| **Mehr Einladungswege** | CusRev nennt E-Mail-Erinnerungen, manuelle WhatsApp-Einladungen und bestellbezogene QR-Codes für Review-Formulare. | Automatische Einladungen und Versandqueue sind vorgesehen; WhatsApp, QR-Kampagnen und mehrere Produkte pro Formular fehlen. | **Gute Suite-Chance.** Feedback-QR auf Gutschein-PDFs oder Eventmaterial als eigener QR-Link; niemals den Sicherheits-/Einlass-QR eines Tickets wiederverwenden. WhatsApp nur über offiziellen Click-to-Chat oder freigegebenen Messaging-Anbieter. |
+| **Google Shopping Produktreview-Feed** | CusRev bietet XML-Feeds für Google Shopping Product Ratings/Reviews an. | Nicht vorgesehen. | **Potenziell starke WooCommerce-Pro-Funktion**, aber erst nach Prüfung der Google Merchant Center Teilnahmebedingungen, Produktzuordnung, Herkunfts- und Verifizierungsanforderungen planen. Nicht mit Google Business Profile Reviews verwechseln. |
+| **Mehr externe Plattformen** | Trustindex deckt neben Google u. a. Facebook, Yelp, Amazon, TripAdvisor, Booking.com und weitere Portale ab; Trustpilot bietet eigene Widgets/Marketingfunktionen. | Startumfang ist bewusst auf Google, Trustpilot, Trusted Shops, App Store und Play Store begrenzt. | **Kein MVP-Blocker.** Provider-Architektur muss erweiterbar sein. Plattform nur ergänzen, wenn offizieller Datenzugang, stabile Nachfrage und rechtmäßige Darstellung gesichert sind. |
+| **Vorlagen- und Sprachkomfort** | Site Reviews erlaubt öffentliche Textanpassung und Übersetzungsintegrationen; CusRev unterstützt mehrsprachige Erinnerungen und angepasste E-Mails. | Vorlagen, Locale und Übersetzungsgrundlage sind vorgesehen; mehrsprachige Kampagnenvorschau, automatische Übersetzungszuordnung und Übernahme der WPML/Polylang-Produktzuordnung sind nicht detailliert. | **Vor Pro-Release konkretisieren.** Kampagnensprache aus Bestellung/Teilnehmer wählen, fehlende Übersetzung sichtbar melden, niemals Reviewtexte automatisch verändern. |
+| **Review-Migration und Tagging** | CusRev beschreibt Import/Export, Review-Tags und Review-Verwaltung. | CSV-Export ist vorgesehen; Import-/Migrationsassistent und Tags/Labels für interne Moderation fehlen. | **Wichtig beim Wechsel.** Erstimport aus WooCommerce, CusRev und Site Reviews mit Vorschau, Duplikaterkennung und Rollback planen; Plattformquellen nicht als native Woo-Kommentare importieren. |
+| **Mehr Widgets und Builder-Komponenten** | Trustindex setzt auf vorgefertigte Layouts; Site Reviews gibt Template-Kontrolle und Blocks/Shortcodes. | Grid/List und Pro-Carousel, Badge, Trustbar sowie Gutenberg/Shortcodes sind vorgesehen. | **Kein grundlegender Funktionsmangel**, aber Elementor/Divi-Integration, Farb-/Typografie-Vorlagen, Slider-Steuerung und echte Frontend-Vorschau sollten als Ausbaupunkte aufgenommen werden. |
+
+### Was davon in die Roadmap sollte
+
+**Vor dem ersten Pro-Verkauf ergänzen oder verbindlich entscheiden:**
+
+1. Import/Migration mit Vorschau für WooCommerce und verbreitete lokale Review-Plugins.
+2. Verifizierungsregeln für „Kauf verifiziert“ und „Teilnahme bestätigt“.
+3. Mehrsprachige Review-Anfragevorlagen mit Produkt-/Teilnehmer-Locale.
+4. Gebündelte Anfrage-/Formularlogik für mehrere Produkte bzw. Eventpositionen.
+5. Aktuelle Merchant-Center-Anforderungen für einen optionalen Produktreview-Feed ermitteln.
+
+**Als differenzierende Folgefunktionen aufnehmen:**
+
+- Foto-Reviews mit Galerie; Video zuerst als datenschutzfreundliche externe Einbettung.
+- Produkt-Q&A und Händlerantworten.
+- Eigene Feedback-QR-Codes für Voucher Captain und Pass Captain.
+- Review-Tags, Melden/Autorenkorrektur und ausgewählte Community-Funktionen.
+- Weitere Plattformadapter jenseits der initialen fünf – abhängig von Nachfrage und offiziellen API-/Lizenzrechten.
+
+**Bewusst nicht übernehmen:** Rabatte, Gutscheine oder andere Vorteile für Bewertungen auf externen Plattformen; bedingte Weiterleitung je nach Sternen; Rezensionstexte verändern; fremde Reviews ungeprüft in Produktfeeds oder WooCommerce-Sterne kopieren. Foto/Video-Inhalte, Import und Verifizierung müssen Moderation, Quellenangabe und Löschrechte mitliefern.
+
 Die Wettbewerber-Funktionslisten und Anbieter-Tarife ändern sich regelmäßig. Vor Preis- und Launch-Entscheidungen muss ein dokumentierter Live-Vergleich der Free- und Paid-Tarife erstellt werden; Angaben in diesem Konzept sind qualitative Marktbeobachtungen, keine Preisempfehlung.
 
 ## 4. Plattformen und Integrationswege
