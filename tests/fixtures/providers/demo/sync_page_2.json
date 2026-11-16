@@ -1,0 +1,15 @@
+{
+  "request": { "profile_external_ref": "loc-100", "cursor": "eyJwIjoyfQ", "options": { "mode": "full", "page_size": 2, "since": null, "run_uuid": "5d0a7e3b-2c1f-4e8a-9b6d-7f0e1a2b3c4d" } },
+  "response": {
+    "items": [
+      { "id": "demo-rev-1002", "stars": 2, "headline": "", "text": "Wartezeit am Telefon war lang.", "lang": "de", "reviewer": { "display": "" }, "created": "2026-11-11T17:40:00Z", "updated": "2026-11-12T08:00:00Z", "link": "https://reviews.example.test/r/demo-rev-1002" },
+      { "id": "demo-rev-1003", "stars": 5, "headline": "Top Beratung", "text": "Sehr freundliches Team.", "lang": "de_AT", "reviewer": { "display": "S. B." }, "created": "2026-11-12T10:00:00Z", "updated": "2026-11-12T10:00:00Z", "link": "https://reviews.example.test/r/demo-rev-1003" }
+    ],
+    "removed": [],
+    "next_cursor": null,
+    "has_more": false,
+    "summary": { "rating_value": 4.6, "rating_scale_min": 1, "rating_scale_max": 5, "count": 1234, "as_of": "2026-11-16T06:00:00Z" },
+    "quota": { "state": "ok", "remaining": 58, "reset_at": "2026-11-16T06:01:00Z", "retry_after_seconds": null, "source": "provider_header" },
+    "credentials_update": null
+  }
+}

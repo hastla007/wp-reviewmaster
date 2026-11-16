@@ -1,0 +1,1 @@
+{ "http_status": 429, "headers": { "Retry-After": "120" }, "expected_exception": { "code": "rc.quota.rate_limited", "retry_after_seconds": 120 } }

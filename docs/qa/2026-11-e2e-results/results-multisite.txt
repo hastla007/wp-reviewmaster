@@ -1,0 +1,14 @@
+PASS Multisite installiert (SQLite)
+PASS Core netzwerkweit aktiviert
+PASS Tabellen wp_review_captain_*: 6
+PASS Tabellen wp_2_review_captain_*: 6
+PASS Neue Site nach Netzwerkaktivierung erhält Tabellen (6)
+check	status	message
+schema	ok	Schema-Version 1 (erwartet 1).
+cron	warning	Job-Takt ist nicht eingeplant (Adminbereich einmal aufrufen oder Plugin reaktivieren).
+runner	warning	DISABLE_WP_CRON gesetzt – System-Cron muss „wp review-captain jobs run“ ausführen.
+crypto	warning	Zugangsdaten werden mit einem aus den WordPress-Salts abgeleiteten Schlüssel verschlüsselt. Empfehlung: REVIEW_CAPTAIN_ENCRYPTION_KEY setzen.
+PASS Pro netzwerkweit aktiviert
+PASS Pro ohne Lizenz auf Site 2: keine Rechte
+PASS Netzwerk-Deinstallation entfernt alle Tabellen
+PASS debug.log (Multisite) ohne Meldungen außer bekanntem Textdomain-Notice

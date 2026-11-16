@@ -1,0 +1,109 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "review-captain/reviews",
+	"version": "1.0.0",
+	"title": "Bewertungen (Review Captain)",
+	"category": "widgets",
+	"icon": "star-filled",
+	"description": "Freigegebene Bewertungen und Erfahrungsberichte als Raster oder Liste – serverseitig gerendert.",
+	"keywords": [
+		"reviews",
+		"bewertungen",
+		"testimonials",
+		"sterne"
+	],
+	"textdomain": "review-captain",
+	"supports": {
+		"html": false,
+		"align": [
+			"wide",
+			"full"
+		],
+		"spacing": {
+			"margin": true
+		}
+	},
+	"attributes": {
+		"v": {
+			"type": "string",
+			"default": "1"
+		},
+		"layout": {
+			"type": "string",
+			"enum": [
+				"grid",
+				"list"
+			],
+			"default": "grid"
+		},
+		"columns": {
+			"type": "number",
+			"default": 3
+		},
+		"platform": {
+			"type": "string",
+			"default": ""
+		},
+		"kind": {
+			"type": "string",
+			"enum": [
+				"all",
+				"review",
+				"testimonial"
+			],
+			"default": "all"
+		},
+		"minRating": {
+			"type": "number",
+			"default": 0
+		},
+		"limit": {
+			"type": "number",
+			"default": 6
+		},
+		"contextType": {
+			"type": "string",
+			"default": ""
+		},
+		"contextId": {
+			"type": "string",
+			"default": ""
+		},
+		"profile": {
+			"type": "number",
+			"default": 0
+		},
+		"showSource": {
+			"type": "boolean",
+			"default": true
+		},
+		"showDate": {
+			"type": "boolean"
+		},
+		"showAuthor": {
+			"type": "boolean"
+		},
+		"showSummary": {
+			"type": "boolean",
+			"default": true
+		},
+		"headingLevel": {
+			"type": "integer",
+			"default": 2
+		},
+		"paginate": {
+			"type": "boolean",
+			"default": false
+		},
+		"type": {
+			"type": "string",
+			"default": "reviews"
+		},
+		"newTab": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"editorScript": "file:./editor.js"
+}

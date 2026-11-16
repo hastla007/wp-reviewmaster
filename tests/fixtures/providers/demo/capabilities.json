@@ -1,0 +1,18 @@
+{
+  "contract": "1.0",
+  "facts_status": "fixture",
+  "capabilities": ["read_reviews", "list_profiles", "summary", "delete_sync"],
+  "auth": ["api_key"],
+  "hosts": ["reviews.example.test"],
+  "features": ["list_profiles", "sync_full", "sync_delta", "deletion_feed", "full_listing", "summary"],
+  "write_features": [],
+  "rating_scale": { "min": 1, "max": 5, "step": 1 },
+  "max_page_size": 50,
+  "default_page_size": 20,
+  "max_cache_ttl_seconds": 86400,
+  "min_sync_interval_seconds": 3600,
+  "rate_limit": { "requests": 60, "per_seconds": 60 },
+  "config_fields": [
+    { "key": "api_key", "type": "secret", "label": "API-Schlüssel", "required": true }
+  ]
+}

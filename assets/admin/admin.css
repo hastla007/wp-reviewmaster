@@ -1,0 +1,64 @@
+/* Review Captain – admin layout helpers. Native WP admin look; only fills layout gaps. */
+.rc-admin .rc-admin-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+	margin: 12px 0;
+}
+@media (min-width: 782px) {
+	.rc-admin .rc-admin-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	.rc-admin .rc-admin-columns { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
+}
+.rc-admin .rc-admin-grid .postbox,
+.rc-admin .rc-admin-side .postbox { margin-bottom: 12px; }
+.rc-admin .rc-admin-kpi__label { margin: 0; color: #50575e; }
+.rc-admin .rc-admin-kpi__value { margin: 4px 0; font-size: 2em; font-weight: 600; line-height: 1.2; color: #1d2327; }
+.rc-admin .postbox-header h2 { padding: 8px 12px; margin: 0; font-size: 14px; }
+
+.rc-admin-status {
+	display: inline-block;
+	padding: 0 8px;
+	border: 1px solid #c3c4c7;
+	border-left-width: 4px;
+	border-radius: 2px;
+	background: #fff;
+	color: #1d2327;
+	font-size: 12px;
+	line-height: 20px;
+	white-space: nowrap;
+}
+.rc-admin-status--ok { border-left-color: #00a32a; }
+.rc-admin-status--warning { border-left-color: #dba617; }
+.rc-admin-status--error { border-left-color: #d63638; }
+.rc-admin-status--neutral { border-left-color: #8c8f94; }
+
+.rc-admin-pro-lock { color: #50575e; cursor: default; }
+.rc-admin-pro-lock .dashicons { font-size: 16px; width: 16px; height: 16px; vertical-align: text-bottom; }
+.rc-admin-pro-card ul { margin: 0; }
+.rc-admin-pro-card li { margin-bottom: 4px; }
+
+.rc-admin-advanced { margin: 1em 0; }
+.rc-admin-advanced > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.rc-admin-advanced > summary:focus-visible { box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #2271b1); outline: none; }
+
+.rc-admin-steps { margin-left: 1.5em; }
+.rc-admin-step { margin-bottom: 10px; }
+.rc-admin-step--done strong,
+.rc-admin-step--skipped strong { color: #50575e; }
+
+.rc-admin-recent { margin: 0; }
+.rc-admin-recent li { padding: 6px 0; border-bottom: 1px solid #f0f0f1; }
+.rc-admin-rating { font-weight: 600; white-space: nowrap; }
+.rc-admin-quote { margin: 0; padding-left: 12px; border-left: 4px solid #dcdcde; }
+.rc-admin-dl dt { font-weight: 600; margin-top: 6px; }
+.rc-admin-dl dd { margin: 0; }
+.rc-admin-empty { max-width: none; }
+.rc-admin-danger { margin-top: 2em; padding: 0 12px 12px; border: 1px solid #d63638; border-left-width: 4px; background: #fff; }
+.rc-admin-notice-list { margin: 0 0 8px 1.5em; list-style: disc; }
+.rc-admin-filterbar { height: auto; }
+.rc-admin-filters .search-box { margin-top: 6px; }
+.rc-admin .column-rating { width: 7em; }
+.rc-admin .column-kind,
+.rc-admin .column-verification,
+.rc-admin .column-status,
+.rc-admin .column-date { width: 10em; }

@@ -1,0 +1,52 @@
+Import & Export
+
+Prüflauf abgeschlossen. Bitte Ergebnis prüfen und Import bestätigen.
+
+Export
+
+Exportiert Bewertungen und Erfahrungsberichte als CSV (UTF-8) im Importformat. E-Mail-Adressen werden nur exportiert, wenn du das ausdrücklich auswählst.
+
+Typ	
+Alle
+Bewertung
+Erfahrungsbericht (Website)
+
+Plattform	
+Alle
+Diese Website
+Google
+Trustpilot
+Trusted Shops
+App Store
+Google Play
+Andere Plattform
+
+Status	
+Alle
+Wartet auf Moderation
+Freigegeben
+Abgelehnt
+Archiviert
+Gemeldet
+Entfernt (Quelle gelöscht)
+
+Zeitraum (erstellt)	von  bis 
+Personenbezogene Daten	 Personenbezogene Daten einschließen (E-Mail-Adressen der Verfasser)
+
+CSV exportieren
+
+Import
+Prüflauf: import.csv
+Datenzeilen: 3
+Importierbar: 2
+Fehlerhafte Zeilen: 1
+Duplikate (werden übersprungen): 0
+
+Für importierte Reviews liegt keine im Plugin dokumentierte Einwilligung zur Veröffentlichung vor.
+
+Zeile	Code	Hinweis
+4	rating_out_of_scale	Bewertung liegt außerhalb der Skala.
+Import bestätigenAbbrechen
+Importläufe
+
+Noch keine Importe.

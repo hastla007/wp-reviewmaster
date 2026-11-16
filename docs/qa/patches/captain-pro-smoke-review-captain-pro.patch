@@ -1,0 +1,35 @@
+diff --git a/tests/e2e/smoke.php b/tests/e2e/smoke.php
+index 06d527b..ec8f6a4 100644
+--- a/tests/e2e/smoke.php
++++ b/tests/e2e/smoke.php
+@@ -37,6 +37,30 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
+ wp_set_current_user( 1 );
+ 
+ $cp_addons = array(
++	// Local addition (Review Captain session, 16.11.2026): Review Captain Pro was missing here.
++	'review-captain-pro'    => array(
++		'accessor' => '\ReviewCaptainPro\addon',
++		'key'      => 'review.platform_sync',
++		'parent'   => 'review-captain',
++		'menu'     => static function (): void {
++			$m = \ReviewCaptain\Plugin::instance()->module( \ReviewCaptain\Admin\AdminModule::class );
++			if ( $m ) {
++				$m->menu();
++			}
++		},
++		// Platform adapters registered on the provider hook of the core (review_captain_providers_v1).
++		'probe'    => static function (): bool {
++			$r = new class() {
++				public array $k = array();
++				public function register( $a ) {
++					$this->k[] = $a;
++					return true;
++				}
++			};
++			do_action( 'review_captain_providers_v1', $r );
++			return count( $r->k ) > 0;
++		},
++	),
+ 	'voucher-captain-pro'   => array(
+ 		'accessor' => '\VoucherCaptainPro\addon',
+ 		'key'      => 'voucher.example_feature',

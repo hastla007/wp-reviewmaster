@@ -1,0 +1,27 @@
+== Ausgangslage: ein Job 'läuft' während des Backups (Lease aktiv), ein Review vorhanden
+  Reviews: 6 | Jobs: paused=1 running=1 succeeded=2 
+  Backup: /tmp/claude-0/wp-e2e/backup.sqlite (913408 B)
+== Änderungen nach dem Backup
+Success: 1 Jobs verarbeitet, 1 erfolgreich, 0 fehlgeschlagen.
+  Reviews: 7 | Jobs: paused=1 running=1 succeeded=3 
+== Restore (Datei zurückkopieren)
+  Reviews: 6 | Jobs: paused=1 running=1 succeeded=2 
+== wp review-captain reconcile (ohne --mode, nur Bericht)
+[{"check":"mode","value":"'manual'"},{"check":"fix","value":"false"},{"check":"schema_installed","value":"1"},{"check":"schema_expected","value":"1"},{"check":"schema_ok","value":"true"},{"check":"missing_tables","value":"[]"},{"check":"expired_leases","value":"0"},{"check":"running_without_lease","value":"0"},{"check":"side_effect_jobs_overdue","value":"0"},{"check":"refresh_overdue","value":"0"},{"check":"missing_dedupe_keys","value":"0"},{"check":"stale_imports","value":"0"},{"check":"clone_suspected","value":"false"},{"check":"restore_suspected","value":"false"},{"check":"lock","value":"''"},{"check":"fixed","value":"[]"}]
+== wp review-captain reconcile --fix (ohne --mode)
+[{"check":"mode","value":"'manual'"},{"check":"fix","value":"true"},{"check":"schema_installed","value":"1"},{"check":"schema_expected","value":"1"},{"check":"schema_ok","value":"true"},{"check":"missing_tables","value":"[]"},{"check":"expired_leases","value":"0"},{"check":"running_without_lease","value":"0"},{"check":"side_effect_jobs_overdue","value":"0"},{"check":"refresh_overdue","value":"0"},{"check":"missing_dedupe_keys","value":"0"},{"check":"stale_imports","value":"0"},{"check":"clone_suspected","value":"false"},{"check":"restore_suspected","value":"false"},{"check":"lock","value":"''"},{"check":"fixed","value":"{\"leases_reset\":0}"}]
+  Reviews: 6 | Jobs: paused=1 running=1 succeeded=2 
+== wp review-captain reconcile --fix --mode=restore
+[{"check":"mode","value":"'restore'"},{"check":"fix","value":"true"},{"check":"schema_installed","value":"1"},{"check":"schema_expected","value":"1"},{"check":"schema_ok","value":"true"},{"check":"missing_tables","value":"[]"},{"check":"expired_leases","value":"0"},{"check":"running_without_lease","value":"0"},{"check":"side_effect_jobs_overdue","value":"0"},{"check":"refresh_overdue","value":"0"},{"check":"missing_dedupe_keys","value":"0"},{"check":"stale_imports","value":"0"},{"check":"clone_suspected","value":"false"},{"check":"restore_suspected","value":"false"},{"check":"lock","value":"''"},{"check":"fixed","value":"{\"leases_reset\":1}"}]
+  Reviews: 6 | Jobs: paused=1 queued=1 succeeded=2 
+== Jobs abarbeiten, Idempotenz erneut prüfen
+Success: 1 Jobs verarbeitet, 1 erfolgreich, 0 fehlgeschlagen.
+enqueue inflight erneut → 4
+  Reviews: 6 | Jobs: paused=1 succeeded=3 
+  Duplikate: Job-Idempotenzschlüssel=0, Review-UUIDs=0, inhaltsgleiche RC139-Reviews=0
+  Doctor:
+    check	status	message
+    schema	ok	Schema-Version 1 (erwartet 1).
+    cron	ok	Job-Takt ist eingeplant.
+    runner	ok	DISABLE_WP_CRON gesetzt – System-Cron muss „wp review-captain jobs run“ ausführen.
+    crypto	warning	Zugangsdaten werden mit einem aus den WordPress-Salts abgeleiteten Schlüssel verschlüsselt. Empfehlung: REVIEW_CAPTAIN_ENCRYPTION_KEY setzen.
