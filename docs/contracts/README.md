@@ -9,17 +9,18 @@ Stand: 2026-11-16. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme*
 | [system-of-record.md](system-of-record.md) | RC-017 | Eigentumsmatrix je Datenart, Regeln gegen Doppelführung | Entwurf |
 | [review-schema-v1.md](review-schema-v1.md) + [schema/review.v1.json](schema/review.v1.json) | RC-018 | Feldliste (= Spalten `reviews`), Skalen, Sprache, externe ID/Dedupe, Kontext, Cachezeit, Tombstone, Sichtbarkeitslogik | Entwurf |
 | [testimonial-schema-v1.md](testimonial-schema-v1.md) | RC-019 | Core-Text-Testimonials (`kind=testimonial`), Pro-Medien-/Rechtetabellen, Ablauf, Widerruf | Entwurf; Rechtetexte hängen an RC-015 |
-| [provider-v1.md](provider-v1.md) | RC-020 | Provider-Interface, Registry `review_captain_providers_v1`, Sync-Ablauf, Fixtures (`demo`) | Entwurf |
+| [provider-v1.md](provider-v1.md) | RC-020 | Provider-Interface, Registry `review_captain_providers_v1`, `SyncService`, Fixtures (`demo`) | an Implementierung angeglichen |
 | [experience-event-v1.md](experience-event-v1.md) + [schema/experience-event.v1.json](schema/experience-event.v1.json) | RC-021, CON-004 | Ereignisvertrag `review_captain.experience_event.v1` | Entwurf |
 | [experience-ownership.md](experience-ownership.md) | RC-022 | ID-Verantwortliche und Dedupe je Quelle (WooCommerce, Voucher, Pass, Form) | **Spezifikation; Bestätigung durch Quell-Plugins offen** |
 | [recipient-resolver-v1.md](recipient-resolver-v1.md) | RC-023 | Kontaktauflösung nur zur Versandzeit | Entwurf |
 | [request-lifecycle.md](request-lifecycle.md) | RC-024 | Zustände, Mermaid-Diagramm, Übergangstabelle, Pro-Tabelle `requests` | Entwurf |
 | [invitation-rule.md](invitation-rule.md) | RC-025 | Einladungsschlüssel, Suite-Sperre, Versand-Ledger, Empfänger-Guard, SQL | Entwurf |
-| [../architecture/error-codes.md](../architecture/error-codes.md) | RC-030 | Fehlercodes, Retry-Klassen, Integrationsstatus | Entwurf |
+| [../architecture/error-codes.md](../architecture/error-codes.md) | RC-030 | Fehlercodes, Retry-Klassen, Integrationsstatus | an Implementierung angeglichen; nicht implementierte Codes „geplant“ |
 | [workflow-provider-v1.md](workflow-provider-v1.md) | RC-WF-01, -02, -03, -06 | Trigger, Payload-Allowlists, Services, zulässige Auslöser | Entwurf; Workflow-Captain-Registry unbestätigt |
 | [race-conditions.md](race-conditions.md) | TEC-005 | 12 Szenarien mit erwartetem Verhalten und Testfällen | Entwurf |
 | [cross-site-interfaces.md](cross-site-interfaces.md) | TEC-011 | Voraussetzungen für spätere signierte REST/Webhooks | Entwurf (v1: nicht implementiert) |
-| [widget-v1.md](widget-v1.md) | RC-049–RC-055, RC-039, RC-118 | Shortcode-/Block-/Formularvertrag | **verbindlich für parallele Implementierung** |
+| [widget-v1.md](widget-v1.md) | RC-049–RC-055, RC-039, RC-118 | Shortcode-/Block-/Formularvertrag | **verbindlich**, an Implementierung angeglichen |
+| [../hooks.md](../hooks.md) | – | generierte Referenz aller `review_captain_*`-Hooks (`bin/list-hooks.php`) | generiert |
 
 ## Lesereihenfolge für Implementierung
 
@@ -27,9 +28,11 @@ Stand: 2026-11-16. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme*
 2. Core-Verträge (lizenzfrei, Implementierung der Laufzeit in Pro): `provider-v1.md`, `experience-event-v1.md`, `recipient-resolver-v1.md`, `workflow-provider-v1.md` (Service-Funktionen).
 3. Pro: `request-lifecycle.md`, `invitation-rule.md`, `race-conditions.md`, `experience-ownership.md`.
 
-## Ergänzungen gegenüber conventions.md (per ADR nachzutragen)
+## Ergänzungen gegenüber conventions.md (per ADR nachgetragen)
 
-Diese Namen wurden konsistent zum Präfix `review_captain_` ergänzt und sind noch nicht in conventions.md aufgeführt. Hook-Namen aus konzept.md mit `wp_`-Präfix wurden gemäß ADR-0002 ohne `wp_` übernommen.
+**Erledigt mit [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md):** Die folgenden Namen stehen jetzt in [`conventions.md`](../architecture/conventions.md) – implementierte als Vertrag (Hook-Tabelle), nicht implementierte als „Reservierte Namen“. Abweichend umgesetzt: Provider-Namespace `ReviewCaptain\Providers\Contract\` (statt `ReviewCaptain\Contracts\Provider\*`), admin-post-Action `review_captain_submit` (statt `review_captain_submit_review`). Die Tabelle bleibt als Herkunftsnachweis erhalten.
+
+Diese Namen wurden konsistent zum Präfix `review_captain_` ergänzt. Hook-Namen aus konzept.md mit `wp_`-Präfix wurden gemäß ADR-0002 ohne `wp_` übernommen.
 
 | Art | Name | Definiert in |
 |---|---|---|
@@ -50,7 +53,7 @@ Offen für das ADR: Pro-Tabellen nutzen dasselbe Präfix `{$wpdb->prefix}review_
 
 | # | Frage | Vorschlag in den Specs | Dokument |
 |---|---|---|---|
-| P1 | Initialstatus synchronisierter externer Reviews (`pending` vs. `approved`) | `pending`, je Profil umstellbar | review-schema-v1.md |
+| P1 | Initialstatus synchronisierter externer Reviews (`pending` vs. `approved`) | Implementierung: `pending`, umstellbar über Filter `review_captain_sync_initial_status` (je Profil: offen) | review-schema-v1.md |
 | P2 | Globale Frequenzgrenze (Cooldown) je Kontakt | 30 Tage, `0` = aus | invitation-rule.md |
 | P3 | Klickerfassung (`clicked`) überhaupt anbieten? | Default aus, je Kampagne aktivierbar nach Datenschutzprüfung | request-lifecycle.md |
 | P4 | Zulässige Versandgrundlagen (`send_permission.basis`) je Markt | Kampagne akzeptiert nur konfigurierte Grundlagen; Entscheidung RC-014 | experience-event-v1.md |
@@ -62,8 +65,8 @@ Offen für das ADR: Pro-Tabellen nutzen dasselbe Präfix `{$wpdb->prefix}review_
 | P10 | Deprecation-Frist öffentlicher Verträge | 12 Monate **und** 2 Minor-Releases | provider-v1.md, workflow-provider-v1.md |
 | P11 | Mindeststichprobe für Aggregate an Suite-Plugins | 5 (min. 3) | workflow-provider-v1.md |
 | P12 | Restore-Erkennung: wartende Anfragen nach Restore automatisch freigeben oder immer manuell? | manuell | race-conditions.md |
-| P13 | E-Mail im lokalen Formular Pflicht oder optional | Pflicht (Einstellung) | widget-v1.md |
-| P14 | Default `kind` im Shortcode (`review` vs. `all`) | `review` | widget-v1.md |
-| P15 | Kontext „aktueller Beitrag“ im Shortcode (z. B. `context_id="current"`) – in v1 bewusst nicht enthalten | später als Minor ergänzen | widget-v1.md |
+| P13 | E-Mail im lokalen Formular Pflicht oder optional | Implementierung: immer Pflicht (keine Einstellung in v1) | widget-v1.md |
+| P14 | Default `kind` im Shortcode (`review` vs. `all`) | entschieden durch Implementierung: `all` | widget-v1.md |
+| P15 | Kontext „aktueller Beitrag“ im Shortcode (`context_id="current"`) | entschieden durch Implementierung: in v1 enthalten | widget-v1.md |
 | P16 | Anzeige nativer WooCommerce-Produktreviews im Review-Captain-Widget (lesend) – in Widget v1 nicht enthalten; Verhältnis zur Woo-Migration RC-046 | offen | system-of-record.md |
 | P17 | Konservativer Default-Cache-TTL für externe Snapshots bis Bestätigung je Anbieter | 24 h | review-schema-v1.md |

@@ -9,7 +9,7 @@
 | Eingang | Action `review_captain_experience_event_v1`, Funktion `review_captain_submit_experience_event_v1()` |
 | Bezug | TODO RC-021, CON-004, TEC-004; konzept.md 7.4, 7.9, 7.10 |
 
-> Namensangleichung: konzept.md schlägt `wp_review_captain_experience_event_v1` vor. Nach conventions.md/ADR-0002 entfällt das `wp_`-Präfix; verbindlich ist `review_captain_experience_event_v1`.
+> Namensangleichung: Frühere Fassungen von konzept.md schlugen `wp_review_captain_experience_event_v1` vor. Nach conventions.md/ADR-0002 entfällt das `wp_`-Präfix; verbindlich ist `review_captain_experience_event_v1` (konzept.md ist inzwischen angeglichen).
 
 ## Zweck
 

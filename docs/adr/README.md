@@ -40,11 +40,12 @@ Kein ADR nötig: Bugfixes, interne Refactorings ohne Vertragsänderung, Texte, S
 | [0004](0004-repository-wurzel-ist-plugin-wurzel.md) | Repository-Wurzel = Plugin-Wurzel | Angenommen | 2026-11-16 |
 | [0005](0005-tokenverschluesselung-libsodium.md) | Tokenverschlüsselung mit libsodium secretbox | Angenommen | 2026-11-16 |
 | [0006](0006-quellsprache-der-oberflaechentexte.md) | Deutsch als Quellsprache der Oberflächentexte (Arbeitsannahme) | Vorgeschlagen | 2026-11-16 |
+| [0007](0007-oeffentliche-hooks-v1.md) | Öffentliche Hooks von Core v1 und ihre Stabilitätsstufen | Angenommen | 2026-11-16 |
 
 Vorgemerkte ADR-Kandidaten (noch nicht angelegt, siehe offene Entscheidungen in `docs/architecture/`):
 
 - Auth-Modell „Captain-OAuth-App vs. Betreiber-Credential“ je Provider (`docs/architecture/provider-auth.md`).
-- Zusätzliche Indizes auf `reviews` nach Messung (`refresh_due_at`, `(status, created_at)`, ggf. FULLTEXT) (`docs/architecture/scaling.md`).
+- Zusätzliche Indizes auf `reviews` nach Messung (`(status, created_at)`, `(profile_id, status)`, ggf. FULLTEXT; `refresh_due_at` ist bereits in Schema v1) (`docs/architecture/scaling.md`).
 - Jobstatus `cancelled` vs. Abbildung auf `failed` (`docs/architecture/jobs.md`).
 - Pro-Tabellenpräfix (`docs/architecture/database.md`).
 

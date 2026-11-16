@@ -58,32 +58,71 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 
 ## Hooks (öffentliche Verträge, versioniert)
 
-| Hook | Art | Zweck |
-|---|---|---|
-| `review_captain_loaded` | action | Core geladen, Pro/Connectoren registrieren sich hier |
-| `review_captain_connectors_v1` | action(Registry) | Connector-Registrierung (CON-002) |
-| `review_captain_providers_v1` | action(Registry) | Review-Provider-Registrierung (RC-020) |
-| `review_captain_widgets_v1` | action(Registry) | Widget-Typen registrieren (RC-118) |
-| `review_captain_process_job_v1` | filter | Jobhandler für fremde Jobtypen (CON-009) |
-| `review_captain_review_created_v1` | action | nach Commit, Payload ohne Text/E-Mail |
-| `review_captain_review_status_changed_v1` | action | nach Commit |
-| `review_captain_review_removed_v1` | action | nach Commit |
-| `review_captain_settings_schema` | filter | Pro ergänzt Einstellungsfelder |
-| `review_captain_schema_eligible` | filter | nur verschärfen (true→false), nie lockern |
+Öffentliche Hooks und Stabilitätsstufen: [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md) (V = versionierter Vertrag, S = stabiler Erweiterungspunkt, B = Betriebs-Stellschraube, Default änderbar). Generierte Referenz mit Parametern und Fundstellen: [`docs/hooks.md`](../hooks.md) (`php bin/list-hooks.php --write`).
 
-Event-Payloads: `['schema' => 'review_captain.review.v1', 'event_id' => uuid, 'review_uuid', 'kind', 'platform', 'status', 'previous_status', 'origin', 'occurred_at' (ISO 8601 UTC)]` – niemals Reviewtext, E-Mail, Tokens.
+| Hook | Art | Stufe | Zweck |
+|---|---|---|---|
+| `review_captain_loaded` | action | S | Core geladen (`plugins_loaded`), Pro/Connectoren registrieren sich hier; Parameter `Plugin` |
+| `review_captain_installed` | action | S | nach Installation/Upgrade des Schemas je Site (`$from`, `$to`) |
+| `review_captain_connectors_v1` | action(Registry) | V | Connector-Registrierung (CON-002) |
+| `review_captain_providers_v1` | action(Registry) | V | Review-Provider-Registrierung (RC-020) |
+| `review_captain_widgets_v1` | action(Registry) | V | Widget-Typen registrieren (RC-118) |
+| `review_captain_process_job_v1` | filter | V | Jobhandler für fremde Jobtypen (CON-009) |
+| `review_captain_review_created_v1` | action | V | nach Commit, Payload ohne Text/E-Mail |
+| `review_captain_review_status_changed_v1` | action | V | nach Commit |
+| `review_captain_review_removed_v1` | action | V | nach Commit |
+| `review_captain_settings_schema` | filter | S | Pro ergänzt Einstellungsfelder (Core-Felder nicht entfern-/änderbar) |
+| `review_captain_pro_settings_writable` | filter | S | Pro erlaubt das Schreiben von Pro-Feldern (Default `false`) |
+| `review_captain_show_pro_info` | filter | S | Pro-Hinweis im Dashboard ausblenden (Default `true`) |
+| `review_captain_setup_checklist_detected` | filter | S | erkannte Integrationen der Einrichtungs-Checkliste |
+| `review_captain_diagnostics_sections` | filter | S | Abschnitte der Diagnoseseite (`title`, `render`) |
+| `review_captain_schema_eligible` | filter | S | nur verschärfen (true→false), nie lockern |
+| `review_captain_schema_post_item_type` | filter | S | schema.org-Typ des bewerteten Objekts je Beitrag |
+| `review_captain_template` | filter | S | Pfad eines Frontend-Templates (Theme-Override) |
+| `review_captain_moderation_url` | filter | S | Link in der Admin-Benachrichtigung |
+| `review_captain_embed_hosts` | filter | S | erlaubte Hosts für Anbieter-Embeds |
+| `review_captain_audit_allowed_keys` | filter | S | Allowlist für Audit-Kontext (verbotene Muster bleiben verboten) |
+| `review_captain_privacy_personal_meta_keys` | filter | S | `meta`-Schlüssel mit personenbezogenen Daten (Privacy-Export/-Löschung) |
+| `review_captain_sync_initial_status` | filter | S | Anfangsstatus neu synchronisierter Reviews (`pending`\|`approved`) |
+| `review_captain_reconcile_report` | filter | S | Reconciliation erweitern (Pro: Credentials, Cursor) |
+| `review_captain_instance_confirmed` | action | S | Betreiber hat Klon/Umzug bestätigt (`$is_copy`) |
+| `review_captain_budget_warning` | action | S | API-Budget eines Scopes erreicht Warnschwelle |
+| `review_captain_runner_max_jobs` | filter | B | max. Jobs je Runner-Lauf (Default 50) |
+| `review_captain_runner_concurrency` | filter | B | max. gleichzeitig laufende Jobs (Default 2) |
+| `review_captain_side_effect_free_job_prefixes` | filter | B | Jobtyp-Präfixe ohne Außenwirkung (laufen trotz Reconcile-Sperre) |
+
+Interne Cron-Hooks ohne Stabilitätszusage: `review_captain_run_jobs` (5-Minuten-Tick), `review_captain_daily_maintenance`.
+
+Event-Payloads (`ReviewCaptain\Events\Events::payload()`): `['schema' => 'review_captain.review.v1', 'event_id' => uuid, 'review_uuid', 'kind', 'platform', 'origin', 'status', 'previous_status', 'verification', 'context_type', 'context_id', 'experience_id', 'occurred_at' (ISO 8601 UTC)]` – niemals Reviewtext, E-Mail, Tokens.
+
+### Reservierte Namen (spezifiziert, in Core v1 nicht implementiert)
+
+Aus [`docs/contracts/README.md`](../contracts/README.md) („Ergänzungen gegenüber conventions.md“) übernommen, per [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md) reserviert. Sie sind **kein** Vertrag, solange sie nicht implementiert sind; andere Plugins dürfen diese Namen nicht belegen.
+
+| Art | Name | Spezifiziert in |
+|---|---|---|
+| action | `review_captain_experience_event_v1` | [experience-event-v1.md](../contracts/experience-event-v1.md) |
+| action | `review_captain_request_status_changed_v1`, `review_captain_request_reminder_sent_v1`, `review_captain_request_responded_v1`, `review_captain_recipient_opted_out_v1` | [request-lifecycle.md](../contracts/request-lifecycle.md), [workflow-provider-v1.md](../contracts/workflow-provider-v1.md) |
+| Funktion | `review_captain_submit_experience_event_v1()` | experience-event-v1.md |
+| Funktion | `review_captain_plan_request_v1()`, `review_captain_cancel_request_v1()`, `review_captain_create_local_review_v1()`, `review_captain_delete_local_review_draft_v1()`, `review_captain_get_review_summary_v1()` | workflow-provider-v1.md |
+| Klasse/API | `ReviewCaptain\Contracts\Connector\RecipientResolverInterface` (Connector-Fassung implementiert als `ReviewCaptain\Connectors\Contract\RecipientResolverInterface`), `ReviewCaptain\Api::register_request_service()`, `::workflow_descriptor_v1()` | [recipient-resolver-v1.md](../contracts/recipient-resolver-v1.md), workflow-provider-v1.md |
+| Payload-Schema | `review_captain.request.v1`, `review_captain.recipient.v1`, `review_captain.workflow_provider.v1`, `review_captain.review_record.v1` | jeweilige Dokumente |
+| Option | `review_captain_requests_cooldown_days`, `review_captain_data_version`, `review_captain_instance_marker` | [invitation-rule.md](../contracts/invitation-rule.md), widget-v1.md, [race-conditions.md](../contracts/race-conditions.md) |
+| Pro-Tabellen (Vorschlag) | `review_captain_requests`, `review_captain_request_log`, `review_captain_request_sends`, `review_captain_recipient_guards`, `review_captain_inbound_events`, `review_captain_experiences`, `review_captain_sync_runs`, `review_captain_testimonial_media`, `review_captain_testimonial_rights`, `review_captain_inbound_nonces` (nur TEC-011); Versionsoption `review_captain_pro_db_version` | jeweilige Dokumente |
+
+Bereits implementiert und damit verbindlich (aus derselben Liste): Payload-Schemata `review_captain.review.v1` (`Events`), `review_captain.experience_event.v1` (`Connectors\ExperienceEvent`), `review_captain.settings.v1` (`Admin\ConfigTransfer`); Provider-Vertrag `ReviewCaptain\Providers\Contract\ProviderInterface` (statt `ReviewCaptain\Contracts\Provider\*`); admin-post-Action und Nonce-Aktion des Formulars `review_captain_submit` (statt `review_captain_submit_review`); `meta`-Allowlist laut [review-schema-v1.md](../contracts/review-schema-v1.md).
 
 ## Öffentliche Ausgabe
 
-- Shortcode: `[review_captain v="1" ...]` (Attribute siehe `docs/contracts/widget-v1.md`), Formular: `[review_captain_form v="1"]`.
+- Shortcode: `[review_captain v="1" ...]` (Attribute siehe [widget-v1.md](../contracts/widget-v1.md)), Formular: `[review_captain_form v="1"]`, Bewertungs-CTA: `[review_captain_cta v="1" profile="…"]`.
 - Block: `review-captain/reviews` (dynamisch, serverseitig gerendert), `review-captain/form`.
-- REST-Namespace: `review-captain/v1` (Admin-Zwecke, Editor-Vorschau). Keine öffentlichen Schreib-Endpunkte; Einreichung per `admin-post.php` mit Nonce + Honeypot + Rate-Limit.
+- REST-Namespace: `review-captain/v1` (Admin-Zwecke, Editor-Vorschau). Keine öffentlichen Schreib-Endpunkte; Einreichung per `admin-post.php` (Action `review_captain_submit`) mit Nonce + Honeypot + Mindestzeit + Rate-Limit.
 - Kein Frontend-JavaScript nötig; CSS-Klassenpräfix `rc-`.
 - Schema-Markup nur für `platform=local`, `kind=review`, `status=approved`, sichtbar gerendert, nicht selbstbezogen (Organization/LocalBusiness); siehe `docs/seo/`.
 
 ## Fehlercodes
 
-Format `rc.<bereich>.<code>`, z. B. `rc.auth.invalid`, `rc.quota.exceeded`, `rc.net.timeout`, `rc.contract.incompatible`, `rc.data.invalid_payload`, `rc.remote.removed`, `rc.temp.unavailable`, `rc.perm.failed`, `rc.source.unavailable`. Liste und Retry-Klasse: `ReviewCaptain\Support\ErrorCode`, Doku `docs/architecture/error-codes.md`.
+Format `rc.<bereich>.<code>`, z. B. `rc.auth.invalid`, `rc.quota.exceeded`, `rc.net.timeout`, `rc.contract.incompatible`, `rc.data.invalid_payload`, `rc.remote.removed`, `rc.temp.unavailable`, `rc.perm.failed`, `rc.source.unavailable`. Liste und Retry-Klasse (`transient`, `rate_limit`, `auth`, `config`, `permanent`, `data`): `ReviewCaptain\Support\ErrorCode`, Doku [error-codes.md](error-codes.md) (nicht implementierte Codes dort als „geplant“).
 
 ## Code-Stil
 

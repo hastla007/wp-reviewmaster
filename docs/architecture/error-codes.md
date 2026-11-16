@@ -107,13 +107,13 @@ Die folgenden Codes stammen aus früheren Fassungen bzw. aus Verträgen für Pro
 | Transport | `rc.transport.ambiguous` | Ausgang unklar (Timeout nach Übergabe); kein Zweitversand | permanent | Versandprotokoll des Transports prüfen | – |
 | Rechte / Inhalte | `rc.rights.missing` | Testimonial-Rechte fehlen/abgelaufen/widerrufen | permanent | Rechtebeleg erfassen/erneuern | – |
 | Rechte / Inhalte | `rc.review.not_pending` | Aktion nur für wartende Reviews erlaubt (z. B. Entwurf löschen nach Freigabe) | permanent | Review manuell prüfen (Privacy-Regeln) | – |
-| Kryptografie | `rc.sig.missing` | Signatur-Header fehlen | permanent | Gegenstelle konfigurieren | – |
-| Kryptografie | `rc.sig.invalid` | Signatur ungültig | permanent | Schlüssel abgleichen | – |
-| Kryptografie | `rc.sig.expired` | Timestamp außerhalb Toleranz | permanent | Serverzeit (NTP) prüfen | – |
-| Kryptografie | `rc.sig.replay` | Nonce bereits verwendet | permanent | keine (Angriff/Doppelzustellung) | – |
-| Kryptografie | `rc.sig.scope` | Schlüssel hat Scope/Quelle nicht | permanent | Schlüssel-Scope anpassen | – |
-| Kryptografie | `rc.sig.key_unknown` | Key-ID unbekannt | permanent | Schlüssel anlegen/abgleichen | – |
-| Kryptografie | `rc.sig.key_revoked` | Schlüssel widerrufen/abgelaufen | permanent | rotierten Schlüssel verwenden | – |
+| Cross-site-Signatur (nur mit TEC-011) | `rc.sig.missing` | Signatur-Header fehlen | permanent | Gegenstelle konfigurieren | – |
+| Cross-site-Signatur (nur mit TEC-011) | `rc.sig.invalid` | Signatur ungültig | permanent | Schlüssel abgleichen | – |
+| Cross-site-Signatur (nur mit TEC-011) | `rc.sig.expired` | Timestamp außerhalb Toleranz | permanent | Serverzeit (NTP) prüfen | – |
+| Cross-site-Signatur (nur mit TEC-011) | `rc.sig.replay` | Nonce bereits verwendet | permanent | keine (Angriff/Doppelzustellung) | – |
+| Cross-site-Signatur (nur mit TEC-011) | `rc.sig.scope` | Schlüssel hat Scope/Quelle nicht | permanent | Schlüssel-Scope anpassen | – |
+| Cross-site-Signatur (nur mit TEC-011) | `rc.sig.key_unknown` | Key-ID unbekannt | permanent | Schlüssel anlegen/abgleichen | – |
+| Cross-site-Signatur (nur mit TEC-011) | `rc.sig.key_revoked` | Schlüssel widerrufen/abgelaufen | permanent | rotierten Schlüssel verwenden | – |
 | Frontend | `rc.widget.unsupported_version` | Shortcode/Block mit unbekanntem `v` | permanent | Shortcode auf `v="1"` setzen | in v1: nur HTML-Kommentar, kein Code |
 | Frontend | `rc.widget.invalid_attribute` | ungültiger Attributwert (ignoriert, Default genutzt) | data | Shortcode korrigieren | in v1: `WidgetDefinition::$notices`, kein Code |
 | Frontend | `rc.form.invalid_nonce` | Formular-Nonce ungültig/abgelaufen | permanent | (Besucher) Seite neu laden | in v1: Formular-Fehlerschlüssel `nonce` (`rc_error`) |
