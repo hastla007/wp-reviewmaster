@@ -14,11 +14,42 @@ Jeder Abschnitt hat dieselbe Gliederung: Voraussetzungen · Kosten/Limits · Ver
 
 ## Google Business Profile
 
-- **Voraussetzungen:** Google-Konto mit Inhaber-/Verwalterrecht für einen **verifizierten** Unternehmensstandort. Ggf. Freigabe des Google-API-Zugangs (Klärung RC-009: eigenes Cloud-Projekt des Betreibers oder OAuth-App des Plugin-Anbieters – OFFEN).
-- **Kosten/Limits:** API laut Konzept ohne Zusatzgebühr; Kontingente durch Google. (ungeprüft)
-- **Verbinden:** Quellen → Quelle hinzufügen → Google → API-Verbindung → „Mit Google anmelden“ → Zugriff erlauben → Standort(e) wählen → Testabruf.
-- **Häufige Fehler:** Standort nicht verifiziert · Konto ist nur „Nutzer“ ohne Verwaltungsrecht · Zugriff in Google-Kontoeinstellungen widerrufen → „Neu verbinden“.
-- **Google Places (öffentlich, max. 5 Bewertungen, kostenpflichtig):** nur falls RC-069 umgesetzt wird.
+Sie verbinden Ihr **eigenes Google-Cloud-Projekt** (Entscheidung 16.11.2026). Einmaliger Aufwand ca. 20–40 Minuten plus Wartezeit auf die Freischaltung durch Google. Alle Angaben zu Google-Oberflächen sind **ungeprüft** (Stand der öffentlichen Google-Doku; Klickpfade ändern sich) und werden mit dem Testzugang RC-009 bestätigt.
+
+**Voraussetzungen**
+
+- Google-Konto mit **Inhaber- oder Verwalterrecht** für einen **verifizierten** Unternehmensstandort.
+- Zugang zur Google Cloud Console (kostenlos; für die Business Profile APIs ist laut Google kein Zahlungsmittel nötig – ungeprüft).
+- Review Captain Pro mit aktivem Recht `review.platform_sync`.
+
+**Schritt 1 – Projekt anlegen.** In der Google Cloud Console ein neues Projekt anlegen, z. B. „Bewertungen Website“.
+
+**Schritt 2 – Zugang zu den Business Profile APIs beantragen.** Google schaltet die APIs nicht automatisch frei: Über das Antragsformular für den Business-Profile-API-Zugang die **Projekt-Nummer** angeben und den Zweck beschreiben („eigene Bewertungen auf der eigenen Website anzeigen“). Bis zur Freischaltung steht das Kontingent auf 0 – Verbindungen schlagen mit einer Kontingent-/Berechtigungsmeldung fehl. Die Bearbeitung kann einige Tage dauern (ungeprüft).
+
+**Schritt 3 – APIs aktivieren.** Nach der Freischaltung im Projekt die Business-Profile-APIs aktivieren (u. a. „My Business Account Management API“, „My Business Business Information API“ sowie die API für Bewertungen; genaue Liste zeigt Review Captain unter Quellen → Google → „Was muss aktiviert sein?“).
+
+**Schritt 4 – OAuth-Zustimmungsbildschirm.** Nutzertyp **Extern**, App-Name (z. B. Ihr Firmenname), Support-E-Mail; Scope `https://www.googleapis.com/auth/business.manage` hinzufügen; sich selbst als Testnutzer eintragen.
+*Wichtig:* Solange die App im Status „Testen“ ist, laufen Anmeldungen laut Google nach **7 Tagen** ab. Damit die Verbindung dauerhaft bleibt, den Status auf **„In Produktion“** setzen. Für ein Projekt, das nur Ihr eigenes Konto nutzt, zeigt Google dann ggf. einen Hinweis „nicht überprüfte App“, den Sie bei der Anmeldung bestätigen können; eine Verifizierung ist dafür in der Regel nicht nötig (ungeprüft, abhängig von Googles Richtlinien).
+
+**Schritt 5 – OAuth-Client anlegen.** Anmeldedaten → „OAuth-Client-ID“ → Anwendungstyp **Webanwendung**. Als **autorisierte Weiterleitungs-URI** genau die Adresse eintragen, die Review Captain unter Quellen → Google anzeigt (Kopieren-Knopf; endet auf Ihrer Domain). Client-ID und Client-Secret kopieren.
+
+**Schritt 6 – In Review Captain verbinden.** Quellen → Quelle hinzufügen → Google → „Eigenes Google-Projekt“ → Client-ID und Client-Secret einfügen → **„Mit Google anmelden“** → Konto wählen, Zugriff erlauben → Standort(e) wählen → **Testabruf**. Zugangsdaten werden verschlüsselt gespeichert und nie angezeigt.
+
+**Kosten/Limits:** Business Profile APIs laut Google ohne Nutzungsgebühr; Kontingente pro Projekt (ungeprüft). Review Captain ruft nur in den eingestellten Abständen ab.
+
+**Häufige Fehler**
+
+| Meldung/Symptom | Ursache | Lösung |
+|---|---|---|
+| Kontingent 0 / „PERMISSION_DENIED“ trotz richtiger Anmeldung | API-Zugang noch nicht freigeschaltet (Schritt 2) | Freischaltung abwarten bzw. Antrag prüfen |
+| „redirect_uri_mismatch“ | Weiterleitungs-URI weicht ab (http/https, www, Schrägstrich) | exakt die angezeigte Adresse eintragen |
+| Verbindung nach einer Woche „abgelaufen“ | App im Status „Testen“ | Status „In Produktion“ setzen und neu verbinden |
+| Kein Standort zur Auswahl | Konto hat nur Nutzerrecht oder Standort nicht verifiziert | Inhaber/Verwalter-Recht geben bzw. verifizieren |
+| „Zugriff widerrufen“ | in den Google-Kontoeinstellungen entfernt | „Neu verbinden“ |
+
+**Trennen:** Quellen → Google → „Verbindung trennen“ und zusätzlich in Ihrem Google-Konto unter Sicherheit → Drittanbieter-Zugriff die App entfernen; optional das Cloud-Projekt löschen.
+
+*Später möglich:* Eine zentrale Captain-App, bei der Sie nur „Verbinden“ klicken, wird nach 1.0 geprüft ([RC-026A](../decisions/captain-google-app.md)). Die Places-API (öffentlich, max. 5 Bewertungen) ist kein 1.0-Weg (RC-069).
 
 ## Trustpilot
 

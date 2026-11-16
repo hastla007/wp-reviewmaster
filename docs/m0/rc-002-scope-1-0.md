@@ -71,4 +71,4 @@ Ausdrücklich nicht in 1.0: Places-API-Fallback (RC-069, Entscheidung „streich
 
 ## Präzisierung Google (Inhaberin, 16.11.2026)
 
-Google-Bewertungen kommen in Pro 1.0 über die **Places API** (Schlüssel des Betreibers, höchstens 5 Bewertungen je Ort, nur Anzeige). Der native Abruf aller eigenen Bewertungen über die Business Profile API und die Captain-OAuth-App folgen nach 1.0 (RC-026A). Verkaufstexte: „bis zu 5 aktuelle Google-Bewertungen anzeigen“, nicht „alle Bewertungen synchronisieren“.
+Google Business Profile in Pro 1.0 **nativ** (alle eigenen Bewertungen) über das **eigene Google-Cloud-Projekt des Kunden** (Client-ID/Secret des Betreibers, Freischaltung der Business Profile APIs durch Google beim Kunden). Die Places-API ist kein 1.0-Weg (RC-069 offen); eine zentrale Captain-App wird später geprüft (RC-026A).
