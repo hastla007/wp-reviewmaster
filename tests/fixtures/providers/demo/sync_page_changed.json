@@ -1,0 +1,14 @@
+{
+  "request": { "profile_external_ref": "loc-100", "cursor": null, "options": { "mode": "delta", "page_size": 20, "since": "2026-11-13T06:00:00Z", "run_uuid": "7a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d" } },
+  "response": {
+    "items": [
+      { "id": "demo-rev-1001", "stars": 3, "headline": "Schnelle Lieferung", "text": "Lieferung schnell, aber Verpackung beschädigt.", "lang": "de_DE", "reviewer": { "display": "M. K." }, "created": "2026-11-10T09:12:00Z", "updated": "2026-11-14T07:30:00Z", "link": "https://reviews.example.test/r/demo-rev-1001" }
+    ],
+    "removed": [],
+    "next_cursor": null,
+    "has_more": false,
+    "summary": null,
+    "quota": { "state": "warning", "remaining": 4, "reset_at": "2026-11-16T07:00:00Z", "retry_after_seconds": null, "source": "provider_header" },
+    "credentials_update": null
+  }
+}

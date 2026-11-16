@@ -28,7 +28,7 @@ final class SeoEnvironment {
 	/**
 	 * Detected state.
 	 *
-	 * @var array{yoast_version: ?string, yoast_premium: bool, yoast_woo: bool, woocommerce: bool, foreign: list<string>}
+	 * @var array{yoast_version: ?string, yoast_premium: bool, yoast_woo: bool, woocommerce: bool, foreign: list<string>, woo_product_ids: ?list<string>}
 	 */
 	private array $state;
 
@@ -52,7 +52,8 @@ final class SeoEnvironment {
 	 * Fixed environment (tests, diagnostics simulation).
 	 *
 	 * Keys: yoast_version (?string), yoast_premium (bool), yoast_woo (bool), woocommerce (bool),
-	 * foreign (list of plugin labels owning schema output).
+	 * foreign (list of plugin labels owning schema output), woo_product_ids (optional fixed list of
+	 * product post IDs instead of get_post_type()).
 	 *
 	 * @param array<string, mixed> $state State.
 	 */
@@ -124,6 +125,9 @@ final class SeoEnvironment {
 		if ( ! $this->state['woocommerce'] || null === $context_id || ! ctype_digit( $context_id ) ) {
 			return false;
 		}
+		if ( null !== $this->state['woo_product_ids'] ) {
+			return in_array( $context_id, $this->state['woo_product_ids'], true );
+		}
 		return 'product' === get_post_type( (int) $context_id );
 	}
 
@@ -164,7 +168,7 @@ final class SeoEnvironment {
 	/**
 	 * Live detection.
 	 *
-	 * @return array{yoast_version: ?string, yoast_premium: bool, yoast_woo: bool, woocommerce: bool, foreign: list<string>}
+	 * @return array{yoast_version: ?string, yoast_premium: bool, yoast_woo: bool, woocommerce: bool, foreign: list<string>, woo_product_ids: ?list<string>}
 	 */
 	private static function detect(): array {
 		$foreign = array();
@@ -182,11 +186,12 @@ final class SeoEnvironment {
 			$foreign[] = 'Schema Pro';
 		}
 		return array(
-			'yoast_version' => defined( 'WPSEO_VERSION' ) ? (string) constant( 'WPSEO_VERSION' ) : null,
-			'yoast_premium' => defined( 'WPSEO_PREMIUM_VERSION' ),
-			'yoast_woo'     => defined( 'WPSEO_WOO_VERSION' ) || class_exists( 'Yoast_WooCommerce_SEO', false ),
-			'woocommerce'   => defined( 'WC_VERSION' ) || function_exists( 'WC' ),
-			'foreign'       => $foreign,
+			'yoast_version'   => defined( 'WPSEO_VERSION' ) ? (string) constant( 'WPSEO_VERSION' ) : null,
+			'yoast_premium'   => defined( 'WPSEO_PREMIUM_VERSION' ),
+			'yoast_woo'       => defined( 'WPSEO_WOO_VERSION' ) || class_exists( 'Yoast_WooCommerce_SEO', false ),
+			'woocommerce'     => defined( 'WC_VERSION' ) || function_exists( 'WC' ),
+			'foreign'         => $foreign,
+			'woo_product_ids' => null,
 		);
 	}
 
@@ -194,15 +199,16 @@ final class SeoEnvironment {
 	 * Normalise a fixed state.
 	 *
 	 * @param array<string, mixed> $s State.
-	 * @return array{yoast_version: ?string, yoast_premium: bool, yoast_woo: bool, woocommerce: bool, foreign: list<string>}
+	 * @return array{yoast_version: ?string, yoast_premium: bool, yoast_woo: bool, woocommerce: bool, foreign: list<string>, woo_product_ids: ?list<string>}
 	 */
 	private static function normalize_state( array $s ): array {
 		return array(
-			'yoast_version' => isset( $s['yoast_version'] ) && '' !== $s['yoast_version'] ? (string) $s['yoast_version'] : null,
-			'yoast_premium' => ! empty( $s['yoast_premium'] ),
-			'yoast_woo'     => ! empty( $s['yoast_woo'] ),
-			'woocommerce'   => ! empty( $s['woocommerce'] ),
-			'foreign'       => array_values( array_map( 'strval', (array) ( $s['foreign'] ?? array() ) ) ),
+			'yoast_version'   => isset( $s['yoast_version'] ) && '' !== $s['yoast_version'] ? (string) $s['yoast_version'] : null,
+			'yoast_premium'   => ! empty( $s['yoast_premium'] ),
+			'yoast_woo'       => ! empty( $s['yoast_woo'] ),
+			'woocommerce'     => ! empty( $s['woocommerce'] ),
+			'foreign'         => array_values( array_map( 'strval', (array) ( $s['foreign'] ?? array() ) ) ),
+			'woo_product_ids' => isset( $s['woo_product_ids'] ) ? array_values( array_map( 'strval', (array) $s['woo_product_ids'] ) ) : null,
 		);
 	}
 }

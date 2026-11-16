@@ -93,6 +93,18 @@ final class WidgetRegistry {
 	}
 
 	/**
+	 * Whether the core types are registered.
+	 */
+	public function has_core(): bool {
+		foreach ( self::CORE_TYPES as $type ) {
+			if ( ! isset( $this->types[ $type ] ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Whether a type exists.
 	 *
 	 * @param string $type Type.

@@ -105,7 +105,15 @@ final class Notices {
 			'save_failed'                  => __( 'Speichern fehlgeschlagen', 'review-captain' ),
 			'reason_required'              => __( 'Grund fehlt', 'review-captain' ),
 		);
-		return $map[ $code ] ?? $code;
+		if ( isset( $map[ $code ] ) ) {
+			return $map[ $code ];
+		}
+		// Settings fields are passed as "tab-key".
+		if ( str_contains( $code, '-' ) ) {
+			[ $tab, $key ] = explode( '-', $code, 2 );
+			return SettingsFields::label( $tab, $key );
+		}
+		return $code;
 	}
 
 	/**

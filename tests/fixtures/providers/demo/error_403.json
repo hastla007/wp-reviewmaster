@@ -1,0 +1,1 @@
+{ "http_status": 403, "headers": {}, "expected_exception": { "code": "rc.auth.permission_denied", "retry_after_seconds": null } }

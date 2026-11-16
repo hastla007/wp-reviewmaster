@@ -253,5 +253,20 @@ function register_rest_route( $ns, $route, $args = array(), $override = false ) 
 function load_plugin_textdomain( ...$a ) { return true; }
 function wp_privacy_anonymize_data( $type, $data = '' ) { return match ( $type ) { 'email' => 'deleted@site.invalid', 'text' => '[deleted]', default => '' }; }
 
+// Import/export, privacy (RC-044..048) – guarded stubs.
+if ( ! function_exists( 'add_submenu_page' ) ) { function add_submenu_page( $parent, $page_title, $menu_title, $cap, $slug, $cb = '', $pos = null ) { $GLOBALS['rc_test_submenus'][ $slug ] = compact( 'parent', 'page_title', 'menu_title', 'cap', 'slug', 'cb' ); return 'review-captain_page_' . $slug; } }
+if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) { function wp_add_privacy_policy_content( $plugin_name, $policy_text ) { $GLOBALS['rc_test_privacy_policy'][ $plugin_name ] = $policy_text; } }
+if ( ! function_exists( 'wp_mkdir_p' ) ) { function wp_mkdir_p( $target ) { return is_dir( $target ) || mkdir( $target, 0777, true ); } }
+if ( ! function_exists( 'wp_delete_file' ) ) { function wp_delete_file( $file ) { if ( is_file( $file ) ) { unlink( $file ); } } }
+if ( ! function_exists( 'nocache_headers' ) ) { function nocache_headers() {} }
+
 // Global wpdb.
 $GLOBALS['wpdb'] = new \ReviewCaptain\Tests\Support\SqliteWpdb();
+
+// Frontend/SEO stubs (added for Frontend/Seo tests).
+if ( ! function_exists( 'locate_template' ) ) {
+	function locate_template( $names, $load = false, $once = true, $args = array() ) { return ''; }
+}
+if ( ! function_exists( 'wp_validate_redirect' ) ) {
+	function wp_validate_redirect( $location, $fallback = '' ) { $host = parse_url( (string) $location, PHP_URL_HOST ); if ( null === $host && str_starts_with( (string) $location, '/' ) && ! str_starts_with( (string) $location, '//' ) ) { return $location; } return 'example.test' === $host ? $location : $fallback; }
+}

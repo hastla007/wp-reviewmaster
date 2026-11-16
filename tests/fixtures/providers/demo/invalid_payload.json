@@ -1,0 +1,17 @@
+{
+  "request": { "profile_external_ref": "loc-100", "cursor": null, "options": { "mode": "full", "page_size": 20, "since": null, "run_uuid": "9f3c5d7e-2b4a-4c6d-8e9f-1a2b3c4d5e6f" } },
+  "response": {
+    "items": [
+      { "id": "demo-rev-2001", "stars": 9, "headline": "Skala überschritten", "text": "Ungültige Bewertung.", "lang": "de", "reviewer": { "display": "X" }, "created": "2026-11-12T10:00:00Z", "link": "https://reviews.example.test/r/demo-rev-2001" },
+      { "id": "demo-rev-2002", "stars": 4, "headline": "", "text": "Ohne Quellenlink.", "lang": "de", "reviewer": { "display": "Y" }, "created": "2026-11-12T10:00:00Z" },
+      { "stars": 4, "text": "Ohne ID wird vom Provider verworfen." },
+      { "id": "demo-rev-2003", "stars": 4, "headline": "", "text": "Gültig.", "lang": "de", "reviewer": { "display": "Z" }, "created": "2026-11-12T10:00:00Z", "link": "https://reviews.example.test/r/demo-rev-2003" }
+    ],
+    "removed": [],
+    "next_cursor": null,
+    "has_more": false,
+    "summary": null,
+    "quota": null,
+    "credentials_update": null
+  }
+}
