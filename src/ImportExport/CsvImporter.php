@@ -510,7 +510,31 @@ class CsvImporter {
 	 * @param Review $r Review.
 	 */
 	public static function suspect_hash( Review $r ): string {
-		return sha1( $r->platform->value . '|' . mb_strtolower( trim( $r->author_name ) ) . '|' . substr( (string) $r->published_at, 0, 10 ) . '|' . mb_substr( trim( $r->body ), 0, 200 ) );
+		return sha1( $r->platform->value . '|' . mb_strtolower( trim( $r->author_name ) ) . '|' . self::local_day( $r->published_at ) . '|' . mb_substr( trim( $r->body ), 0, 200 ) );
+	}
+
+	/**
+	 * Calendar day (Y-m-d) of a UTC datetime in the site time zone.
+	 *
+	 * @param string|null $utc UTC datetime.
+	 */
+	private static function local_day( ?string $utc ): string {
+		if ( null === $utc || '' === $utc ) {
+			return '';
+		}
+		try {
+			$date = new \DateTimeImmutable( $utc, new \DateTimeZone( 'UTC' ) );
+		} catch ( \Exception $e ) {
+			return substr( $utc, 0, 10 );
+		}
+		return $date->setTimezone( self::site_zone() )->format( 'Y-m-d' );
+	}
+
+	/**
+	 * Site time zone.
+	 */
+	private static function site_zone(): \DateTimeZone {
+		return function_exists( 'wp_timezone' ) ? wp_timezone() : new \DateTimeZone( 'UTC' );
 	}
 
 	/**
@@ -524,10 +548,13 @@ class CsvImporter {
 		if ( null === $r->published_at ) {
 			return false;
 		}
-		$day   = substr( $r->published_at, 0, 10 );
+		$start = new \DateTimeImmutable( self::local_day( $r->published_at ) . ' 00:00:00', self::site_zone() );
+		$utc   = new \DateTimeZone( 'UTC' );
+		$from  = $start->setTimezone( $utc )->format( 'Y-m-d H:i:s' );
+		$to    = $start->modify( '+1 day' )->setTimezone( $utc )->format( 'Y-m-d H:i:s' );
 		$table = $this->reviews->table();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT platform, author_name, published_at, body FROM {$table} WHERE platform = %s AND author_name = %s AND published_at >= %s AND published_at <= %s LIMIT 50", $r->platform->value, $r->author_name, $day . ' 00:00:00', $day . ' 23:59:59' ), ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT platform, author_name, published_at, body FROM {$table} WHERE platform = %s AND LOWER(author_name) = LOWER(%s) AND published_at >= %s AND published_at < %s LIMIT 50", $r->platform->value, $r->author_name, $from, $to ), ARRAY_A );
 		foreach ( (array) $rows as $row ) {
 			if ( self::suspect_hash( Review::from_row( $row ) ) === $hash ) {
 				return true;
