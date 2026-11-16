@@ -1,6 +1,6 @@
 # RC-004 – Pro-Planmodell
 
-**Status:** Planstruktur **freigegeben** (Entscheidung der Inhaberin am 16.11.2026); **Preise offen** (Inhaberin legt sie später fest)  
+**Status:** **Freigegeben** (Inhaberin, 16.11.2026): Planstruktur und Preise 99 / 199 / 349 € netto pro Jahr (jederzeit im Shop änderbar)  
 **Stand:** 2026-11-16  
 **Quellen:** [Konzept §6 Lizenzvertragsvorschlag](../../konzept.md), [RC-005](rc-005-entitlements.md), [RC-007](rc-007-support-release.md)
 
@@ -10,9 +10,9 @@
 
 | Plan-ID | Live-Websites | Supportlevel | Funktionsumfang | Preis |
 |---|---|---|---|---|
-| `single` | 1 | `standard` | alle Pro-Funktionen der jeweiligen Version | **offen – Shopentscheidung** |
-| `business` | 5 | `standard` | alle Pro-Funktionen | **offen – Shopentscheidung** |
-| `agency` | 25 | `priority` | alle Pro-Funktionen | **offen – Shopentscheidung** |
+| `single` | 1 | `standard` | alle Pro-Funktionen der jeweiligen Version | **99 €** / Jahr netto |
+| `business` | 5 | `standard` | alle Pro-Funktionen | **199 €** / Jahr netto |
+| `agency` | 25 | `priority` | alle Pro-Funktionen | **349 €** / Jahr netto |
 
 Regeln:
 
@@ -33,7 +33,7 @@ Nicht enthalten in allen Stufen: Beantragung von Anbieter-API-Zugängen im Namen
 
 ## Shop-Aufgaben (für RC-058)
 
-- [ ] Preise je Plan festlegen und mit übrigen Captain-Pro-Produkten abstimmen.
+- [x] Preise je Plan festlegen: 99 / 199 / 349 € netto (16.11.2026); Einordnung: über Form Captain Pro (59/129/249 €, weniger Funktionen), unter den Vorschlägen für Voucher/Pass/Affiliate Pro.
 - [ ] Verlängerungsrabatt/-modell bestätigen.
 - [ ] Upgrade-Pfad single → business → agency (anteilige Verrechnung) bestätigen.
 - [ ] Produktbeschreibung darf nur Plattformen mit bestandener Abnahme als „Synchronisierung“ bewerben (siehe RC-002).
@@ -42,3 +42,8 @@ Nicht enthalten in allen Stufen: Beantragung von Anbieter-API-Zugängen im Namen
 
 - Shop/Vertrieb: Preise, Verlängerung, Upgrade.
 - Support: Reaktionsziele bestätigen.
+
+## Preisentscheidung (16.11.2026)
+
+Die Inhaberin hat die Festlegung an die Entwicklung übergeben („ich kann sie ja immer noch ändern“). Festgelegt: **single 99 €, business 199 €, agency 349 € pro Jahr, netto zzgl. USt.**, Verlängerung zum Kaufpreis (Preisgarantie wie bei allen Captain-Produkten, kein Rabatt nur im ersten Jahr), kein Lifetime-Plan. Begründung: Review Captain Pro enthält ab 1.0 alle sechs Rechte (RC-005) und damit mehr als Form Captain Pro (59/129/249 €, bestätigt), greift aber weniger tief in Shop-/Kassenprozesse ein als Voucher/Pass/Affiliate Pro (Vorschläge 129–699 €). Die Preise werden im WooCommerce-Shop gepflegt (wp-license liest sie dort); eine Änderung braucht keinen Plugin-Release. Nachtrag in captain-pro `docs/TARIFE.md` durch die Pro-Sitzung.
+

@@ -68,3 +68,7 @@ Ausdrücklich nicht in 1.0: Places-API-Fallback (RC-069, Entscheidung „streich
 - Produktverantwortung bestätigt die Plattformzuordnung und die Verschiebung der Suite-Adapter auf 1.1.
 - Alternative bei Bedarf: Suite-Adapter in 1.0, dafür WooCommerce-Mehrprodukt-Anfrage auf 1.1 – verlängert den 1.0-Pfad wegen der Abhängigkeit von Vertragsänderungen in Voucher/Pass Captain.
 - Konzept §13 wird nach Freigabe an diese Tabelle angepasst.
+
+## Präzisierung Google (Inhaberin, 16.11.2026)
+
+Google-Bewertungen kommen in Pro 1.0 über die **Places API** (Schlüssel des Betreibers, höchstens 5 Bewertungen je Ort, nur Anzeige). Der native Abruf aller eigenen Bewertungen über die Business Profile API und die Captain-OAuth-App folgen nach 1.0 (RC-026A). Verkaufstexte: „bis zu 5 aktuelle Google-Bewertungen anzeigen“, nicht „alle Bewertungen synchronisieren“.

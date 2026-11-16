@@ -1,6 +1,6 @@
 # ADR-0008: Plattformzugänge im MVP über Betreiber-Credentials, Captain-OAuth-App später
 
-- **Status:** **Abgelehnt zugunsten einer Captain-OAuth-App in 1.0** (Entscheidung der Inhaberin am 16.11.2026)
+- **Status:** **Angenommen mit Änderung** (Inhaberin, 16.11.2026): Google in 1.0 über die Places-API mit Schlüssel des Betreibers; Captain-OAuth-App erst nach 1.0
 - **Datum:** 2026-11-16
 - **Autor:in / Entscheider:** Claude (Vorschlag) / Produkt + Core-Maintainer (Entscheidung offen)
 - **Betrifft:** RC-026, RC-065, RC-070, RC-074, RC-078, RC-080; [provider-auth.md](../architecture/provider-auth.md) §8, [secrets.md](../architecture/secrets.md)
@@ -45,3 +45,7 @@ Der Vorschlag (nur Betreiber-Credentials im MVP) wird **nicht** angenommen. Für
 Pflichtbedingungen aus diesem ADR gelten weiter und sind Release-Voraussetzung für die App (neue Aufgabe **RC-026A**): Broker ohne Token-Speicherung (Tokens nur auf der Kundenseite, verschlüsselt), signierte Site↔Broker-Kommunikation, Auftragsverarbeitungsvertrag, Kontingentkonzept, abgeschlossene Google-OAuth-Verifizierung (inkl. Prüfung sensibler Scopes), Datenschutzerklärung des Brokers. Betreiber-Credentials bleiben als Alternative verfügbar.
 
 Folgen: RC-002 (Google in 1.0 nativ) hängt zusätzlich an der Google-Verifizierung der App; Zeitplan beachten (Verifizierung kann Wochen dauern).
+
+## Präzisierung (16.11.2026, später am Tag)
+
+Die Inhaberin stellt klar: In 1.0 sollen Google-Bewertungen nur **zum Anzeigen** per API geholt werden. Deshalb gilt für 1.0 **Google Places API** (Place Details, API-Schlüssel des Betreibers, laut Google-Doku höchstens 5 Bewertungen je Ort, Pflicht zur Quellenangabe, Vorgaben zum Zwischenspeichern vor Umsetzung prüfen) – ohne Broker-Server, ohne Google-Verifizierung, ohne AVV. Die **Captain-OAuth-App (RC-026A)** und der vollständige Abruf über die Business Profile API werden **nach 1.0** umgesetzt, falls alle Bewertungen oder Antworten gebraucht werden. Die übrigen Anbieter bleiben bei Betreiber-Zugängen. Die Abschnitte oben zur Captain-App gelten damit erst für die spätere Version.

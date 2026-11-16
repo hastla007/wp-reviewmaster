@@ -41,7 +41,7 @@ Kein ADR nötig: Bugfixes, interne Refactorings ohne Vertragsänderung, Texte, S
 | [0005](0005-tokenverschluesselung-libsodium.md) | Tokenverschlüsselung mit libsodium secretbox | Angenommen | 2026-11-16 |
 | [0006](0006-quellsprache-der-oberflaechentexte.md) | Deutsch als Quellsprache der Oberflächentexte (Arbeitsannahme) | Vorgeschlagen | 2026-11-16 |
 | [0007](0007-oeffentliche-hooks-v1.md) | Öffentliche Hooks von Core v1 und ihre Stabilitätsstufen | Angenommen | 2026-11-16 |
-| [0008](0008-auth-modell-betreiber-credential.md) | Plattformzugänge im MVP über Betreiber-Credentials | Abgelehnt (Captain-OAuth-App für Google in 1.0, RC-026A) | 2026-11-16 |
+| [0008](0008-auth-modell-betreiber-credential.md) | Plattformzugänge im MVP über Betreiber-Credentials | Angenommen mit Änderung (Google 1.0 über Places-API; Captain-App nach 1.0) | 2026-11-16 |
 | [0009](0009-connector-lizenzgrenze.md) | Lizenzgrenze für kundenspezifische Connectoren | Angenommen | 2026-11-16 |
 | [0010](0010-sortierspalte-sorted-at.md) | Indizierte Sortierspalte `sorted_at` und Keyset-Export | Vorgeschlagen | 2026-11-16 |
 
