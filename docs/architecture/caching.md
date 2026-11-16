@@ -55,3 +55,10 @@ Das Einreichungsformular enthält einen Nonce (`review_captain_submit_review`). 
 - [ ] Admin-, REST-, OAuth- und Formular-Ergebnisantworten tragen `no-store`/`no-cache`-Header.
 - [ ] Formular mit abgelaufenem Nonce verliert keine Eingaben.
 - [ ] Keine Fragment-Cache-Einträge enthalten Nonces, E-Mail-Adressen oder nutzerbezogene Inhalte (Inspektion im Test).
+
+## Umsetzungsstand (16.11.2026)
+
+- Generationszähler `ReviewCaptain\Support\CacheGeneration` (Option `review_captain_cache_gen`, Objektcache-Gruppe `review_captain`). Erhöht bei jedem Schreibzugriff im `ReviewRepository` (insert, update, change_status, delete, delete_if_status) und nach `dev seed`.
+- Abfrage-Cache für `ReviewRepository::summary_by_platform()` (Schlüssel `rc:s:{gen}:{sha1(args)}`, TTL 5 min; Objektcache wenn persistent, sonst Transient). Messung: [Nachprüfung](../qa/2026-11-16-nachpruefung.md).
+- Noch nicht umgesetzt: Fragment-Cache für Widget-HTML und Purge-Signal `clean_post_cache()` (§2/§3).
+

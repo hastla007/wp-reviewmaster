@@ -179,7 +179,7 @@ class JobQueue {
 	 * @param string $error $wpdb->last_error.
 	 */
 	public static function log_db_error( string $code, string $error ): void {
-		if ( '' === $error || false !== stripos( $error, 'duplicate' ) ) {
+		if ( '' === $error || false !== stripos( $error, 'duplicate' ) || false !== stripos( $error, 'UNIQUE constraint' ) ) { // MySQL/MariaDB resp. SQLite wording.
 			return;
 		}
 		error_log( 'Review Captain: ' . $code . ': ' . substr( preg_replace( "/'[^']*'/", "'…'", $error ), 0, 200 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

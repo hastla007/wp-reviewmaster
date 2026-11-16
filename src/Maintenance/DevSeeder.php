@@ -74,6 +74,7 @@ class DevSeeder {
 				$progress( $done );
 			}
 		}
+		\ReviewCaptain\Support\CacheGeneration::bump();
 		return $done;
 	}
 

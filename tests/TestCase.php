@@ -33,6 +33,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 			$this->db->create_from_mysql( $sql );
 		}
 		Plugin::reset_for_tests();
+		\ReviewCaptain\Support\CacheGeneration::reset_local();
 	}
 
 	/**

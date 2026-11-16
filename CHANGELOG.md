@@ -10,6 +10,9 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 - **Mindestversionen (MINVER-1, Entscheidung der Inhaberin 16.11.2026):** PHP 8.5 (Header `Requires PHP`, Laufzeitprüfung, `readme.txt`, `composer.json`, PHPCS `testVersion 8.5-`); CI-Unit-Matrix PHP 8.5 und 8.6. Datenbank: empfohlen MySQL 9.7 LTS oder MariaDB 12.3 LTS. Ältere Server lösen nur eine Warnung aus (`Support\Requirements`, `wp review-captain doctor`, Diagnose-Systeminfo), keine Sperre.
 - Schema v3: indizierte Sortierspalte `sorted_at` und Keyset-Export (TEC-014, ADR-0010 vorgeschlagen).
 
+### Performance
+- Plattform-Zusammenfassung der Widgets wird je Cache-Generation zwischengespeichert; jeder Schreibzugriff auf Reviews invalidiert (TEC-012, RC-136).
+
 ### Fixed
 - Verlorene Insert-Rennen bei `JobQueue::enqueue` und `upsert_external` liefern unter hoher Parallelität zuverlässig die Gewinnerzeile statt `false` (TEC-005, MariaDB-Racetest).
 

@@ -30,4 +30,4 @@
 
 - **Keine externen HTTP-Requests im öffentlichen Request:** MU-Plugin protokollierte `pre_http_request` auf 6 Frontend-Seiten (inkl. `?rc_page=2`) → leer.
 - Antwortzeiten (php -S, SQLite, wenige Reviews): 53–68 ms je Seite.
-- Indexe und Skalierung: [TEC-014 auf MariaDB](2026-11-tec-014-mariadb.md) (Schema v3 mit `status_sorted`). Offen: `summary_by_platform` pro Widget ungecacht (~60 ms bei 20 000 Reviews, TEC-012), Admin-Suche ~0,5 s.
+- Indexe und Skalierung: [TEC-014 auf MariaDB](2026-11-tec-014-mariadb.md) (Schema v3 mit `status_sorted`). `summary_by_platform` ist jetzt je Generation gecacht (`Support\CacheGeneration`): `/rc-perf/` mit 20 000 Reviews (SQLite) kalt 85–110 ms, warm 51–58 ms. Offen: Fragment-Cache für Widget-HTML, Admin-Suche ~0,5 s.

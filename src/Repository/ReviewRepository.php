@@ -15,6 +15,7 @@ use ReviewCaptain\Install\Schema;
 use ReviewCaptain\Media\PhotoStore;
 use ReviewCaptain\Moderation\ReportStore;
 use ReviewCaptain\Plugin;
+use ReviewCaptain\Support\CacheGeneration;
 use ReviewCaptain\Support\Uuid;
 
 /**
@@ -112,6 +113,7 @@ class ReviewRepository {
 		}
 		$review->id = (int) $wpdb->insert_id;
 		$this->log_event( $review->id, 'created', null, $review->status->value, '' );
+		CacheGeneration::bump();
 		Plugin::instance()->events()->review_created( $review );
 		return $review;
 	}
@@ -232,6 +234,7 @@ class ReviewRepository {
 		if ( 1 !== (int) $affected ) {
 			return false;
 		}
+		CacheGeneration::bump();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 		$review->revision = (int) $wpdb->get_var( $wpdb->prepare( "SELECT revision FROM {$this->table()} WHERE id = %d", $review->id ) );
 		return true;
@@ -295,6 +298,7 @@ class ReviewRepository {
 				'reason' => $reason,
 			)
 		);
+		CacheGeneration::bump();
 		Plugin::instance()->events()->review_status_changed( $review, $from->value );
 		if ( ReviewStatus::REMOVED === $to ) {
 			Plugin::instance()->events()->review_removed( $review );
@@ -315,6 +319,7 @@ class ReviewRepository {
 		}
 		$deleted = (bool) $wpdb->delete( $this->table(), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		self::purge_related( $id );
+		CacheGeneration::bump();
 		if ( $deleted ) {
 			Plugin::instance()->events()->review_removed( $review );
 		}
@@ -346,6 +351,7 @@ class ReviewRepository {
 		}
 		self::purge_related( $id );
 		Plugin::instance()->events()->review_removed( $review );
+		CacheGeneration::bump();
 		return true;
 	}
 
@@ -414,8 +420,20 @@ class ReviewRepository {
 	 * @return list<array{platform: string, count: int, average: ?float, scale_min: float, scale_max: float}>
 	 */
 	public function summary_by_platform( array $args = array() ): array {
+		$args['status'] = $args['status'] ?? ReviewStatus::APPROVED->value;
+		// TEC-012/RC-136: aggregate per widget is a full scan of the matching rows; cache it per
+		// generation (bumped on every review write). Short TTL bounds time-based visibility rules.
+		return CacheGeneration::remember( 's', $args, 5 * MINUTE_IN_SECONDS, fn() => $this->summary_by_platform_uncached( $args ) );
+	}
+
+	/**
+	 * Uncached aggregate (see summary_by_platform()).
+	 *
+	 * @param array<string, mixed> $args Filters incl. status.
+	 * @return list<array{platform: string, count: int, average: float|null, scale_min: float, scale_max: float}>
+	 */
+	private function summary_by_platform_uncached( array $args ): array {
 		global $wpdb;
-		$args['status']     = $args['status'] ?? ReviewStatus::APPROVED->value;
 		[ $where, $params ] = $this->build_where( $args );
 		$sql                = "SELECT platform, rating_scale_min, rating_scale_max, COUNT(*) AS cnt, AVG(rating_value) AS avg_rating
 			FROM {$this->table()} WHERE {$where} GROUP BY platform, rating_scale_min, rating_scale_max ORDER BY cnt DESC";
