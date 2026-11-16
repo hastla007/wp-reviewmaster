@@ -3,7 +3,7 @@ Contributors: captainsuite
 Tags: reviews, testimonials, social proof, bewertungen, schema
 Requires at least: 6.5
 Tested up to: 6.7
-Requires PHP: 8.1
+Requires PHP: 8.5
 Stable tag: 0.1.0-dev
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -71,6 +71,7 @@ Standardmäßig bleiben alle Daten erhalten. Nur wenn unter „Einstellungen ›
 
 = 0.1.0-dev =
 * Erste Entwicklungsversion des kostenlosen Core (noch nicht veröffentlicht).
+* Mindestversionen angehoben (Entscheidung 16.11.2026): PHP 8.5; empfohlen MySQL 9.7 LTS oder MariaDB 12.3 LTS. Ältere Datenbanken lösen nur eine Warnung in Diagnose und `wp review-captain doctor` aus.
 * Lokale Bewertungen und Erfahrungsberichte mit Moderation, Formular (Einwilligung, Honeypot, Rate-Limit), manuell gepflegte externe Bewertungen mit Pflicht-Quellenangabe.
 * Block und Shortcode `[review_captain v="1"]`, serverseitig gerendert; neutraler Bewertungs-Link ohne Review-Gating.
 * Strukturierte Daten nur für zulässige lokale Bewertungen, Yoast-SEO-Integration, `noindex` für Paginierungsparameter.

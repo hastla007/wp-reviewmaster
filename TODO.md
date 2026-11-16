@@ -459,3 +459,11 @@ Die Einstellungsseite soll globale Standardwerte und Richtlinien enthalten. Obje
 - [ ] **SEO-016 – Strukturierte Daten und Yoast-Konflikte abnehmen.** Ergebnis: Szenarien decken Review Captain allein, Yoast SEO, WooCommerce-Produkt, Fremdreviews, lokale Unternehmensreviews, zusätzliche Schema-Plugins und noindex-Seiten ab.
 - [x] **SEO-017 – SEO-Dokumentation und Release-Checkliste veröffentlichen.** Ergebnis: Markupgrenzen, Yoast-Konfiguration, Rich-Results-Erwartung und Fehlerdiagnose sind dokumentiert und vor Release verifiziert.
 - 2026-11-16: Basis-Entscheidung: Core-Stand `claude/sleepy-gates-6mm217` gilt; M0-Entwürfe (docs/m0) übernommen. TEC-014 auf MariaDB mit 100.000 Reviews gemessen, Schema v3 (`sorted_at`, Index `status_sorted`) und Keyset-Export: Widget-Seiten 189→108 ms, CSV-Export 18,7→1,4 s. ADR-Vorschläge 0008–0010.
+
+## Mindestversionen: neueste PHP-, MySQL- und MariaDB-Version (Entscheidung der Inhaberin, 16.11.2026)
+
+- [ ] **MINVER-1 — Auf die neuesten Versionen umstellen und testen.** Die Inhaberin hat am 16.11.2026 für alle Captain-Plugins entschieden: Mindestversionen sind die jeweils neuesten – **PHP 8.5** (PHP 8.6 erscheint am 19.11.2026 und kommt in die Test-Matrix), **MySQL 9.7 (LTS)** und **MariaDB 12.3 (LTS)**.
+  - *Erledigt (Core, 16.11.2026):* Plugin-Header `Requires PHP: 8.5`, Laufzeitprüfung (`REVIEW_CAPTAIN_MIN_PHP`), `readme.txt`, `composer.json`/Lock, PHPCS `testVersion 8.5-`, `src/Support/Requirements.php` mit DB-Prüfung (Warnung statt Sperre in `wp review-captain doctor` und Diagnose-Systeminfo), CI: Unit-Matrix 8.5 (+8.6 experimentell), PHPCS auf 8.5, Integrationsjobs MariaDB 12.3 und MySQL 9.7 (`tests/e2e/ci-db.sh`), Changelog, [RC-006](docs/m0/rc-006-kompatibilitaet.md). PHPStan ist im Core nicht eingerichtet.
+  - *Offen:* erster grüner CI-Lauf auf PHP 8.5/8.6, MariaDB 12.3, MySQL 9.7 (lokal nicht verfügbar, siehe [KNOWN-LIMITATIONS](docs/release/KNOWN-LIMITATIONS.md)); Review Captain Pro anpassen (Pro-Branch, Absprache mit der Pro-Sitzung).
+  - *Test (Inhaberin):* auf einem echten Host mit PHP 8.5/8.6 und MySQL 9.7 bzw. MariaDB 12.3 installieren, aktualisieren und die Hauptabläufe durchspielen.
+  - *Vorbild:* Affiliate Captain (`hastla007/wpaffiliatemaster`, Aufgaben PHP-1/PHP-2).

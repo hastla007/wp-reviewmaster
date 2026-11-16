@@ -6,7 +6,15 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 
 ## [Unreleased]
 
-Noch nichts über 0.1.0-dev hinaus. Release-Stand und offene Gates: [docs/release/RELEASE-CHECKLIST.md](docs/release/RELEASE-CHECKLIST.md), Einschränkungen: [docs/release/KNOWN-LIMITATIONS.md](docs/release/KNOWN-LIMITATIONS.md).
+### Changed
+- **Mindestversionen (MINVER-1, Entscheidung der Inhaberin 16.11.2026):** PHP 8.5 (Header `Requires PHP`, Laufzeitprüfung, `readme.txt`, `composer.json`, PHPCS `testVersion 8.5-`); CI-Unit-Matrix PHP 8.5 und 8.6. Datenbank: empfohlen MySQL 9.7 LTS oder MariaDB 12.3 LTS. Ältere Server lösen nur eine Warnung aus (`Support\Requirements`, `wp review-captain doctor`, Diagnose-Systeminfo), keine Sperre.
+- Schema v3: indizierte Sortierspalte `sorted_at` und Keyset-Export (TEC-014, ADR-0010 vorgeschlagen).
+
+### Fixed
+- Verlorene Insert-Rennen bei `JobQueue::enqueue` und `upsert_external` liefern unter hoher Parallelität zuverlässig die Gewinnerzeile statt `false` (TEC-005, MariaDB-Racetest).
+
+### Added
+- `tests/e2e/ci-db.sh`: Integration gegen echtes MySQL/MariaDB (Installation, Upgrade v2→v3, Race-Tests); CI-Jobs für MariaDB 12.3 und MySQL 9.7. Release-Stand und offene Gates: [docs/release/RELEASE-CHECKLIST.md](docs/release/RELEASE-CHECKLIST.md), Einschränkungen: [docs/release/KNOWN-LIMITATIONS.md](docs/release/KNOWN-LIMITATIONS.md).
 
 ## [0.1.0-dev] – unveröffentlicht (Stand 2026-11-16)
 

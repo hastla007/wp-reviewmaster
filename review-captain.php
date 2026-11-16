@@ -5,7 +5,7 @@
  * Description:       Authentische, sauber attribuierte Kundenbewertungen und Testimonials in WordPress verwalten und anzeigen – ohne Scraping und ohne Lizenzpflicht.
  * Version:           0.1.0-dev
  * Requires at least: 6.5
- * Requires PHP:      8.1
+ * Requires PHP:      8.5
  * Author:            Captain Suite
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -21,11 +21,11 @@ define( 'REVIEW_CAPTAIN_VERSION', '0.1.0-dev' );
 define( 'REVIEW_CAPTAIN_FILE', __FILE__ );
 define( 'REVIEW_CAPTAIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'REVIEW_CAPTAIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'REVIEW_CAPTAIN_MIN_PHP', '8.1' );
+define( 'REVIEW_CAPTAIN_MIN_PHP', '8.5' );
 define( 'REVIEW_CAPTAIN_MIN_WP', '6.5' );
 
 /*
- * Mindestversion prüfen, bevor PHP-8.1-Syntax geladen wird.
+ * Mindestversion prüfen, bevor neuere PHP-Syntax geladen wird.
  */
 if ( version_compare( PHP_VERSION, REVIEW_CAPTAIN_MIN_PHP, '<' ) || version_compare( get_bloginfo( 'version' ), REVIEW_CAPTAIN_MIN_WP, '<' ) ) {
 	add_action(

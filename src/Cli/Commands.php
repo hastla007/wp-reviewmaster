@@ -20,6 +20,7 @@ use ReviewCaptain\Maintenance\Maintenance;
 use ReviewCaptain\Maintenance\Reconciler;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Crypto;
+use ReviewCaptain\Support\Requirements;
 
 /**
  * Command implementations. Each method takes WP-CLI style ($args, $assoc_args).
@@ -228,6 +229,22 @@ class Commands {
 				Crypto::STATUS_INVALID  => __( 'REVIEW_CAPTAIN_ENCRYPTION_KEY ist ungültig (Base64 von genau 32 Byte erwartet).', 'review-captain' ),
 				default                 => __( 'libsodium ist nicht verfügbar.', 'review-captain' ),
 			},
+		);
+
+		// MINVER-1: an older database server is a warning, never a block.
+		$db       = Requirements::current_db();
+		$checks[] = array(
+			'check'   => 'database',
+			'status'  => true === $db['ok'] ? 'ok' : 'warning',
+			'message' => null === $db['ok']
+				? __( 'Datenbankversion nicht ermittelbar.', 'review-captain' )
+				: sprintf(
+					/* translators: 1: vendor, 2: installed version, 3: minimum version */
+					__( 'Datenbank %1$s %2$s (empfohlen mindestens %3$s).', 'review-captain' ),
+					'mariadb' === $db['vendor'] ? 'MariaDB' : 'MySQL',
+					$db['version'],
+					$db['minimum']
+				),
 		);
 
 		$this->out->table( $checks, array( 'check', 'status', 'message' ), (string) ( $assoc['format'] ?? 'table' ) );

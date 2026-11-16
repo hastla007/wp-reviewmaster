@@ -9,7 +9,7 @@
 	<exclude-pattern>tests/*</exclude-pattern>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
-	<config name="testVersion" value="8.1-"/>
+	<config name="testVersion" value="8.5-"/>
 	<config name="minimum_wp_version" value="6.5"/>
 	<rule ref="WordPress">
 		<!-- PSR-4 file names instead of class-*.php. -->

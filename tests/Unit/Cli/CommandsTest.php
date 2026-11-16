@@ -89,6 +89,8 @@ final class CommandsTest extends TestCase {
 		$this->assertSame( 'ok', $byname['schema']['status'] );
 		$this->assertSame( 'warning', $byname['cron']['status'] );
 		$this->assertSame( 'warning', $byname['crypto']['status'] ); // Fallback key in tests.
+		// MINVER-1: unknown/old database server is a warning, never an error.
+		$this->assertSame( 'warning', $byname['database']['status'] );
 	}
 
 	public function test_reconcile_errors_on_outdated_schema(): void {

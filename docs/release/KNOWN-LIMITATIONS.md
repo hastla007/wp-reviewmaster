@@ -58,7 +58,7 @@ Die Pro-Komponenten (Plattform-Clients, Anfragen, Widgets) wurden in diesem Beri
 - Nicht durchgeführt: frische Installation auf MySQL 8.0 / MariaDB 10.6 mit Schema-Snapshot (`docs/architecture/database.md`, Abnahme), Upgrade-/Rollback-/Backup-Restore (RC-139), Skalierung mit 100.000 Reviews und 10.000 Jobs (TEC-014), Race-Conditions unter echter Parallelität (TEC-005).
 - Nicht durchgeführt: Pluginverbund-E2E mit Pro, WooCommerce (HPOS, Classic/Blocks-Checkout) und Suite-Plugins (RC-131, RC-133, RC-106), echter Lizenzlauf gegen WP License Captain (RC-064).
 - Nicht durchgeführt: Browser-Tests (Netzwerkprotokoll „kein Request vor Consent“, ohne JavaScript, Tastatur/Screenreader, Mobile-Layout mit Floating-Badge und Trustbadge; RC-120, RC-137), Page-Cache- und Minify-Verhalten (SEO-Gate §5), Rich-Results-Test (SEO-016).
-- Tests der Pro-Plattformadapter und des Job-Handlers brauchen einen Core-Checkout und PHP ≥ 8.1 und werden sonst übersprungen.
+- Tests der Pro-Plattformadapter und des Job-Handlers brauchen einen Core-Checkout und PHP ≥ 8.5 (MINVER-1) und werden sonst übersprungen.
 
 ## 5. Funktionale Einschränkungen dieses Stands
 
@@ -69,3 +69,9 @@ Die Pro-Komponenten (Plattform-Clients, Anfragen, Widgets) wurden in diesem Beri
 - JS-Strings des Pro-Block-Editors werden nicht übersetzt (keine JSON-Übersetzungen im Build).
 - Wettbewerbsfunktionen M7 (Foto-Reviews, Q&A, Mehrprodukt-Formular, Tags/Meldungen, Autorenkorrektur, WhatsApp/QR, Shopping-Feed, weitere Plattformen, KI) sind nicht Teil von 0.1.0; Verschiebebeschluss fehlt.
 - Support, Eskalation, API-Änderungsroutine und Verantwortlichkeiten sind nicht besetzt (OPS-003, OPS-005, OPS-009).
+
+## Mindestversionen (MINVER-1)
+
+- PHP 8.5, MySQL 9.7 LTS und MariaDB 12.3 LTS sind im Code und in der CI eingetragen, konnten in der Entwicklungsumgebung aber **nicht lokal** getestet werden (dort nur PHP 8.3 und MariaDB 10.11, keine Pakete für die neuen Versionen, kein Docker). Lokal verifiziert wurden Unit-Tests (PHP 8.3, mit `--ignore-platform-req=php`) und die DB-Integration auf MariaDB 10.11. Der erste Lauf der CI-Jobs `PHP 8.5`, `MariaDB 12.3` und `MySQL 9.7` steht aus; ebenso der Test der Inhaberin auf einem echten Host.
+- Review Captain Pro muss nachziehen (Pro `Requires PHP` = Core-Minimum, captain-pro Entscheidung B3) – im Pro-Branch noch nicht geändert.
+

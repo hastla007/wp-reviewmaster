@@ -15,6 +15,7 @@ use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Settings\Settings;
 use ReviewCaptain\Settings\SettingsSchema;
+use ReviewCaptain\Support\Requirements;
 
 /**
  * Renders own sections plus everything registered via `review_captain_diagnostics_sections`
@@ -75,10 +76,15 @@ final class DiagnosticsPage {
 	 */
 	public function system_info(): array {
 		$db_version = get_option( Schema::OPTION_VERSION, '' );
+		$db_server  = Requirements::current_db();
 		return array(
 			'plugin_version'        => defined( 'REVIEW_CAPTAIN_VERSION' ) ? REVIEW_CAPTAIN_VERSION : '',
 			'php_version'           => PHP_VERSION,
+			'php_minimum'           => Requirements::MIN_PHP,
 			'wp_version'            => (string) get_bloginfo( 'version' ),
+			'db_server'             => trim( $db_server['vendor'] . ' ' . $db_server['version'] ),
+			'db_server_minimum'     => $db_server['minimum'],
+			'db_server_ok'          => $db_server['ok'],
 			'db_schema_installed'   => '' === $db_version ? null : (int) $db_version,
 			'db_schema_expected'    => Schema::VERSION,
 			'db_schema_ok'          => (int) $db_version === Schema::VERSION,
