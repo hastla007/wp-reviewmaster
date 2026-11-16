@@ -105,7 +105,7 @@ final class PersonalDataTest extends TestCase {
 		$this->assertNull( $b->author_user_id );
 		$this->assertSame( 'Anonym', $b->author_name );
 
-		$this->assertSame( 'max@example.test', Plugin::instance()->reviews()->find( (int) $other->id )->author_email === 'other@example.test' ? 'max@example.test' : 'x' );
+		$this->assertSame( 'other@example.test', Plugin::instance()->reviews()->find( (int) $other->id )->author_email, 'other people untouched' );
 		$this->assertSame( 3, $this->rows( 'reviews' ) );
 		$this->assertSame( array(), $this->service()->export( 'max@example.test' )['data'], 'nothing left to find' );
 	}
