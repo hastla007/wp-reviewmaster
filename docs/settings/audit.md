@@ -18,12 +18,12 @@ Status: Entwurf zur Abnahme, Stand 2026-11-16. Tabelle `{prefix}review_captain_a
 
 | `action` | Auslöser |
 |---|---|
-| `settings.updated` | Speichern eines Tabs mit mindestens einer Änderung; ein Eintrag je geändertem Feld |
+| `settings.changed` | Speichern eines Tabs mit mindestens einer Änderung; ein Eintrag je geändertem Feld |
 | `settings.reset` | Reset eines Tabs/gesamt |
 | `settings.imported` | Konfigurationsimport |
 | `settings.exported` | Konfigurationsexport (ohne Inhalt) |
 | `settings.migrated` | Versionsmigration |
-| `roles.capabilities_changed` | Änderung `access.*` (zusätzlich zu `settings.updated`: Liste der Rollen +/-) |
+| `roles.capabilities_changed` | Änderung `access.*` (zusätzlich zu `settings.changed`: Liste der Rollen +/-) |
 | `data.erase_all` | „Alle Plugin-Daten löschen“ (vor Ausführung) |
 
 ## 3. Was protokolliert wird

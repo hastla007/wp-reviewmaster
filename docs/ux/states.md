@@ -20,7 +20,7 @@ Grundsätze
 | 5 Datenschutz | Datenschutzhinweis, Fristen ansehen, Link zur WP-Datenschutzerklärung-Textvorlage | Tab einmal gespeichert/bestätigt | ja |
 | 6 {Pro} Absender & Anfragepolitik | Absender + Testmail, Limits; erste Kampagne als **Entwurf** | Testmail ok | ja |
 
-- Fortschritt je Site in `review_captain_onboarding` (Vorschlag: `{ step_states: {…}, dismissed: bool, started_at, completed_at }`), nie in `review_captain_settings`.
+- Fortschritt je Site in `review_captain_setup_checklist` (Vorschlag: `{ step_states: {…}, dismissed: bool, started_at, completed_at }`), nie in `review_captain_settings`.
 - Wiederaufnahme: Checkliste zeigt Status je Schritt; „Weiter einrichten“ springt zum ersten offenen Schritt.
 - Überspringen speichert nichts, verändert keine Defaults und aktiviert keine Verbindung.
 - Der Assistent ist ausblendbar und über Dashboard › „Einrichtung erneut anzeigen“ zurückholbar.

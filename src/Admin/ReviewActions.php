@@ -93,7 +93,8 @@ final class ReviewActions {
 				View::redirect( Notices::url( $edit_url, 'review_invalid', explode( ',', $e->getMessage() ) ) );
 				return;
 			}
-			// Audit: only field names, never content.
+			// History + audit: only field names, never content.
+			$this->plugin->reviews()->record_edit( $id, $fields );
 			$this->plugin->audit()->record(
 				'review.edited',
 				'review',
@@ -202,6 +203,12 @@ final class ReviewActions {
 		// phpcs:enable
 		$list = View::page_url( ReviewsPage::SLUG, '' !== $view ? array( 'status' => $view ) : array() );
 
+		if ( ! isset( self::BULK_ACTIONS[ $action ] ) && ! $ids ) {
+			// Form submitted without a bulk action (e.g. the page-number field): just navigate.
+			$paged = absint( $_POST['paged'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			View::redirect( $paged > 1 ? add_query_arg( 'paged', $paged, $list ) : $list );
+			return;
+		}
 		if ( ! isset( self::BULK_ACTIONS[ $action ] ) || ! $ids ) {
 			View::redirect( Notices::url( $list, 'bulk_none' ) );
 			return;

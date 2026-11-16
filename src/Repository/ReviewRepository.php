@@ -376,6 +376,16 @@ class ReviewRepository {
 	}
 
 	/**
+	 * Record a content edit in the review history (field names only, never content).
+	 *
+	 * @param int          $review_id Review ID.
+	 * @param list<string> $fields    Changed field names.
+	 */
+	public function record_edit( int $review_id, array $fields ): void {
+		$this->log_event( $review_id, 'edited', null, null, implode( ',', array_map( 'sanitize_key', $fields ) ) );
+	}
+
+	/**
 	 * Write a moderation history entry.
 	 *
 	 * @param int         $review_id Review ID.
