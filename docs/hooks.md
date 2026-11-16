@@ -12,7 +12,7 @@ Anzahl: 31 Aufrufstellen, 30 Hooks.
 | `review_captain_budget_warning` | action | `string $scope` – Scope<br>`int $used` – Used units<br>`int $limit` – Limit | `src/Jobs/Budget.php:89` |
 | `review_captain_connector_runtime_v1` | filter | `bool $enabled` – Default false<br>`string $key` – Connector key | `src/Connectors/Registry.php:223` |
 | `review_captain_connectors_v1` | action | `Registry $registry` – Registry | `src/Connectors/Registry.php:82` |
-| `review_captain_diagnostics_sections` | filter | `array()` | `src/Admin/DiagnosticsPage.php:199` |
+| `review_captain_diagnostics_sections` | filter | `array()` | `src/Admin/DiagnosticsPage.php:205` |
 | `review_captain_embed_hosts` | filter | `list<string> $hosts` – Hosts | `src/Security/EmbedPolicy.php:46` |
 | `review_captain_installed` | action | `int $from` – Previous schema version<br>`int $to` – New schema version | `src/Install/Installer.php:115` |
 | `review_captain_instance_confirmed` | action | `bool $is_copy` – Copy | `src/Maintenance/Reconciler.php:230` |
