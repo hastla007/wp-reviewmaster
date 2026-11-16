@@ -48,9 +48,9 @@
 | Quelle | Benötigte Bestätigung | Status |
 |---|---|---|
 | WooCommerce-Adapter (Review Captain Pro) | Bestellstatus-Auswahl, HPOS/Classic, Positionsausschluss bei Übergabe | offen (RC-095) |
-| Voucher Captain | Einlöse-Ereignis als öffentlicher, versionierter Vertrag; Klassifizierung Leistung vs. Wert; Käufer/Beschenkter-Referenzen; Resolver | offen (RC-098, RC-099) |
-| Pass Captain | Completion-Vertrag (Check-in, Teilnahme bestätigt, No-show, Absage, Refund) mit stabiler Ticket-/Termin-ID; Teilnehmerreferenz; Resolver | offen (RC-100, RC-101) |
-| Form Captain | `form_captain_register_action_v1`, Feldmapping, Entry-ID-Stabilität, Löschereignis | offen (RC-103, RC-104) |
+| Voucher Captain | Einlöse-Ereignis als öffentlicher, versionierter Vertrag; Klassifizierung Leistung vs. Wert; Käufer/Beschenkter-Referenzen; Resolver | offen (RC-098, RC-099) – auf `main` fehlen alle `vcap_review_*`-Hooks ([Abgleich](suite-abgleich-2026-11-16.md)) |
+| Pass Captain | Completion-Vertrag (Check-in, Teilnahme bestätigt, No-show, Absage, Refund) mit stabiler Ticket-/Termin-ID; Teilnehmerreferenz; Resolver | offen (RC-100, RC-101) – auf `main` kein Vertrag, Check-in ohne Termin-ID ([Abgleich](suite-abgleich-2026-11-16.md)) |
+| Form Captain | `form_captain_register_action_v1`, Feldmapping, Entry-ID-Stabilität, Löschereignis | auf `main` vorhanden; offen nur Multisite-Schlüssel im Pro-Adapter ([Abgleich](suite-abgleich-2026-11-16.md)) |
 
 ## Abnahme
 
