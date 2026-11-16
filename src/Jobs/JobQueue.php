@@ -133,6 +133,9 @@ class JobQueue {
 		}
 
 		$now = $this->now();
+		// A lost race on the unique key is expected under concurrency (TEC-005): keep it out of the PHP
+		// error log; genuine DB errors are still logged below.
+		$suppress = method_exists( $wpdb, 'suppress_errors' ) ? $wpdb->suppress_errors( true ) : null;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$ok = $wpdb->insert(
 			$this->table(),
@@ -149,12 +152,31 @@ class JobQueue {
 			),
 			array( '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s' )
 		);
+		if ( null !== $suppress ) {
+			$wpdb->suppress_errors( $suppress );
+		}
 		if ( false === $ok || ! $wpdb->insert_id ) {
 			// Lost an insert race on the unique key: return the winner.
 			$existing = $this->id_by_key( $key );
+			if ( null === $existing ) {
+				self::log_db_error( 'job_enqueue_failed', (string) $wpdb->last_error );
+			}
 			return null !== $existing ? $existing : false;
 		}
 		return (int) $wpdb->insert_id;
+	}
+
+	/**
+	 * Log an unexpected database error without data values (only the first part of the message).
+	 *
+	 * @param string $code  Short code.
+	 * @param string $error $wpdb->last_error.
+	 */
+	public static function log_db_error( string $code, string $error ): void {
+		if ( '' === $error || false !== stripos( $error, 'duplicate' ) ) {
+			return;
+		}
+		error_log( 'Review Captain: ' . $code . ': ' . substr( preg_replace( "/'[^']*'/", "'…'", $error ), 0, 200 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 
 	/**

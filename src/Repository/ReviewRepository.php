@@ -99,8 +99,15 @@ class ReviewRepository {
 
 		$row              = $review->to_row();
 		$row['sorted_at'] = self::sorted_at( $row['published_at'] ?? null, $review->created_at );
-		$ok               = $wpdb->insert( $this->table(), self::nullify( $row ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		// Duplicate dedupe/submission keys are expected when imports or syncs race (TEC-005); callers
+		// handle the exception. Keep them out of the PHP error log, log anything else.
+		$suppress = method_exists( $wpdb, 'suppress_errors' ) ? $wpdb->suppress_errors( true ) : null;
+		$ok       = $wpdb->insert( $this->table(), self::nullify( $row ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		if ( null !== $suppress ) {
+			$wpdb->suppress_errors( $suppress );
+		}
 		if ( false === $ok ) {
+			\ReviewCaptain\Jobs\JobQueue::log_db_error( 'review_insert_failed', (string) $wpdb->last_error );
 			throw new \RuntimeException( 'review_insert_failed: ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		$review->id = (int) $wpdb->insert_id;
