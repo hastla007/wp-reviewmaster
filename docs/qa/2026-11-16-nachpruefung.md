@@ -31,3 +31,15 @@
 - **Keine externen HTTP-Requests im öffentlichen Request:** MU-Plugin protokollierte `pre_http_request` auf 6 Frontend-Seiten (inkl. `?rc_page=2`) → leer.
 - Antwortzeiten (php -S, SQLite, wenige Reviews): 53–68 ms je Seite.
 - Indexe und Skalierung: [TEC-014 auf MariaDB](2026-11-tec-014-mariadb.md) (Schema v3 mit `status_sorted`). `summary_by_platform` ist jetzt je Generation gecacht (`Support\CacheGeneration`): `/rc-perf/` mit 20 000 Reviews (SQLite) kalt 85–110 ms, warm 51–58 ms. Offen: Fragment-Cache für Widget-HTML, Admin-Suche ~0,5 s.
+
+## RC-135 Datenschutz (technisch)
+
+`tests/e2e/functional.cjs`: 19/19 bestanden, u. a. `privacy.export` (ZIP enthält Review-Titel, Gruppe „Review Captain“) und `privacy.erase` (Review danach `approved / Anonymous / NULL`); CSV-Export ohne E-Mail-Adressen.
+
+## RC-139 Backup/Restore
+
+`tests/e2e/backup-restore.sh`: Restore mit laufendem Job; `reconcile --fix` (ohne Modus) lässt die Lease bis Ablauf, `--fix --mode=restore` setzt sie sofort zurück; danach 1 Job erfolgreich, 0 Duplikate (Idempotenzschlüssel, UUIDs, inhaltsgleiche Reviews). Schema-Upgrade v2→v3 auf MariaDB 10.11 mit 5 000 Reviews in 0,2–0,3 s (`tests/e2e/ci-db.sh`).
+
+## RC-141 Build
+
+`bin/build-zip.sh` → `review-captain-0.1.0-dev.zip`, 137 Dateien, 440 KB; enthält keine `tests/`, `docs/`, `vendor/`, `.git`, Composer- oder PHPUnit-Dateien; Übersetzungen (`.po/.mo/.json`) enthalten.
