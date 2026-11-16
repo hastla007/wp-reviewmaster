@@ -19,6 +19,7 @@ final class SeoModuleTest extends FrontendTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
+		\RC_Test_State::$queried_id = 10; // Single page of product 10 (QA F-09: main entity).
 		$this->seo = new SeoModule();
 		$this->seo->register( Plugin::instance() );
 		$this->seo->set_environment( SeoEnvironment::from_state( array() ) );
@@ -74,6 +75,7 @@ final class SeoModuleTest extends FrontendTestCase {
 	}
 
 	public function test_only_reviews_of_current_page_are_marked_up(): void {
+		\RC_Test_State::$queried_id = 3;
 		$a = $this->review( array( 'context_type' => 'post', 'context_id' => '3', 'published_at' => '2026-10-03 10:00:00' ) );
 		$b = $this->review( array( 'context_type' => 'post', 'context_id' => '3', 'published_at' => '2026-10-01 10:00:00' ) );
 		$this->shortcode( array( 'limit' => '1' ) );
@@ -115,6 +117,7 @@ final class SeoModuleTest extends FrontendTestCase {
 	}
 
 	public function test_json_ld_is_script_safe(): void {
+		\RC_Test_State::$queried_id = 5;
 		$this->review( array( 'context_type' => 'event', 'context_id' => '5', 'body' => 'Böse </script><script>alert(1)</script> & mehr' ) );
 		$this->shortcode();
 		$raw = $this->seo->fallback_schema();
@@ -154,6 +157,7 @@ final class SeoModuleTest extends FrontendTestCase {
 	}
 
 	public function test_prime_from_shortcode_content(): void {
+		\RC_Test_State::$queried_id = 3;
 		$r = $this->review( array( 'context_type' => 'post', 'context_id' => '3' ) );
 		$this->seo->prime_from_main_content( 'Text [review_captain v="1" platform="local" limit="3"] mehr [review_captain_form]' );
 		$this->assertTrue( $this->visible()->has( $r ) );
@@ -222,6 +226,15 @@ final class SeoModuleTest extends FrontendTestCase {
 	public function test_pending_review_never_in_schema_even_if_collected(): void {
 		$r = $this->review( array( 'context_type' => 'product', 'context_id' => '10', 'status' => ReviewStatus::PENDING ) );
 		$this->visible()->add( $r );
+		$this->assertSame( '', $this->seo->fallback_schema() );
+	}
+
+	public function test_no_markup_on_overview_or_foreign_page(): void {
+		$this->review( array( 'context_type' => 'product', 'context_id' => '10' ) );
+		\RC_Test_State::$queried_id = 0; // Archive / overview page (QA F-09).
+		$this->shortcode();
+		$this->assertSame( '', $this->seo->fallback_schema() );
+		\RC_Test_State::$queried_id = 99; // Single page of another item.
 		$this->assertSame( '', $this->seo->fallback_schema() );
 	}
 }

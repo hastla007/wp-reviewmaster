@@ -192,6 +192,8 @@ final class RegistryTest extends TestCase {
 		$registry = $this->registry();
 		$registry->register( $this->connector() );
 		$this->assertTrue( $registry->set_state( 'acme-booking', 'active' ) );
+		$this->assertFalse( $registry->is_executable( 'acme-booking' ), 'without a connector runtime (Pro) nothing runs (QA F-03)' );
+		add_filter( 'review_captain_connector_runtime_v1', '__return_true' );
 		$this->assertTrue( $registry->is_executable( 'acme-booking' ) );
 		$this->assertTrue( $registry->set_state( 'acme-booking', 'paused', ErrorCode::AUTH_INVALID ) );
 		$status = $registry->status( 'acme-booking' );

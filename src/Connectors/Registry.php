@@ -209,7 +209,18 @@ class Registry {
 	 * @param string $key Key.
 	 */
 	public function is_executable( string $key ): bool {
-		return self::STATE_ACTIVE === $this->status( $key )['state'];
+		if ( self::STATE_ACTIVE !== $this->status( $key )['state'] ) {
+			return false;
+		}
+		/**
+		 * Whether a runtime for custom connectors is present (Review Captain Pro with the
+		 * review.custom_connectors entitlement, CON-006). The core only offers contract and registry;
+		 * without a runtime an earlier activated connector must not run (QA F-03).
+		 *
+		 * @param bool   $enabled Default false.
+		 * @param string $key     Connector key.
+		 */
+		return true === apply_filters( 'review_captain_connector_runtime_v1', false, $key );
 	}
 
 	/**

@@ -22,6 +22,9 @@ final class Installer {
 	 * @param bool $network_wide Network activation.
 	 */
 	public static function activate( bool $network_wide = false ): void {
+		// When activated by WP-CLI or network-wide, plugins_loaded has already passed without this
+		// plugin, so no module listens to review_captain_installed yet (QA F-02). Boot is idempotent.
+		\ReviewCaptain\Plugin::boot();
 		if ( is_multisite() && $network_wide ) {
 			$site_ids = get_sites(
 				array(

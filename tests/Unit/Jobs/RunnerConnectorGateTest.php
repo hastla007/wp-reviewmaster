@@ -47,6 +47,7 @@ final class RunnerConnectorGateTest extends TestCase {
 
 	public function test_active_connector_job_runs(): void {
 		$this->assertTrue( $this->registry->set_state( 'acme-booking', 'active' ) );
+		add_filter( 'review_captain_connector_runtime_v1', static fn() => true );
 		$q  = new JobQueue();
 		$id = $q->enqueue( 'acme-booking.sync', array( 'v' => 1 ), 'acme-2' );
 		( new Runner( $q ) )->run( 5 );

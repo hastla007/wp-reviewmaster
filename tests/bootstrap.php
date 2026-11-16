@@ -58,6 +58,7 @@ final class RC_Test_State {
 	/** @var array<string, mixed> */
 	public static array $nonces_valid = array();
 	public static bool $is_admin = false;
+	public static int $queried_id = 0;
 
 	public static function reset(): void {
 		self::$options      = array();
@@ -70,6 +71,7 @@ final class RC_Test_State {
 		self::$mails        = array();
 		self::$roles        = array( 'administrator' => array(), 'editor' => array(), 'author' => array() );
 		self::$is_admin     = false;
+		self::$queried_id   = 0;
 	}
 }
 
@@ -135,6 +137,8 @@ function is_email( $e ) { return false !== filter_var( $e, FILTER_VALIDATE_EMAIL
 function wp_unslash( $v ) { return is_array( $v ) ? array_map( 'wp_unslash', $v ) : ( is_string( $v ) ? stripslashes( $v ) : $v ); }
 function wp_slash( $v ) { return is_array( $v ) ? array_map( 'wp_slash', $v ) : ( is_string( $v ) ? addslashes( $v ) : $v ); }
 function absint( $v ) { return abs( (int) $v ); }
+function __return_true() { return true; }
+function __return_false() { return false; }
 function wp_json_encode( $d, $o = 0, $depth = 512 ) { return json_encode( $d, $o | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES, $depth ); }
 function wp_parse_args( $args, $defaults = array() ) { if ( is_string( $args ) ) { parse_str( $args, $args ); } return array_merge( (array) $defaults, (array) $args ); }
 function shortcode_atts( $pairs, $atts, $shortcode = '' ) { $atts = (array) $atts; $out = array(); foreach ( $pairs as $name => $default ) { $out[ $name ] = array_key_exists( $name, $atts ) ? $atts[ $name ] : $default; } return $out; }
@@ -218,7 +222,8 @@ function get_the_ID() { return 0; }
 function get_post( $id = null ) { return null; }
 function get_post_type( $post = null ) { return false; }
 function get_the_title( $post = 0 ) { return 'Post ' . ( is_object( $post ) ? $post->ID : (int) $post ); }
-function is_singular( $types = '' ) { return false; }
+function is_singular( $types = '' ) { return RC_Test_State::$queried_id > 0; }
+if ( ! function_exists( 'get_queried_object_id' ) ) { function get_queried_object_id() { return RC_Test_State::$queried_id; } }
 function get_avatar_url( $id_or_email, $args = null ) { return 'https://secure.gravatar.com/avatar/x'; }
 function is_plugin_active( $plugin ) { return false; }
 function is_plugin_active_for_network( $plugin ) { return false; }

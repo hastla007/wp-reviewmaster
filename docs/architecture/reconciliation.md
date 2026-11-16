@@ -43,6 +43,8 @@ Der Job `reconcile` (bzw. CLI) führt die Schritte in dieser Reihenfolge aus, je
 ## 4. CLI
 
 ```
+> **Hinweis (QA-Befund F-08):** Ein frischer Restore (jünger als 24 h) ist an `last_seen_at` nicht erkennbar. Nach jedem Restore daher ausdrücklich `wp review-captain reconcile --fix --mode=restore` ausführen (steht so auch im Runbook).
+
 wp review-captain reconcile [--fix] [--mode=upgrade|reactivate|restore|clone|manual] [--format=table|json|csv|yaml]
 ```
 

@@ -170,7 +170,7 @@ class Commands {
 		foreach ( $report as $key => $value ) {
 			$rows[] = array(
 				'check' => $key,
-				'value' => is_scalar( $value ) ? var_export( $value, true ) : (string) wp_json_encode( $value ), // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+				'value' => in_array( (string) ( $assoc['format'] ?? 'table' ), array( 'json', 'yaml' ), true ) ? $value : ( is_scalar( $value ) ? var_export( $value, true ) : (string) wp_json_encode( $value ) ), // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 			);
 		}
 		$this->out->table( $rows, array( 'check', 'value' ), (string) ( $assoc['format'] ?? 'table' ) );

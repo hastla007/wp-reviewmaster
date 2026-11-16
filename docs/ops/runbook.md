@@ -71,7 +71,7 @@ Beispiele: Token in Log/Ticket/Screenshot, kompromittierte Site, geleakter OAuth
 | 1 | **Stoppen:** weitere Schreibvorgänge vermeiden – Quellen pausieren, Aufbewahrungsjobs anhalten (Einstellungen › Erweitert, OFFEN: Notaus „Hintergrundjobs anhalten“). |
 | 2 | Umfang bestimmen: Tabellen-Zeilenzahlen, `audit_log` (Reset, Löschaktionen, Rollbacks), `review_events`. |
 | 3 | Ursache: Nutzeraktion (Löschen/Rollback/Uninstall mit Datenlöschung), Aufbewahrungsjob, Migration, Fremdplugin. |
-| 4 | Wiederherstellung: Backup-Restore der `review_captain_*`-Tabellen (Site-spezifisches Präfix in Multisite beachten); externe Reviews können per Neu-Sync wiederhergestellt werden; lokale Einreichungen nur aus Backup. |
+| 4 | Wiederherstellung: Backup-Restore der `review_captain_*`-Tabellen (Site-spezifisches Präfix in Multisite beachten); externe Reviews können per Neu-Sync wiederhergestellt werden; lokale Einreichungen nur aus Backup. Danach immer `wp review-captain reconcile --fix --mode=restore` ausführen (ein frischer Restore ist sonst nicht erkennbar, QA F-08). |
 | 5 | Nachbereitung: S1-Postmortem, Test, ggf. zusätzliche Bestätigung in der UI. |
 
 ## Abnahme

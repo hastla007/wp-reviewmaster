@@ -81,6 +81,15 @@ final class SchemaEligibility {
 		if ( ! empty( $ctx['preview'] ) || ! self::is_rendered( $r, $ctx ) ) {
 			return self::no( 'not_rendered' );
 		}
+		// E5b – main entity (QA F-09): markup only on the single page of the reviewed item, so the
+		// Product/Event node never borrows the @id of an overview or another page. Callers that do not
+		// pass 'main_object_id' (tests, Yoast graph with its own check) are not restricted here.
+		if ( array_key_exists( 'main_object_id', $ctx ) ) {
+			$main = (string) ( $ctx['main_object_id'] ?? '' );
+			if ( '' === $main || (string) $r->context_id !== $main ) {
+				return self::no( 'not_main_entity' );
+			}
+		}
 		$env = isset( $ctx['environment'] ) && $ctx['environment'] instanceof SeoEnvironment ? $ctx['environment'] : SeoEnvironment::current();
 		// E6 – WooCommerce owns Product schema.
 		if ( 'product' === $r->context_type && $env->is_woo_product( $r->context_id ) && $env->woo_schema_active() ) {

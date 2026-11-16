@@ -26,6 +26,22 @@ final class CliModule implements Module {
 		if ( ! ( defined( 'WP_CLI' ) && WP_CLI ) || ! class_exists( '\WP_CLI' ) ) {
 			return;
 		}
+		// Register after WordPress is fully loaded: the definitions are translated and translations
+		// must not be loaded before `init` (QA F-01, _load_textdomain_just_in_time notice).
+		\WP_CLI::add_hook(
+			'after_wp_load',
+			static function () use ( $plugin ): void {
+				self::add_commands( $plugin );
+			}
+		);
+	}
+
+	/**
+	 * Add all commands.
+	 *
+	 * @param Plugin $plugin Plugin.
+	 */
+	private static function add_commands( Plugin $plugin ): void {
 		$commands = new Commands( $plugin, new WpCliOutput() );
 		foreach ( self::definitions() as $name => $def ) {
 			\WP_CLI::add_command(

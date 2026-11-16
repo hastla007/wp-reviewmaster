@@ -98,6 +98,8 @@ final class SeoModule implements Module {
 			'visible'     => $this->visible,
 			'environment' => $this->environment(),
 			'enabled'     => $this->markup_enabled(),
+			// Only the item of a single page may receive review markup (QA F-09).
+			'main_object_id' => function_exists( 'is_singular' ) && is_singular() ? (string) get_queried_object_id() : '',
 		);
 		return array_values( array_filter( $this->visible->reviews(), static fn( Review $r ): bool => SchemaEligibility::is_eligible( $r, $ctx ) ) );
 	}
