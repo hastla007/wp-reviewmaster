@@ -156,8 +156,14 @@ class JobQueue {
 			$wpdb->suppress_errors( $suppress );
 		}
 		if ( false === $ok || ! $wpdb->insert_id ) {
-			// Lost an insert race on the unique key: return the winner.
+			// Lost an insert race on the unique key: return the winner. Under heavy contention the
+			// winner's row can become visible a moment after our duplicate-key error (TEC-005, seen on
+			// MariaDB with 8 parallel workers), so look it up a few times before giving up.
 			$existing = $this->id_by_key( $key );
+			for ( $i = 0; null === $existing && $i < 5; $i++ ) {
+				usleep( 10000 * ( $i + 1 ) );
+				$existing = $this->id_by_key( $key );
+			}
 			if ( null === $existing ) {
 				self::log_db_error( 'job_enqueue_failed', (string) $wpdb->last_error );
 			}

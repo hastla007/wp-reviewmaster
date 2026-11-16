@@ -141,6 +141,11 @@ class ReviewRepository {
 			} catch ( \RuntimeException $e ) {
 				// Lost a race against a parallel insert: fall through to update.
 				$existing = $this->find_by_dedupe_key( $key );
+				// The winner's row may become visible a moment later under contention (TEC-005).
+				for ( $i = 0; null === $existing && $i < 5; $i++ ) {
+					usleep( 10000 * ( $i + 1 ) );
+					$existing = $this->find_by_dedupe_key( $key );
+				}
 				if ( null === $existing ) {
 					throw $e;
 				}

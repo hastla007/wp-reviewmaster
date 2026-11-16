@@ -25,7 +25,9 @@ if ( PHP_SAPI !== 'cli' || $argc < 3 ) {
 }
 $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_HOST'] ?? 'localhost';
 // No WP-Cron spawns from the worker processes: a real Runner would pause the test job types (no handler).
-define( 'DISABLE_WP_CRON', true );
+if ( ! defined( 'DISABLE_WP_CRON' ) ) {
+	define( 'DISABLE_WP_CRON', true );
+}
 require $argv[1];
 
 use ReviewCaptain\Domain\Origin;
