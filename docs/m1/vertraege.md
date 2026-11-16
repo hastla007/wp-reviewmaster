@@ -2,7 +2,7 @@
 
 **Status:** Entwurf – wird mit RC-032 ff. als PHP-Interfaces im Core veröffentlicht  
 **Stand:** 2026-11-16  
-**Versionierung:** SemVer je Vertrag (`provider/1.0`, `experience-event/1.0`, `recipient-resolver/1.0`). Minor = abwärtskompatible Erweiterung (neue optionale Felder/Methoden mit Default); Major = Bruch → neuer Hook-/Interface-Name mit Suffix `_v2`. Deprecation-Frist: mindestens zwei Minor-Releases und 6 Monate.
+**Versionierung:** SemVer je Vertrag; jede Schnittstelle trägt eine eigene Konstante (`PROVIDER_CONTRACT`, `CONNECTOR_CONTRACT`, `RESOLVER_CONTRACT`), damit eine Klasse mehrere Verträge gleichzeitig implementieren kann (`provider/1.0`, `experience-event/1.0`, `recipient-resolver/1.0`). Minor = abwärtskompatible Erweiterung (neue optionale Felder/Methoden mit Default); Major = Bruch → neuer Hook-/Interface-Name mit Suffix `_v2`. Deprecation-Frist: mindestens zwei Minor-Releases und 6 Monate.
 
 ## RC-020 – Provider-Vertrag v1
 
@@ -10,7 +10,7 @@ Namespace `ReviewCaptain\Contracts\Provider`. Registrierung über Filter `wp_rev
 
 ```php
 interface ProviderInterface {
-    const CONTRACT = '1.0';
+    const PROVIDER_CONTRACT = '1.0';
     public function key(): string;                 // 'google', 'apple_app_store', …
     public function label(): string;
     public function capabilities(): array;         // siehe unten
@@ -68,7 +68,7 @@ Filter `wp_review_captain_recipient_resolvers_v1` (`source => RecipientResolverI
 
 ```php
 interface RecipientResolverInterface {
-    const CONTRACT = '1.0';
+    const RESOLVER_CONTRACT = '1.0';
     /** Wird ausschließlich unmittelbar vor dem Versand aufgerufen. */
     public function resolve( string $recipient_ref, string $experience_id ): ResolvedRecipient;
 }
