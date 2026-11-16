@@ -28,7 +28,7 @@ Die Plugin-Header `Requires at least`, `Requires PHP`, `WC requires at least`, `
 | Klassische Themes | Shortcode | Pflicht | Shortcode-Ausgabe, Assets nur bei Nutzung |
 | Multisite | Site-Aktivierung und Netzwerkaktivierung; Daten je Site getrennt | Pflicht | TEC-009, SET-016 |
 | Mehrsprachigkeit WPML / Polylang | Übersetzbare Strings, Locale für Anfragen; Produktzuordnung über offizielle APIs | Basis Pflicht, Produktzuordnung Pro 1.0 „best effort“, dokumentiert | Testseite je Plugin |
-| Page Builder Elementor | Shortcode funktioniert; natives Widget ist Pro-Folge | Shortcode Pflicht | Smoke-Test |
+| Page Builder Elementor | **natives Widget im Core 1.0** (RC-119A, `Integrations/Elementor`), Shortcode bleibt Fallback | Pflicht | Smoke-Test mit echtem Elementor |
 | Page Builder Divi / Bricks / Beaver | Shortcode funktioniert; keine native Integration | Shortcode „getestet“, sonst „nicht unterstützt“ dokumentiert | Smoke-Test |
 | Caching (Seiten-/Objektcache, CDN) | keine personenbezogenen Daten in öffentlich gecachten Antworten; Widgets cachefähig | Pflicht | TEC-012 |
 | Consent-Plugins | externe Embeds nur nach Interaktion bzw. über einen dokumentierten Consent-Hook | Pflicht für Embeds | TEC-013 |

@@ -3782,3 +3782,36 @@ msgstr "Next page"
 #: templates/reviews-grid.php:39
 msgid "Weitere Bewertungen"
 msgstr "More reviews"
+
+msgid "Inhalt"
+msgstr "Content"
+
+msgid "Bewertungen anzeigen"
+msgstr "Show reviews"
+
+msgid "Bewertungsprofil-Button"
+msgstr "Review profile button"
+
+msgid "Plattform (leer = alle)"
+msgstr "Platform (empty = all)"
+
+msgid "Standard"
+msgstr "Default"
+
+msgid "Bewertungen"
+msgstr "Reviews"
+
+msgid "Erfahrungsberichte"
+msgstr "Testimonials"
+
+msgid "Kontext-ID (current = aktuelle Seite)"
+msgstr "Context ID (current = current page)"
+
+msgid "Überschriftenebene der Karten"
+msgstr "Heading level of the cards"
+
+msgid "Seitenweise"
+msgstr "Paginate"
+
+msgid "Profil-ID"
+msgstr "Profile ID"

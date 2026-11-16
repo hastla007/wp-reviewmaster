@@ -44,3 +44,5 @@ Die Vorlage gilt als entschieden, wenn Produkt Vorschlag oder Alternative gewäh
 ## Entscheidung der Inhaberin (16.11.2026)
 
 Abweichend vom Vorschlag: **natives Elementor-Widget bereits in 1.0** (neue Aufgabe **RC-119A**). Alle anderen Builder (Divi, Beaver Builder, Bricks, WPBakery) bleiben in 1.0 beim Shortcode-Fallback. Das Elementor-Widget ist eine dünne Hülle um den versionierten Shortcode-/Widget-Vertrag (`widget-v1`, SSR), lädt nur bei aktivem Elementor und kein eigenes Frontend-JS.
+
+**Umsetzung (16.11.2026):** `src/Integrations/Elementor/ElementorModule.php` (Registrierung über `elementor/widgets/register`, eigene Panel-Kategorie, Abbildung Steuerelemente → Shortcode-Attribute) und `ReviewsWidget.php` (Steuerelemente wie die Shortcode-Attribute; Ausgabe über denselben Renderer). Tests: `tests/Unit/Integrations/ElementorModuleTest.php`. Offen: Smoke-Test mit echtem Elementor (Editor-Vorschau, Frontend, Caching).

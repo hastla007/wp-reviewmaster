@@ -34,6 +34,7 @@ final class Plugin {
 		\ReviewCaptain\ImportExport\ImportExportModule::class,
 		\ReviewCaptain\Frontend\FrontendModule::class,
 		\ReviewCaptain\Seo\SeoModule::class,
+		\ReviewCaptain\Integrations\Elementor\ElementorModule::class,
 		\ReviewCaptain\Admin\AdminModule::class,
 		\ReviewCaptain\Cli\CliModule::class,
 	);

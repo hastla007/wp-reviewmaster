@@ -16,7 +16,7 @@ Anzahl: 31 Aufrufstellen, 30 Hooks.
 | `review_captain_embed_hosts` | filter | `list<string> $hosts` – Hosts | `src/Security/EmbedPolicy.php:46` |
 | `review_captain_installed` | action | `int $from` – Previous schema version<br>`int $to` – New schema version | `src/Install/Installer.php:115` |
 | `review_captain_instance_confirmed` | action | `bool $is_copy` – Copy | `src/Maintenance/Reconciler.php:230` |
-| `review_captain_loaded` | action | `Plugin $plugin` – Plugin instance | `src/Plugin.php:131` |
+| `review_captain_loaded` | action | `Plugin $plugin` – Plugin instance | `src/Plugin.php:132` |
 | `review_captain_moderation_url` | filter | `string $url` – URL<br>`Review $review` – Review | `src/Frontend/FormHandler.php:616` |
 | `review_captain_privacy_personal_meta_keys` | filter | `list<string> $keys` – Keys | `src/Privacy/PersonalData.php:244` |
 | `review_captain_pro_settings_writable` | filter | `bool $writable` – Default false | `src/Admin/SettingsPage.php:78` |

@@ -9,7 +9,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: review-captain\n"
 
-#: blocks/form/editor.js:30 blocks/reviews/editor.js:125 src/Privacy/PersonalData.php:93 src/Privacy/PersonalData.php:293
+#: blocks/form/editor.js:30 blocks/reviews/editor.js:125 src/Integrations/Elementor/ReviewsWidget.php:67 src/Privacy/PersonalData.php:93 src/Privacy/PersonalData.php:293
 msgid "Kontext"
 msgstr ""
 
@@ -17,19 +17,19 @@ msgstr ""
 msgid "Worauf bezieht sich die Bewertung?"
 msgstr ""
 
-#: blocks/form/editor.js:35
+#: blocks/form/editor.js:35 src/Integrations/Elementor/ReviewsWidget.php:67
 msgid "Unternehmen allgemein"
 msgstr ""
 
-#: blocks/form/editor.js:36 blocks/reviews/editor.js:33 src/Admin/ReviewsPage.php:201
+#: blocks/form/editor.js:36 blocks/reviews/editor.js:33 src/Admin/ReviewsPage.php:201 src/Integrations/Elementor/ReviewsWidget.php:67
 msgid "Beitrag/Seite"
 msgstr ""
 
-#: blocks/form/editor.js:37 blocks/reviews/editor.js:34 src/Admin/ReviewsPage.php:202
+#: blocks/form/editor.js:37 blocks/reviews/editor.js:34 src/Admin/ReviewsPage.php:202 src/Integrations/Elementor/ReviewsWidget.php:67
 msgid "Produkt"
 msgstr ""
 
-#: blocks/form/editor.js:38 blocks/reviews/editor.js:35
+#: blocks/form/editor.js:38 blocks/reviews/editor.js:35 src/Integrations/Elementor/ReviewsWidget.php:67
 msgid "Event"
 msgstr ""
 
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Plattform"
 msgstr ""
 
-#: blocks/reviews/editor.js:89 src/Admin/DiagnosticsPage.php:366 src/Admin/ReviewsListTable.php:112 src/Admin/ReviewsPage.php:110 src/Admin/ReviewsPage.php:476 src/ImportExport/ImportExportModule.php:286 src/Privacy/PersonalData.php:283
+#: blocks/reviews/editor.js:89 src/Admin/DiagnosticsPage.php:366 src/Admin/ReviewsListTable.php:112 src/Admin/ReviewsPage.php:110 src/Admin/ReviewsPage.php:476 src/ImportExport/ImportExportModule.php:286 src/Integrations/Elementor/ReviewsWidget.php:65 src/Privacy/PersonalData.php:283
 msgid "Typ"
 msgstr ""
 
@@ -109,7 +109,7 @@ msgstr ""
 msgid "Nur Erfahrungsberichte (Website)"
 msgstr ""
 
-#: blocks/reviews/editor.js:99 src/Admin/WidgetsPage.php:180
+#: blocks/reviews/editor.js:99 src/Admin/WidgetsPage.php:180 src/Integrations/Elementor/ReviewsWidget.php:66
 msgid "Mindestbewertung"
 msgstr ""
 
@@ -133,7 +133,7 @@ msgstr ""
 msgid "nur 5 Sterne"
 msgstr ""
 
-#: blocks/reviews/editor.js:111 src/Admin/DashboardPage.php:119 src/Admin/WidgetsPage.php:181
+#: blocks/reviews/editor.js:111 src/Admin/DashboardPage.php:119 src/Admin/WidgetsPage.php:181 src/Integrations/Elementor/ReviewsWidget.php:63
 msgid "Anzahl"
 msgstr ""
 
@@ -145,7 +145,7 @@ msgstr ""
 msgid "Kontexttyp"
 msgstr ""
 
-#: blocks/reviews/editor.js:141 src/Admin/WidgetsPage.php:163
+#: blocks/reviews/editor.js:141 src/Admin/WidgetsPage.php:163 src/Integrations/Elementor/ReviewsWidget.php:61
 msgid "Layout"
 msgstr ""
 
@@ -153,15 +153,15 @@ msgstr ""
 msgid "Darstellung"
 msgstr ""
 
-#: blocks/reviews/editor.js:146 src/Admin/WidgetsPage.php:163
+#: blocks/reviews/editor.js:146 src/Admin/WidgetsPage.php:163 src/Integrations/Elementor/ReviewsWidget.php:61
 msgid "Raster"
 msgstr ""
 
-#: blocks/reviews/editor.js:147 src/Admin/WidgetsPage.php:163
+#: blocks/reviews/editor.js:147 src/Admin/WidgetsPage.php:163 src/Integrations/Elementor/ReviewsWidget.php:61
 msgid "Liste"
 msgstr ""
 
-#: blocks/reviews/editor.js:152
+#: blocks/reviews/editor.js:152 src/Integrations/Elementor/ReviewsWidget.php:62
 msgid "Spalten"
 msgstr ""
 
@@ -198,11 +198,11 @@ msgid "Nur auf dieser Website gesammelte Bewertungen können strukturierte Daten
 msgstr ""
 
 #. translators: 1: required PHP version, 2: required WordPress version
-#: review-captain.php:42
+#: review-captain.php:50
 msgid "Review Captain benötigt mindestens PHP %1$s und WordPress %2$s. Das Plugin ist deshalb inaktiv."
 msgstr ""
 
-#: src/Admin/AdminModule.php:92 src/Admin/AdminModule.php:93 src/Admin/DiagnosticsPage.php:313 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
+#: src/Admin/AdminModule.php:92 src/Admin/AdminModule.php:93 src/Admin/DiagnosticsPage.php:313 src/Integrations/Elementor/ElementorModule.php:58 src/Integrations/Elementor/ReviewsWidget.php:26 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
 msgid "Review Captain"
 msgstr ""
 
@@ -930,7 +930,7 @@ msgstr ""
 msgid "Profil gelöscht"
 msgstr ""
 
-#: src/Admin/ReviewsListTable.php:162 src/ImportExport/ImportExportModule.php:429
+#: src/Admin/ReviewsListTable.php:162 src/ImportExport/ImportExportModule.php:429 src/Integrations/Elementor/ReviewsWidget.php:65
 msgid "Alle"
 msgstr ""
 
@@ -2262,7 +2262,7 @@ msgstr ""
 msgid "Karussell, Badge und Trustbar gibt es in Review Captain Pro."
 msgstr ""
 
-#: src/Admin/WidgetsPage.php:167
+#: src/Admin/WidgetsPage.php:167 src/Integrations/Elementor/ReviewsWidget.php:50
 msgid "Art"
 msgstr ""
 
@@ -2763,7 +2763,7 @@ msgstr ""
 msgid "Bewertungen (Raster/Liste)"
 msgstr ""
 
-#: src/Frontend/Renderer.php:79
+#: src/Frontend/Renderer.php:79 src/Integrations/Elementor/ReviewsWidget.php:55
 msgid "Bewertungsformular"
 msgstr ""
 
@@ -3136,6 +3136,50 @@ msgstr ""
 
 #: src/ImportExport/UploadStore.php:195
 msgid "Der Upload ist fehlgeschlagen."
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:46
+msgid "Inhalt"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:54
+msgid "Bewertungen anzeigen"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:56
+msgid "Bewertungsprofil-Button"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:64
+msgid "Plattform (leer = alle)"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:65
+msgid "Standard"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:65
+msgid "Bewertungen"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:65
+msgid "Erfahrungsberichte"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:68
+msgid "Kontext-ID (current = aktuelle Seite)"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:69
+msgid "Überschriftenebene der Karten"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:70
+msgid "Seitenweise"
+msgstr ""
+
+#: src/Integrations/Elementor/ReviewsWidget.php:71
+msgid "Profil-ID"
 msgstr ""
 
 #: src/Jobs/Diagnostics.php:61
