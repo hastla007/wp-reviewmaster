@@ -6,7 +6,11 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 
 ## [Unreleased]
 
+### Added
+- Öffentliche Vertragsversion `REVIEW_CAPTAIN_CONTRACT_VERSION` = `1.0.0` (SemVer, unabhängig von der Plugin-Version; Suite-Spezifikation R-3.1, RC-2), dokumentiert in `docs/contracts/README.md`, geprüft durch `tests/Unit/Support/ContractVersionTest.php` und `bin/check-plugin-meta.php`.
+
 ### Changed
+- `docs/contracts/workflow-provider-v1.md` als nicht normativ gekennzeichnet (Inhaberentscheidung F-12); maßgeblich ist die Suite-Spezifikation in `wp-workflowmaster` (RC-1).
 - Kartenüberschriften standardmäßig `h2` statt `h3` (Barrierefreiheit, F-07); Block, Shortcode und Elementor-Widget.
 - WooCommerce: Core meldet Kompatibilität mit HPOS und Block-Checkout.
 - Yoast-Mindestversion für die Graph-Integration auf 26.0 angehoben (aktuelle Major − 2, Entscheidung SEO-001); ältere Yoast-Versionen: kein Review-Markup, Reviews bleiben sichtbar.
