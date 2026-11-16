@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review Captain – Widget-Prototypen</title>
+<!--
+  UX-005: statische Prototypen der Frontend-Widgets. Beispieldaten sind fiktiv.
+  Tokens entsprechen docs/m0-5/ux-007-designsystem.md (Präfix --rc-).
+  Keine externen Requests: Video/Audio sind Platzhalter mit click-to-load-Hinweis.
+-->
+<style>
+:root{
+  --rc-font: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --rc-text:#1d2327; --rc-text-muted:#50575e; --rc-bg:#ffffff; --rc-surface:#f6f7f7;
+  --rc-border:#dcdcde; --rc-accent:#2271b1; --rc-focus:#043959;
+  --rc-star:#b26200; --rc-star-empty:#c3c4c7;
+  --rc-radius:8px; --rc-gap:16px; --rc-pad:16px;
+  --rc-fs-sm:.875rem; --rc-fs:1rem; --rc-fs-lg:1.25rem;
+}
+@media (prefers-color-scheme: dark){
+  :root{--rc-text:#f0f0f1;--rc-text-muted:#c3c4c7;--rc-bg:#1d2327;--rc-surface:#2c3338;--rc-border:#50575e;--rc-accent:#72aee6;--rc-focus:#9ec2e6;--rc-star:#f0b849;--rc-star-empty:#646970}
+}
+*{box-sizing:border-box}
+figure,blockquote{margin:0}
+body{margin:0;font-family:var(--rc-font);color:var(--rc-text);background:var(--rc-bg);line-height:1.5}
+main{max-width:1100px;margin:0 auto;padding:24px 16px}
+h1{font-size:1.5rem} h2{font-size:1.1rem;margin:40px 0 12px;color:var(--rc-text-muted);text-transform:uppercase;letter-spacing:.04em}
+a{color:var(--rc-accent)}
+:focus-visible{outline:3px solid var(--rc-focus);outline-offset:2px}
+.rc-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rc-stars{display:inline-flex;gap:2px;color:var(--rc-star);font-size:1rem;letter-spacing:0}
+.rc-stars .off{color:var(--rc-star-empty)}
+.rc-source{display:inline-flex;align-items:center;gap:6px;font-size:var(--rc-fs-sm);color:var(--rc-text-muted)}
+.rc-badge{display:inline-block;border:1px solid var(--rc-border);border-radius:999px;padding:0 8px;font-size:.75rem;color:var(--rc-text-muted)}
+.rc-badge--own{border-style:dashed}
+/* Trust-Leiste */
+.rc-trustbar{display:flex;flex-wrap:wrap;gap:var(--rc-gap);align-items:stretch;border:1px solid var(--rc-border);border-radius:var(--rc-radius);padding:var(--rc-pad);background:var(--rc-surface)}
+.rc-trustbar__item{flex:1 1 160px;display:flex;flex-direction:column;gap:2px;text-decoration:none;color:inherit;padding:4px 8px;border-radius:6px}
+.rc-trustbar__item:hover{background:var(--rc-bg)}
+.rc-trustbar__score{font-size:var(--rc-fs-lg);font-weight:600}
+.rc-trustbar__sum{flex-basis:100%;font-size:var(--rc-fs-sm);color:var(--rc-text-muted);border-top:1px solid var(--rc-border);padding-top:8px}
+/* Scorekarten */
+.rc-scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--rc-gap)}
+.rc-card{border:1px solid var(--rc-border);border-radius:var(--rc-radius);padding:var(--rc-pad);background:var(--rc-bg);display:flex;flex-direction:column;gap:8px}
+.rc-score__value{font-size:2rem;font-weight:700;line-height:1}
+.rc-score__scale{font-size:var(--rc-fs-sm);color:var(--rc-text-muted)}
+/* Review-Grid / Testimonial-Wall */
+.rc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--rc-gap)}
+.rc-review__head{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rc-review__text{margin:0}
+.rc-review__meta{font-size:var(--rc-fs-sm);color:var(--rc-text-muted);display:flex;gap:8px;flex-wrap:wrap}
+.rc-quote{font-size:1.05rem;margin:0}
+/* Carousel */
+.rc-carousel{position:relative}
+.rc-carousel__track{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(260px,1fr);gap:var(--rc-gap);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+.rc-carousel__track>*{scroll-snap-align:start}
+.rc-carousel__nav{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.rc-btn{font:inherit;border:1px solid var(--rc-border);background:var(--rc-bg);color:var(--rc-text);border-radius:6px;padding:6px 12px;cursor:pointer;min-height:44px;min-width:44px}
+.rc-media{aspect-ratio:16/9;background:var(--rc-surface);border-radius:6px;display:grid;place-items:center;text-align:center;padding:12px;font-size:var(--rc-fs-sm);color:var(--rc-text-muted)}
+.rc-audio{display:flex;align-items:center;gap:12px}
+/* Awards */
+.rc-awards{display:flex;flex-wrap:wrap;gap:var(--rc-gap)}
+.rc-award{display:flex;gap:12px;align-items:center;border:1px solid var(--rc-border);border-radius:var(--rc-radius);padding:12px;flex:1 1 240px}
+.rc-award__seal{width:56px;height:56px;border-radius:50%;border:2px solid var(--rc-text-muted);display:grid;place-items:center;font-size:.7rem;text-align:center;flex:none}
+/* Floating badge */
+.rc-float{position:fixed;left:16px;bottom:16px;z-index:50;display:flex;align-items:center;gap:10px;background:var(--rc-bg);border:1px solid var(--rc-border);border-radius:999px;padding:6px 6px 6px 14px;box-shadow:0 2px 8px rgba(0,0,0,.15);max-width:calc(100vw - 32px)}
+.rc-float a{text-decoration:none;color:inherit;display:flex;gap:8px;align-items:center}
+.rc-float__close{border:0;background:transparent;font-size:1.1rem;min-width:44px;min-height:44px;cursor:pointer;color:var(--rc-text-muted)}
+@media (max-width:600px){ .rc-float{bottom:72px} .rc-trustbar__item{flex-basis:45%} }
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important;transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+<main>
+<h1>Review Captain – Frontend-Widget-Prototypen (UX-005)</h1>
+<p>Fiktive Beispieldaten. Breite des Browserfensters ändern, um die mobile Darstellung zu prüfen.</p>
+
+<h2>1 · Plattform-Bewertungsleiste (Trust-Leiste)</h2>
+<section class="rc-trustbar" aria-label="Bewertungen auf Plattformen">
+  <a class="rc-trustbar__item" href="#" rel="nofollow noopener">
+    <span class="rc-source">Google</span>
+    <span class="rc-trustbar__score">4,7 <span class="rc-score__scale">/ 5</span></span>
+    <span class="rc-stars" aria-hidden="true">★★★★★</span><span class="rc-sr">4,7 von 5 Sternen</span>
+    <span class="rc-score__scale">312 Bewertungen · Stand 16.11.2026</span>
+  </a>
+  <a class="rc-trustbar__item" href="#" rel="nofollow noopener">
+    <span class="rc-source">Trustpilot</span>
+    <span class="rc-trustbar__score">4,5 <span class="rc-score__scale">/ 5</span></span>
+    <span class="rc-stars" aria-hidden="true">★★★★<span class="off">★</span></span><span class="rc-sr">4,5 von 5 Sternen</span>
+    <span class="rc-score__scale">1.024 Bewertungen · Stand 16.11.2026</span>
+  </a>
+  <a class="rc-trustbar__item" href="#" rel="nofollow noopener">
+    <span class="rc-source">App Store</span>
+    <span class="rc-trustbar__score">4,8 <span class="rc-score__scale">/ 5</span></span>
+    <span class="rc-stars" aria-hidden="true">★★★★★</span><span class="rc-sr">4,8 von 5 Sternen</span>
+    <span class="rc-score__scale">89 Bewertungen · Stand 15.11.2026</span>
+  </a>
+  <p class="rc-trustbar__sum">1.425 Bewertungen über ausgewählte Plattformen (Summe der Plattformzähler; Personen, die auf mehreren Plattformen bewertet haben, sind nicht zusammengeführt). Kein gemeinsamer Durchschnitt.</p>
+</section>
+
+<h2>2 · Plattform-Scorekarten</h2>
+<div class="rc-scores">
+  <article class="rc-card"><span class="rc-source">Google · Filiale Wien</span><span class="rc-score__value">4,7</span><span class="rc-score__scale">von 5 · 312 Bewertungen</span><a href="#">Auf Google ansehen</a></article>
+  <article class="rc-card"><span class="rc-source">Google Play · Beispiel-App</span><span class="rc-score__value">4,4</span><span class="rc-score__scale">von 5 · 1.203 Bewertungen</span><a href="#">Bei Google Play ansehen</a></article>
+  <article class="rc-card"><span class="rc-source">Eigene Bewertungen</span><span class="rc-score__value">4,6</span><span class="rc-score__scale">von 5 · 58 Bewertungen auf dieser Website</span><a href="#">Bewertung schreiben</a></article>
+</div>
+
+<h2>3 · Review-Grid (Core)</h2>
+<div class="rc-grid">
+  <article class="rc-card rc-review">
+    <div class="rc-review__head"><span class="rc-stars" aria-hidden="true">★★★★★</span><span class="rc-sr">5 von 5 Sternen</span><span class="rc-badge">Kauf verifiziert</span></div>
+    <p class="rc-review__text">Schnelle Lieferung und sehr freundlicher Kontakt bei einer Rückfrage.</p>
+    <div class="rc-review__meta"><span>Anna M.</span><time datetime="2026-11-02">02.11.2026</time><span class="rc-badge rc-badge--own">auf dieser Website</span></div>
+  </article>
+  <article class="rc-card rc-review">
+    <div class="rc-review__head"><span class="rc-stars" aria-hidden="true">★★★★<span class="off">★</span></span><span class="rc-sr">4 von 5 Sternen</span></div>
+    <p class="rc-review__text">Gute Beratung im Geschäft, Parkplatzsuche etwas schwierig.</p>
+    <div class="rc-review__meta"><span>T. K.</span><time datetime="2026-10-28">28.10.2026</time><a href="#" rel="nofollow noopener">Google – Original ansehen</a></div>
+  </article>
+  <article class="rc-card rc-review">
+    <div class="rc-review__head"><span class="rc-stars" aria-hidden="true">★★★<span class="off">★★</span></span><span class="rc-sr">3 von 5 Sternen</span></div>
+    <p class="rc-review__text">App funktioniert, aber die Synchronisation dauert manchmal.</p>
+    <div class="rc-review__meta"><span>user4711</span><span>Version 2.3 · AT</span><a href="#" rel="nofollow noopener">App Store – Original ansehen</a></div>
+  </article>
+</div>
+
+<h2>4 · Testimonial-Wall</h2>
+<div class="rc-grid">
+  <figure class="rc-card"><blockquote class="rc-quote">„Der Workshop war praxisnah, wir setzen die Ideen schon um.“</blockquote><figcaption class="rc-review__meta">Maria S., Teamleitung · <span class="rc-badge rc-badge--own">Erfahrungsbericht</span></figcaption></figure>
+  <figure class="rc-card"><div class="rc-media" role="img" aria-label="Video-Vorschaubild">▶ Video „Erfahrung mit dem Kurs“ (1:12)<br>Lädt erst nach Klick – Untertitel verfügbar</div><figcaption class="rc-review__meta">Jonas P. · <span class="rc-badge rc-badge--own">Video-Erfahrungsbericht</span> · <a href="#">Transkript</a></figcaption></figure>
+  <figure class="rc-card"><div class="rc-audio"><button class="rc-btn" type="button" aria-label="Audio abspielen: Erfahrungsbericht von Lea">▶</button><span>Audio 0:45</span></div><blockquote class="rc-quote">„Ich habe mich sofort gut aufgehoben gefühlt.“</blockquote><figcaption class="rc-review__meta">Lea, Kundin seit 2024 · <a href="#">Transkript</a></figcaption></figure>
+</div>
+
+<h2>5 · Video-/Audio-Carousel</h2>
+<section class="rc-carousel" aria-roledescription="Karussell" aria-label="Video-Erfahrungsberichte">
+  <div class="rc-carousel__track" tabindex="0">
+    <figure class="rc-card"><div class="rc-media">▶ Video 1 – click-to-load</div><figcaption>Erfahrung 1</figcaption></figure>
+    <figure class="rc-card"><div class="rc-media">▶ Video 2 – click-to-load</div><figcaption>Erfahrung 2</figcaption></figure>
+    <figure class="rc-card"><div class="rc-media">▶ Video 3 – click-to-load</div><figcaption>Erfahrung 3</figcaption></figure>
+    <figure class="rc-card"><div class="rc-media">▶ Video 4 – click-to-load</div><figcaption>Erfahrung 4</figcaption></figure>
+  </div>
+  <div class="rc-carousel__nav"><button class="rc-btn" type="button" aria-label="Vorherige">‹</button><button class="rc-btn" type="button" aria-label="Nächste">›</button></div>
+  <p class="rc-score__scale">Kein Autoplay, kein automatisches Weiterblättern. Wischen, Pfeiltasten oder Buttons.</p>
+</section>
+
+<h2>6 · Auszeichnungsblock</h2>
+<div class="rc-awards">
+  <div class="rc-award"><div class="rc-award__seal" aria-hidden="true">Siegel</div><div><strong>Beispiel-Award 2026</strong><br><span class="rc-score__scale">Herausgeber: Beispielverband · gültig bis 12/2026</span><br><a href="#">Auszeichnung prüfen</a></div></div>
+  <div class="rc-award"><div class="rc-award__seal" aria-hidden="true">Zert.</div><div><strong>Zertifizierter Fachbetrieb</strong><br><span class="rc-score__scale">Herausgeber: Beispielkammer · gültig bis 06/2027</span><br><a href="#">Zertifikat prüfen</a></div></div>
+</div>
+
+<h2>7 · Schwebendes Trust-Badge</h2>
+<p>Unten links eingeblendet; auf Mobilgeräten oberhalb typischer Sticky-Kaufleisten. Schließen bleibt für die Sitzung gespeichert.</p>
+</main>
+
+<aside class="rc-float" aria-label="Bewertungsübersicht">
+  <a href="#"><span class="rc-stars" aria-hidden="true">★</span><span><strong>4,7</strong> Google · 312 Bewertungen</span></a>
+  <button class="rc-float__close" type="button" aria-label="Bewertungshinweis schließen">×</button>
+</aside>
+<script>
+// Prototyp: Schließen und Carousel-Buttons. Produktiv: progressive Erweiterung, Inhalt bleibt ohne JS lesbar.
+document.querySelector('.rc-float__close').addEventListener('click',e=>e.target.closest('.rc-float').hidden=true);
+document.querySelectorAll('.rc-carousel').forEach(c=>{const t=c.querySelector('.rc-carousel__track');const [p,n]=c.querySelectorAll('.rc-carousel__nav .rc-btn');const step=()=>t.firstElementChild.getBoundingClientRect().width+16;p.onclick=()=>t.scrollBy({left:-step()});n.onclick=()=>t.scrollBy({left:step()});});
+</script>
+</body>
+</html>
