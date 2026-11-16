@@ -127,7 +127,7 @@ class ReviewRepository {
 		$review->uuid       = $existing->uuid;
 		$review->status     = ReviewStatus::REMOVED === $existing->status ? $review->status : $existing->status;
 		$review->created_at = $existing->created_at;
-		$this->update( $review );
+		$this->update( $review, true );
 		return array(
 			'review'  => $review,
 			'created' => false,
@@ -135,12 +135,15 @@ class ReviewRepository {
 	}
 
 	/**
-	 * Update an existing review (content fields). Status changes must use change_status().
+	 * Update an existing review (content fields). Status changes must use change_status(); the
+	 * status/removed_at columns are only written when $include_status is true (sync restore),
+	 * so a concurrent moderation change is never overwritten (security review SR-06).
 	 *
-	 * @param Review $review Review with id.
+	 * @param Review $review         Review with id.
+	 * @param bool   $include_status Also write status/removed_at.
 	 * @throws \InvalidArgumentException On validation error.
 	 */
-	public function update( Review $review ): void {
+	public function update( Review $review, bool $include_status = false ): void {
 		global $wpdb;
 		if ( null === $review->id ) {
 			throw new \InvalidArgumentException( 'missing_id' );
@@ -152,6 +155,9 @@ class ReviewRepository {
 		$review->updated_at = gmdate( 'Y-m-d H:i:s' );
 		$row                = $review->to_row(); // wpdb writes PHP null as SQL NULL.
 		unset( $row['uuid'], $row['created_at'] );
+		if ( ! $include_status ) {
+			unset( $row['status'], $row['removed_at'] );
+		}
 		$wpdb->update( $this->table(), $row, array( 'id' => $review->id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 

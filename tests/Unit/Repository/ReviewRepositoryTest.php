@@ -142,4 +142,15 @@ final class ReviewRepositoryTest extends TestCase {
 		$this->assertSame( 0, $repo->count( array( 'platform' => "local' OR '1'='1" ) ) );
 		$this->assertSame( 0, $repo->count( array( 'search' => "%' OR 1=1 --" ) ) );
 	}
+
+	public function test_content_update_does_not_overwrite_concurrent_moderation(): void {
+		$repo  = Plugin::instance()->reviews();
+		$r     = $repo->insert( $this->local() );
+		$stale = $repo->find( $r->id );
+		$repo->change_status( $r->id, ReviewStatus::APPROVED );
+		$stale->title = 'Neuer Titel';
+		$repo->update( $stale );
+		$this->assertSame( ReviewStatus::APPROVED, $repo->find( $r->id )->status );
+		$this->assertSame( 'Neuer Titel', $repo->find( $r->id )->title );
+	}
 }

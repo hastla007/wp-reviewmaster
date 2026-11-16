@@ -37,6 +37,14 @@ final class SettingsPage {
 	private const IMPORT_MAX_BYTES = 200000;
 
 	/**
+	 * Role keys of the access tab and the capability each one grants.
+	 */
+	private const ROLE_CAPS = array(
+		'moderate_roles' => Capabilities::MODERATE,
+		'settings_roles' => Capabilities::MANAGE_SETTINGS,
+	);
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Plugin $plugin Plugin.
@@ -154,6 +162,7 @@ final class SettingsPage {
 				$roles                   = array_values( array_intersect( (array) ( $values['access'][ $key ] ?? array() ), $existing ) );
 				$values['access'][ $key ] = array_values( array_unique( array_merge( array( 'administrator' ), $roles ) ) );
 			}
+			$values['access'] = self::keep_unheld_role_keys( $values['access'], $this->settings()->all()['access'] ?? array() );
 		}
 
 		$changed = $this->settings()->save( $values );
@@ -188,6 +197,10 @@ final class SettingsPage {
 			Capabilities::MANAGE_SETTINGS => (array) ( $access['settings_roles'] ?? array() ),
 		);
 		foreach ( $map as $cap => $roles ) {
+			if ( ! current_user_can( $cap ) ) {
+				// Only capabilities the acting user holds may be (re)assigned (capabilities.md §3).
+				continue;
+			}
 			$roles = array_values( array_map( 'strval', $roles ) );
 			Capabilities::sync_roles( $cap, $roles );
 			$this->plugin->audit()->record(
@@ -203,6 +216,38 @@ final class SettingsPage {
 	}
 
 	/**
+	 * Keep the stored role list for every capability the acting user does not hold, so the roles
+	 * tab (save, import, reset, restore) can never hand out a capability its user lacks.
+	 *
+	 * @param array<string, mixed> $access  New access tab values.
+	 * @param array<string, mixed> $current Stored access tab values.
+	 * @return array<string, mixed>
+	 */
+	public static function keep_unheld_role_keys( array $access, array $current ): array {
+		$defaults = SettingsSchema::defaults()['access'] ?? array();
+		foreach ( self::ROLE_CAPS as $key => $cap ) {
+			if ( ! current_user_can( $cap ) ) {
+				$access[ $key ] = $current[ $key ] ?? ( $defaults[ $key ] ?? array( 'administrator' ) );
+			}
+		}
+		return $access;
+	}
+
+	/**
+	 * After a bulk write (reset/import/restore): put back role lists the user may not change.
+	 *
+	 * @param array<string, mixed> $before Access tab values before the write.
+	 */
+	private function restore_unheld_role_keys( array $before ): void {
+		$all  = $this->settings()->all();
+		$kept = self::keep_unheld_role_keys( (array) ( $all['access'] ?? array() ), $before );
+		if ( $kept !== ( $all['access'] ?? array() ) ) {
+			$all['access'] = $kept;
+			$this->settings()->save( $all );
+		}
+	}
+
+	/**
 	 * Reset tabs to defaults (reviews untouched). Returns reset tabs.
 	 *
 	 * @param list<string> $tabs Requested tabs.
@@ -214,8 +259,10 @@ final class SettingsPage {
 			return array();
 		}
 		$this->transfer()->backup();
+		$before = (array) ( $this->settings()->all()['access'] ?? array() );
 		$this->settings()->reset( $tabs );
 		if ( in_array( 'access', $tabs, true ) ) {
+			$this->restore_unheld_role_keys( $before );
 			$this->sync_roles( $this->settings()->all()['access'] ?? array() );
 		}
 		$this->plugin->audit()->record(
@@ -356,6 +403,7 @@ final class SettingsPage {
 			foreach ( array( 'moderate_roles', 'settings_roles' ) as $role_key ) {
 				$current['access'][ $role_key ] = array_values( array_unique( array_merge( array( 'administrator' ), (array) ( $current['access'][ $role_key ] ?? array() ) ) ) );
 			}
+			$current['access'] = self::keep_unheld_role_keys( $current['access'], $this->settings()->all()['access'] ?? array() );
 		}
 		$changed = $this->transfer()->apply( $current );
 		if ( in_array( 'access', $tabs, true ) ) {
@@ -376,11 +424,14 @@ final class SettingsPage {
 			View::redirect( Notices::url( $back, 'tab_forbidden' ) );
 			return;
 		}
+		$before  = (array) ( $this->settings()->all()['access'] ?? array() );
 		$changed = $this->transfer()->rollback();
 		if ( null === $changed ) {
 			View::redirect( Notices::url( $back, 'rollback_missing' ) );
 			return;
 		}
+		$this->settings()->flush();
+		$this->restore_unheld_role_keys( $before );
 		$this->sync_roles( $this->settings()->all()['access'] ?? array() );
 		$this->plugin->audit()->record( 'settings.restored', 'settings', '', array( 'fields' => $changed ) );
 		View::redirect( Notices::url( $back, 'rollback_done' ) );

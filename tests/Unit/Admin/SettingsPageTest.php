@@ -101,7 +101,8 @@ final class SettingsPageTest extends AdminTestCase {
 		$this->post( 'save_settings', array( 'tab' => 'access', SettingsPage::INPUT => array( 'access' => array( 'moderate_roles' => array( '', 'author' ) ) ) ) );
 		$this->assertStringContainsString( 'tab_forbidden', $this->run_handler( array( $this->page(), 'handle_save' ) ), 'roles need promote_users' );
 
-		$this->login_with( Capabilities::MANAGE_SETTINGS, 'promote_users' );
+		// The acting user must hold every capability it assigns (see Security/RolesTabTest).
+		$this->login_with( Capabilities::MANAGE_SETTINGS, Capabilities::MODERATE, 'promote_users' );
 		$this->post(
 			'save_settings',
 			array(

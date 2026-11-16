@@ -344,7 +344,29 @@ class FormHandler {
 	 */
 	public static function rate_key(): string {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
-		return 'review_captain_rl_' . substr( wp_hash( 'rc_ip|' . $ip, 'nonce' ), 0, 24 );
+		return 'review_captain_rl_' . substr( wp_hash( 'rc_ip|' . self::rate_subject( $ip ), 'nonce' ), 0, 24 );
+	}
+
+	/**
+	 * Rate-limit subject for an address: IPv4 as is, IPv6 reduced to its /64 prefix. A single
+	 * IPv6 connection usually owns a whole /64, so per-address counting could be bypassed by
+	 * rotating addresses (security review 2026-11).
+	 *
+	 * @param string $ip Remote address.
+	 */
+	public static function rate_subject( string $ip ): string {
+		if ( false === filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			return $ip;
+		}
+		$packed = inet_pton( $ip );
+		if ( false === $packed || 16 !== strlen( $packed ) ) {
+			return $ip;
+		}
+		// IPv4-mapped addresses (::ffff:a.b.c.d) count as the IPv4 address.
+		if ( str_starts_with( $packed, str_repeat( "\0", 10 ) . "\xff\xff" ) ) {
+			return (string) inet_ntop( substr( $packed, 12 ) );
+		}
+		return (string) inet_ntop( substr( $packed, 0, 8 ) . str_repeat( "\0", 8 ) ) . '/64';
 	}
 
 	/**

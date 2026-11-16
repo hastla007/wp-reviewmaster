@@ -143,6 +143,45 @@ class UploadStore {
 	}
 
 	/**
+	 * Remove every stored import file and the protected directory itself (uninstall). Does not
+	 * create the directory. Only files written by this class (and its protection files) are
+	 * removed; the directory is only deleted when it is empty afterwards.
+	 *
+	 * @return int Number of deleted import files.
+	 */
+	public static function purge_all(): int {
+		if ( ! function_exists( 'wp_upload_dir' ) ) {
+			return 0;
+		}
+		$uploads = wp_upload_dir( null, false );
+		$base    = is_array( $uploads ) ? (string) ( $uploads['basedir'] ?? '' ) : '';
+		if ( '' === $base ) {
+			return 0;
+		}
+		$dir = rtrim( $base, '/\\' ) . '/' . self::SUBDIR;
+		if ( ! is_dir( $dir ) || is_link( $dir ) ) {
+			return 0;
+		}
+		$deleted = 0;
+		foreach ( (array) glob( $dir . '/import-*.csv' ) as $path ) {
+			if ( is_string( $path ) && is_file( $path ) && self::owns( $path ) ) {
+				self::delete( $path );
+				++$deleted;
+			}
+		}
+		foreach ( array( '.htaccess', 'index.php' ) as $protect ) {
+			if ( is_file( $dir . '/' . $protect ) ) {
+				unlink( $dir . '/' . $protect ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			}
+		}
+		$rest = scandir( $dir );
+		if ( is_array( $rest ) && array() === array_diff( $rest, array( '.', '..' ) ) ) {
+			rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		}
+		return $deleted;
+	}
+
+	/**
 	 * Translated message for an upload error code.
 	 *
 	 * @param string $code Code.

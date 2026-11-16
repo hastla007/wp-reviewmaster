@@ -395,7 +395,8 @@ class Renderer {
 					'title'  => (string) ( $draft['title'] ?? '' ),
 					'body'   => (string) ( $draft['body'] ?? '' ),
 					'name'   => (string) ( $draft['name'] ?? ( $user ? $user->display_name : '' ) ),
-					'email'  => (string) ( $user ? $user->user_email : '' ),
+					// Never prefill the e-mail: cached pages must not leak it (security review SR-07).
+					'email'  => '',
 				),
 			)
 		);

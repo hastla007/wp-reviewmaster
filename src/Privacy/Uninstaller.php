@@ -9,13 +9,16 @@ declare(strict_types=1);
 
 namespace ReviewCaptain\Privacy;
 
+use ReviewCaptain\ImportExport\UploadStore;
 use ReviewCaptain\Install\Schema;
 use ReviewCaptain\Security\Capabilities;
 
 /**
  * Data is kept by default. Only sites whose setting privacy.delete_data_on_uninstall is true lose
  * their tables, options and capabilities. Scheduled hooks are always removed (they contain no data
- * and would point to missing code).
+ * and would point to missing code). Temporary CSV import uploads are always removed as well: they
+ * may contain personal data, are only protected by .htaccess (not on nginx) and the maintenance purge
+ * stops with the plugin (security review 2026-11).
  */
 final class Uninstaller {
 
@@ -78,6 +81,7 @@ final class Uninstaller {
 	 */
 	public static function run_site(): bool {
 		self::clear_cron();
+		UploadStore::purge_all();
 		if ( ! self::should_delete() ) {
 			return false;
 		}
