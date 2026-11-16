@@ -314,6 +314,7 @@ Diese Aufgaben liegen nach dem Release Candidate und vor bzw. unmittelbar nach �
 ## Änderungsverlauf
 
 - 2026-11-15: Erste ausführbare Aufgabenliste aus dem Review-Captain-Konzept erstellt.
+- 2026-11-16: Inhaberentscheidung F-12 aufgenommen: eigener Workflow-Providervertrag nicht normativ, Suite-Spezifikation von Workflow Captain maßgeblich (RC-1 bis RC-3).
 
 
 ## Kundenspezifische Projekt-Connectoren
@@ -359,6 +360,14 @@ Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile E
 - [ ] RC-WF-05 – Review-Admin um Workflow-Verbindung, Contract-Version, aktive Übergabe, Eventannahme, Ablehnungsgrund und Retrystatus ergänzen; fehlendes/inkompatibles Workflow lässt Review Core normal laufen.
 - [ ] RC-WF-06 – Pass-Check-in und qualifizierte Voucher-Leistung dürfen Anfrage planen; Refund, Absage, No-show, Consent fehlt, Opt-out und Duplikat blockieren. Form-Entry darf nur explizit gemappten pending/unverified Entwurf übergeben.
 - Abnahme: Workflow kann Review-Regeln, Moderation und Einwilligung nicht umgehen; höchstens eine Einladung je Experience/Empfänger/Kampagne.
+
+### Inhaberentscheidung F-12 (16.11.2026) – Suite-Spezifikation von Workflow Captain
+
+Entscheidung analog D13 (Voucher/Affiliate): Review Captains eigener Workflow-Vertrag `docs/contracts/workflow-provider-v1.md` ist **nicht normativ**. Normativ ist allein die Suite-Spezifikation `docs/SPEC-suite-events.md` im Repository `wp-workflowmaster` (Anforderungen dort in `docs/ANFORDERUNGEN-andere-repos.md`, Zeilen RC-1 bis RC-3). Der Katalog `review.*` kommt als MINOR-Version dieser Spezifikation. Die Aufgaben RC-WF-01 bis RC-WF-06 oben gelten nur noch, soweit sie mit der Suite-Spezifikation vereinbar sind; einen eigenen Suite-/Workflow-Vertrag veröffentlicht Review Captain nicht.
+
+- [ ] **RC-1 – `docs/contracts/workflow-provider-v1.md` als nicht normativ kennzeichnen.** Auf `main` gibt es dieses Dokument noch nicht (Stand 16.11.2026); es liegt nur auf dem Branch `claude/sleepy-gates-6mm217` (zusammen mit `src/Workflow/WorkflowService.php`, `src/Workflow/RequestPlannerInterface.php`), der Branch `claude/plugin-todo-abarbeiten-xzv9c8` hat einen Entwurf unter `docs/connectors/workflow-captain-vertrag.md`. Beim Übernehmen nach `main` ganz oben im Dokument kennzeichnen: „Nicht normativ (Inhaberentscheidung F-12 vom 16.11.2026); normativ ist `docs/SPEC-suite-events.md` in `wp-workflowmaster`; Katalog `review.*` folgt als MINOR-Version der Spezifikation“ – oder das Dokument vor dem ersten Release herausnehmen. Gleiches gilt für den Entwurf unter `docs/connectors/`.
+- [ ] **RC-2 – Vertrag und Code angleichen; Vertragskonstante ergänzen.** Geprüft (WF-SPEC-14): Der Code auf `claude/sleepy-gates-6mm217` löst die vier Actions für Anfragen aus `docs/contracts/workflow-provider-v1.md` (Zeilen 62–74) nicht aus. Entweder die Actions im Code auslösen oder aus dem Dokument streichen; eine öffentliche Vertragsversionskonstante (analog `FORM_CAPTAIN_CONTRACT_VERSION`) fehlt und ist zu ergänzen (Z-12, R-3.1). Offen.
+- [ ] **RC-3 – Katalog `review.*` in einer MINOR-Version der Suite-Spezifikation.** Der Katalog `review.*` und der Adapter für die Review-Einladung in Review Captain Pro (`captain-pro`) folgen den Regeln der Suite-Spezifikation (Empfehlung zu F-08, Abschnitt 4.6). Erst danach Events/Adapter danach ausrichten. Offen, abhängig von F-08.
 
 
 ## Plugin-Einstellungen: Prioritäten, Sortierung und Umsetzung
