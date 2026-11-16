@@ -1,7 +1,7 @@
 # Datenbank- und Migrationsplan (RC-028)
 
-Status: Spezifikation für Core v1, Stand 2026-11-16. Grundlage und verbindlich: [`conventions.md`](conventions.md) Abschnitt Datenbank, [ADR-0001](../adr/0001-custom-tables-statt-cpt.md).
-Spalten/Indizes für `reviews` und `jobs` sind 1:1 aus `conventions.md` übernommen. Für `review_events`, `profiles`, `import_batches`, `audit_log` legt `conventions.md` nur den Zweck fest; die Spalten unten sind die **Spezifikation dieses Dokuments** (Änderung danach nur per ADR).
+Status: an den implementierten Stand angeglichen (Schema v1, `src/Install/Schema.php`), Stand 2026-11-16. Grundlage: [`conventions.md`](conventions.md) Abschnitt Datenbank, [ADR-0001](../adr/0001-custom-tables-statt-cpt.md).
+Wo dieses Dokument und der Code abweichen, gilt `src/Install/Schema.php`. Nicht umgesetzte Teile früherer Fassungen sind als „Ausblick (nicht in Schema v1)“ markiert; Änderungen am Schema nur per neuem Migrationsschritt und ADR.
 
 ## 1. Grundregeln
 
@@ -9,179 +9,187 @@ Spalten/Indizes für `reviews` und `jobs` sind 1:1 aus `conventions.md` übernom
 - Engine/Charset: InnoDB, `$wpdb->get_charset_collate()` (in der Regel `utf8mb4_unicode_520_ci`). Indizierte VARCHAR-Spalten max. 191 Zeichen.
 - Zeiten: `DATETIME` in UTC, Format `Y-m-d H:i:s`, gesetzt aus PHP (`gmdate()`), **nicht** über MySQL `NOW()`/`CURRENT_TIMESTAMP` (Session-Zeitzone ist auf vielen Hosts nicht UTC). Wo `conventions.md` „NOW“ schreibt, ist ein per `$wpdb->prepare` übergebener UTC-Zeitstempel gemeint.
 - Enums als `VARCHAR(20…40)` statt MySQL-`ENUM` (dbDelta-freundlich, erweiterbar ohne ALTER). Zulässige Werte erzwingt PHP (Value Objects).
-- JSON-Spalten (`meta`, `payload`, `settings`, `state`, `context`) als `LONGTEXT`, geschrieben mit `wp_json_encode()`; **niemals Secrets** außer in `profiles.credentials_enc` (verschlüsselt, siehe [secrets.md](secrets.md)).
+- JSON-Spalten (`reviews.meta`, `jobs.payload`, `profiles.settings`, `profiles.sync_cursor`, `audit_log.context`) als `LONGTEXT`, geschrieben mit `wp_json_encode()`; **niemals Secrets** außer in `profiles.credentials_enc` (verschlüsselt, siehe [secrets.md](secrets.md)).
 - Alle SQL über `$wpdb->prepare()`. Keine Fremdschlüssel-Constraints (dbDelta/Hosting-Kompatibilität); referentielle Integrität per Code und [Reconciliation](reconciliation.md).
 
 ## 2. Tabellen
 
+Maßgeblich ist `src/Install/Schema.php` (`Schema::VERSION = 1`, Option `review_captain_db_version`). Die Tabellen unten geben das dbDelta-SQL von Schema v1 **exakt** wieder (Typen in der Schreibweise des Codes). Spalten, die frühere Fassungen dieses Dokuments vorgesehen hatten, die aber nicht in Schema v1 enthalten sind, stehen jeweils unter „Ausblick (nicht in Schema v1)“; sie dürfen nur über einen neuen Migrationsschritt (`Schema::VERSION` erhöhen, Schritt in `Migrator::steps()`) eingeführt werden.
+
+Logische Tabellenschlüssel (`Schema::TABLES`): `reviews`, `review_events`, `profiles`, `jobs`, `import_batches`, `audit_log`. Der volle Name ergibt sich aus `Schema::table( $key )` = `$wpdb->prefix . 'review_captain_' . $key`.
+
 ### 2.1 `reviews`
 
-Spalten exakt nach `conventions.md`:
-
-| Spalte | Typ | Anmerkung |
+| Spalte | Typ (Schema v1) | Anmerkung |
 |---|---|---|
-| `id` | BIGINT UNSIGNED AUTO_INCREMENT PK | |
-| `uuid` | CHAR(36) NOT NULL UNIQUE | öffentliche Referenz in Events/Exporten |
-| `kind` | VARCHAR(20) NOT NULL | `review` \| `testimonial` |
-| `origin` | VARCHAR(20) NOT NULL | `local_submission` \| `manual` \| `csv_import` \| `provider_sync` \| `connector` |
-| `platform` | VARCHAR(20) NOT NULL | `local` \| `google` \| `trustpilot` \| `trusted_shops` \| `app_store` \| `google_play` \| `other` |
-| `profile_id` | BIGINT UNSIGNED NULL | → `profiles.id` |
-| `external_id` | VARCHAR(191) NULL | stabile Plattform-ID |
-| `rating_value` | DECIMAL(6,2) NULL | |
-| `rating_scale_min` | DECIMAL(6,2) NOT NULL DEFAULT 1 | |
-| `rating_scale_max` | DECIMAL(6,2) NOT NULL DEFAULT 5 | |
-| `title` | VARCHAR(255) NOT NULL DEFAULT '' | |
-| `body` | LONGTEXT NOT NULL | sanitisiertes Plain-Text/eingeschränktes HTML |
-| `language` | VARCHAR(20) NOT NULL DEFAULT '' | BCP 47 |
-| `author_name` | VARCHAR(191) NOT NULL DEFAULT '' | |
-| `author_email` | VARCHAR(191) NULL | **nur** `origin=local_submission` |
-| `author_user_id` | BIGINT UNSIGNED NULL | |
-| `verification` | VARCHAR(30) NOT NULL DEFAULT 'unverified' | `unverified` \| `purchase_verified` \| `attendance_confirmed` \| `external_platform` |
-| `status` | VARCHAR(20) NOT NULL DEFAULT 'pending' | `pending` \| `approved` \| `rejected` \| `archived` \| `flagged` \| `removed` |
-| `context_type` | VARCHAR(40) NULL | `post` \| `product` \| `event` \| `voucher` \| `app` \| `form` |
-| `context_id` | VARCHAR(64) NULL | |
-| `source_url` | TEXT NULL | nur `https`, validiert (siehe [embed-security.md](embed-security.md)) |
-| `published_at` | DATETIME NULL | Originaldatum |
-| `fetched_at` | DATETIME NULL | letzter erfolgreicher Abruf |
-| `refresh_due_at` | DATETIME NULL | Pflicht-Refresh laut [retention-matrix.md](retention-matrix.md) |
-| `consent_publish` | TINYINT(1) NOT NULL DEFAULT 0 | |
-| `consent_at` | DATETIME NULL | |
-| `import_batch_id` | BIGINT UNSIGNED NULL | → `import_batches.id` |
-| `experience_id` | VARCHAR(191) NULL | Suite-Erlebnis (RC-022) |
-| `meta` | LONGTEXT NULL | JSON, keine Secrets |
-| `created_at` | DATETIME NOT NULL | |
-| `updated_at` | DATETIME NOT NULL | |
-| `removed_at` | DATETIME NULL | Tombstone |
-| `dedupe_key` | VARCHAR(191) NULL UNIQUE | siehe 2.1.1 |
+| `id` | `bigint(20) unsigned NOT NULL AUTO_INCREMENT` | PK |
+| `uuid` | `char(36) NOT NULL` | öffentliche Referenz in Events/Exporten |
+| `kind` | `varchar(20) NOT NULL DEFAULT 'review'` | `review` \| `testimonial` (`Domain\Kind`) |
+| `origin` | `varchar(30) NOT NULL DEFAULT 'manual'` | `local_submission` \| `manual` \| `csv_import` \| `provider_sync` \| `connector` (`Domain\Origin`) |
+| `platform` | `varchar(30) NOT NULL DEFAULT 'local'` | `local` \| `google` \| `trustpilot` \| `trusted_shops` \| `app_store` \| `google_play` \| `other` (`Domain\Platform`) |
+| `profile_id` | `bigint(20) unsigned NULL` | → `profiles.id` |
+| `external_id` | `varchar(191) NULL` | stabile Plattform-ID |
+| `dedupe_key` | `char(40) NULL` | siehe 2.1.1 |
+| `rating_value` | `decimal(6,2) NULL` | |
+| `rating_scale_min` | `decimal(6,2) NOT NULL DEFAULT '1.00'` | |
+| `rating_scale_max` | `decimal(6,2) NOT NULL DEFAULT '5.00'` | |
+| `title` | `varchar(255) NOT NULL DEFAULT ''` | |
+| `body` | `longtext NOT NULL` | sanitisiertes Plain-Text/eingeschränktes HTML |
+| `language` | `varchar(20) NOT NULL DEFAULT ''` | BCP 47 |
+| `author_name` | `varchar(191) NOT NULL DEFAULT ''` | |
+| `author_email` | `varchar(191) NULL` | **nur** `origin=local_submission` |
+| `author_user_id` | `bigint(20) unsigned NULL` | |
+| `verification` | `varchar(30) NOT NULL DEFAULT 'unverified'` | `unverified` \| `purchase_verified` \| `attendance_confirmed` \| `external_platform` (`Domain\Verification`) |
+| `status` | `varchar(20) NOT NULL DEFAULT 'pending'` | `pending` \| `approved` \| `rejected` \| `archived` \| `flagged` \| `removed` (`Domain\ReviewStatus`) |
+| `context_type` | `varchar(40) NULL` | `post` \| `product` \| `event` \| `voucher` \| `app` \| `form` |
+| `context_id` | `varchar(64) NULL` | |
+| `source_url` | `text NULL` | nur `https`, validiert (siehe [embed-security.md](embed-security.md)) |
+| `published_at` | `datetime NULL` | Originaldatum |
+| `fetched_at` | `datetime NULL` | letzter erfolgreicher Abruf |
+| `refresh_due_at` | `datetime NULL` | Pflicht-Refresh laut [retention-matrix.md](retention-matrix.md) |
+| `consent_publish` | `tinyint(1) NOT NULL DEFAULT 0` | |
+| `consent_at` | `datetime NULL` | |
+| `import_batch_id` | `bigint(20) unsigned NULL` | → `import_batches.id` |
+| `experience_id` | `varchar(191) NULL` | Suite-Erlebnis (RC-022) |
+| `meta` | `longtext NULL` | JSON, keine Secrets |
+| `created_at` | `datetime NOT NULL` | |
+| `updated_at` | `datetime NOT NULL` | |
+| `removed_at` | `datetime NULL` | Tombstone |
 
-Indizes (exakt `conventions.md`):
+Indizes (exakt Schema v1):
 
 ```
 PRIMARY KEY  (id)
 UNIQUE KEY uuid (uuid)
 UNIQUE KEY dedupe_key (dedupe_key)
-KEY status_kind_platform (status, kind, platform)
+KEY status_kind_platform (status,kind,platform)
 KEY rating_value (rating_value)
 KEY created_at (created_at)
-KEY context (context_type, context_id)
+KEY context (context_type,context_id)
 KEY author_email (author_email)
 KEY import_batch_id (import_batch_id)
+KEY profile_id (profile_id)
+KEY refresh_due_at (refresh_due_at)
 ```
 
 #### 2.1.1 `dedupe_key` (TEC-004)
 
-Formel: `sha1( platform . '|' . (profile_id ?? 0) . '|' . external_id )` (40 Hex-Zeichen, kleingeschrieben), nur wenn `external_id` gesetzt ist, sonst `NULL` (mehrere `NULL` sind in UNIQUE zulässig).
+`dedupe_key` ist eine **gewöhnliche Spalte** `char(40) NULL` mit `UNIQUE KEY dedupe_key`. Sie wird ausschließlich in PHP befüllt: `Review::dedupe_key()` (`src/Domain/Review.php`) liefert
 
-- **Bevorzugt** als generierte Spalte (MySQL ≥ 5.7, MariaDB ≥ 10.2):
-  `dedupe_key VARCHAR(191) GENERATED ALWAYS AS (IF(external_id IS NULL, NULL, SHA1(CONCAT(platform, '|', IFNULL(profile_id, 0), '|', external_id)))) STORED`
-- dbDelta kann generierte Spalten nicht zuverlässig vergleichen. Deshalb legt `Schema` die Spalte **nicht** im dbDelta-SQL an, sondern `Migrator` per separatem, idempotentem `ALTER TABLE … ADD COLUMN` + `ADD UNIQUE KEY` nach Prüfung über `SHOW COLUMNS`.
-- **Fallback** (DB ohne generierte Spalten oder fehlgeschlagenes ALTER): gewöhnliche Spalte `VARCHAR(191) NULL`, die das Repository bei jedem Insert/Update mit derselben Formel in PHP befüllt. Der UNIQUE-Key bleibt identisch. Welcher Modus aktiv ist, steht in der Diagnose. PHP-Formel und SQL-Formel werden per Unit-Test gegeneinander geprüft.
-- Inserts aus Sync nutzen `INSERT … ON DUPLICATE KEY UPDATE` (bzw. Insert → bei Duplicate-Fehler Update), damit parallele Läufe keine Dubletten erzeugen.
+```
+sha1( platform . '|' . (string) ( profile_id ?? 0 ) . '|' . external_id )
+```
+
+(40 Hex-Zeichen, kleingeschrieben), wenn `external_id` gesetzt und nicht leer ist, sonst `NULL` (mehrere `NULL` sind in UNIQUE zulässig). `Review::to_row()` schreibt den Wert bei jedem Insert/Update mit; es gibt **keine** generierte Spalte, keinen separaten `ALTER TABLE`-Schritt und damit auch keinen „generierten Modus“ bzw. „Fallback-Modus“.
+
+- Upserts aus Sync und CSV-Import laufen über `ReviewRepository::upsert_external()`: Suche per `find_by_dedupe_key()`, sonst Insert; verliert der Insert ein Rennen gegen einen parallelen Lauf (Duplicate-Key-Fehler → `RuntimeException`), wird der vorhandene Datensatz erneut gelesen und aktualisiert. Der Moderationsstatus vorhandener Datensätze bleibt erhalten (außer bei `removed`).
+- Direkte SQL-Schreibzugriffe außerhalb des Repositorys (z. B. `DevSeeder`) müssen `dedupe_key` selbst mit derselben Formel setzen.
+- Die Reconciliation zählt Zeilen mit `external_id`, aber `dedupe_key IS NULL` (`missing_dedupe_keys`, [reconciliation.md](reconciliation.md) Schritt 8) – solche Zeilen können nur durch Schreibzugriffe am Repository vorbei entstehen.
 
 ### 2.2 `review_events`
 
-| Spalte | Typ | Anmerkung |
-|---|---|---|
-| `id` | BIGINT UNSIGNED PK | |
-| `event_id` | CHAR(36) NOT NULL UNIQUE | = `event_id` im Hook-Payload |
-| `review_id` | BIGINT UNSIGNED NOT NULL | |
-| `event_type` | VARCHAR(40) NOT NULL | `created` \| `status_changed` \| `edited` \| `refreshed` \| `removed` \| `restored` \| `consent_changed` \| `anonymized` |
-| `previous_status` | VARCHAR(20) NULL | |
-| `new_status` | VARCHAR(20) NULL | |
-| `actor_type` | VARCHAR(20) NOT NULL | `user` \| `system` \| `job` \| `cli` \| `connector` |
-| `actor_user_id` | BIGINT UNSIGNED NULL | |
-| `reason_code` | VARCHAR(64) NULL | z. B. `rc.remote.removed` |
-| `note` | VARCHAR(500) NULL | Moderationsnotiz, kein Reviewtext, keine E-Mail |
-| `created_at` | DATETIME NOT NULL | |
+Moderations-/Änderungshistorie je Review, geschrieben von `ReviewRepository::log_event()` (und beim CSV-Rollback gelesen/gelöscht).
 
-Indizes: `PRIMARY (id)`, `UNIQUE event_id`, `KEY review_created (review_id, created_at)`, `KEY created_at (created_at)`.
+| Spalte | Typ (Schema v1) | Anmerkung |
+|---|---|---|
+| `id` | `bigint(20) unsigned NOT NULL AUTO_INCREMENT` | PK |
+| `review_id` | `bigint(20) unsigned NOT NULL` | → `reviews.id` |
+| `action` | `varchar(40) NOT NULL` | z. B. `created`, `status_changed`, `edited` |
+| `from_status` | `varchar(20) NULL` | |
+| `to_status` | `varchar(20) NULL` | |
+| `reason` | `varchar(500) NOT NULL DEFAULT ''` | Moderationsnotiz (sanitisiert, max. 500 Zeichen), kein Reviewtext, keine E-Mail |
+| `user_id` | `bigint(20) unsigned NULL` | handelnder Benutzer, `NULL` bei System/Job/CLI ohne Benutzer |
+| `created_at` | `datetime NOT NULL` | |
+
+Indizes: `PRIMARY KEY (id)`, `KEY review_id (review_id)`, `KEY created_at (created_at)`.
+
+**Ausblick (nicht in Schema v1):** `event_id` CHAR(36) UNIQUE (= `event_id` im Hook-Payload), `actor_type` (`user` \| `system` \| `job` \| `cli` \| `connector`), `reason_code` VARCHAR(64) (z. B. `rc.remote.removed`) und ein zusammengesetzter Index `review_created (review_id, created_at)`. Die früher vorgesehenen Namen `event_type`/`previous_status`/`new_status`/`actor_user_id`/`note` heißen in v1 `action`/`from_status`/`to_status`/`user_id`/`reason`.
 
 ### 2.3 `profiles`
 
-| Spalte | Typ | Anmerkung |
+| Spalte | Typ (Schema v1) | Anmerkung |
 |---|---|---|
-| `id` | BIGINT UNSIGNED PK | |
-| `uuid` | CHAR(36) NOT NULL UNIQUE | |
-| `platform` | VARCHAR(20) NOT NULL | Werte wie `reviews.platform` |
-| `connection_type` | VARCHAR(20) NOT NULL DEFAULT 'link' | `link` (nur Profil-URL/CTA, Core) \| `manual` \| `api` (Pro) \| `connector` |
-| `owner` | VARCHAR(64) NOT NULL DEFAULT 'core' | `core` \| `pro` \| `connector:<key>` |
-| `label` | VARCHAR(191) NOT NULL | |
-| `profile_url` | TEXT NULL | öffentlicher Link, nur https |
-| `external_ref` | VARCHAR(191) NULL | Location-Name, Business-Unit-ID, eTrusted-Channel, Apple-App-ID, Paketname |
-| `status` | VARCHAR(20) NOT NULL DEFAULT 'active' | `active` \| `paused` \| `auth_required` \| `disconnected` \| `archived` |
-| `credentials_enc` | LONGTEXT NULL | verschlüsselter Envelope ([secrets.md](secrets.md)); nie exportiert |
-| `credentials_rev` | INT UNSIGNED NOT NULL DEFAULT 0 | Compare-and-swap bei Tokenrefresh |
-| `key_id` | VARCHAR(16) NULL | Fingerprint des verwendeten Schlüssels |
-| `sync_cursor` | LONGTEXT NULL | JSON, providerdefiniert |
-| `settings` | LONGTEXT NULL | JSON: Budgets, Refresh-Overrides ([jobs.md](jobs.md) §8) |
-| `state` | LONGTEXT NULL | JSON: Budgetverbrauch, Backoff-bis, Zähler |
-| `last_sync_at` | DATETIME NULL | |
-| `last_success_at` | DATETIME NULL | |
-| `next_sync_at` | DATETIME NULL | Anzeige „frühestens“ |
-| `last_error_code` | VARCHAR(64) NULL | `rc.*` |
-| `disconnected_at` | DATETIME NULL | |
-| `created_at` / `updated_at` | DATETIME NOT NULL | |
+| `id` | `bigint(20) unsigned NOT NULL AUTO_INCREMENT` | PK |
+| `platform` | `varchar(30) NOT NULL` | Werte wie `reviews.platform` |
+| `label` | `varchar(191) NOT NULL DEFAULT ''` | |
+| `profile_url` | `text NULL` | öffentlicher Link, nur https |
+| `review_url` | `text NULL` | Link „Bewertung schreiben“ (CTA) |
+| `external_ref` | `varchar(191) NULL` | Location-Name, Business-Unit-ID, eTrusted-Channel, Apple-App-ID, Paketname |
+| `status` | `varchar(20) NOT NULL DEFAULT 'manual'` | Core setzt nur `manual` (`Profiles::STATUS_MANUAL`); weitere Werte setzt Pro |
+| `settings` | `longtext NULL` | JSON: Budgets, Refresh-Overrides ([jobs.md](jobs.md) §8) |
+| `credentials_enc` | `longtext NULL` | verschlüsselter Envelope ([secrets.md](secrets.md)); nie exportiert |
+| `credentials_rev` | `int(10) unsigned NOT NULL DEFAULT 0` | Compare-and-swap bei Tokenrefresh |
+| `key_id` | `varchar(16) NULL` | Fingerprint des verwendeten Schlüssels |
+| `sync_cursor` | `longtext NULL` | JSON, providerdefiniert |
+| `last_sync_at` | `datetime NULL` | |
+| `last_error_code` | `varchar(64) NULL` | `rc.*` |
+| `created_at` | `datetime NOT NULL` | |
+| `updated_at` | `datetime NOT NULL` | |
 
-Indizes: `PRIMARY (id)`, `UNIQUE uuid`, `UNIQUE platform_ref (platform, external_ref)` (mehrere `NULL` erlaubt), `KEY status (status)`.
+Indizes: `PRIMARY KEY (id)`, `UNIQUE KEY platform_ref (platform,external_ref)` (mehrere `NULL` erlaubt), `KEY status (status)`.
+
+**Ausblick (nicht in Schema v1):** `uuid` CHAR(36) UNIQUE, `connection_type` (`link` \| `manual` \| `api` \| `connector`), `owner` (`core` \| `pro` \| `connector:<key>`), `state` LONGTEXT (Budgetverbrauch, Backoff-bis, Zähler – in v1 liegen Budgetzähler in Optionen `review_captain_budget_*`, siehe `Jobs\Budget`), `last_success_at`, `next_sync_at`, `disconnected_at` sowie die Statuswerte `active` \| `paused` \| `auth_required` \| `disconnected` \| `archived`.
 
 ### 2.4 `jobs`
 
-Exakt `conventions.md`:
-
-| Spalte | Typ |
+| Spalte | Typ (Schema v1) |
 |---|---|
-| `id` | BIGINT UNSIGNED PK |
-| `type` | VARCHAR(100) NOT NULL |
-| `idempotency_key` | VARCHAR(191) NOT NULL UNIQUE |
-| `payload` | LONGTEXT NULL (JSON, keine Secrets, keine E-Mails) |
-| `status` | VARCHAR(20) NOT NULL DEFAULT 'queued' – `queued` \| `running` \| `succeeded` \| `failed` \| `dead` \| `paused` |
-| `attempts` | INT UNSIGNED NOT NULL DEFAULT 0 |
-| `max_attempts` | INT UNSIGNED NOT NULL DEFAULT 8 |
-| `available_at` | DATETIME NOT NULL |
-| `lease_owner` | VARCHAR(64) NULL |
-| `lease_expires_at` | DATETIME NULL |
-| `last_error_code` | VARCHAR(64) NULL |
-| `last_error_message` | VARCHAR(500) NULL (sanitisiert) |
-| `created_at` / `updated_at` | DATETIME NOT NULL |
+| `id` | `bigint(20) unsigned NOT NULL AUTO_INCREMENT` (PK) |
+| `type` | `varchar(100) NOT NULL` |
+| `idempotency_key` | `varchar(191) NOT NULL` |
+| `payload` | `longtext NULL` (JSON, keine Secrets, keine E-Mails) |
+| `status` | `varchar(20) NOT NULL DEFAULT 'queued'` – `queued` \| `running` \| `succeeded` \| `failed` \| `dead` \| `paused` (`JobQueue::STATUSES`) |
+| `attempts` | `int(10) unsigned NOT NULL DEFAULT 0` |
+| `max_attempts` | `int(10) unsigned NOT NULL DEFAULT 8` |
+| `available_at` | `datetime NOT NULL` |
+| `lease_owner` | `varchar(64) NULL` |
+| `lease_expires_at` | `datetime NULL` |
+| `last_error_code` | `varchar(64) NULL` |
+| `last_error_message` | `varchar(500) NULL` (sanitisiert) |
+| `created_at` | `datetime NOT NULL` |
+| `updated_at` | `datetime NOT NULL` |
 
-Indizes: `PRIMARY (id)`, `UNIQUE idempotency_key`, `KEY status_available (status, available_at)`, `KEY type_status (type, status)`. Semantik: [jobs.md](jobs.md).
+Indizes: `PRIMARY KEY (id)`, `UNIQUE KEY idempotency_key (idempotency_key)`, `KEY status_available (status,available_at)`, `KEY type_status (type,status)`, `KEY lease_expires_at (lease_expires_at)`. Semantik: [jobs.md](jobs.md).
 
 ### 2.5 `import_batches`
 
-| Spalte | Typ | Anmerkung |
+| Spalte | Typ (Schema v1) | Anmerkung |
 |---|---|---|
-| `id` | BIGINT UNSIGNED PK | |
-| `uuid` | CHAR(36) NOT NULL UNIQUE | |
-| `source_format` | VARCHAR(40) NOT NULL | z. B. `csv_v1`, `play_console_csv` |
-| `file_sha256` | CHAR(64) NOT NULL | Wiederholungserkennung; Datei selbst wird nach Verarbeitung gelöscht |
-| `status` | VARCHAR(20) NOT NULL | `uploaded` \| `validating` \| `importing` \| `completed` \| `failed` \| `rolled_back` |
-| `rows_total` / `rows_imported` / `rows_skipped` / `rows_failed` | INT UNSIGNED NOT NULL DEFAULT 0 | |
-| `error_summary` | LONGTEXT NULL | JSON: Zeilennummer + Fehlercode, **keine** Zeileninhalte |
-| `created_by` | BIGINT UNSIGNED NULL | |
-| `created_at` / `completed_at` / `rolled_back_at` | DATETIME | |
+| `id` | `bigint(20) unsigned NOT NULL AUTO_INCREMENT` | PK |
+| `filename` | `varchar(191) NOT NULL DEFAULT ''` | ursprünglicher Dateiname (nur Anzeige); die Datei selbst wird nach Verarbeitung gelöscht |
+| `status` | `varchar(20) NOT NULL DEFAULT 'completed'` | vom Importer gesetzt: `running` → `completed`, nach Rollback `rolled_back`; die Reconciliation setzt hängende `importing`-Batches auf `failed` |
+| `rows_total` | `int(10) unsigned NOT NULL DEFAULT 0` | |
+| `rows_imported` | `int(10) unsigned NOT NULL DEFAULT 0` | |
+| `rows_skipped` | `int(10) unsigned NOT NULL DEFAULT 0` | |
+| `created_by` | `bigint(20) unsigned NULL` | |
+| `created_at` | `datetime NOT NULL` | |
+| `rolled_back_at` | `datetime NULL` | |
 
-Indizes: `PRIMARY`, `UNIQUE uuid`, `KEY status_created (status, created_at)`. Rollback = Löschen aller `reviews` mit `import_batch_id` in Batches à 500 per Job, sofern sie seither nicht moderiert/geändert wurden (sonst Rückfrage).
+Indizes: `PRIMARY KEY (id)`, `KEY status (status)`. Rollback = Löschen der `reviews` mit `import_batch_id` (samt ihrer `review_events`), sofern sie seither nicht moderiert/geändert wurden.
+
+**Ausblick (nicht in Schema v1):** `uuid` CHAR(36) UNIQUE, `source_format` (z. B. `csv_v1`, `play_console_csv`), `file_sha256` CHAR(64) (Wiederholungserkennung), `rows_failed`, `error_summary` LONGTEXT (JSON: Zeilennummer + Fehlercode, keine Zeileninhalte), `completed_at`, Index `status_created (status, created_at)` und der vollständige Statussatz `uploaded` \| `validating` \| `importing` \| `completed` \| `failed` \| `rolled_back`.
 
 ### 2.6 `audit_log`
 
-| Spalte | Typ | Anmerkung |
-|---|---|---|
-| `id` | BIGINT UNSIGNED PK | |
-| `occurred_at` | DATETIME NOT NULL | |
-| `actor_type` | VARCHAR(20) NOT NULL | wie `review_events.actor_type` |
-| `actor_user_id` | BIGINT UNSIGNED NULL | |
-| `action` | VARCHAR(64) NOT NULL | z. B. `profile.connected`, `profile.disconnected`, `settings.updated`, `privacy.erased`, `secrets.rotated`, `job.requeued` |
-| `object_type` | VARCHAR(40) NULL | |
-| `object_ref` | VARCHAR(64) NULL | UUID/ID, keine PII |
-| `result` | VARCHAR(20) NOT NULL | `success` \| `failure` |
-| `error_code` | VARCHAR(64) NULL | |
-| `context` | LONGTEXT NULL | JSON, whitelist-gefiltert: keine Secrets, kein Reviewtext, keine E-Mail, **keine IP** |
+Geschrieben von `Audit\AuditLog::record()`; `context` wird gegen eine Allowlist gefiltert (Filter `review_captain_audit_allowed_keys`), Schlüssel, die nach Secret/Token/E-Mail/Text/IP aussehen, werden nie gespeichert.
 
-Indizes: `PRIMARY`, `KEY occurred_at`, `KEY action_occurred (action, occurred_at)`, `KEY object (object_type, object_ref)`.
+| Spalte | Typ (Schema v1) | Anmerkung |
+|---|---|---|
+| `id` | `bigint(20) unsigned NOT NULL AUTO_INCREMENT` | PK |
+| `event` | `varchar(80) NOT NULL` | z. B. `review.status_changed`, `settings.updated`, `reconcile.completed` |
+| `object_type` | `varchar(40) NOT NULL DEFAULT ''` | |
+| `object_id` | `varchar(64) NOT NULL DEFAULT ''` | UUID/ID, keine PII |
+| `user_id` | `bigint(20) unsigned NULL` | |
+| `context` | `longtext NULL` | JSON, allowlist-gefiltert: keine Secrets, kein Reviewtext, keine E-Mail, **keine IP** |
+| `created_at` | `datetime NOT NULL` | |
+
+Indizes: `PRIMARY KEY (id)`, `KEY event (event)`, `KEY created_at (created_at)`, `KEY object (object_type,object_id)`.
+
+**Ausblick (nicht in Schema v1):** `actor_type` (wie geplant für `review_events`), `result` (`success` \| `failure`), `error_code` VARCHAR(64) und ein Index `action_occurred`. Die früher vorgesehenen Namen `occurred_at`/`actor_user_id`/`action`/`object_ref` heißen in v1 `created_at`/`user_id`/`event`/`object_id`.
 
 ### 2.7 Kandidaten für weitere Indizes (nicht Teil von v1)
 
-Nur nach Messung ([scaling.md](scaling.md)) und per ADR: `reviews (refresh_due_at)` für Refresh-/Purge-Jobs, `reviews (profile_id, status)`, `reviews (status, created_at)` für sortierte Adminlisten, FULLTEXT `(title, body)` für Suche.
+Nur nach Messung ([scaling.md](scaling.md)) und per ADR: `reviews (profile_id, status)`, `reviews (status, created_at)` für sortierte Adminlisten, FULLTEXT `(title, body)` für Suche. (`reviews (refresh_due_at)` und `reviews (profile_id)` sind bereits in Schema v1 enthalten.)
 
 ## 3. Optionen (Präfix `review_captain_`)
 
