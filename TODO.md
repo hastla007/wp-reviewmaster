@@ -17,29 +17,35 @@ Diese Liste macht das Produktkonzept in umsetzbare Arbeitspakete. Aufgaben sind 
 - Jede Cross-Plugin-Aktion erhält eine stabile ID, ist wiederholbar ohne Dopplung und protokolliert Fehler ohne Zugangsdaten oder unnötige personenbezogene Daten.
 - Erst Live-Release eines Plattformadapters, wenn Zugang, Nutzungsrecht, Cache-/Löschregeln und ein echter Verbindungstest geklärt sind.
 
+### Statuskennzeichnung
+
+- `[ ]` offen – noch kein belastbares Ergebnis.
+- `[~]` Entwurf liegt vor – Ergebnisdokument ist im Repository verlinkt, aber Freigabe durch Produkt/Recht/Shop oder eine externe Aktion (Anbieterzugang, Nutzertest, Vertrag) steht noch aus. Offene Punkte stehen im verlinkten Dokument unter „Offen / Freigabe“.
+- `[x]` abgeschlossen – Ergebnis dokumentiert und die genannte Abnahme erfüllt.
+
 ## M0 – Umfang festlegen und Freigaben holen
 
 ### Produkt- und Veröffentlichungsumfang
 
-- [ ] **RC-001 – Produktnamen und Slugs bestätigen.** Ergebnis: verbindliche Namen Review Captain, review-captain und review-captain-pro in Core, Add-on, Textdomain und Build-Dokumentation.
-- [ ] **RC-002 – 1.0-Scope festschreiben.** Ergebnis: eine Liste „MVP muss enthalten“ und eine Liste „nach 1.0“; insbesondere festlegen, welche der fünf Plattformen in 1.0 nativ synchronisieren und welche zunächst offiziellen Embed-/Profil-Link-Fallback bieten.
-- [ ] **RC-003 – Free/Pro-Grenze einfrieren.** Ergebnis: jede Funktion aus Abschnitt 5 des Konzepts ist Core, Pro 1.0, Pro-Folgeversion oder ausgeschlossen zugeordnet.
-- [ ] **RC-004 – Pro-Planmodell bestätigen.** Ergebnis: solo (1), studio (5) und agency (25 Live-Websites), Supportstufen und Produktpreise sind als Shopentscheidung dokumentiert.
-- [ ] **RC-005 – Lizenz-Entitlements finalisieren.** Ergebnis: Liste der tatsächlich gebauten review.*-Rechte, jeweils genau einer Pro-Funktion zugeordnet; keine leeren oder nur geplanten Rechte im Katalog.
-- [ ] **RC-006 – Kompatibilitätsziele festlegen.** Ergebnis: Mindestversionen WordPress, PHP und optional WooCommerce sowie Zielmatrix für HPOS, Classic/Blocks, Multisite und Page Builder.
-- [ ] **RC-007 – Supportumfang und Releasekanäle definieren.** Ergebnis: WordPress.org-Veröffentlichung für Core, Update-/Vertriebskanal für Pro, Supportsprachen, Supportumfang und Reaktionsziele.
+- [~] **RC-001 – Produktnamen und Slugs bestätigen.** Ergebnis: verbindliche Namen Review Captain, review-captain und review-captain-pro in Core, Add-on, Textdomain und Build-Dokumentation. → Entwurf: [docs/m0/rc-001-namen-slugs.md](docs/m0/rc-001-namen-slugs.md)
+- [~] **RC-002 – 1.0-Scope festschreiben.** Ergebnis: eine Liste „MVP muss enthalten“ und eine Liste „nach 1.0“; insbesondere festlegen, welche der fünf Plattformen in 1.0 nativ synchronisieren und welche zunächst offiziellen Embed-/Profil-Link-Fallback bieten. → Entwurf: [docs/m0/rc-002-scope-1-0.md](docs/m0/rc-002-scope-1-0.md)
+- [~] **RC-003 – Free/Pro-Grenze einfrieren.** Ergebnis: jede Funktion aus Abschnitt 5 des Konzepts ist Core, Pro 1.0, Pro-Folgeversion oder ausgeschlossen zugeordnet. → Entwurf: [docs/m0/rc-003-free-pro-grenze.md](docs/m0/rc-003-free-pro-grenze.md)
+- [~] **RC-004 – Pro-Planmodell bestätigen.** Ergebnis: solo (1), studio (5) und agency (25 Live-Websites), Supportstufen und Produktpreise sind als Shopentscheidung dokumentiert. → Entwurf: [docs/m0/rc-004-planmodell.md](docs/m0/rc-004-planmodell.md)
+- [~] **RC-005 – Lizenz-Entitlements finalisieren.** Ergebnis: Liste der tatsächlich gebauten review.*-Rechte, jeweils genau einer Pro-Funktion zugeordnet; keine leeren oder nur geplanten Rechte im Katalog. → Entwurf: [docs/m0/rc-005-entitlements.md](docs/m0/rc-005-entitlements.md)
+- [~] **RC-006 – Kompatibilitätsziele festlegen.** Ergebnis: Mindestversionen WordPress, PHP und optional WooCommerce sowie Zielmatrix für HPOS, Classic/Blocks, Multisite und Page Builder. → Entwurf: [docs/m0/rc-006-kompatibilitaet.md](docs/m0/rc-006-kompatibilitaet.md)
+- [~] **RC-007 – Supportumfang und Releasekanäle definieren.** Ergebnis: WordPress.org-Veröffentlichung für Core, Update-/Vertriebskanal für Pro, Supportsprachen, Supportumfang und Reaktionsziele. → Entwurf: [docs/m0/rc-007-support-release.md](docs/m0/rc-007-support-release.md)
 
 ### Plattform- und Rechtsfreigaben
 
-- [ ] **RC-008 – Provider-Matrix anlegen.** Für Google, Trustpilot, Trusted Shops/eTrusted, App Store Connect und Google Play je Anbieter dokumentieren: Kontotyp/Tarif, API-Freigabe, Authentifizierung, lesbare Felder, Einladungs-/Antwortfunktionen, Limits, Attribution, Cache- und Löschpflicht, Kosten und Fallback.
-- [ ] **RC-009 – Google-Zugang praktisch freischalten.** Ergebnis: registriertes Google-Cloud-Projekt, aktivierte Business-Profile-API, OAuth-Zustimmungsbildschirm, erforderliche API-Freigabe und Test-Standort.
-- [ ] **RC-010 – Trustpilot-Zugang prüfen.** Ergebnis: dokumentierte API-/Partnerberechtigung, Test-Business-Unit, verwendbare Review- und Invitation-Endpunkte sowie Freigabe des konkreten Plugin-Use-Cases.
-- [ ] **RC-011 – Trusted-Shops/eTrusted-Zugang prüfen.** Ergebnis: API-Client und Testkanal eines berechtigten Shops; lesende Review-, Einladung- und Widget-Funktionen sind voneinander abgegrenzt.
-- [ ] **RC-012 – App-Store-Connect-Testzugang vorbereiten.** Ergebnis: Test-App, Team-/App-Ressourcen-ID, API-Key-Verfahren und minimale Rollen dokumentiert.
-- [ ] **RC-013 – Google-Play-Testzugang vorbereiten.** Ergebnis: Test-App/Paket, Play-Console-Zugriff, Service-Account/OAuth-Verfahren und minimaler Scope dokumentiert.
-- [ ] **RC-014 – Datenschutz-/Kommunikationsprüfung abschließen.** Ergebnis: Datenfluss und Versandgrundlage je Zielmarkt fachlich geprüft; Consent, Opt-out, Aufbewahrung und Löschverantwortung stehen fest.
-- [ ] **RC-015 – Medienrechte prüfen.** Ergebnis: Einwilligungs-/Nutzungsrechtstext und Ablauf für Name, Bild, Stimme, Video, Untertitel, Widerruf und Veröffentlichung sind dokumentiert.
-- [ ] **RC-016 – Marken- und Trustmark-Regeln prüfen.** Ergebnis: Vorgaben zur Nutzung jedes Plattformlogos, Trustbadges, Awards und Zertifikatsassets sind in einer Checkliste erfasst.
+- [~] **RC-008 – Provider-Matrix anlegen.** Für Google, Trustpilot, Trusted Shops/eTrusted, App Store Connect und Google Play je Anbieter dokumentieren: Kontotyp/Tarif, API-Freigabe, Authentifizierung, lesbare Felder, Einladungs-/Antwortfunktionen, Limits, Attribution, Cache- und Löschpflicht, Kosten und Fallback. → Entwurf: [docs/m0/rc-008-provider-matrix.md](docs/m0/rc-008-provider-matrix.md)
+- [~] **RC-009 – Google-Zugang praktisch freischalten.** Ergebnis: registriertes Google-Cloud-Projekt, aktivierte Business-Profile-API, OAuth-Zustimmungsbildschirm, erforderliche API-Freigabe und Test-Standort. → Entwurf: [docs/m0/rc-009-013-anbieterzugaenge.md](docs/m0/rc-009-013-anbieterzugaenge.md)
+- [~] **RC-010 – Trustpilot-Zugang prüfen.** Ergebnis: dokumentierte API-/Partnerberechtigung, Test-Business-Unit, verwendbare Review- und Invitation-Endpunkte sowie Freigabe des konkreten Plugin-Use-Cases. → Entwurf: [docs/m0/rc-009-013-anbieterzugaenge.md](docs/m0/rc-009-013-anbieterzugaenge.md)
+- [~] **RC-011 – Trusted-Shops/eTrusted-Zugang prüfen.** Ergebnis: API-Client und Testkanal eines berechtigten Shops; lesende Review-, Einladung- und Widget-Funktionen sind voneinander abgegrenzt. → Entwurf: [docs/m0/rc-009-013-anbieterzugaenge.md](docs/m0/rc-009-013-anbieterzugaenge.md)
+- [~] **RC-012 – App-Store-Connect-Testzugang vorbereiten.** Ergebnis: Test-App, Team-/App-Ressourcen-ID, API-Key-Verfahren und minimale Rollen dokumentiert. → Entwurf: [docs/m0/rc-009-013-anbieterzugaenge.md](docs/m0/rc-009-013-anbieterzugaenge.md)
+- [~] **RC-013 – Google-Play-Testzugang vorbereiten.** Ergebnis: Test-App/Paket, Play-Console-Zugriff, Service-Account/OAuth-Verfahren und minimaler Scope dokumentiert. → Entwurf: [docs/m0/rc-009-013-anbieterzugaenge.md](docs/m0/rc-009-013-anbieterzugaenge.md)
+- [~] **RC-014 – Datenschutz-/Kommunikationsprüfung abschließen.** Ergebnis: Datenfluss und Versandgrundlage je Zielmarkt fachlich geprüft; Consent, Opt-out, Aufbewahrung und Löschverantwortung stehen fest. → Entwurf: [docs/m0/rc-014-datenschutz-kommunikation.md](docs/m0/rc-014-datenschutz-kommunikation.md)
+- [~] **RC-015 – Medienrechte prüfen.** Ergebnis: Einwilligungs-/Nutzungsrechtstext und Ablauf für Name, Bild, Stimme, Video, Untertitel, Widerruf und Veröffentlichung sind dokumentiert. → Entwurf: [docs/m0/rc-015-medienrechte.md](docs/m0/rc-015-medienrechte.md)
+- [~] **RC-016 – Marken- und Trustmark-Regeln prüfen.** Ergebnis: Vorgaben zur Nutzung jedes Plattformlogos, Trustbadges, Awards und Zertifikatsassets sind in einer Checkliste erfasst. → Entwurf: [docs/m0/rc-016-marken-trustmarks.md](docs/m0/rc-016-marken-trustmarks.md)
 
 **Meilenstein M0 ist erreicht, wenn:** 1.0-Scope, Kompatibilitätsziele, Lizenzmodell und die tatsächlichen Anbieterzugänge dokumentiert sind. Nicht verfügbare APIs werden sichtbar als Fallback geplant, nicht als zugesagte Synchronisierung verkauft.
 
@@ -124,7 +130,7 @@ Diese Infrastrukturentscheidungen müssen vor den davon abhängigen Core-/Pro-Im
 - [ ] **RC-043 – Manuelle externe Reviews erfassen.** Ergebnis: Eintrag verlangt Plattform, Originalbewertung, erlaubten Text, Datum, Profil-Link und Quellenhinweis.
 - [ ] **RC-044 – CSV-Export implementieren.** Ergebnis: Filterexport mit UTF-8, Zeitstempeln, Quellenfeldern und Schutz gegen Spreadsheet-Formelinjektion.
 - [ ] **RC-045 – CSV-Import mit Prüflauf implementieren.** Ergebnis: Dry-run zeigt Zeilenfehler und vermutete Duplikate; Import kann nachvollziehbar zurückgerollt werden.
-- [ ] **RC-046 – Migration aus WooCommerce, bestehenden lokalen Review-Systemen und bestehenden lokalen Review-Systemen spezifizieren.** Ergebnis: Feldmapping, Statusübernahme, Attachment-Behandlung und Grenzen werden in einer Migrationsanleitung erklärt.
+- [ ] **RC-046 – Migration aus WooCommerce und verbreiteten lokalen Review-Plugins spezifizieren.** Ergebnis: Feldmapping, Statusübernahme, Attachment-Behandlung und Grenzen werden in einer Migrationsanleitung erklärt.
 - [ ] **RC-047 – Privacy Exporter/Eraser integrieren.** Ergebnis: Reviewdaten, Autorreferenzen, Anfrage-/Consentstatus und Logs können exportiert oder fristgerecht gelöscht werden.
 - [ ] **RC-048 – Aufbewahrung und Deinstallation umsetzen.** Ergebnis: Core-Daten bleiben standardmäßig bei Deinstallation erhalten; explizite Löschoption ist verständlich und vollständig.
 
@@ -311,11 +317,6 @@ Diese Aufgaben liegen nach dem Release Candidate und vor bzw. unmittelbar nach �
 - Backups, Updates, Datenschutzlöschung, Fehlerdiagnose und Supportbetrieb sind handhabbar.
 - Offene Wettbewerbsfunktionen aus M7 sind entweder abgeschlossen oder mit Priorität/Begründung in die nächste Version verschoben.
 
-## Änderungsverlauf
-
-- 2026-11-15: Erste ausführbare Aufgabenliste aus dem Review-Captain-Konzept erstellt.
-
-
 ## Kundenspezifische Projekt-Connectoren
 
 Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile Erweiterungsmöglichkeit für kundeneigene Buchungs-, CRM-, ERP-, Mitglieder-, Kurs- und Branchensysteme. Lokale PHP-Connectoren gelten nur innerhalb derselben WordPress-Installation; andere Sites/Systeme verwenden signierte REST-/Webhook-Verträge.
@@ -352,13 +353,14 @@ Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile E
 
 ## Workflow Captain Provider-Vertrag
 
-- [ ] RC-WF-01 – Öffentlichen Providervertrag v1 mit Schema-Version, stabiler Event-ID, Capability, Entitlement, Payload-Allowlist, Idempotency-Key und Deprecation-Regel dokumentieren.
-- [ ] RC-WF-02 – Post-Commit-Events für Anfrage geplant/übersprungen/gesendet/fehlgeschlagen, Erinnerung, Antwort, Review erstellt/moderiert/veröffentlicht/zurückgezogen und Opt-out bereitstellen; keine Reviewtexte, E-Mail oder Tokens in Logs.
-- [ ] RC-WF-03 – Services zum Planen/Abbrechen zulässiger Anfragen, Erstellen genehmigter Entwürfe und Lesen datensparsamer Aggregate anbieten. Workflow darf Einladungsberechtigung, Consent, Opt-out, Suppression, Frequenzlimits, Plattformziel oder Moderation nicht umgehen.
-- [ ] RC-WF-04 – Suite-Trigger und erweiterte Actions an Review-Pro-Recht binden, native Queue als Standard behalten und explizite Ownership-Übergabe unterstützen; parallele Woo/Pass/Voucher/Workflow-Einladungen deduplizieren.
-- [ ] RC-WF-05 – Review-Admin um Workflow-Verbindung, Contract-Version, aktive Übergabe, Eventannahme, Ablehnungsgrund und Retrystatus ergänzen; fehlendes/inkompatibles Workflow lässt Review Core normal laufen.
-- [ ] RC-WF-06 – Pass-Check-in und qualifizierte Voucher-Leistung dürfen Anfrage planen; Refund, Absage, No-show, Consent fehlt, Opt-out und Duplikat blockieren. Form-Entry darf nur explizit gemappten pending/unverified Entwurf übergeben.
-- Abnahme: Workflow kann Review-Regeln, Moderation und Einwilligung nicht umgehen; höchstens eine Einladung je Experience/Empfänger/Kampagne.
+- [ ] **RC-WF-01 – Öffentlichen Providervertrag v1 mit Schema-Version, stabiler Event-ID, Capability, Entitlement, Payload-Allowlist, Idempotency-Key und Deprecation-Regel dokumentieren.**
+- [ ] **RC-WF-02 – Post-Commit-Events für Anfrage geplant/übersprungen/gesendet/fehlgeschlagen, Erinnerung, Antwort, Review erstellt/moderiert/veröffentlicht/zurückgezogen und Opt-out bereitstellen; keine Reviewtexte, E-Mail oder Tokens in Logs.**
+- [ ] **RC-WF-03 – Services zum Planen/Abbrechen zulässiger Anfragen, Erstellen genehmigter Entwürfe und Lesen datensparsamer Aggregate anbieten.** Workflow darf Einladungsberechtigung, Consent, Opt-out, Suppression, Frequenzlimits, Plattformziel oder Moderation nicht umgehen.
+- [ ] **RC-WF-04 – Suite-Trigger und erweiterte Actions an Review-Pro-Recht binden, native Queue als Standard behalten und explizite Ownership-Übergabe unterstützen; parallele Woo/Pass/Voucher/Workflow-Einladungen deduplizieren.**
+- [ ] **RC-WF-05 – Review-Admin um Workflow-Verbindung, Contract-Version, aktive Übergabe, Eventannahme, Ablehnungsgrund und Retrystatus ergänzen; fehlendes/inkompatibles Workflow lässt Review Core normal laufen.**
+- [ ] **RC-WF-06 – Pass-Check-in und qualifizierte Voucher-Leistung dürfen Anfrage planen; Refund, Absage, No-show, Consent fehlt, Opt-out und Duplikat blockieren.** Form-Entry darf nur explizit gemappten pending/unverified Entwurf übergeben.
+
+**Abnahme Workflow-Vertrag:** Workflow kann Review-Regeln, Moderation und Einwilligung nicht umgehen; höchstens eine Einladung je Experience/Empfänger/Kampagne.
 
 
 ## Plugin-Einstellungen: Prioritäten, Sortierung und Umsetzung
@@ -456,3 +458,8 @@ Die Einstellungsseite soll globale Standardwerte und Richtlinien enthalten. Obje
 - [ ] **SEO-015 – Crawlbare Server-Rendering-Ausgabe sicherstellen.** Ergebnis: sichtbare Reviewtexte, Quellen und Ratings sind ohne Client-JavaScript lesbar; externe Ressourcen bleiben consent-gesteuert.
 - [ ] **SEO-016 – Strukturierte Daten und Yoast-Konflikte abnehmen.** Ergebnis: Szenarien decken Review Captain allein, Yoast SEO, WooCommerce-Produkt, Fremdreviews, lokale Unternehmensreviews, zusätzliche Schema-Plugins und noindex-Seiten ab.
 - [ ] **SEO-017 – SEO-Dokumentation und Release-Checkliste veröffentlichen.** Ergebnis: Markupgrenzen, Yoast-Konfiguration, Rich-Results-Erwartung und Fehlerdiagnose sind dokumentiert und vor Release verifiziert.
+
+## Änderungsverlauf
+
+- 2026-11-15: Erste ausführbare Aufgabenliste aus dem Review-Captain-Konzept erstellt.
+- 2026-11-16: Nacharbeit der Wettbewerber-Anonymisierung (Konzept §3, RC-046), einheitliches ID-Format für RC-WF, Statuskennzeichnung `[~]` eingeführt; M0-Entwürfe RC-001 bis RC-016 unter [docs/m0](docs/m0/README.md) angelegt.
