@@ -143,6 +143,9 @@ final class Uninstaller {
 		}
 		foreach ( array_unique( $hooks ) as $hook ) {
 			wp_clear_scheduled_hook( $hook );
+			if ( function_exists( 'as_unschedule_all_actions' ) ) {
+				as_unschedule_all_actions( $hook, array(), 'review-captain' );
+			}
 		}
 	}
 }

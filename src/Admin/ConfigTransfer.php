@@ -118,6 +118,7 @@ final class ConfigTransfer {
 				}
 				if ( 'array' === $schema[ $tab ][ $key ]['type'] && str_ends_with( $key, '_roles' ) && is_array( $value ) ) {
 					$value = array_values( array_filter( $value, static fn( $role ) => is_string( $role ) && null !== get_role( $role ) ) );
+					$value = array_values( array_unique( array_merge( array( 'administrator' ), $value ) ) );
 				}
 				$input[ $tab ][ $key ] = $value;
 			}

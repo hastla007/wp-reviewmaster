@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace ReviewCaptain\Admin;
 
 use ReviewCaptain\Domain\Platform;
-use ReviewCaptain\Domain\Review;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 
@@ -31,9 +30,9 @@ final class WidgetsPage {
 		return array(
 			'layout'       => 'grid',
 			'platform'     => '',
-			'kind'         => 'all',
+			'kind'         => 'review',
 			'min_rating'   => '',
-			'limit'        => '6',
+			'limit'        => '10',
 			'context_type' => '',
 			'context_id'   => '',
 			'show_source'  => '1',
@@ -43,6 +42,11 @@ final class WidgetsPage {
 	}
 
 	/**
+	 * Context types allowed by widget contract v1.
+	 */
+	public const CONTEXT_TYPES = array( 'post', 'product', 'event', 'voucher', 'app', 'form' );
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Plugin $plugin Plugin.
@@ -50,7 +54,7 @@ final class WidgetsPage {
 	public function __construct( private Plugin $plugin ) {}
 
 	/**
-	 * Sanitize generator input to attribute values.
+	 * Sanitize generator input to attribute values (rules of docs/contracts/widget-v1.md).
 	 *
 	 * @param array<string, mixed> $input Raw input.
 	 * @return array<string, string>
@@ -63,34 +67,52 @@ final class WidgetsPage {
 		$out['layout'] = in_array( $layout, array( 'grid', 'list' ), true ) ? $layout : $d['layout'];
 
 		$platforms = array();
-		foreach ( array_filter( array_map( 'trim', explode( ',', (string) ( $input['platform'] ?? '' ) ) ) ) as $p ) {
+		foreach ( self::csv( $input['platform'] ?? '' ) as $p ) {
 			$p = sanitize_key( $p );
 			if ( in_array( $p, Platform::values(), true ) ) {
 				$platforms[] = $p;
 			}
 		}
-		$out['platform'] = implode( ',', array_unique( $platforms ) );
+		$out['platform'] = implode( ',', array_values( array_unique( $platforms ) ) );
 
 		$kind        = sanitize_key( (string) ( $input['kind'] ?? '' ) );
 		$out['kind'] = in_array( $kind, array( 'review', 'testimonial', 'all' ), true ) ? $kind : $d['kind'];
 
-		$min               = (string) ( $input['min_rating'] ?? '' );
-		$out['min_rating'] = is_numeric( $min ) && (int) $min >= 1 && (int) $min <= 5 ? (string) (int) $min : '';
+		$min               = str_replace( ',', '.', trim( (string) ( $input['min_rating'] ?? '' ) ) );
+		$out['min_rating'] = preg_match( '/^[1-5](\.\d)?$/', $min ) && (float) $min <= 5.0 ? $min : '';
 
-		$limit        = absint( $input['limit'] ?? $d['limit'] );
-		$out['limit'] = (string) max( 1, min( 50, $limit > 0 ? $limit : (int) $d['limit'] ) );
+		$limit        = is_numeric( $input['limit'] ?? null ) ? (int) $input['limit'] : (int) $d['limit'];
+		$out['limit'] = (string) max( 1, min( 50, $limit ) );
 
 		$ctx                 = sanitize_key( (string) ( $input['context_type'] ?? '' ) );
-		$out['context_type'] = in_array( $ctx, Review::CONTEXT_TYPES, true ) ? $ctx : '';
-		$out['context_id']   = '' !== $out['context_type'] ? preg_replace( '/[^A-Za-z0-9_\-]/', '', (string) ( $input['context_id'] ?? '' ) ) ?? '' : '';
-		$out['context_id']   = mb_substr( $out['context_id'], 0, 64 );
+		$out['context_type'] = in_array( $ctx, self::CONTEXT_TYPES, true ) ? $ctx : '';
+		$ctx_id              = (string) preg_replace( '/[^A-Za-z0-9_.:\-]/', '', (string) ( $input['context_id'] ?? '' ) );
+		$out['context_id']   = '' !== $out['context_type'] ? mb_substr( $ctx_id, 0, 64 ) : '';
 
 		foreach ( array( 'show_source', 'show_date' ) as $flag ) {
-			$out[ $flag ] = ! empty( $input[ $flag ] ) && '0' !== (string) $input[ $flag ] ? '1' : '0';
+			$value        = strtolower( trim( (string) ( $input[ $flag ] ?? $d[ $flag ] ) ) );
+			$out[ $flag ] = in_array( $value, array( '0', 'false' ), true ) ? '0' : ( in_array( $value, array( '1', 'true' ), true ) ? '1' : $d[ $flag ] );
 		}
-		$profile        = absint( $input['profile'] ?? 0 );
-		$out['profile'] = $profile > 0 ? (string) $profile : '';
+
+		$profiles = array();
+		foreach ( self::csv( $input['profile'] ?? '' ) as $id ) {
+			if ( ctype_digit( $id ) && (int) $id > 0 ) {
+				$profiles[] = (string) (int) $id;
+			}
+		}
+		$out['profile'] = implode( ',', array_values( array_unique( $profiles ) ) );
 		return $out;
+	}
+
+	/**
+	 * Split a comma list (string or array).
+	 *
+	 * @param mixed $value Value.
+	 * @return list<string>
+	 */
+	private static function csv( mixed $value ): array {
+		$items = is_array( $value ) ? $value : explode( ',', (string) $value );
+		return array_values( array_filter( array_map( static fn( $v ) => trim( (string) $v ), $items ), static fn( $v ) => '' !== $v ) );
 	}
 
 	/**
@@ -103,8 +125,6 @@ final class WidgetsPage {
 		$parts = array( 'v="1"' );
 		foreach ( self::defaults() as $key => $default ) {
 			if ( $atts[ $key ] !== $default && '' !== $atts[ $key ] ) {
-				$parts[] = $key . '="' . $atts[ $key ] . '"';
-			} elseif ( in_array( $key, array( 'show_source', 'show_date' ), true ) && $atts[ $key ] !== $default ) {
 				$parts[] = $key . '="' . $atts[ $key ] . '"';
 			}
 		}
@@ -159,7 +179,7 @@ final class WidgetsPage {
 		}
 		$this->select( 'min_rating', __( 'Mindestbewertung', 'review-captain' ), $ratings, $atts['min_rating'], __( 'Andere Skalen werden nur zum Filtern umgerechnet; angezeigt wird immer die Originalbewertung.', 'review-captain' ) );
 		echo '<tr><th scope="row"><label for="rc-w-limit">' . esc_html__( 'Anzahl', 'review-captain' ) . '</label></th><td><input type="number" min="1" max="50" id="rc-w-limit" name="limit" class="small-text" value="' . esc_attr( $atts['limit'] ) . '" /></td></tr>';
-		$contexts = ReviewsPage::context_choices();
+		$contexts = array_intersect_key( ReviewsPage::context_choices(), array_flip( array_merge( array( '' ), self::CONTEXT_TYPES ) ) );
 		$this->select( 'context_type', __( 'Bezug', 'review-captain' ), $contexts, $atts['context_type'] );
 		echo '<tr><th scope="row"><label for="rc-w-context_id">' . esc_html__( 'Bezugs-ID', 'review-captain' ) . '</label></th><td><input type="text" id="rc-w-context_id" name="context_id" class="regular-text" value="' . esc_attr( $atts['context_id'] ) . '" /><p class="description">' . esc_html__( 'z. B. Produkt- oder Beitrags-ID. Leer = alle.', 'review-captain' ) . '</p></td></tr>';
 		$profiles = array( '' => __( 'Alle Profile', 'review-captain' ) );
@@ -177,7 +197,7 @@ final class WidgetsPage {
 		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Dein Shortcode', 'review-captain' ) . '</h2></div><div class="inside">';
 		echo '<label class="screen-reader-text" for="rc-shortcode">' . esc_html__( 'Shortcode', 'review-captain' ) . '</label>';
 		echo '<textarea id="rc-shortcode" class="large-text code" rows="3" readonly>' . esc_textarea( $shortcode ) . '</textarea>';
-		echo '<p><button type="button" class="button rc-admin-copy" data-target="rc-shortcode" hidden>' . esc_html__( 'Kopieren', 'review-captain' ) . '</button> <span class="rc-admin-copy-status" aria-live="polite"></span></p>';
+		echo '<p><button type="button" class="button rc-admin-copy" data-target="rc-shortcode" data-done="' . esc_attr__( 'Kopiert', 'review-captain' ) . '" hidden>' . esc_html__( 'Kopieren', 'review-captain' ) . '</button> <span class="rc-admin-copy-status" aria-live="polite"></span></p>';
 		echo '<p class="description">' . esc_html__( 'In einen Shortcode-Block, ein klassisches Textfeld oder ein Widget-Feld einfügen.', 'review-captain' ) . '</p></div></div>';
 
 		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Block-Editor', 'review-captain' ) . '</h2></div><div class="inside">';
