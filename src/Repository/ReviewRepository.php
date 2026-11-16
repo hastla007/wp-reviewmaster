@@ -362,7 +362,7 @@ class ReviewRepository {
 	 */
 	public static function purge_related( int $id ): void {
 		global $wpdb;
-		foreach ( array( 'review_events', 'review_tags', 'review_reports' ) as $key ) {
+		foreach ( array( 'review_events', 'review_tags', 'review_reports', 'review_revisions' ) as $key ) {
 			$wpdb->delete( Schema::table( $key ), array( 'review_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		}
 		PhotoStore::delete_for_review( $id );

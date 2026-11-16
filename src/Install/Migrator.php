@@ -64,6 +64,9 @@ final class Migrator {
 					}
 				} while ( count( $ids ) === 5000 );
 			},
+			4 => static function (): void {
+				// Schema v4 (RC-125A): dbDelta creates review_revisions; no data to migrate.
+			},
 		);
 	}
 }

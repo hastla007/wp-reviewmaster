@@ -295,6 +295,14 @@ class PersonalData {
 			__( 'Veröffentlicht am', 'review-captain' )           => (string) $r->published_at,
 			__( 'Erstellt am (UTC)', 'review-captain' )           => $r->created_at,
 			__( 'Foto', 'review-captain' )                        => null !== $r->id && null !== PhotoStore::for_review( $r->id ) ? __( 'ja (wird bei Löschung oder Anonymisierung entfernt)', 'review-captain' ) : '',
+			// RC-125A: earlier and proposed versions of author corrections.
+			__( 'Fassungen (Korrekturen)', 'review-captain' )      => null === $r->id ? '' : implode(
+				"\n",
+				array_map(
+					static fn( array $v ): string => sprintf( '[%s %s] %s / %s – %s', $v['status'], $v['created_at'], self::num( (float) $v['rating_value'] ), $v['title'], $v['body'] ),
+					\ReviewCaptain\Moderation\CorrectionService::versions( (int) $r->id )
+				)
+			),
 		);
 		$out = array();
 		foreach ( $fields as $name => $value ) {

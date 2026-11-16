@@ -48,6 +48,10 @@ final class FrontendModule implements Module {
 		$plugin->factory( 'form_handler', static fn( Plugin $p ): FormHandler => new FormHandler( $p ) );
 		$plugin->factory( 'report_handler', static fn( Plugin $p ): ReportHandler => new ReportHandler( $p ) );
 		$plugin->factory( 'question_handler', static fn( Plugin $p ): QuestionHandler => new QuestionHandler( $p ) );
+		$plugin->factory( 'correction_handler', static fn( Plugin $p ): \ReviewCaptain\Moderation\CorrectionHandler => new \ReviewCaptain\Moderation\CorrectionHandler( $p ) );
+		// RC-125A author corrections (checks its own setting).
+		add_action( 'admin_post_' . \ReviewCaptain\Moderation\CorrectionHandler::ACTION, array( $this, 'handle_correction' ) );
+		add_action( 'admin_post_nopriv_' . \ReviewCaptain\Moderation\CorrectionHandler::ACTION, array( $this, 'handle_correction' ) );
 
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_early' ) );
@@ -58,6 +62,22 @@ final class FrontendModule implements Module {
 			add_action( 'admin_post_' . $action, array( $this, $method ) );
 			add_action( 'admin_post_nopriv_' . $action, array( $this, $method ) );
 		}
+	}
+
+	/**
+	 * admin-post: author correction (RC-125A).
+	 */
+	public function handle_correction(): void {
+		$this->plugin->get( 'correction_handler' )->handle();
+	}
+
+	/**
+	 * [review_captain_correction] (RC-125A).
+	 *
+	 * @param array<string, mixed>|string $atts Attributes.
+	 */
+	public function shortcode_correction( $atts = array() ): string {
+		return $this->plugin->get( 'correction_handler' )->shortcode( $atts );
 	}
 
 	/**
@@ -124,6 +144,7 @@ final class FrontendModule implements Module {
 		add_shortcode( self::SHORTCODE_FORM, array( $this, 'shortcode_form' ) );
 		add_shortcode( self::SHORTCODE_CTA, array( $this, 'shortcode_cta' ) );
 		add_shortcode( QuestionHandler::SHORTCODE, array( $this, 'shortcode_qa' ) );
+		add_shortcode( \ReviewCaptain\Moderation\CorrectionHandler::SHORTCODE, array( $this, 'shortcode_correction' ) );
 		self::register_assets();
 		$this->register_blocks();
 		$this->registry()->boot();

@@ -202,39 +202,43 @@ msgstr ""
 msgid "Review Captain benötigt mindestens PHP %1$s und WordPress %2$s. Das Plugin ist deshalb inaktiv."
 msgstr ""
 
-#: src/Admin/AdminModule.php:92 src/Admin/AdminModule.php:93 src/Admin/DiagnosticsPage.php:313 src/Integrations/Elementor/ElementorModule.php:58 src/Integrations/Elementor/ReviewsWidget.php:26 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
+#: src/Admin/AdminModule.php:93 src/Admin/AdminModule.php:94 src/Admin/DiagnosticsPage.php:313 src/Integrations/Elementor/ElementorModule.php:58 src/Integrations/Elementor/ReviewsWidget.php:26 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
 msgid "Review Captain"
 msgstr ""
 
-#: src/Admin/AdminModule.php:101
+#: src/Admin/AdminModule.php:102
 msgid "Dashboard"
 msgstr ""
 
-#: src/Admin/AdminModule.php:102 src/Admin/ReviewsPage.php:73 src/Admin/SourcesPage.php:67
+#: src/Admin/AdminModule.php:103 src/Admin/ReviewsPage.php:73 src/Admin/SourcesPage.php:67
 msgid "Reviews"
 msgstr ""
 
-#: src/Admin/AdminModule.php:103 src/Admin/WidgetsPage.php:151
+#: src/Admin/AdminModule.php:104 src/Admin/WidgetsPage.php:151
 msgid "Widgets"
 msgstr ""
 
-#: src/Admin/AdminModule.php:104 src/Admin/SourcesPage.php:57
+#: src/Admin/AdminModule.php:105 src/Admin/SourcesPage.php:57
 msgid "Quellen & Profile"
 msgstr ""
 
-#: src/Admin/AdminModule.php:105 src/Admin/SettingsFields.php:141 src/Admin/SettingsPage.php:476
+#: src/Admin/AdminModule.php:106 src/Admin/SettingsFields.php:141 src/Admin/SettingsPage.php:476
 msgid "Einstellungen"
 msgstr ""
 
-#: src/Admin/AdminModule.php:106 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:280
+#: src/Admin/AdminModule.php:107 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:280
 msgid "Diagnose"
 msgstr ""
 
-#: src/Admin/AdminModule.php:110 src/Admin/QuestionsPage.php:65
+#: src/Admin/AdminModule.php:111 src/Admin/QuestionsPage.php:65
 msgid "Fragen & Antworten"
 msgstr ""
 
-#: src/Admin/AdminModule.php:113
+#: src/Admin/AdminModule.php:114 src/Admin/CorrectionsPage.php:65
+msgid "Korrekturen"
+msgstr ""
+
+#: src/Admin/AdminModule.php:117
 msgid "Feedback-Links"
 msgstr ""
 
@@ -244,6 +248,50 @@ msgstr ""
 
 #: src/Admin/ConfigTransfer.php:226
 msgid "aus"
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:69
+msgid "Korrektur freigegeben und veröffentlicht."
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:70
+msgid "Korrektur abgelehnt. Die bisherige Fassung bleibt veröffentlicht."
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:71
+msgid "Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden."
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:72 src/Admin/DashboardPage.php:57 src/Admin/DiagnosticsPage.php:277 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:467 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144
+msgid "Dafür fehlt dir die Berechtigung."
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:89 src/Admin/ReviewsListTable.php:141 src/Admin/ReviewsListTable.php:284
+msgid "Freigeben"
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:89 src/Admin/ReviewsListTable.php:142
+msgid "Ablehnen"
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:66
+msgid "Von Autorinnen und Autoren eingereichte Änderungen an bereits freigegebenen Bewertungen. Die bisherige Fassung bleibt sichtbar, bis du die neue freigibst."
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:78
+msgid "Keine offenen Korrekturen."
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:81 src/Admin/SettingsPage.php:795
+msgid "Bisher"
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:81 src/Admin/SettingsPage.php:795
+msgid "Neu"
+msgstr ""
+
+#: src/Admin/CorrectionsPage.php:81 src/Admin/ReviewsPage.php:509 src/ImportExport/ImportExportModule.php:317
+msgid "Aktion"
 msgstr ""
 
 #: src/Admin/DashboardPage.php:66 src/Admin/DashboardPage.php:74
@@ -296,10 +344,6 @@ msgstr ""
 
 #: src/Admin/DashboardPage.php:180
 msgid "Captain-Suite-Integrationen und Connectoren"
-msgstr ""
-
-#: src/Admin/DashboardPage.php:57 src/Admin/DiagnosticsPage.php:277 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:467 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144 src/ImportExport/ImportExportModule.php:178
-msgid "Dafür fehlt dir die Berechtigung."
 msgstr ""
 
 #: src/Admin/DashboardPage.php:72
@@ -890,7 +934,7 @@ msgstr ""
 msgid "Bewertung"
 msgstr ""
 
-#: src/Admin/ReviewsListTable.php:109 src/Admin/ReviewsPage.php:266 src/Admin/ReviewsPage.php:359 src/Admin/ReviewsPage.php:329 src/Privacy/PersonalData.php:287
+#: src/Admin/ReviewsListTable.php:109 src/Admin/ReviewsPage.php:266 src/Admin/ReviewsPage.php:359 src/Admin/ReviewsPage.php:329 src/Moderation/CorrectionHandler.php:141 src/Privacy/PersonalData.php:287
 msgid "Text"
 msgstr ""
 
@@ -900,14 +944,6 @@ msgstr ""
 
 #: src/Admin/ReviewsListTable.php:113 src/Admin/ReviewsPage.php:479 src/Admin/ReviewsPage.php:278 src/Privacy/PersonalData.php:292
 msgid "Verifizierung"
-msgstr ""
-
-#: src/Admin/ReviewsListTable.php:141 src/Admin/ReviewsListTable.php:284
-msgid "Freigeben"
-msgstr ""
-
-#: src/Admin/ReviewsListTable.php:142
-msgid "Ablehnen"
 msgstr ""
 
 #: src/Admin/ReviewsListTable.php:143
@@ -1066,7 +1102,7 @@ msgstr ""
 msgid "%d von 5"
 msgstr ""
 
-#: src/Admin/ReviewsPage.php:265 src/Admin/ReviewsPage.php:328 src/Admin/ReviewsPage.php:358 src/Privacy/PersonalData.php:286
+#: src/Admin/ReviewsPage.php:265 src/Admin/ReviewsPage.php:328 src/Admin/ReviewsPage.php:358 src/Moderation/CorrectionHandler.php:140 src/Privacy/PersonalData.php:286
 msgid "Titel"
 msgstr ""
 
@@ -1300,10 +1336,6 @@ msgstr ""
 
 #: src/Admin/ReviewsPage.php:504
 msgid "Änderungsverlauf"
-msgstr ""
-
-#: src/Admin/ReviewsPage.php:509 src/ImportExport/ImportExportModule.php:317
-msgid "Aktion"
 msgstr ""
 
 #: src/Admin/ReviewsPage.php:509
@@ -2038,14 +2070,6 @@ msgstr ""
 msgid "Einstellung"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:795
-msgid "Bisher"
-msgstr ""
-
-#: src/Admin/SettingsPage.php:795
-msgid "Neu"
-msgstr ""
-
 #: src/Admin/SettingsPage.php:803
 msgid "Import übernehmen"
 msgstr ""
@@ -2671,7 +2695,7 @@ msgstr ""
 msgid "Danke! Ihre Bewertung wird nach Prüfung veröffentlicht."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:449 src/Frontend/Renderer.php:390
+#: src/Frontend/FormHandler.php:449 src/Frontend/Renderer.php:402
 msgid "Bewertungen können derzeit nicht abgegeben werden."
 msgstr ""
 
@@ -2803,40 +2827,44 @@ msgstr ""
 msgid "Foto zur Bewertung"
 msgstr ""
 
-#: src/Frontend/Renderer.php:324
+#: src/Frontend/Renderer.php:275
+msgid "bearbeitet am %s"
+msgstr ""
+
+#: src/Frontend/Renderer.php:336
 msgid "%1$s von %2$s Sternen"
 msgstr ""
 
-#: src/Frontend/Renderer.php:334
+#: src/Frontend/Renderer.php:346
 msgid "%1$s von %2$s Punkten"
 msgstr ""
 
-#: src/Frontend/Renderer.php:482
+#: src/Frontend/Renderer.php:494
 msgid "Produkt %s"
 msgstr ""
 
-#: src/Frontend/Renderer.php:492
+#: src/Frontend/Renderer.php:504
 msgid "Danke für Ihre Meldung. Wir prüfen die Bewertung."
 msgstr ""
 
-#: src/Frontend/Renderer.php:495
+#: src/Frontend/Renderer.php:507
 msgid "Die Meldung konnte nicht übermittelt werden. Bitte versuchen Sie es später erneut."
 msgstr ""
 
-#: src/Frontend/Renderer.php:522
+#: src/Frontend/Renderer.php:534
 msgid "Bewerte uns auf %s"
 msgstr ""
 
-#: src/Frontend/Renderer.php:588
+#: src/Frontend/Renderer.php:600
 msgid "vor %s"
 msgstr ""
 
-#: src/Frontend/Renderer.php:509
+#: src/Frontend/Renderer.php:521
 msgid "Review Captain: Das Bewertungsprofil für diesen Aufruf wurde nicht gefunden oder hat keine gültige https-Adresse."
 msgstr ""
 
 #. translators: 1: platform name, 2: average, 3: scale max, 4: number of reviews
-#: src/Frontend/Renderer.php:364
+#: src/Frontend/Renderer.php:376
 msgid "%1$s: %2$s von %3$s (%4$s Bewertung)"
 msgid_plural "%1$s: %2$s von %3$s (%4$s Bewertungen)"
 msgstr[0] ""
@@ -3318,6 +3346,66 @@ msgstr ""
 msgid "Das Foto konnte nicht hochgeladen werden."
 msgstr ""
 
+#: src/Moderation/CorrectionHandler.php:156
+msgid "Wenn zu dieser Adresse veröffentlichte Bewertungen existieren, haben wir Ihnen einen Link geschickt. Er ist eine Stunde gültig."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:157
+msgid "Danke! Ihre Korrektur wird geprüft und danach veröffentlicht."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:158
+msgid "Ihre Bewertung wurde zurückgezogen und wird nicht mehr angezeigt."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:159
+msgid "Der Link ist abgelaufen oder ungültig. Bitte fordern Sie einen neuen an."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:160
+msgid "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:161
+msgid "Es wurde nichts geändert."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:162
+msgid "Das hat nicht geklappt. Bitte prüfen Sie Ihre Angaben."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:176
+msgid "Ihre Bewertung bei %s bearbeiten"
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:178
+msgid "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:135
+msgid "E-Mail-Adresse, mit der Sie bewertet haben"
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:136
+msgid "Link zum Bearbeiten senden"
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:139
+msgid "Bewertung (1–5)"
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:142
+msgid "Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt die bisherige Fassung sichtbar."
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:143
+msgid "Korrektur einreichen"
+msgstr ""
+
+#: src/Moderation/CorrectionHandler.php:144
+msgid "Bewertung zurückziehen"
+msgstr ""
+
 #: src/Moderation/ReportStore.php:29
 msgid "Spam oder Werbung"
 msgstr ""
@@ -3376,6 +3464,10 @@ msgstr ""
 
 #: src/Privacy/PersonalData.php:297
 msgid "ja (wird bei Löschung oder Anonymisierung entfernt)"
+msgstr ""
+
+#: src/Privacy/PersonalData.php:299
+msgid "Fassungen (Korrekturen)"
 msgstr ""
 
 #: src/Privacy/PrivacyModule.php:88
@@ -3741,15 +3833,15 @@ msgstr ""
 msgid "Frage senden"
 msgstr ""
 
-#: templates/review-card.php:66
+#: templates/review-card.php:69
 msgid "Melden"
 msgstr ""
 
-#: templates/review-card.php:72
+#: templates/review-card.php:75
 msgid "Warum soll diese Bewertung geprüft werden?"
 msgstr ""
 
-#: templates/review-card.php:78
+#: templates/review-card.php:81
 msgid "Meldung senden"
 msgstr ""
 

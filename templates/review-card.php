@@ -54,6 +54,9 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 		<?php if ( ! empty( $rc['date'] ) ) : ?>
 			<time class="rc-date" datetime="<?php echo esc_attr( $rc['date']['iso'] ); ?>"><?php echo esc_html( $rc['date']['text'] ); ?></time>
 		<?php endif; ?>
+		<?php if ( ! empty( $rc['edited'] ) ) : ?>
+			<span class="rc-edited">(<time datetime="<?php echo esc_attr( $rc['edited']['iso'] ); ?>"><?php echo esc_html( $rc['edited']['text'] ); ?></time>)</span>
+		<?php endif; ?>
 		<?php if ( ! empty( $rc['source'] ) ) : ?>
 			<span class="rc-source rc-source--<?php echo esc_attr( $rc['source']['platform'] ); ?>"><?php echo esc_html( $rc['source']['label'] ); ?></span>
 			<?php if ( '' !== $rc['source']['url'] ) : ?>

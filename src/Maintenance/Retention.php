@@ -44,6 +44,7 @@ class Retention {
 			'logs_deleted'      => 0,
 			'jobs_deleted'      => 0,
 			'questions_deleted' => 0,
+			'revisions_deleted' => 0,
 			'complete'          => true,
 		);
 
@@ -88,7 +89,10 @@ class Retention {
 			$out['complete'] = false;
 		}
 
-		$total = $out['rejected_deleted'] + $out['external_deleted'] + $out['logs_deleted'] + $out['jobs_deleted'] + $out['questions_deleted'];
+		// 5. Decided author-correction versions (RC-125A), 90 days after the decision.
+		$out['revisions_deleted'] = microtime( true ) < $deadline ? \ReviewCaptain\Moderation\CorrectionService::purge_old() : 0;
+
+		$total = $out['rejected_deleted'] + $out['external_deleted'] + $out['logs_deleted'] + $out['jobs_deleted'] + $out['questions_deleted'] + $out['revisions_deleted'];
 		if ( $total > 0 ) {
 			$this->plugin->audit()->record(
 				'retention.purged',

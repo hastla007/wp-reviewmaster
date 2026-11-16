@@ -17,14 +17,14 @@ final class Schema {
 	/**
 	 * Bump on every schema change and add a migration step in Migrator.
 	 */
-	public const VERSION = 3;
+	public const VERSION = 4;
 
 	public const OPTION_VERSION = 'review_captain_db_version';
 
 	/**
 	 * Logical table keys.
 	 */
-	public const TABLES = array( 'reviews', 'review_events', 'profiles', 'jobs', 'import_batches', 'audit_log', 'review_tags', 'review_reports', 'review_media', 'questions' );
+	public const TABLES = array( 'reviews', 'review_events', 'profiles', 'jobs', 'import_batches', 'audit_log', 'review_tags', 'review_reports', 'review_media', 'questions', 'review_revisions' );
 
 	/**
 	 * Fully qualified table name for the current site.
@@ -53,6 +53,7 @@ final class Schema {
 		$audit_log      = self::table( 'audit_log' );
 		$review_tags    = self::table( 'review_tags' );
 		$review_reports = self::table( 'review_reports' );
+		$review_revisions = self::table( 'review_revisions' );
 		$review_media   = self::table( 'review_media' );
 		$questions      = self::table( 'questions' );
 
@@ -207,6 +208,23 @@ final class Schema {
   PRIMARY KEY  (id),
   KEY review_id (review_id),
   KEY resolved_at (resolved_at)
+) {$c};",
+			'review_revisions' => "CREATE TABLE {$review_revisions} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  review_id bigint(20) unsigned NOT NULL,
+  base_revision int(10) unsigned NOT NULL DEFAULT 0,
+  status varchar(20) NOT NULL DEFAULT 'proposed',
+  rating_value decimal(4,2) NULL,
+  title varchar(191) NOT NULL DEFAULT '',
+  body text NOT NULL,
+  channel varchar(10) NOT NULL DEFAULT 'link',
+  decided_by bigint(20) unsigned NULL,
+  decided_at datetime NULL,
+  reason varchar(40) NOT NULL DEFAULT '',
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY review_status (review_id,status),
+  KEY status_created (status,created_at)
 ) {$c};",
 			'review_media'   => "CREATE TABLE {$review_media} (
   id bigint(20) unsigned NOT NULL AUTO_INCREMENT,

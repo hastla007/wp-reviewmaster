@@ -295,3 +295,22 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 		public function display() { $this->extra_tablenav( 'top' ); if ( ! $this->has_items() ) { $this->no_items(); return; } foreach ( $this->items as $item ) { foreach ( array_keys( $this->get_columns() ) as $col ) { $m = 'column_' . $col; echo method_exists( $this, $m ) ? $this->$m( $item ) : $this->column_default( $item, $col ); } } }
 	}
 }
+
+if ( ! class_exists( 'WP_Error' ) ) {
+	/** Minimal WP_Error (tests). */
+	class WP_Error {
+		/** @var string */
+		public $code;
+		/** @var string */
+		public $message;
+		public function __construct( $code = '', $message = '' ) { $this->code = (string) $code; $this->message = (string) $message; }
+		public function get_error_code() { return $this->code; }
+		public function get_error_message() { return $this->message; }
+	}
+}
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $thing ) { return $thing instanceof WP_Error; }
+}
+if ( ! function_exists( 'wp_specialchars_decode' ) ) {
+	function wp_specialchars_decode( $s, $q = ENT_NOQUOTES ) { return htmlspecialchars_decode( (string) $s, $q ); }
+}

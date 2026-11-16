@@ -16,7 +16,7 @@ use ReviewCaptain\Tests\TestCase;
 final class SchemaV3Test extends TestCase {
 
 	public function test_definition_has_sorted_at_and_index(): void {
-		$this->assertSame( 3, Schema::VERSION );
+		$this->assertGreaterThanOrEqual( 3, Schema::VERSION );
 		$def = Schema::definitions()['reviews'];
 		$this->assertStringContainsString( 'sorted_at datetime NULL', $def );
 		$this->assertStringContainsString( 'KEY status_sorted (status,sorted_at)', $def );

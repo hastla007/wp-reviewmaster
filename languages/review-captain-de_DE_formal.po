@@ -3815,3 +3815,72 @@ msgstr "Seitenweise"
 
 msgid "Profil-ID"
 msgstr "Profil-ID"
+
+msgid "Korrekturen"
+msgstr "Korrekturen"
+
+msgid "Korrektur freigegeben und veröffentlicht."
+msgstr "Korrektur freigegeben und veröffentlicht."
+
+msgid "Keine offenen Korrekturen."
+msgstr "Keine offenen Korrekturen."
+
+msgid "bearbeitet am %s"
+msgstr "bearbeitet am %s"
+
+msgid "Danke! Ihre Korrektur wird geprüft und danach veröffentlicht."
+msgstr "Danke! Ihre Korrektur wird geprüft und danach veröffentlicht."
+
+msgid "Ihre Bewertung wurde zurückgezogen und wird nicht mehr angezeigt."
+msgstr "Ihre Bewertung wurde zurückgezogen und wird nicht mehr angezeigt."
+
+msgid "Der Link ist abgelaufen oder ungültig. Bitte fordern Sie einen neuen an."
+msgstr "Der Link ist abgelaufen oder ungültig. Bitte fordern Sie einen neuen an."
+
+msgid "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
+msgstr "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
+
+msgid "Es wurde nichts geändert."
+msgstr "Es wurde nichts geändert."
+
+msgid "Das hat nicht geklappt. Bitte prüfen Sie Ihre Angaben."
+msgstr "Das hat nicht geklappt. Bitte prüfen Sie Ihre Angaben."
+
+msgid "Ihre Bewertung bei %s bearbeiten"
+msgstr "Ihre Bewertung bei %s bearbeiten"
+
+msgid "E-Mail-Adresse, mit der Sie bewertet haben"
+msgstr "E-Mail-Adresse, mit der Sie bewertet haben"
+
+msgid "Link zum Bearbeiten senden"
+msgstr "Link zum Bearbeiten senden"
+
+msgid "Bewertung (1–5)"
+msgstr "Bewertung (1–5)"
+
+msgid "Korrektur einreichen"
+msgstr "Korrektur einreichen"
+
+msgid "Bewertung zurückziehen"
+msgstr "Bewertung zurückziehen"
+
+msgid "Fassungen (Korrekturen)"
+msgstr "Fassungen (Korrekturen)"
+
+msgid "Korrektur abgelehnt. Die bisherige Fassung bleibt veröffentlicht."
+msgstr "Korrektur abgelehnt. Die bisherige Fassung bleibt veröffentlicht."
+
+msgid "Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden."
+msgstr "Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden."
+
+msgid "Von Autorinnen und Autoren eingereichte Änderungen an bereits freigegebenen Bewertungen. Die bisherige Fassung bleibt sichtbar, bis du die neue freigibst."
+msgstr "Von Autorinnen und Autoren eingereichte Änderungen an bereits freigegebenen Bewertungen. Die bisherige Fassung bleibt sichtbar, bis Sie die neue freigeben."
+
+msgid "Wenn zu dieser Adresse veröffentlichte Bewertungen existieren, haben wir Ihnen einen Link geschickt. Er ist eine Stunde gültig."
+msgstr "Wenn zu dieser Adresse veröffentlichte Bewertungen existieren, haben wir Ihnen einen Link geschickt. Er ist eine Stunde gültig."
+
+msgid "Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt die bisherige Fassung sichtbar."
+msgstr "Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt die bisherige Fassung sichtbar."
+
+msgid "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."
+msgstr "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."

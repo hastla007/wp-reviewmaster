@@ -61,3 +61,5 @@ Schema v3 + Migrator, Korrekturformular + Token-Versand, Moderationsansicht mit 
 ## Entscheidung der Inhaberin (16.11.2026)
 
 **Umsetzung in 1.0** (neue Aufgabe **RC-125A**) nach diesem Vorschlag: Identitätsprüfung per Einmal-Link (Weg B) und für angemeldete Nutzer (Weg A), Versionierung in `review_revisions` (Schema v4), Korrektur nie automatisch veröffentlicht, „bearbeitet am …“ sichtbar, Rücknahme sofort wirksam, Audit ohne Texte.
+
+**Umsetzung (16.11.2026):** `src/Moderation/CorrectionService.php` (Links, Vorschlag, Freigabe mit Revisions-CAS, Ablehnung, Rücknahme, Aufbewahrung 90 Tage, Fassungen für Export), `CorrectionHandler.php` (admin-post `review_captain_correction`, Shortcode `[review_captain_correction]`, neutrale Antwort ohne Konten-Ermittlung, Rate-Limit), Admin-Seite „Korrekturen“ (`src/Admin/CorrectionsPage.php`), Schema v4 `review_revisions`, Karte „bearbeitet am …“, Einstellung `submissions.corrections_enabled` (Standard aus). Tests: `tests/Unit/Moderation/CorrectionTest.php` (10). Offen: Browser-Test des Ablaufs und E-Mail-Versand auf echter Seite; Ereignis `review_captain_review_corrected_v1` ist noch nicht eingeführt.

@@ -265,6 +265,17 @@ class Renderer {
 			);
 		}
 
+		// RC-125A: approved author corrections are marked for readers (no misleading silent edits).
+		$edited = null;
+		if ( ! empty( $r->meta['edited_at'] ) && is_string( $r->meta['edited_at'] ) ) {
+			$ts     = strtotime( $r->meta['edited_at'] . ' UTC' );
+			$edited = false === $ts ? null : array(
+				'iso'  => gmdate( 'c', $ts ),
+				/* translators: %s: date */
+				'text' => sprintf( __( 'bearbeitet am %s', 'review-captain' ), wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts ) ),
+			);
+		}
+
 		$report = null;
 		if ( $settings->get( 'submissions', 'reports_enabled', false ) && ReviewStatus::APPROVED === $r->status ) {
 			$report = array(
@@ -298,6 +309,7 @@ class Renderer {
 			'author'    => $author,
 			'avatar'    => $author && $settings->get( 'display', 'show_avatar', false ) ? mb_strtoupper( mb_substr( $author, 0, 1 ) ) : '',
 			'date'      => $date,
+			'edited'    => $edited,
 			'source'    => $source,
 			'badges'    => $badges,
 		);

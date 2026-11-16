@@ -18,6 +18,7 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 - Verlorene Insert-Rennen bei `JobQueue::enqueue` und `upsert_external` liefern unter hoher Parallelität zuverlässig die Gewinnerzeile statt `false` (TEC-005, MariaDB-Racetest).
 
 ### Added
+- Autorenkorrektur (RC-125A): Kundinnen und Kunden können freigegebene Bewertungen per Einmal-Link (oder angemeldet) korrigieren oder zurückziehen; Korrekturen erst nach Freigabe sichtbar, Karte zeigt „bearbeitet am …“; Schema v4 (`review_revisions`), Admin-Seite „Korrekturen“, Shortcode `[review_captain_correction]`; standardmäßig aus.
 - Natives Elementor-Widget „Review Captain“ (Bewertungen, Formular, Profil-Button) als Hülle um den Widget-Vertrag v1, serverseitig gerendert, nur bei aktivem Elementor geladen (RC-119A).
 - Übersetzungen Englisch (`en_US`) und Deutsch formal (`de_DE_formal`) für alle 936 Texte inkl. Block-Editor-JSON; `bin/compile-translations.php` erzeugt MO/JSON ohne WP-CLI und prüft Vollständigkeit und Platzhalter (RC-138).
 - `tests/e2e/ci-db.sh`: Integration gegen echtes MySQL/MariaDB (Installation, Upgrade v2→v3, Race-Tests); CI-Jobs für MariaDB 12.3 und MySQL 9.7. Release-Stand und offene Gates: [docs/release/RELEASE-CHECKLIST.md](docs/release/RELEASE-CHECKLIST.md), Einschränkungen: [docs/release/KNOWN-LIMITATIONS.md](docs/release/KNOWN-LIMITATIONS.md).

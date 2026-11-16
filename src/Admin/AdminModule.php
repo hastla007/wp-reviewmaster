@@ -70,6 +70,7 @@ final class AdminModule implements Module {
 			'save_campaign'      => array( $feedback, 'handle_save' ),
 			'delete_campaign'    => array( $feedback, 'handle_delete' ),
 			'feedback_qr'        => array( $feedback, 'handle_qr' ),
+			'correction_decide'  => array( new CorrectionsPage( $plugin ), 'handle' ),
 		);
 		foreach ( $handlers as $action => $callback ) {
 			add_action( 'admin_post_review_captain_' . $action, $callback );
@@ -108,6 +109,9 @@ final class AdminModule implements Module {
 		$settings_store = $plugin->settings();
 		if ( $settings_store->get( 'submissions', 'qa_enabled', false ) ) {
 			array_splice( $pages, 2, 0, array( array( QuestionsPage::SLUG, __( 'Fragen & Antworten', 'review-captain' ), Capabilities::MODERATE, array( new QuestionsPage( $plugin ), 'render' ) ) ) );
+		}
+		if ( $settings_store->get( 'submissions', 'corrections_enabled', false ) ) {
+			array_splice( $pages, 2, 0, array( array( CorrectionsPage::SLUG, __( 'Korrekturen', 'review-captain' ), Capabilities::MODERATE, array( new CorrectionsPage( $plugin ), 'render' ) ) ) );
 		}
 		if ( $settings_store->get( 'submissions', 'feedback_campaigns_enabled', false ) ) {
 			array_splice( $pages, -2, 0, array( array( FeedbackPage::SLUG, __( 'Feedback-Links', 'review-captain' ), Capabilities::MANAGE_SETTINGS, array( new FeedbackPage( $plugin ), 'render' ) ) ) );

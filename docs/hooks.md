@@ -32,7 +32,7 @@ Anzahl: 31 Aufrufstellen, 30 Hooks.
 | `review_captain_runner_max_jobs` | filter | `self::MAX_JOBS` | `src/Jobs/Runner.php:193` |
 | `review_captain_schema_eligible` | filter | `bool $eligible` – Always true here<br>`Review $r` – Review<br>`array<string, mixed> $ctx` – Context | `src/Seo/SchemaEligibility.php:117` |
 | `review_captain_schema_post_item_type` | filter | `$type`<br>`$r` | `src/Seo/SchemaBuilder.php:126` |
-| `review_captain_settings_schema` | filter | `array $core` – Schema | `src/Settings/SettingsSchema.php:168` |
+| `review_captain_settings_schema` | filter | `array $core` – Schema | `src/Settings/SettingsSchema.php:170` |
 | `review_captain_setup_checklist_detected` | filter | `array<string, bool> $detected` – Detected steps | `src/Admin/SetupChecklist.php:112` |
 | `review_captain_show_pro_info` | filter | `bool $show` – Default true; the Pro add-on returns false | `src/Admin/DashboardPage.php:171` |
 | `review_captain_side_effect_free_job_prefixes` | filter | `self::SIDE_EFFECT_FREE_PREFIXES` | `src/Jobs/Runner.php:235` |

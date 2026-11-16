@@ -3815,3 +3815,72 @@ msgstr "Paginate"
 
 msgid "Profil-ID"
 msgstr "Profile ID"
+
+msgid "Korrekturen"
+msgstr "Corrections"
+
+msgid "Korrektur freigegeben und veröffentlicht."
+msgstr "Correction approved and published."
+
+msgid "Keine offenen Korrekturen."
+msgstr "No open corrections."
+
+msgid "bearbeitet am %s"
+msgstr "edited on %s"
+
+msgid "Danke! Ihre Korrektur wird geprüft und danach veröffentlicht."
+msgstr "Thank you! Your correction will be reviewed and then published."
+
+msgid "Ihre Bewertung wurde zurückgezogen und wird nicht mehr angezeigt."
+msgstr "Your review has been withdrawn and is no longer shown."
+
+msgid "Der Link ist abgelaufen oder ungültig. Bitte fordern Sie einen neuen an."
+msgstr "The link has expired or is invalid. Please request a new one."
+
+msgid "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
+msgstr "Too many requests. Please try again later."
+
+msgid "Es wurde nichts geändert."
+msgstr "Nothing was changed."
+
+msgid "Das hat nicht geklappt. Bitte prüfen Sie Ihre Angaben."
+msgstr "That did not work. Please check your entries."
+
+msgid "Ihre Bewertung bei %s bearbeiten"
+msgstr "Edit your review on %s"
+
+msgid "E-Mail-Adresse, mit der Sie bewertet haben"
+msgstr "Email address you used for your review"
+
+msgid "Link zum Bearbeiten senden"
+msgstr "Send edit link"
+
+msgid "Bewertung (1–5)"
+msgstr "Rating (1–5)"
+
+msgid "Korrektur einreichen"
+msgstr "Submit correction"
+
+msgid "Bewertung zurückziehen"
+msgstr "Withdraw review"
+
+msgid "Fassungen (Korrekturen)"
+msgstr "Versions (corrections)"
+
+msgid "Korrektur abgelehnt. Die bisherige Fassung bleibt veröffentlicht."
+msgstr "Correction rejected. The previous version remains published."
+
+msgid "Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden."
+msgstr "The review has been changed in the meantime or the correction is no longer open. Please reload."
+
+msgid "Von Autorinnen und Autoren eingereichte Änderungen an bereits freigegebenen Bewertungen. Die bisherige Fassung bleibt sichtbar, bis du die neue freigibst."
+msgstr "Changes to already approved reviews submitted by their authors. The previous version stays visible until you approve the new one."
+
+msgid "Wenn zu dieser Adresse veröffentlichte Bewertungen existieren, haben wir Ihnen einen Link geschickt. Er ist eine Stunde gültig."
+msgstr "If published reviews exist for this address, we have sent you a link. It is valid for one hour."
+
+msgid "Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt die bisherige Fassung sichtbar."
+msgstr "The change is only published after review. Until then the previous version stays visible."
+
+msgid "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."
+msgstr "Hello,\n\nwith this link you can correct or withdraw your review on %1$s. The link is valid for one hour and works once:\n\n%2$s\n\nIf you did not request this, please ignore this email."

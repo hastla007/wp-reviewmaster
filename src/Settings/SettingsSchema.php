@@ -107,6 +107,8 @@ final class SettingsSchema {
 				'multi_product_enabled'      => array( 'type' => 'bool', 'default' => false ),
 				'qa_enabled'                 => array( 'type' => 'bool', 'default' => false ),
 				'feedback_campaigns_enabled' => array( 'type' => 'bool', 'default' => false ),
+				// RC-125A (owner decision: part of 1.0) – off by default, the operator enables it.
+				'corrections_enabled'        => array( 'type' => 'bool', 'default' => false ),
 			),
 			'display'     => array(
 				'show_stars'     => array( 'type' => 'bool', 'default' => true ),
