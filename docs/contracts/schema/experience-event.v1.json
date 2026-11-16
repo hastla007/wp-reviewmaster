@@ -14,7 +14,7 @@
     "contract": { "type": "string", "pattern": "^1\\.(0|[1-9][0-9]*)$" },
     "source": { "$ref": "#/$defs/source_key" },
     "event_id": { "$ref": "#/$defs/uuid_v4" },
-    "experience_id": { "type": "string", "minLength": 3, "maxLength": 191, "pattern": "^[a-z0-9][a-z0-9_.-]{1,63}:[^\\s@]+$" },
+    "experience_id": { "type": "string", "minLength": 3, "maxLength": 191, "pattern": "^[a-z0-9][a-z0-9_.-]{1,63}:[^\\s@|]+$" },
     "event_type": {
       "enum": [
         "experience_created", "experience_completed", "experience_updated",
@@ -28,7 +28,7 @@
       "type": ["string", "null"],
       "minLength": 3,
       "maxLength": 191,
-      "pattern": "^[a-z0-9][a-z0-9_.-]{1,63}:[a-z0-9_]{1,40}:[^\\s@]{1,128}$"
+      "pattern": "^[a-z0-9][a-z0-9_.-]{1,63}:[a-z0-9_]{1,40}:[^\\s@|]{1,128}$"
     },
     "locale": { "type": ["string", "null"], "maxLength": 20, "pattern": "^[a-z]{2,3}([-_][A-Za-z0-9]{2,8})*$" },
     "send_permission": {
@@ -44,7 +44,7 @@
         "evidence_ref": { "type": ["string", "null"], "maxLength": 191 }
       }
     },
-    "idempotency_key": { "type": "string", "minLength": 3, "maxLength": 191, "pattern": "^[^\\s@]+$" },
+    "idempotency_key": { "type": "string", "minLength": 3, "maxLength": 191, "pattern": "^[^\\s@|]+$" },
     "context": {
       "type": "object",
       "additionalProperties": false,

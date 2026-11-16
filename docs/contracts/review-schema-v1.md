@@ -95,6 +95,7 @@ Unbekannte Schlüssel werden beim Speichern verworfen. Alle Werte JSON-serialisi
 - `external_id` ist die vom Provider dokumentierte, **stabile** ID der Review. Ist die API-ID nicht stabil, bildet der Provider eine deterministische ID und dokumentiert die Ableitung in seinem Fixture (`provider-v1.md`). Zeitstempel oder Listenpositionen sind keine zulässigen IDs.
 - Eindeutigkeit über `dedupe_key = sha1(platform . '|' . profile_id . '|' . external_id)`. Upsert ausschließlich über `dedupe_key` (`INSERT … ON DUPLICATE KEY UPDATE`), nie „select then insert“.
 - Manuell erfasste externe Auszüge (`origin=manual`) dürfen `external_id` setzen; dann greift dieselbe Dublettenregel.
+- Bei `origin=connector` (z. B. Form-Captain-Entwurf) setzt der Core `external_id = idempotency_key` des Aufrufs (`form-captain:{site_id}:{entry_id}`), damit `dedupe_key` auch hier Duplikate auf Datenbankebene verhindert.
 
 ## Kontext
 

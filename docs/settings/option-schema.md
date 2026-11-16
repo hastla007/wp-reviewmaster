@@ -57,7 +57,7 @@ Hinweis: Zeitzone ist **keine** eigene Option; maßgeblich ist die WordPress-Zei
 
 | Schlüssel | Typ | Default | Validierung | Scope | Klasse | Entitlement |
 |---|---|---|---|---|---|---|
-| `sync_window_start` | string `HH:MM` | `'02:00'` | `^([01]\d|2[0-3]):[0-5]\d$`, ≠ `sync_window_end` | site | P0 | — |
+| `sync_window_start` | string `HH:MM` | `'02:00'` | `^([01]\d\|2[0-3]):[0-5]\d$`, ≠ `sync_window_end` | site | P0 | — |
 | `sync_window_end` | string `HH:MM` | `'05:00'` | wie oben | site | P0 | — |
 | `max_pages_per_run` | int | `5` | 1–50 (Vorschlag) | site | P0 | — |
 | `pause_after_auth_errors` | int | `3` | 1–10 (Vorschlag) | site | P0 | — |

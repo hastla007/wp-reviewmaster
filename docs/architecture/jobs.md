@@ -107,6 +107,7 @@ Uncaught `Throwable` im Handler → behandelt wie `retry( rc.temp.unavailable )`
 | `reconcile` | [reconciliation.md](reconciliation.md) | `reconcile:{anlass}:{yyyymmddhh}` |
 | `maintenance.jobs_cleanup` | alte Jobs löschen | `maintenance.jobs_cleanup` (periodisch) |
 | `maintenance.migrate_backfill` | Datenmigration | `migrate:{db_version}:{step}` |
+| `secrets.rotate` | Neuverschlüsselung nach Schlüsselwechsel ([secrets.md](secrets.md) §3) | `secrets.rotate:{neue key_id}` |
 | Pro (Beispiele) | `pro.provider.sync`, `pro.provider.token_check`, `pro.request.send` | `pro.provider.sync:{profile_uuid}`, `pro.request.send:{request_uuid}` |
 
 ## 4. Claim und Lease (TEC-003)
