@@ -35,10 +35,11 @@ final class AdminModule implements Module {
 	 * @param Plugin $plugin Plugin.
 	 */
 	public function register( Plugin $plugin ): void {
+		// Set first: add-ons may build the menu programmatically (e.g. license screen under the core menu via WP-CLI).
+		$this->plugin = $plugin;
 		if ( ! is_admin() ) {
 			return;
 		}
-		$this->plugin = $plugin;
 		add_action( 'admin_menu', array( $this, 'menu' ), 9 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 

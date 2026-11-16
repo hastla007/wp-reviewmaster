@@ -17,6 +17,7 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 - Plattform-Zusammenfassung der Widgets wird je Cache-Generation zwischengespeichert; jeder Schreibzugriff auf Reviews invalidiert (TEC-012, RC-136).
 
 ### Fixed
+- `AdminModule::menu()` funktioniert auch, wenn Add-ons das Core-Menü außerhalb des Adminbereichs aufbauen (Lizenzseite von Pro per WP-CLI).
 - Verlorene Insert-Rennen bei `JobQueue::enqueue` und `upsert_external` liefern unter hoher Parallelität zuverlässig die Gewinnerzeile statt `false` (TEC-005, MariaDB-Racetest).
 
 ### Added

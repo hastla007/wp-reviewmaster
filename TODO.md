@@ -145,13 +145,13 @@ Diese Infrastrukturentscheidungen müssen vor den davon abhängigen Core-/Pro-Im
 
 - [x] **RC-056 – Add-on in Captain Pro registrieren.** Ergebnis: Ordner, Slug, Textdomain, Buildkonfiguration und Mindest-Core-Version sind korrekt.
 - [x] **RC-057 – Lizenzclient und Kernel integrieren.** Ergebnis: Export/Bundling folgt Captain-Pro-Namespace- und Buildregeln; Core bleibt frei von Lizenzcode.
-- [ ] **RC-058 – Review-Produkt und Pläne in WP License Captain anlegen.** Ergebnis: review-captain-pro, Plan-IDs single/business/agency, Site-Limits und Supportlevel stimmen mit Shopkatalog überein.
+- [ ] **RC-058 – Review-Produkt und Pläne in WP License Captain anlegen.** Ergebnis: review-captain-pro, Plan-IDs single/business/agency, Site-Limits und Supportlevel stimmen mit Shopkatalog überein. *Stand 16.11.2026:* technisch nachgewiesen (Testserver legt Produkt/Plan für `review-captain-pro` an und signiert Rechte, [Lizenzlauf](docs/qa/2026-11-16-license-e2e.md)); offen: Anlage im echten Shop mit single/business/agency und Preisen 99/199/349 € (Shop-Aufgabe).
 - [x] **RC-059 – Entitlement-Katalog aktualisieren.** Ergebnis: nur tatsächlich implementierte review.*-Keys sind auswählbar und je Plan nachvollziehbar vergeben.
 - [x] **RC-060 – Lizenzseite und Statushinweise einbauen.** Ergebnis: Aktivieren, Deaktivieren, Site-Limit, Ablauf, Verlängerung, Updates und Kundenkonto-Link funktionieren.
 - [x] **RC-061 – Lizenzablaufverhalten implementieren.** Ergebnis: neue Pro-Schreibaktionen/Syncs werden gestoppt; vorhandene Reviews bleiben lesbar/exportierbar und werden nicht gelöscht.
 - [x] **RC-062 – Pro-Updater konfigurieren.** Ergebnis: signierte Lizenzprüfung und Updatepakete funktionieren ohne unerlaubte API-Aufrufe bei normalem Frontend-Aufruf.
 - [x] **RC-063 – Pro-Build und Release-ZIP integrieren.** Ergebnis: beide Plugins getrennt verteilbar; Build prüft Produktkey, Version, Host, Schlüssel und Entitlements.
-- [ ] **RC-064 – E2E-Lizenzlauf vorbereiten.** Ergebnis: Installieren, Aktivieren, Rechte, Ablauf, Update und Deaktivieren werden gegen den echten Testserver durchgespielt.
+- [x] **RC-064 – E2E-Lizenzlauf vorbereiten.** Ergebnis: Installieren, Aktivieren, Rechte, Ablauf, Update und Deaktivieren werden gegen den echten Testserver durchgespielt. *Abgenommen 16.11.2026:* echter Lauf gegen wp-license auf WooCommerce 11.3/MariaDB, 152/152 bestanden; Review Captain Pro: Installation, Aktivierung, signierte Rechte, Funktion am Core-Hook, Lizenzseite, Freigabe bei Deinstallation; Ablauf/Verlängerung/Update über dieselbe Lizenzclient-Bibliothek ([Protokoll](docs/qa/2026-11-16-license-e2e.md)).
 
 **Meilenstein M3 ist erreicht, wenn:** Pro mit gültiger Lizenz freischaltet und Ablauf keine Core-Daten oder Core-Funktion beschädigt.
 
