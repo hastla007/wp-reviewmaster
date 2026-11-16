@@ -238,8 +238,8 @@ Jeder Provider durchläuft dieselbe Reihenfolge: Verbindung → Test → Profilw
 - [x] **RC-116 – Floating Trust-Badge bauen.** Ergebnis: pro Seite/Position konfigurierbar, minimierbar, mobil getestet und kollidiert nicht mit Kauf-, Chat- oder Ticketaktionen.
 - [x] **RC-117 – Page-/Produkt-/Event-Kontextfilter anbinden.** Ergebnis: Editor kann Reviews und Testimonials passend zu Woo-Produkt, Gutschein, Event, App oder Formular auswählen.
 - [x] **RC-118 – Widget-Registry und Embed-Shortcodes finalisieren.** Ergebnis: Blocks, Shortcodes, SSR und Builder-Integrationen geben dieselbe freigegebene Widgetdefinition aus.
-- [ ] **RC-119 – Page-Builder-Mindestumfang festlegen.** Ergebnis: Elementor/Divi/andere Builder sind ausdrücklich unterstützt oder als nicht unterstützt dokumentiert.
-- [ ] **RC-120 – Layoutkonflikte prüfen.** Ergebnis: Slider, Chat-Bubble, Sticky-Checkout und Trust-Badge überlagern sich auf typischen Mobilbreiten nicht.
+- [ ] **RC-119 – Page-Builder-Mindestumfang festlegen.** Ergebnis: Elementor/Divi/andere Builder sind ausdrücklich unterstützt oder als nicht unterstützt dokumentiert. *Stand 16.11.2026:* Entscheidungsvorlage [page-builders.md](docs/decisions/page-builders.md) (Vorschlag: Shortcode-Fallback, keine nativen Module in 1.0) – Produktentscheidung offen.
+- [ ] **RC-120 – Layoutkonflikte prüfen.** Ergebnis: Slider, Chat-Bubble, Sticky-Checkout und Trust-Badge überlagern sich auf typischen Mobilbreiten nicht. *Stand 16.11.2026:* Core-Widgets ohne horizontales Scrollen/Überlagerung auf iPhone 13/Pixel 7 ([Nachprüfung](docs/qa/2026-11-16-nachpruefung.md)); offen: Pro-Floating-Badge (F-05), Slider/Chat-Bubble/Sticky-Checkout mit echten Fremd-Plugins.
 
 **Meilenstein M6 ist erreicht, wenn:** alle Formate korrekt attribuiert, Rechte nachweisbar, zugänglich und ohne externe Autoplay-/Tracking-Überraschungen ausgegeben werden.
 
@@ -345,7 +345,7 @@ Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile E
 ### Phase C – Referenz-Connector, Developer Kit und Abnahme
 
 - [x] **CON-015 – Beispiel-Connector bauen.** Ergebnis: separates Demo-Plugin emittiert ein abgeschlossenes Buchungs-/Kurs-Erlebnis über den öffentlichen Vertrag; es verwendet keine Core-Änderung oder fremden Datenbankzugriffe.
-- [ ] **CON-016 – Ende-zu-Ende-Fluss abnehmen.** Ergebnis: abgeschlossenes Erlebnis wird genau einmal normalisiert und geplant; Duplikat, Refund, Widerruf, Opt-out, fehlender Kontakt und nicht erlaubte Kommunikation blockieren korrekt.
+- [ ] **CON-016 – Ende-zu-Ende-Fluss abnehmen.** Ergebnis: abgeschlossenes Erlebnis wird genau einmal normalisiert und geplant; Duplikat, Refund, Widerruf, Opt-out, fehlender Kontakt und nicht erlaubte Kommunikation blockieren korrekt. *Stand 16.11.2026:* blockiert durch Pro-Befund F-04 (`poll_experiences()` ohne Aufrufer); Woo-Weg (Erlebnis → Anfrage, Duplikat, Erstattung) bestanden ([Woo/Pro](docs/qa/2026-11-16-woo-pro.md)).
 - [x] **CON-017 – Connector-SDK-Skelett veröffentlichungsfähig machen.** Ergebnis: Plugin-Header, Beispielklasse, Capability-Manifeste, Beispielkonfiguration, Job-Handler und lokale Entwicklungsfixtures lassen sich als Ausgangspunkt kopieren.
 - [x] **CON-018 – Developer-Dokumentation veröffentlichen.** Ergebnis: Setup, Contract-Versionierung, Datenmapping, Rechte, Consent, Empfängerresolver, Jobs, Fehlerbehandlung, Tests, Datenschutz und Releasekompatibilität sind mit vollständigen Beispielen beschrieben.
 - [x] **CON-019 – Connector-Release-Gate ergänzen.** Ergebnis: kein Connector gilt als Pro-1.0-fertig, bevor Registry, Contract-Tests, Demo-Connector, Health-/Pause-Verhalten, Datenschutzprüfung und erfolgreiche Dedupe-/Retry-Abnahme bestehen.
