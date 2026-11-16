@@ -64,5 +64,17 @@ else
 	echo "== Yoast nicht installiert: S2/S15 übersprungen"
 fi
 switch '{}'
+if wp plugin activate woocommerce >/dev/null 2>&1 && wp eval 'exit(defined("WC_VERSION")?0:1);' >/dev/null 2>&1; then
+	WOO="$(wp eval-file "$(dirname "$0")/php/seo-woo.php" 2>/dev/null | tail -1)"
+	echo "== WooCommerce $(wp plugin get woocommerce --field=version 2>/dev/null)"
+	check "S5 Woo-Produkt: genau ein Product (Woo), kein Review-Captain-Markup" "$WOO" 'rc_script==0 and types.count("Product")==1 and "S05 lokale Produktbewertung" in html'
+	if yoast activate; then
+		check "S5 Woo-Produkt + Yoast: genau ein Product, kein Review-Captain-Markup" "$WOO" 'rc_script==0 and types.count("Product")==1'
+		yoast deactivate
+	fi
+	wp plugin deactivate woocommerce >/dev/null 2>&1
+else
+	echo "== WooCommerce nicht installiert: S5 übersprungen"
+fi
 grep -iE "review-captain|review captain" "$(debuglog)" 2>/dev/null | grep -v E2E-TRACE | tail -5 && { echo "FAIL debug.log enthält Review-Captain-Meldungen"; FAIL=$((FAIL+1)); } || echo "PASS debug.log ohne Review-Captain-Meldungen"
 echo "$FAIL FAILED"; exit $(( FAIL > 0 ))
