@@ -1,6 +1,6 @@
 # CON-002 / CON-003 – Connector-Vertrag v1
 
-Status: **verbindlich** für Core-Implementierung und Referenz-Connector ab 2026-11-16. Änderungen am Vertrag nur per ADR (`docs/adr/`) und gemäß [Versionierung](#versionierung-und-kompatibilität).
+Status: **verbindlich**, an den implementierten Stand angeglichen (Core v1, `src/Connectors/**`), Stand 2026-11-16. Wo dieses Dokument und der Code abweichen, gilt der Code. Änderungen am Vertrag nur per ADR (`docs/adr/`) und gemäß [Versionierung](#versionierung-und-kompatibilität).
 Gilt nur für **lokale** Connectoren derselben WordPress-Installation. Fähigkeiten und Abgrenzung: [use-cases.md](use-cases.md).
 
 ## Überblick
@@ -9,12 +9,15 @@ Gilt nur für **lokale** Connectoren derselben WordPress-Installation. Fähigkei
 |---|---|
 | Registry-Hook | `review_captain_connectors_v1` (Action) |
 | Registry-Klasse | `ReviewCaptain\Connectors\Registry` |
-| Registrierung | `$registry->register( ConnectorInterface $connector )` |
+| Registrierung | `$registry->register( mixed $connector ): bool` (wirft nie; Rückgabewert nicht Vertragsbestandteil) |
+| Validator | `ReviewCaptain\Connectors\ContractValidator` (`validate( mixed $candidate, bool $allow_reserved = false ): array`) |
+| Payload-Validator | `ReviewCaptain\Connectors\ExperienceEvent::validate( array $payload ): list<string>` |
 | Haupt-Interface | `ReviewCaptain\Connectors\Contract\ConnectorInterface` |
 | Capability-Interfaces | `ReviewCaptain\Connectors\Contract\{ExperienceSource,RecipientResolver,ReviewSource,RequestTransport,ContextProvider}Interface` |
-| Exception | `ReviewCaptain\Connectors\ConnectorException( string $error_code, string $message )` |
+| Exception | `ReviewCaptain\Connectors\ConnectorException( string $error_code, string $message = '', ?\Throwable $previous = null )` |
 | Job-Hook | `review_captain_process_job_v1` (Filter) |
-| Contract-Version | Major `1`, Connector meldet `1.<minor>` bzw. `1.x` |
+| Contract-Version | Major `1`, Connector meldet `1.<minor>` bzw. `1.x`; Core unterstützt `1.0` (`ContractValidator::CORE_CONTRACT`) |
+| Statuswerte | `active` \| `inactive` \| `paused` \| `source_unavailable` (`Registry::STATE_*`) |
 
 ## 1. Registrierung
 
@@ -29,27 +32,67 @@ add_action(
 
 Regeln:
 
-1. Review Captain löst `review_captain_connectors_v1` **einmal pro Request** aus, nachdem `review_captain_loaded` gefeuert wurde. Connector-Plugins hängen ihren Callback spätestens in `plugins_loaded` ein. Ist Review Captain nicht aktiv, wird der Hook nie ausgelöst – der Connector muss dann ohne Fehler untätig bleiben (keine harte Abhängigkeit auf Klassen von Review Captain außerhalb dieses Callbacks bzw. `class_exists`-Guard vor `implements`, siehe [developer-guide.md](developer-guide.md)).
+1. Review Captain löst `review_captain_connectors_v1` **einmal pro Request** aus (`Registry::fire()`, aufgerufen von `ConnectorsModule` auf `init` mit Priorität 20; `review_captain_loaded` ist dann bereits auf `plugins_loaded` gelaufen). Connector-Plugins hängen ihren Callback spätestens in `plugins_loaded` ein. Wirft ein Callback, wird das als Ablehnung mit `rc.internal.error` in der Diagnose vermerkt. Ist Review Captain nicht aktiv, wird der Hook nie ausgelöst – der Connector muss dann ohne Fehler untätig bleiben (keine harte Abhängigkeit auf Klassen von Review Captain außerhalb dieses Callbacks bzw. `class_exists`-Guard vor `implements`, siehe [developer-guide.md](developer-guide.md)).
 2. `register()` wirft **nie** und bricht den Request nie ab. Ungültige Connectoren werden verworfen bzw. als nicht ausführbar markiert und in der Diagnose angezeigt. Der Rückgabewert von `register()` ist **nicht** Teil des Vertrags.
 3. Registrierungen außerhalb des Hooks (z. B. direkter Zugriff auf eine Registry-Instanz) sind nicht unterstützt.
-4. Die Registrierung führt **keine** Connector-Aktion aus. Ein neu erkannter Connector ist standardmäßig **inaktiv**, bis ein Administrator ihn aktiviert (siehe [licensing.md](licensing.md)).
+4. Die Registrierung führt **keine** Connector-Aktion aus. Ein neu erkannter Connector ist standardmäßig **inaktiv** (`inactive`), bis ein Administrator ihn aktiviert (siehe [licensing.md](licensing.md)). Der Core aktiviert nie selbst; die Aktivierung schreibt der Connector-Manager von Review Captain Pro über `Registry::set_state()`.
 5. Der Core ruft Capability-Methoden nur im Jobrunner bzw. in Admin-Aktionen mit Capability- und Nonce-Prüfung auf – nie während eines Frontend-Requests. Auch `describe_context` wird nur im Hintergrund aufgerufen; das Frontend liest ausschließlich den Cache.
 
 ### Validierung bei `register()`
 
-| Prüfung | Regel | Ergebnis bei Verstoß |
-|---|---|---|
-| Typ | Objekt implementiert `ConnectorInterface` | verworfen (Diagnose: `rc.contract.incompatible`) |
-| `key()` | Regex `^[a-z0-9][a-z0-9_-]{2,63}$` (3–64 Zeichen) | verworfen, `rc.data.invalid_payload` |
-| Eindeutigkeit | Schlüssel noch nicht registriert | zweite Registrierung verworfen, erste bleibt; Diagnose „doppelter Schlüssel“ |
-| `contract_version()` | Format `^1\.(\d+|x)$`; Major muss `1` sein | Status `incompatible_contract`, nicht ausführbar, kein Fatal Error |
-| `capabilities()` | nicht leer, nur bekannte Werte, keine Duplikate | unbekannte Werte → `incompatible_contract`; leer → verworfen |
-| Capability ↔ Interface | jede deklarierte Capability hat das passende Interface | `incompatible_contract` |
-| `label()`, `developer()` | nicht leer, max. 191 Zeichen, werden escaped ausgegeben | verworfen |
-| `version()` | nicht leer, max. 64 Zeichen (SemVer empfohlen) | verworfen |
-| Exceptions | Jede Exception/`Throwable` aus den Metadaten-Methoden wird gefangen | verworfen, Diagnose |
+`ContractValidator::validate()` liefert eines von drei Ergebnissen (`outcome`): `rejected` (nicht registriert, nur in `Registry::rejected()` sichtbar), `incompatible` (registriert, aber pausiert mit `rc.contract.incompatible`, nie ausgeführt) oder `ok` (kompatibel, ggf. mit Hinweisen). Prüfreihenfolge und Fehlercodes exakt nach Code:
 
-Ein implementiertes Interface **ohne** deklarierte Capability wird ignoriert (keine Aktion). Reservierte Schlüsselpräfixe: `rc-`, `review-captain` und Schlüssel offizieller Suite-Adapter (`woocommerce`, `voucher-captain`, `pass-captain`, `affiliate-captain`, `form-captain`).
+| # | Prüfung | Regel | Ergebnis bei Verstoß | Fehlercode |
+|---|---|---|---|---|
+| 1 | Typ | Objekt implementiert `ConnectorInterface` | `rejected` | `rc.contract.incompatible` |
+| 2 | Metadaten | `key()`, `label()`, `version()`, `contract_version()`, `developer()`, `capabilities()` werfen keine `Throwable` | `rejected` | `rc.contract.invalid` |
+| 3 | `key()` | Regex `^[a-z0-9][a-z0-9_-]{2,63}$` (3–64 Zeichen, `ContractValidator::KEY_PATTERN`) | `rejected` | `rc.data.invalid_payload` |
+| 4 | reservierter Schlüssel | nicht in `RESERVED_KEYS` und ohne `RESERVED_PREFIXES` (außer Klassen im Namespace `ReviewCaptain*`, z. B. Pro) | `rejected` | `rc.contract.invalid` |
+| 5 | `label()`, `developer()` | nicht leer, max. 191 Zeichen, werden escaped ausgegeben | `rejected` | `rc.contract.invalid` |
+| 6 | `version()` | nicht leer, max. 64 Zeichen (SemVer empfohlen) | `rejected` | `rc.contract.invalid` |
+| 7 | `capabilities()` | nicht leer | `rejected` | `rc.contract.invalid` |
+| 8 | Eindeutigkeit (in `Registry::register()`) | Schlüssel noch nicht registriert | zweite Registrierung `rejected`, erste bleibt | `rc.data.duplicate` |
+| 9 | Fähigkeit kein String | – | `incompatible` | `rc.contract.incompatible` |
+| 10 | doppelte Fähigkeit | – | zusammengeführt, Hinweis (bleibt `ok`) | – |
+| 11 | `contract_version()` | Format `^1\.(\d+\|x)$` (`CONTRACT_PATTERN`) | `incompatible` | `rc.contract.incompatible` |
+| 12 | Minor > `CORE_CONTRACT_MINOR` (0) | – | akzeptiert, Hinweis „zusätzliche Fähigkeiten werden ignoriert“ | – |
+| 13 | bekannte Fähigkeit | ∈ `ContractValidator::CAPABILITIES` | `incompatible` | `rc.contract.incompatible` |
+| 14 | Capability ↔ Interface | jede deklarierte Fähigkeit hat das passende Interface | `incompatible` | `rc.contract.incompatible` |
+| – | Validator selbst wirft | – | `rejected` | `rc.internal.error` |
+
+Ein implementiertes Interface **ohne** deklarierte Capability wird ignoriert (keine Aktion). Reservierte Schlüssel (`ContractValidator::RESERVED_KEYS`): `woocommerce`, `voucher-captain`, `pass-captain`, `affiliate-captain`, `form-captain`; reservierte Präfixe (`RESERVED_PREFIXES`): `rc-`, `review-captain`.
+
+### Registry-API (`ReviewCaptain\Connectors\Registry`)
+
+| Methode | Rückgabe / Wirkung |
+|---|---|
+| `fire(): void` | feuert `review_captain_connectors_v1` einmal pro Request und merkt sich registrierte Schlüssel in `review_captain_connectors_known` |
+| `fired(): bool` | ob der Hook bereits lief |
+| `register( mixed $connector ): bool` | siehe oben; wirft nie |
+| `get( string $key ): ?ConnectorInterface` | auch inkompatible Connectoren – vor Methodenaufrufen `is_executable()` prüfen |
+| `has( string $key ): bool` | im aktuellen Request registriert |
+| `keys(): list<string>` | registrierte Schlüssel |
+| `details( string $key ): ?array` | `{compatible, error_code, messages, notices, meta: {key, label, version, contract_version, developer, capabilities, class}}` |
+| `rejected(): list<array{key: ?string, class: string, error_code: ?string, messages: list<string>}>` | verworfene Registrierungen |
+| `supports( string $key, string $capability ): bool` | kompatibel **und** Fähigkeit deklariert |
+| `is_executable( string $key ): bool` | `status()['state'] === 'active'` |
+| `status( string $key ): array{state, error_code, next_action}` | siehe Tabelle unten |
+| `set_state( string $key, string $state, ?string $error_code = null ): bool` | nur für den Pro-Connector-Manager: `active` \| `paused` \| `inactive` (`active` nur für registrierte, kompatible Connectoren); gespeichert in `review_captain_connectors_state` |
+| `forget( string $key ): void` | Schlüssel aus `review_captain_connectors_known` entfernen und Zustand auf `inactive` |
+| `unavailable(): array<string, array{label, version}>` | bekannte, aber aktuell nicht registrierte Connectoren |
+| `owner_of_job_type( string $type ): ?string` | Connector-Schlüssel zu einem Jobtyp `{connector_key}.{name}`, wenn registriert und kompatibel |
+
+### Status (`Registry::status()`)
+
+| `state` | `error_code` | Bedingung |
+|---|---|---|
+| `inactive` | `null` | nicht registriert und nie gesehen **oder** registriert, kompatibel, aber nicht aktiviert (Standard für neue Connectoren) |
+| `source_unavailable` | `rc.source.unavailable` | früher registriert (`review_captain_connectors_known`), im aktuellen Request aber nicht (Plugin deaktiviert/Quellsystem fehlt) |
+| `paused` | `rc.contract.incompatible` | registriert, aber inkompatibel |
+| `paused` | gespeicherter Code oder `null` | vom Pro-Manager pausiert (`set_state( …, 'paused', $code )`) |
+| `active` | `null` | registriert, kompatibel und aktiviert |
+
+Einen eigenen Status `incompatible_contract` gibt es nicht; inkompatible Connectoren sind `paused` mit `rc.contract.incompatible`.
 
 ## 2. `ConnectorInterface`
 
@@ -121,7 +164,7 @@ Ereignis-Payload (CON-004), je Eintrag in `events`:
 | `idempotency_key` | string | nein | Standard: `sha1(connector_key|event_id)`; max. 191 |
 | `context` | array | nein | max. 10 skalare Werte, Schlüssel `^[a-z0-9_]{1,40}$`, Werte ≤ 191 Zeichen; z. B. `campaign_hint`. Keine personenbezogenen Daten |
 
-Der Core ergänzt `source = key()` und lehnt Ereignisse ab, deren E-Mail-ähnliche Werte (`@` in `recipient_ref`) personenbezogene Daten vermuten lassen (`rc.data.invalid_payload`).
+Geprüft wird jedes Ereignis mit `ExperienceEvent::validate()` (Fehlerliste `feld:grund`, Gründe `missing`, `invalid`, `too_long`, `forbidden`, `pii`, `incompatible`); `ExperienceEvent::error_code()` bildet sie auf `rc.contract.incompatible` (Payload-Major ≠ 1) bzw. `rc.data.invalid_payload` ab. Felder aus `ExperienceEvent::FORBIDDEN_FIELDS` (z. B. `email`, `name`, `phone`, `body`, `token`) sind verboten, E-Mail-ähnliche Werte in `recipient_ref` ebenso. `ExperienceEvent::with_defaults()` ergänzt `source = key()`, `idempotency_key = sha1(connector_key|event_id)` und `locale = null`.
 
 Verarbeitungsregeln (Core):
 
@@ -252,11 +295,20 @@ add_filter( 'review_captain_process_job_v1', function ( $result, string $type, a
 Regeln:
 
 - Jobtypen eines Connectors sind `{connector_key}.{name}` mit `name` `^[a-z0-9_]{1,30}$` (Spalte `type` max. 100 Zeichen). Fremde Präfixe dürfen nicht behandelt werden.
-- Bleibt das Ergebnis `null`, markiert der Core den Job als `failed` mit `rc.contract.incompatible` („kein Handler“) und pausiert nach `max_attempts`.
+- Bleibt das Ergebnis `null`, **pausiert** der Core den Job mit `rc.contract.incompatible` („Kein Handler für Jobtyp … registriert“), ohne einen Versuch zu verbrauchen. Pausierte Jobs mit `rc.contract.incompatible` oder `rc.source.unavailable` werden höchstens einmal pro Stunde wieder eingereiht (Transient `review_captain_resume_unhandled`).
+- Gehört der Jobtyp zu einem bekannten Connector, der nicht `active` ist, wird der Job vor dem Filter mit `rc.source.unavailable` pausiert (CON-014).
+- Zulässige Handler-Ergebnisse (`Runner::apply_outcome()`): `true` oder `['status' => 'succeeded']` → erledigt; `['status' => 'continue', 'payload' => array, 'delay' => int]` → Checkpoint (Payload wird gemergt, kein Versuch verbraucht); `['status' => 'failed'|'retry', 'error_code' => 'rc.*', 'message' => string, 'retry_after' => int]` → Fehler nach Retry-Klasse; `WP_Error` mit `rc.*`-Code → Fehler; alles andere → Fehler `rc.contract.invalid`. Geworfene `ConnectorException` → Fehler mit deren Code; andere `Throwable` → `rc.temp.unavailable`.
 - Payload max. 64 KB JSON, enthält ein Feld `v` (Payload-Version) und **keine** Secrets, E-Mail-Adressen oder Reviewtexte.
 - Handler müssen idempotent sein: derselbe Job kann nach Lease-Ablauf erneut ausgeführt werden.
 - Jobs werden nur ausgeführt, wenn der Connector aktiv und vertragskompatibel ist und (Pro) das Entitlement besteht.
-- Das Anlegen eigener Jobs erfolgt über die Core-Job-API (Signatur in der Core-Implementierung, `ReviewCaptain\Jobs\…`); Connectoren schreiben nicht direkt in die Tabelle `jobs`.
+- Das Anlegen eigener Jobs erfolgt über die Core-Job-API; Connectoren schreiben nicht direkt in die Tabelle `jobs`:
+
+  ```php
+  $jobs = \ReviewCaptain\Plugin::instance()->get( 'jobs' ); // ReviewCaptain\Jobs\JobQueue
+  $id   = $jobs->enqueue( string $type, array $payload, string $idempotency_key, int $delay_seconds = 0, int $max_attempts = 8 ); // int|false
+  ```
+
+  `enqueue()` liefert bei bereits vorhandenem Idempotenzschlüssel die bestehende Job-ID (keine zweite Zeile) und `false` bei ungültigem Typ (`^[a-z0-9_.\-]+$`, max. 100 Zeichen) oder Payload > 64 KiB. Schlüssel > 191 Zeichen werden gekürzt und mit SHA-1 ergänzt (`JobQueue::normalize_key()`). Vorher mit `Plugin::instance()->has( 'jobs' )` prüfen.
 
 ## 5. Fehlerbehandlung
 
@@ -267,24 +319,25 @@ throw new \ReviewCaptain\Connectors\ConnectorException( 'rc.auth.invalid', 'CRM-
 - `$error_code` folgt `rc.<bereich>.<code>` und muss in `ReviewCaptain\Support\ErrorCode` bekannt sein (Liste: `docs/architecture/error-codes.md`); unbekannte Codes werden als `rc.temp.unavailable` behandelt.
 - `$message` ist für Administratoren bestimmt, wird gekürzt (500 Zeichen) und sanitisiert gespeichert. **Keine** Secrets, E-Mail-Adressen, Tokens oder Reviewtexte in der Nachricht.
 
-| Code | Bedeutung | Core-Reaktion |
-|---|---|---|
-| `rc.net.timeout` | Zeitüberschreitung | Retry mit exponentiellem Backoff |
-| `rc.temp.unavailable` | temporärer Fehler | Retry mit Backoff |
-| `rc.quota.exceeded` | Rate Limit | Retry nach Backoff (bzw. gemeldetem Wartezeitraum) |
-| `rc.auth.invalid` | Anmeldung/Schlüssel ungültig | kein Retry, Connector pausiert, Admin-Hinweis „Zugang prüfen“ |
-| `rc.perm.failed` | fehlende Berechtigung im Zielsystem | kein Retry, Job `dead` |
-| `rc.data.invalid_payload` | ungültige Daten | kein Retry, Eintrag verworfen bzw. Job `dead` |
-| `rc.remote.removed` | Objekt in Quelle gelöscht | kein Retry, ggf. Tombstone |
-| `rc.contract.incompatible` | Vertrag passt nicht | Connector pausiert (`incompatible_contract`) |
-| `rc.source.unavailable` | Quellsystem/-plugin nicht verfügbar | Jobs pausiert (`source_unavailable`), Resume nach erneuter Validierung |
+| Code | Bedeutung | Retry-Klasse | Core-Reaktion (Job) |
+|---|---|---|---|
+| `rc.net.timeout`, `rc.net.unreachable` | Zeitüberschreitung / nicht erreichbar | `transient` | Retry mit exponentiellem Backoff, nach `max_attempts` `dead` |
+| `rc.temp.unavailable` | temporärer Fehler (auch Fallback für unbekannte Codes) | `transient` | Retry mit Backoff |
+| `rc.quota.rate_limited`, `rc.quota.exceeded`, `rc.quota.budget_exhausted` | Rate Limit / Kontingent / lokales Budget | `rate_limit` | erneut nach `retry_after` (60 s … 24 h, Standard 15 min), verbraucht keinen Versuch |
+| `rc.auth.invalid`, `rc.auth.expired`, `rc.auth.revoked`, `rc.auth.permission_denied` | Anmeldung/Schlüssel/Berechtigung im Zielsystem | `auth` | Job `paused`, Admin-Hinweis „Zugang prüfen“ |
+| `rc.contract.incompatible` | Vertrag passt nicht / kein Handler | `config` | Job `paused`, stündliche Wiederaufnahme |
+| `rc.source.unavailable` | Quellsystem/-plugin nicht verfügbar | `config` | Job `paused`, stündliche Wiederaufnahme nach erneuter Prüfung |
+| `rc.data.invalid_payload`, `rc.data.duplicate`, `rc.consent.missing` | ungültige Daten | `data` | kein Retry, Eintrag verworfen bzw. Job `dead` |
+| `rc.contract.invalid`, `rc.remote.removed`, `rc.perm.failed` | endgültiger Fehler / Objekt in Quelle gelöscht | `permanent` | kein Retry, Job `dead`, ggf. Tombstone |
+
+Der Connector selbst wird durch Jobfehler nicht automatisch umgestellt; Pausieren/Fortsetzen eines Connectors erfolgt über `Registry::set_state()` (Pro).
 
 Die maßgebliche Retry-Klasse definiert `ErrorCode`; diese Tabelle beschreibt die erwartete Wirkung.
 
 ## Versionierung und Kompatibilität
 
 - **Semantische Versionierung** des Vertrags. Der Hook-Name enthält die Major-Version (`_v1`). Eine Major-Version 2 erhält einen neuen Hook (`review_captain_connectors_v2`); v1 bleibt mindestens für die Deprecation-Frist parallel bestehen.
-- **Major-Kompatibilität:** Ein Connector mit `contract_version()` Major `1` ist mit jedem Core kompatibel, der Contract 1.x unterstützt. Anderer Major → `incompatible_contract`, nicht ausgeführt, kein Fatal Error.
+- **Major-Kompatibilität:** Ein Connector mit `contract_version()` Major `1` ist mit jedem Core kompatibel, der Contract 1.x unterstützt. Anderer Major → Status `paused` mit `rc.contract.incompatible`, nicht ausgeführt, kein Fatal Error.
 - **Minor-Releases** (1.1, 1.2 …) sind rein additiv: neue optionale Interfaces, neue optionale Payload-Felder, neue Capability-Werte. Bestehende Methoden, Signaturen, Pflichtfelder und Bedeutungen ändern sich nicht. Meldet ein Connector eine höhere Minor-Version als der Core kennt, wird er akzeptiert; unbekannte zusätzliche Fähigkeiten werden ignoriert und in der Diagnose als Hinweis angezeigt.
 - **Deprecation-Frist:** Ein als veraltet markiertes Vertragselement bleibt mindestens **2 Minor-Releases und mindestens 6 Monate** (es gilt das spätere Datum) funktionsfähig. Deprecations werden im Changelog, in dieser Datei und per `_doing_it_wrong()`/Diagnosehinweis (nur Admin) angekündigt. Entfernt wird nur in einer neuen Major-Version.
 - Die vom Core unterstützte Contract-Version wird in der Diagnose angezeigt.
@@ -296,5 +349,5 @@ Die maßgebliche Retry-Klasse definiert `ErrorCode`; diese Tabelle beschreibt di
 | CON-OPEN-1 | Push-Eingang `review_captain_experience_event_v1` (Konzept §7.4) zusätzlich zum Polling? | nicht in 1.0; ggf. additiv in 1.1 |
 | CON-OPEN-2 | Hook `review_captain_connector_error_v1` (Konzept §7.10) | nicht in 1.0; Fehler über Diagnose/Audit-Log |
 | CON-OPEN-3 | Deklaratives Konfigurationsschema (CON-011: Text, URL, Auswahl, Zahl, Secret) | optionales Interface in 1.1 (Pro-Manager) |
-| CON-OPEN-4 | Öffentliche Job-API zum Einreihen eigener Connector-Jobs | Signatur wird mit CON-009 festgelegt und hier nachgetragen |
+| CON-OPEN-4 | Öffentliche Job-API zum Einreihen eigener Connector-Jobs | erledigt: `JobQueue::enqueue()` über `Plugin::instance()->get( 'jobs' )`, siehe §4 |
 | CON-OPEN-5 | Sollen `origin=connector`-Reviews mit `platform=local` für Schema in Frage kommen? | ja, nur bei nachweislicher Abgabe auf dieser Website; siehe [../seo/schema-eligibility.md](../seo/schema-eligibility.md) |

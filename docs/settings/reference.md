@@ -1,6 +1,6 @@
 # Einstellungen – Referenz für Betreiber (SET-023)
 
-Status: Entwurf, Stand 2026-11-16. Diese Seite ist für Website-Betreiber geschrieben. Alle Einstellungen gelten **nur für die aktuelle Website** (auch in Multisite-Netzwerken). Technische Details: [option-schema.md](option-schema.md).
+Status: an den implementierten Stand angeglichen (Standards und Wertebereiche exakt nach `src/Settings/SettingsSchema.php`), Stand 2026-11-16. Diese Seite ist für Website-Betreiber geschrieben. Alle Einstellungen gelten **nur für die aktuelle Website** (auch in Multisite-Netzwerken). Technische Details: [option-schema.md](option-schema.md).
 
 Jeder Eintrag nennt: **Zweck** · **Gilt für** · **Standard** · **Folgen** · **Datenschutz** · **Voraussetzung**.
 
@@ -37,16 +37,16 @@ Diese Einstellungen wirken erst, wenn eine Quelle automatisch abgeglichen wird (
 
 ### Synchronisierungsfenster (`sync_window_start`, `sync_window_end`)
 - **Zweck:** Zeitraum, in dem automatische Abgleiche starten dürfen, in Website-Zeit. **Standard:** 02:00–05:00.
-- **Folgen:** außerhalb des Fensters startet kein automatischer Abgleich; „Jetzt synchronisieren“ auf der Quellen-Seite bleibt möglich. Ende vor Beginn = Fenster über Mitternacht. Gleiche Zeiten sind nicht erlaubt.
+- **Folgen:** außerhalb des Fensters startet kein automatischer Abgleich; „Jetzt synchronisieren“ auf der Quellen-Seite bleibt möglich. Ende vor Beginn = Fenster über Mitternacht. Format HH:MM (24 h); ungültige Eingaben werden auf den Standard zurückgesetzt.
 - **Datenschutz:** keiner. **Voraussetzung:** synchronisierende Quelle.
 
 ### Seiten je Abruf (`max_pages_per_run`)
-- **Zweck:** Wie viele Ergebnisseiten eine Quelle pro Lauf abrufen darf. **Standard:** 5.
+- **Zweck:** Wie viele Ergebnisseiten eine Quelle pro Lauf abrufen darf. **Standard:** 5, erlaubt 1–50 (erweiterte Einstellung).
 - **Folgen:** höhere Werte holen große Bestände schneller, belasten aber Server und Anbieterkontingent. Der Rest folgt im nächsten Lauf.
 - **Datenschutz:** keiner. **Voraussetzung:** synchronisierende Quelle; Anbieterlimits haben Vorrang.
 
 ### Pause nach Anmeldefehlern (`pause_after_auth_errors`)
-- **Zweck:** Nach so vielen aufeinanderfolgenden Anmelde-/Berechtigungsfehlern wird die Quelle pausiert. **Standard:** 3.
+- **Zweck:** Nach so vielen aufeinanderfolgenden Anmelde-/Berechtigungsfehlern wird die Quelle pausiert. **Standard:** 3, erlaubt 1–20 (erweiterte Einstellung).
 - **Folgen:** verhindert wiederholte fehlschlagende Anfragen und mögliche Kontosperren. Sie sehen einen Hinweis auf Dashboard und Quellen-Seite; nach „Neu verbinden“ läuft die Quelle weiter. Vorhandene Reviews bleiben sichtbar.
 - **Datenschutz:** keiner.
 
@@ -69,15 +69,15 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Voraussetzung:** Pro, Recht „Review-Anfragen“, eingerichteter Versandweg.
 
 ### Versandzeitfenster (`send_window_start`, `send_window_end`)
-- **Zweck:** Uhrzeiten, zu denen Einladungen verschickt werden dürfen (Website-Zeit). **Standard:** 09:00–18:00 (Vorschlag).
+- **Zweck:** Uhrzeiten, zu denen Einladungen verschickt werden dürfen (Website-Zeit). **Standard:** 09:00–18:00.
 - **Folgen:** Einladungen außerhalb werden auf das nächste Fenster verschoben. Kampagnen dürfen das Fenster nur verkleinern.
 
 ### Tageslimit (`daily_limit`)
-- **Zweck:** Höchstzahl Einladungen pro Tag über alle Kampagnen. **Standard:** 200.
+- **Zweck:** Höchstzahl Einladungen pro Tag über alle Kampagnen. **Standard:** 200, erlaubt 1–100 000.
 - **Folgen:** schützt vor Versandfehlern und Spam-Einstufung. Überzählige Einladungen warten auf den Folgetag.
 
 ### Mindestabstand je Empfänger (`cooldown_days`)
-- **Zweck:** Tage, in denen dieselbe Person keine weitere Einladung erhält. **Standard:** 90.
+- **Zweck:** Tage, in denen dieselbe Person keine weitere Einladung erhält. **Standard:** 90, erlaubt 0–3650.
 - **Folgen:** Kampagnen dürfen den Abstand nur verlängern.
 - **Datenschutz:** dafür wird eine minimale Empfängerreferenz gespeichert; Frist im Tab Datenschutz.
 
@@ -97,17 +97,17 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Datenschutz:** zentral; Änderung wird protokolliert. Lassen Sie die Rechtsgrundlage prüfen.
 
 ### Spam-Falle (`honeypot`)
-- **Zweck:** unsichtbares Feld, das automatisierte Einsendungen erkennt. **Standard:** an. Nonce-Prüfung und Rate-Limit bleiben immer aktiv.
+- **Zweck:** unsichtbares Feld, das automatisierte Einsendungen erkennt. **Standard:** an (erweiterte Einstellung). Nonce-Prüfung, Mindestausfüllzeit (3 Sekunden) und Rate-Limit bleiben immer aktiv.
 
 ### Einreichungen pro Stunde (`rate_limit_per_hour`)
-- **Zweck:** Höchstzahl Einsendungen je Absender und Stunde. **Standard:** 5.
-- **Datenschutz:** zur Zählung wird ein gekürzter, gehashter Absenderwert kurzzeitig gespeichert (keine Klar-IP).
+- **Zweck:** Höchstzahl Einsendungen je Absender und Stunde. **Standard:** 5, erlaubt 1–1000 (erweiterte Einstellung). Fehlgeschlagene Versuche werden bis zum Dreifachen zugelassen.
+- **Datenschutz:** zur Zählung wird ein gekürzter, gehashter Absenderwert kurzzeitig gespeichert (keine Klar-IP; bei IPv6 das /64-Netz).
 
 ### Mindest-/Höchstlänge des Textes (`min_text_length`, `max_text_length`)
-- **Standard:** 20 bzw. 5 000 Zeichen. Mindestwert muss kleiner sein als der Höchstwert. Einzelne Formulare dürfen abweichen (Höchstlänge nur kleiner).
+- **Standard:** 20 bzw. 5 000 Zeichen; erlaubt 0–1000 bzw. 50–20 000. Wählen Sie den Mindestwert kleiner als den Höchstwert (wird in v1 nicht automatisch geprüft). Abweichungen je Formular sind in v1 nicht vorgesehen.
 
 ### Titelfeld anbieten (`allow_title`)
-- **Standard:** an. Einzelne Formulare dürfen abweichen.
+- **Standard:** an. Gilt für alle Formulare der Website.
 
 ### Admin benachrichtigen (`notify_admin`)
 - **Zweck:** E-Mail an die Administrator-Adresse der Website bei neuer Einreichung. **Standard:** an.
@@ -126,27 +126,32 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 - **Standard:** absolut („12.11.2026“). Relativ („vor 3 Tagen“) veraltet in zwischengespeicherten Seiten schneller.
 
 ### Text bei leerer Liste (`empty_text`)
-- **Standard:** leer = „Noch keine Bewertungen vorhanden.“
+- **Standard:** leer = „Es sind noch keine Bewertungen vorhanden.“
 
 ### Bewegung reduzieren (`reduced_motion`)
 - **Standard:** an = keine automatischen Animationen oder Karussell-Rotation. Wünscht ein Besucher im Betriebssystem reduzierte Bewegung, wird das immer beachtet.
 
+### Bewertungs-Markup ausgeben (`schema_enabled`)
+- **Zweck:** Ob Review Captain strukturierte Daten (schema.org) für eigene, auf dieser Website abgegebene und freigegebene Bewertungen ausgibt.
+- **Standard:** an. **Folgen:** aus = keinerlei Bewertungs-Markup durch Review Captain; die sichtbare Ausgabe bleibt gleich. Externe Bewertungen erhalten unabhängig davon nie Markup.
+- **Datenschutz:** keiner. **Voraussetzung:** keine; mit Yoast SEO wird das Markup in dessen Schema-Graph eingefügt.
+
 ### Plugin-CSS laden (`load_css`)
-- **Standard:** an. Aus = Ihr Theme muss die Ausgabe selbst gestalten (Klassen `rc-…`).
+- **Standard:** an (erweiterte Einstellung). Aus = Ihr Theme muss die Ausgabe selbst gestalten (Klassen `rc-…`).
 
 ## Datenschutz & Aufbewahrung
 
 Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einstellungen dürfen nur Personen mit dem Recht „Datenschutz verwalten“ ändern.
 
 ### Externe Reviews ohne Bestätigung (`retention_external_days`)
-- **Zweck:** Wie lange ein importiertes Plattform-Review gespeichert bleibt, wenn es nicht mehr erfolgreich von der Quelle bestätigt wurde (z. B. getrennte Verbindung). **Standard:** 30 Tage.
+- **Zweck:** Wie lange ein importiertes Plattform-Review gespeichert bleibt, wenn es nicht mehr erfolgreich von der Quelle bestätigt wurde (z. B. getrennte Verbindung). **Standard:** 30 Tage, erlaubt 1–3650.
 - **Folgen:** danach wird der Inhalt entfernt. Strengere Anbietervorgaben gelten automatisch.
 
 ### Abgelehnte Reviews (`retention_rejected_days`)
-- **Standard:** 90 Tage nach Ablehnung, dann endgültige Löschung inklusive Verlauf.
+- **Standard:** 90 Tage nach Ablehnung (erlaubt 1–3650), dann endgültige Löschung inklusive Verlauf.
 
 ### Protokolle (`retention_logs_days`) und erledigte Hintergrundjobs (`retention_jobs_days`)
-- **Standard:** 90 bzw. 30 Tage. Protokolle enthalten keine Reviewtexte oder Zugangsdaten.
+- **Standard:** 90 bzw. 30 Tage, jeweils erlaubt 1–3650. Protokolle enthalten keine Reviewtexte oder Zugangsdaten.
 
 ### Verhalten bei Löschanfragen (`erase_mode`)
 - **Zweck:** Was das WordPress-Werkzeug „Personenbezogene Daten löschen“ mit Reviews dieser E-Mail-Adresse macht.
@@ -157,7 +162,7 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 - **Standard:** aus = Reviews und Einstellungen bleiben beim Löschen des Plugins erhalten. An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert.
 
 ### Datenschutzhinweis im Formular (`privacy_notice`)
-- **Standard:** leer = kurzer Standardtext mit Link zu Ihrer WordPress-Datenschutzseite. Erlaubt sind Links und Hervorhebungen.
+- **Standard:** leer = kurzer Standardtext mit Link zu Ihrer WordPress-Datenschutzseite. Eigener Text wird als reiner Text gespeichert (Absätze bleiben erhalten, HTML wird entfernt).
 
 ## Zugriff & Rollen
 
@@ -169,13 +174,13 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 ## Erweitert
 
 ### Action Scheduler verwenden (`use_action_scheduler`)
-- **Standard:** an, falls verfügbar (z. B. durch WooCommerce). Sonst WP-Cron. Bei wenig Besucherverkehr empfehlen wir einen Server-Cron.
+- **Standard:** an (erweiterte Einstellung); wirkt nur, falls Action Scheduler verfügbar ist (z. B. durch WooCommerce). Sonst WP-Cron. Bei wenig Besucherverkehr empfehlen wir einen Server-Cron.
 
 ### Zeitbudget je Lauf (`job_time_budget`) / Freigabe hängender Jobs (`lease_seconds`)
-- **Standard:** 20 bzw. 300 Sekunden. Nur ändern, wenn die Diagnose Zeitüberschreitungen meldet. Die Freigabezeit muss länger als das Zeitbudget sein.
+- **Standard:** 20 bzw. 300 Sekunden; erlaubt 5–120 bzw. 60–3600 (erweiterte Einstellungen). Nur ändern, wenn die Diagnose Zeitüberschreitungen meldet. Wählen Sie die Freigabezeit länger als das Zeitbudget (wird in v1 nicht automatisch geprüft).
 
 ### Fehlerprotokoll (`debug_logging`)
-- **Standard:** aus. Schaltet sich nach 7 Tagen selbst ab. Enthält keine Zugangsdaten, Reviewtexte oder E-Mail-Adressen.
+- **Standard:** aus (erweiterte Einstellung). Schalten Sie es nach der Fehlersuche wieder aus (keine automatische Abschaltung in v1). Enthält keine Zugangsdaten, Reviewtexte oder E-Mail-Adressen.
 
 ## Abnahme
 
@@ -183,5 +188,5 @@ Entspricht SET-023, wenn:
 
 - [ ] jede Einstellung aus [option-schema.md](option-schema.md) hier mit Zweck, Geltungsbereich, Standard, Folgen, Datenschutzbezug und Anbieter-/Lizenzvoraussetzung erklärt ist;
 - [ ] Texte ohne interne Begriffe auskommen und mit Betreibern getestet sind (UX-013);
-- [ ] Standardwerte mit der PHP-Implementierung übereinstimmen (inkl. der als Vorschlag markierten Versandzeiten);
+- [x] Standardwerte und Wertebereiche mit der PHP-Implementierung übereinstimmen (abgeglichen 2026-11-16);
 - [ ] die Hilfetexte im Admin aus diesen Formulierungen abgeleitet sind.

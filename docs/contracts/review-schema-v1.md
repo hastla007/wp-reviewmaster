@@ -47,7 +47,7 @@ Reihenfolge und Typen exakt nach conventions.md. „Provider liefert“ = Feld d
 | `meta` | LONGTEXT (JSON) | ja (`{}`) | siehe „meta-Schlüssel“; max. 64 KiB; **keine Secrets, keine E-Mail** | teilweise |
 | `created_at` / `updated_at` | DATETIME (UTC) | ja | Core | nein |
 | `removed_at` | DATETIME NULL | nein | Tombstone-Zeitpunkt | nein |
-| `dedupe_key` | VARCHAR(191) UNIQUE NULL | generiert | `sha1(platform|profile_id|external_id)` wenn `external_id` gesetzt (TEC-004) | nein |
+| `dedupe_key` | CHAR(40) UNIQUE NULL | von PHP befüllt (`Review::dedupe_key()`) | `sha1(platform|profile_id|external_id)` wenn `external_id` gesetzt (TEC-004); gewöhnliche Spalte, keine generierte Spalte ([database.md](../architecture/database.md) §2.1.1) | nein |
 
 ### meta-Schlüssel (v1, Allowlist)
 

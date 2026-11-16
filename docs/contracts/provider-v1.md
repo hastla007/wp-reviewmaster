@@ -2,348 +2,270 @@
 
 | | |
 |---|---|
-| Status | Spezifikation, Entwurf zur Abnahme |
-| Vertragsversion | `1.0` (SemVer Major.Minor) |
-| Registry-Hook | `review_captain_providers_v1` (action, conventions.md) |
-| Namespace | `ReviewCaptain\Contracts\Provider\` (Core, lizenzfrei) |
+| Status | an den implementierten Stand angeglichen (Core v1), Stand 2026-11-16 |
+| Vertragsversion | `1.0` (`ProviderRegistry::CORE_CONTRACT`; Provider melden `1.<minor>` oder `1.x`) |
+| Registry-Hook | `review_captain_providers_v1` (action, `ProviderRegistry::HOOK`, [conventions.md](../architecture/conventions.md)) |
+| Namespace | Interface: `ReviewCaptain\Providers\Contract\ProviderInterface`; Werteobjekte/Dienste: `ReviewCaptain\Providers\` (`SyncPage`, `ProviderResult`, `ProviderException`, `ProviderRegistry`, `SyncService`) |
+| Maßgeblicher Code | `src/Providers/Contract/ProviderInterface.php`, `src/Providers/*.php`, Tests `tests/Unit/Providers/` |
 | Bezug | TODO RC-020, RC-082, RC-083, TEC-003, TEC-006, TEC-007; konzept.md 4, 7.9, 10 |
 
-> **Keine Anbieterfakten in diesem Dokument.** Alle Fixtures verwenden den fiktiven Provider `demo` (`platform = other`, Host `reviews.example.test`). Werte für Google, Trustpilot, Trusted Shops, App Store und Google Play (Auth-Art, Scopes, Seitengröße, Cache-TTL, Rate Limits, Lösch-Feeds) werden erst im jeweiligen Auth-/Provider-Record (RC-010–RC-013, RC-026) bestätigt und im Provider über `capabilities()` mit `facts_status` ausgewiesen.
+> **Keine Anbieterfakten in diesem Dokument.** Alle Fixtures verwenden den fiktiven Provider `demo` (`platform = other`, Host `reviews.example.test`). Werte für Google, Trustpilot, Trusted Shops, App Store und Google Play (Auth-Art, Scopes, Seitengröße, Cache-TTL, Rate Limits, Lösch-Feeds) werden erst im jeweiligen Auth-/Provider-Record (RC-010–RC-013, RC-026) bestätigt.
+
+> **Wo dieses Dokument und der Code abweichen, gilt der Code.** Teile früherer Entwürfe, die in Vertrag 1.0 nicht umgesetzt sind (OAuth-`connect`, `disconnect`, `normalize` als Vertragsmethode, `Connection`-Objekt, Capabilities-JSON, `sync_runs`-Tabelle), stehen im Abschnitt [Ausblick](#ausblick-nicht-in-vertrag-10-umgesetzt).
 
 ## Grundsätze
 
-1. Ein Provider ist ein **Adapter**: Er spricht mit genau einer Plattform-API, liefert Rohdaten und normalisiert sie. Persistenz, Dedupe, Tombstones, Jobs, Locks, Budgets, Credentials-Speicherung und Sichtbarkeit sind Aufgabe des Core bzw. der Pro-Sync-Runtime.
-2. Provider sind **read-only** in v1. `write_features` muss leer sein; Antworten/Einladungen über Plattform-APIs sind späterer Vertragsumfang.
-3. Kein Provider-Aufruf im Frontend-Request. Aufrufe nur aus Jobs, WP-CLI oder Admin-Aktionen mit Capability `review_captain_manage_sources` + Nonce.
-4. Provider persistieren keine Credentials selbst. Sie bekommen sie über `Connection` und geben Änderungen (Token-Refresh) im Ergebnis zurück.
-5. Ein Ausfall eines Providers blockiert keine anderen Quellen. Inkompatible Provider werden pausiert, nie fatal.
+1. Ein Provider ist ein **Adapter**: Er spricht mit genau einer Plattform-API und liefert normalisierte `Review`-Objekte. Persistenz, Dedupe, Tombstones, Jobs, Locks, Budgets, Credentials-Speicherung und Sichtbarkeit sind Aufgabe des Core (`SyncService`) bzw. der Pro-Sync-Runtime.
+2. Provider sind **read-only** in v1. Die Fähigkeiten `invite` und `reply` (`ProviderRegistry::WRITE_CAPABILITIES`) sind bekannt, werden vom Core 1.0 aber nie ausgeführt (die Registry vermerkt einen Hinweis).
+3. Kein Provider-Aufruf im Frontend-Request. Alle Methoden außer den Metadaten werden nur aus Jobs, WP-CLI oder Admin-Aktionen aufgerufen.
+4. Provider persistieren keine Credentials. Sie erhalten entschlüsselte Credentials nur im Speicher als Parameter (`test_connection( $credentials )`, `list_profiles( $credentials )`, `$profile['credentials']`).
+5. Ein Ausfall eines Providers blockiert keine anderen Quellen. `register()` wirft nie; inkompatible Provider bleiben registriert, aber pausiert (`rc.contract.incompatible`), nie fatal.
 
 ## Registrierung
 
 ```php
-add_action( 'review_captain_providers_v1', static function ( \ReviewCaptain\Contracts\Provider\ProviderRegistry $registry ): void {
+add_action( 'review_captain_providers_v1', static function ( \ReviewCaptain\Providers\ProviderRegistry $registry ): void {
     $registry->register( new \Acme\ReviewDemo\DemoProvider() );
 } );
 ```
 
-- Der Core feuert `review_captain_providers_v1` einmal pro Request, nachdem `review_captain_loaded` gelaufen ist (Lazy: nur wenn Admin-Quellenseite, Job oder CLI Provider benötigt).
-- `ProviderRegistry::register( ReviewProviderInterface $provider ): RegistrationResult` validiert:
+- `ProvidersModule` ruft `ProviderRegistry::fire()` auf `init` (Priorität 20) auf; `fire()` feuert den Hook höchstens einmal pro Request. Wirft ein Registrierungs-Callback, wird das als Ablehnung mit `rc.internal.error` vermerkt, nie als Fatal Error.
+- Der Fixture-Provider `demo` (`FixtureProvider`, Fixtures unter `tests/fixtures/providers/demo/`) wird nur registriert, wenn `REVIEW_CAPTAIN_DEV_FIXTURES === true` **und** `wp_get_environment_type()` `local` oder `development` ist.
 
-| Prüfung | Fehler | Folge |
+### `ProviderRegistry` (öffentliche API)
+
+| Methode | Rückgabe | Bedeutung |
 |---|---|---|
-| `key()` passt auf `^[a-z0-9][a-z0-9_.-]{1,63}$` | `rc.contract.invalid_metadata` | nicht registriert, Admin-Hinweis |
-| `key()` noch nicht registriert | `rc.contract.duplicate_key` | erster gewinnt, zweiter abgewiesen |
-| `platform()` ∈ `reviews.platform`-Enum | `rc.contract.invalid_metadata` | nicht registriert |
-| Major von `contract_version()` == `1` | `rc.contract.incompatible` | registriert mit Status `incompatible_contract`, keine Ausführung |
-| Minor > vom Core unterstützter Minor | – | registriert, Felder unbekannter Minor werden ignoriert |
-| `capabilities()` valide, `write_features` leer | `rc.contract.invalid_capabilities` | Status `incompatible_contract` |
+| `fire(): void` | – | feuert `review_captain_providers_v1` einmal pro Request |
+| `register( mixed $provider ): bool` | `true` = registriert (ggf. inkompatibel), `false` = abgewiesen | wirft nie |
+| `get( string $key ): ?ProviderInterface` | nur **kompatible** Provider | |
+| `keys(): list<string>` | alle registrierten Schlüssel (auch inkompatible) | |
+| `details( string $key ): ?array` | `{compatible, error_code, messages, meta: {key, label, version, platform, contract_version, capabilities, class}}` | Diagnose, ohne Providerobjekt |
+| `rejected(): list<array{key: ?string, class: string, error_code: string, messages: list<string>}>` | abgewiesene Registrierungen | |
+| `status( string $key ): array{state, error_code, next_action}` | `state` = `active` \| `paused` \| `source_unavailable` | siehe unten |
 
-Offizielle Provider tragen `key() === platform()` (z. B. `google`). Drittanbieter-Provider verwenden `platform() = 'other'` und einen eigenen Key mit Präfix (`acme.bookings`).
+Konstanten: `HOOK = 'review_captain_providers_v1'`, `KEY_PATTERN = '/^[a-z0-9][a-z0-9_.-]{1,63}$/'`, `CONTRACT_PATTERN = '/^1\.(\d+|x)$/'`, `CORE_CONTRACT = '1.0'`, `WRITE_CAPABILITIES = ['invite', 'reply']`.
+
+### Prüfungen bei `register()`
+
+| Prüfung (Reihenfolge wie im Code) | Fehlercode | Folge |
+|---|---|---|
+| Objekt implementiert `ProviderInterface` | `rc.contract.incompatible` | abgewiesen (`rejected()`) |
+| Metadaten-Methoden (`key`, `label`, `version`, `platform`, `contract_version`, `capabilities`) werfen nicht | `rc.contract.invalid` | abgewiesen |
+| `key()` passt auf `KEY_PATTERN` | `rc.contract.invalid` | abgewiesen |
+| `key()` noch nicht registriert | `rc.data.duplicate` | abgewiesen, die erste Registrierung bleibt |
+| `label()` nicht leer, ≤ 191 Zeichen; `version()` nicht leer, ≤ 64 Zeichen | `rc.contract.invalid` | abgewiesen |
+| `platform()` ≠ `Platform::LOCAL` | `rc.contract.invalid` | abgewiesen |
+| `contract_version()` passt auf `CONTRACT_PATTERN` (`1.<minor>` oder `1.x`) | `rc.contract.incompatible` | registriert, `compatible = false` → Status `paused` |
+| jede Fähigkeit ∈ `ProviderInterface::CAPABILITIES` | `rc.contract.incompatible` | unbekannte Fähigkeit wird verworfen und gemeldet; Provider `paused` |
+| `read_reviews` ist enthalten | `rc.contract.incompatible` | Provider `paused` |
+| `invite`/`reply` enthalten | – | Hinweis „werden in Vertrag 1.0 nicht ausgeführt“, Provider bleibt kompatibel |
+
+`status( $key )`:
+
+| `state` | `error_code` | Wann |
+|---|---|---|
+| `active` | `null` | registriert und kompatibel |
+| `paused` | `rc.contract.incompatible` | registriert, aber inkompatibel |
+| `source_unavailable` | `rc.source.unavailable` | nicht registriert (z. B. Add-on inaktiv) |
+
+Offizielle Provider tragen `key() === platform()->value` (z. B. `google`). Drittanbieter-Provider verwenden `Platform::OTHER` und einen eigenen Key mit Präfix (`acme.bookings`).
 
 ## Interface
 
 ```php
-namespace ReviewCaptain\Contracts\Provider;
+namespace ReviewCaptain\Providers\Contract;
 
-interface ReviewProviderInterface {
-    public function key(): string;              // stabiler Schlüssel, z. B. 'demo'
-    public function platform(): string;         // Wert aus reviews.platform
+use ReviewCaptain\Domain\Platform;
+use ReviewCaptain\Providers\ProviderResult;
+use ReviewCaptain\Providers\SyncPage;
+
+interface ProviderInterface {
+    public const CAPABILITIES = array( 'read_reviews', 'list_profiles', 'summary', 'invite', 'reply', 'delete_sync' );
+
+    public function key(): string;              // ^[a-z0-9][a-z0-9_.-]{1,63}$
     public function label(): string;            // übersetzbarer Anzeigename
     public function version(): string;          // SemVer der Implementierung
-    public function contract_version(): string; // '1.0'
-    public function capabilities(): array;      // siehe „capabilities()“
+    public function platform(): Platform;       // Enum, nicht Platform::LOCAL
+    public function contract_version(): string; // "1.<minor>" oder "1.x"
+    /** @return list<string> Teilmenge von self::CAPABILITIES */
+    public function capabilities(): array;
 
-    /** Verbindungsaufbau (OAuth-Start/-Callback oder Credential-Eingabe). */
-    public function connect( array $request ): array;
+    /** Credentials/Berechtigung prüfen, ohne Daten zu importieren. Wirft bei ungültigen Credentials NICHT. */
+    public function test_connection( array $credentials ): ProviderResult;
 
-    /** Verbindung + Berechtigung prüfen, ohne Daten zu importieren. */
-    public function test( Connection $connection ): array;
+    /**
+     * Zugängliche Profile/Standorte/Apps.
+     * @return array{profiles: list<array{external_ref: string, label: string, public_url: ?string, selectable: bool, reason: ?string}>, next_cursor: ?string}
+     */
+    public function list_profiles( array $credentials, ?string $cursor = null ): array;
 
-    /** Zugängliche Profile/Standorte/Apps auflisten (paginierbar). */
-    public function list_profiles( Connection $connection, ?string $cursor = null ): array;
+    /**
+     * Eine Seite normalisierter Reviews.
+     * @param array $profile id (int), external_ref (string), credentials (array, nur im Speicher), settings (array)
+     * @param int   $limit   1..100
+     * @throws \ReviewCaptain\Providers\ProviderException
+     */
+    public function sync_page( array $profile, ?string $cursor, int $limit ): SyncPage;
 
-    /** Eine Seite Reviews eines Profils abrufen. */
-    public function sync_page( Connection $connection, array $profile, ?string $cursor, array $options ): array;
-
-    /** Ein Roh-Item in einen Datensatz nach review.v1 (Provider-Felder) überführen. Rein, ohne I/O. */
-    public function normalize( array $raw, array $profile ): array;
-
-    /** Verbindung trennen: Token beim Anbieter widerrufen, soweit unterstützt. */
-    public function disconnect( Connection $connection ): array;
-
-    /** Aktueller Quota-/Rate-Limit-Zustand. Darf gecachte Werte aus letzter Antwort liefern. */
-    public function quota_status( Connection $connection ): array;
+    /** @return array{state: string, remaining: ?int, reset_at: ?string, retry_after_seconds: ?int} */
+    public function quota_status(): array;
 }
 ```
 
-`Connection` (Core-Value-Object, read-only): `profile_connection_id(): int`, `credential( string $name ): ?string` (entschlüsselt nur im Speicher), `account_ref(): ?string`, `http(): HttpClient` (Core-Client mit Host-Allowlist aus `capabilities().hosts`, Timeouts, SSRF-Schutz, Logging ohne Header/Body).
+### Fähigkeiten (`capabilities()`)
 
-### Fehler
-
-Methoden werfen bei Fehlern `ReviewCaptain\Contracts\Provider\ProviderException`:
-
-```php
-new ProviderException( string $code, string $safe_message = '', ?int $retry_after_seconds = null, array $context = [] );
-```
-
-- `$code` muss ein Code aus [`../architecture/error-codes.md`](../architecture/error-codes.md) sein; unbekannte Codes werden als `rc.perm.failed` behandelt.
-- `$safe_message` enthält keine Tokens, Header, Reviewtexte oder E-Mails (max. 500 Zeichen, wird zusätzlich sanitisiert).
-- `$context` nur Allowlist-Schlüssel: `http_status`, `endpoint_key` (symbolisch, keine URL mit Query), `profile_external_ref`.
-
-Empfohlene Abbildung von HTTP-Antworten:
-
-| Situation | Code |
+| Fähigkeit | Bedeutung in Core 1.0 |
 |---|---|
-| 401, Token abgelaufen und Refresh möglich | `rc.auth.expired` (Core triggert Refresh, dann Retry) |
-| 401 sonst / Refresh fehlgeschlagen | `rc.auth.invalid` |
-| 403 fehlender Scope/Tarif | `rc.auth.insufficient_scope` |
-| 404 Profil | `rc.remote.not_found` |
-| 429 | `rc.quota.rate_limited` (+ `Retry-After`) |
-| Tages-/Monatskontingent erschöpft | `rc.quota.exceeded` |
-| 5xx | `rc.remote.server_error` |
-| Timeout / Verbindung | `rc.net.timeout` / `rc.net.connection` |
-| Unerwartetes Antwortformat | `rc.data.invalid_payload` |
+| `read_reviews` | **Pflicht**; `sync_page()` liefert Reviews |
+| `list_profiles` | `list_profiles()` liefert auswählbare Profile |
+| `summary` | Plattform-Score/Anzahl verfügbar (Anzeige RC-112, Pro) |
+| `delete_sync` | `SyncPage::removed_external_ids` wird gefüllt (Lösch-Feed) |
+| `invite`, `reply` | bekannt, werden nie ausgeführt |
 
-## Methoden im Detail
+### `test_connection( array $credentials ): ProviderResult`
 
-### `capabilities()`
+Darf bei ungültigen Credentials **nicht** werfen, sondern liefert `ProviderResult::error( 'rc.auth.invalid', … )`. Importiert nichts.
 
-```json
-{
-  "contract": "1.0",
-  "facts_status": "fixture",
-  "auth": ["api_key"],
-  "hosts": ["reviews.example.test"],
-  "features": ["list_profiles", "sync_full", "sync_delta", "deletion_feed", "full_listing", "summary"],
-  "write_features": [],
-  "rating_scale": { "min": 1, "max": 5, "step": 1 },
-  "max_page_size": 50,
-  "default_page_size": 20,
-  "max_cache_ttl_seconds": 86400,
-  "min_sync_interval_seconds": 3600,
-  "rate_limit": { "requests": 60, "per_seconds": 60 },
-  "config_fields": [
-    { "key": "api_key", "type": "secret", "label": "API-Schlüssel", "required": true }
-  ]
-}
-```
-
-| Feld | Bedeutung |
-|---|---|
-| `facts_status` | `fixture` \| `documented` (aus Anbieterdoku übernommen, nicht getestet) \| `sandbox_verified` \| `live_verified`. Admin zeigt Werte < `sandbox_verified` als „unbestätigt“. Live-Release eines Adapters erst ab `live_verified` (TODO Arbeitsregeln). |
-| `auth` | `oauth2` \| `api_key` \| `service_account` \| `signed_jwt` \| `none` |
-| `hosts` | exakte Hosts für den Core-HTTP-Client (keine Wildcards) |
-| `features` | `list_profiles`, `sync_full`, `sync_delta`, `deletion_feed` (API liefert Löschungen), `full_listing` (vollständige Auflistung ermöglicht Reconcile durch Abwesenheit), `summary` (Plattform-Score/Anzahl), `replies_read` |
-| `write_features` | v1: muss `[]` sein (reserviert: `replies_write`, `invitations`) |
-| `max_cache_ttl_seconds` | maximale Anzeigedauer ohne Refresh → `refresh_due_at` (review-schema-v1.md) |
-| `config_fields` | typisiertes Konfigurationsschema (`text`, `url`, `select`, `number`, `secret`), CON-011 |
-
-### `connect( array $request ): array`
-
-Drei Modi; der Core prüft State/Nonce/Redirect-URI **vor** dem Aufruf (TEC-010) und übergibt nur geprüfte Werte.
-
-| `mode` | Eingabe | Ausgabe |
-|---|---|---|
-| `oauth_start` | `redirect_uri`, `state` (vom Core erzeugt, gebunden an User + Nonce, 10 min gültig) | `{ "type": "redirect", "authorize_url": "https://…" }` |
-| `oauth_callback` | `code`, `redirect_uri` (State bereits geprüft) | `{ "type": "connected", "credentials": {…}, "credentials_expires_at": "…", "scopes": […], "account": { "external_ref": "…", "label": "…" } }` |
-| `credentials` | `fields` gemäß `config_fields` | wie `oauth_callback` |
-
-Credentials werden vom Core verschlüsselt gespeichert (TEC-008) und nie geloggt.
-
-Beispiel `credentials`-Ergebnis (Fixture):
-
-```json
-{
-  "type": "connected",
-  "credentials": { "api_key": "«wird verschlüsselt gespeichert»" },
-  "credentials_expires_at": null,
-  "scopes": ["reviews:read"],
-  "account": { "external_ref": "acct-demo-1", "label": "Demo GmbH" }
-}
-```
-
-### `test( Connection ): array`
-
-```json
-{ "ok": true, "account": { "external_ref": "acct-demo-1", "label": "Demo GmbH" }, "scopes": ["reviews:read"], "checks": [ { "key": "auth", "ok": true }, { "key": "read_reviews", "ok": true } ] }
-```
-
-Fehlschlag: `ProviderException` (z. B. `rc.auth.insufficient_scope`). `test()` importiert nichts und verbraucht höchstens 2 API-Requests.
-
-### `list_profiles( Connection, ?cursor ): array`
+### `list_profiles( array $credentials, ?string $cursor = null ): array`
 
 ```json
 {
   "profiles": [
-    { "external_ref": "loc-100", "label": "Filiale Wien", "public_url": "https://reviews.example.test/p/loc-100", "language": "de-AT", "kind": "location", "selectable": true, "reason": null },
-    { "external_ref": "loc-200", "label": "Filiale Graz (nicht verifiziert)", "public_url": null, "language": "de-AT", "kind": "location", "selectable": false, "reason": "rc.auth.insufficient_scope" }
+    { "external_ref": "loc-100", "label": "Filiale Wien", "public_url": "https://reviews.example.test/p/loc-100", "selectable": true, "reason": null },
+    { "external_ref": "loc-200", "label": "Filiale Graz (nicht verifiziert)", "public_url": null, "selectable": false, "reason": "rc.auth.permission_denied" }
   ],
   "next_cursor": null
 }
 ```
 
-Nur `selectable = true` darf der Admin auswählen (RC-066). Die Auswahl wird serverseitig gegen eine frische `list_profiles`-Antwort geprüft (keine Profilwahl per manipuliertem Request, TEC-010).
+Nur `selectable = true` darf der Admin auswählen (RC-066). `reason` ist ein `rc.*`-Code aus [error-codes.md](../architecture/error-codes.md) oder `null`.
 
-### `sync_page( Connection, profile, ?cursor, options ): array`
+### `sync_page( array $profile, ?string $cursor, int $limit ): SyncPage`
 
-`options`: `{ "mode": "full"|"delta", "page_size": int ≤ max_page_size, "since": ISO8601|null, "run_uuid": "…" }`.
+- `$profile`: `id` (int, `profiles.id`), `external_ref` (string), `credentials` (array, nur im Speicher), `settings` (array).
+- `$cursor`: opak, `null` = erste Seite. `$limit`: 1..100 (Provider kappt selbst).
+- Rückgabe: `SyncPage` (unten). Fehler: `ProviderException`.
+
+### `quota_status(): array`
 
 ```json
-{
-  "items": [ { "…": "Rohdaten des Anbieters, unverändert" } ],
-  "removed": [ { "external_id": "demo-rev-0999", "reason": "remote_removed" } ],
-  "next_cursor": "eyJwIjoyfQ",
-  "has_more": true,
-  "summary": { "rating_value": 4.6, "rating_scale_min": 1, "rating_scale_max": 5, "count": 1234, "as_of": "2026-11-16T06:00:00Z" },
-  "quota": { "state": "ok", "remaining": 57, "reset_at": "2026-11-16T06:01:00Z", "retry_after_seconds": null, "source": "provider_header" },
-  "credentials_update": null
-}
+{ "state": "warning", "remaining": 4, "reset_at": "2026-11-16T07:00:00Z", "retry_after_seconds": null }
+```
+
+`state`: `ok` \| `warning` \| `exhausted` \| `unknown`. Darf gecachte Werte der letzten Antwort liefern. Unabhängig davon erzwingt der Core lokale Budgets je Profil (`Jobs\Budget`, TEC-007).
+
+## Werteobjekte
+
+### `SyncPage` (`ReviewCaptain\Providers\SyncPage`, final, immutable)
+
+```php
+new SyncPage( array $reviews, ?string $next_cursor = null, array $removed_external_ids = array() );
+```
+
+| Eigenschaft | Typ | Regel (Konstruktor wirft `\InvalidArgumentException`) |
+|---|---|---|
+| `reviews` | `list<Review>` (readonly) | nur `ReviewCaptain\Domain\Review`-Objekte |
+| `next_cursor` | `?string` (readonly) | `null` = fertig, sonst 1..1024 Byte |
+| `removed_external_ids` | `list<string>` (readonly) | nicht leer, ≤ 191 Zeichen; Duplikate werden entfernt |
+
+`has_more(): bool` = `next_cursor !== null`.
+
+### `ProviderResult` (`ReviewCaptain\Providers\ProviderResult`, final, immutable)
+
+| Element | Bedeutung |
+|---|---|
+| `ProviderResult::ok( array $data = array(), string $message = '' ): self` | Erfolg |
+| `ProviderResult::error( string $error_code, string $message = '', array $data = array() ): self` | Fehlschlag; unbekannte Codes werden zu `rc.perm.failed` |
+| `$ok` (bool), `$error_code` (?string), `$message` (string), `$data` (array) | readonly; `message` wird mit `ConnectorException::sanitize_message()` bereinigt |
+| `next_action(): string` | nächste Admin-Aktion laut `ErrorCode::admin_action()` |
+
+### `ProviderException` (`ReviewCaptain\Providers\ProviderException extends ReviewCaptain\Connectors\ConnectorException`)
+
+```php
+new ProviderException( string $error_code, string $message = '', ?int $retry_after_seconds = null );
+```
+
+- `error_code()`: bekannter Code laut `ErrorCode::is_known()`, sonst **`rc.perm.failed`** (bei `ConnectorException` wäre der Fallback `rc.temp.unavailable`). `raw_error_code()` liefert den übergebenen Code für die Diagnose.
+- `retry_after(): ?int` – `Retry-After`-Hinweis in Sekunden.
+- Die Nachricht wird sanitisiert (`ConnectorException::sanitize_message()`: Markup entfernt, E-Mail-Adressen → `[email]`, tokenartige Zeichenketten ≥ 32 Zeichen → `[redacted]`, max. 500 Zeichen).
+- `ProviderException::from_http( int $status, ?int $retry_after = null, bool $token_expired = false ): self` bildet HTTP-Status auf Standardcodes ab:
+
+| HTTP | Code |
+|---|---|
+| `0` (Timeout/Verbindungsfehler) | `rc.net.timeout` |
+| 401 mit `$token_expired = true` | `rc.auth.expired` |
+| 401 sonst | `rc.auth.invalid` |
+| 403 | `rc.auth.permission_denied` |
+| 404, 410 | `rc.remote.removed` |
+| 429 | `rc.quota.rate_limited` (+ `retry_after`) |
+| ≥ 500 | `rc.temp.unavailable` |
+| alles andere | `rc.data.invalid_payload` |
+
+Ein Tages-/Monatskontingent signalisiert der Provider selbst mit `rc.quota.exceeded`, eine nicht erreichbare Gegenstelle mit `rc.net.unreachable`.
+
+## Übernahme in die Datenbank: `SyncService`
+
+`ReviewCaptain\Providers\SyncService` (Dienst `provider_sync` im Plugin-Container):
+
+```php
+public function __construct( ReviewRepository $reviews, int $ttl_seconds = DAY_IN_SECONDS );
+/** @return array{created: int, updated: int, unchanged: int, removed: int, invalid: int} */
+public function apply( SyncPage $page, int $profile_id ): array;
 ```
 
 Regeln:
 
-- **Cursor** ist ein opaker String ≤ 1024 Byte (Provider darf Base64-JSON verwenden). Der Core speichert ihn erst **nach** Commit der Seite (siehe Ablauf). `null` + `has_more=false` = Lauf beendet.
-- `items` ≤ `page_size`. Leere Seite mit `has_more=true` ist erlaubt (Lücken in der API).
-- `removed` nur bei Feature `deletion_feed`. Bei `full_listing` ohne Lösch-Feed tombstont der Core am Ende eines **vollständigen** Full-Laufs alle Datensätze des Profils, deren `meta.last_verified_at` älter als der Laufbeginn ist (Reason `remote_not_found`). Abgebrochene Läufe tombstonen nie.
-- `summary` nur bei Feature `summary`; wird in den Profildaten gespeichert (Plattform-Bewertungsleiste RC-112).
-- `credentials_update` nicht leer → Core speichert die neuen Credentials atomar (siehe `race-conditions.md` R-04) bevor die Items verarbeitet werden.
-
-### `normalize( array $raw, array $profile ): array`
-
-Rein funktional, ohne I/O, deterministisch. Liefert nur die Provider-Felder aus review-schema-v1.md:
-
-`kind`(=`review`), `platform`, `external_id`, `rating_value`, `rating_scale_min`, `rating_scale_max`, `title`, `body`, `language`, `author_name`, `context_type`, `context_id`, `source_url`, `published_at`, `meta` (nur Allowlist-Schlüssel).
-
-Der Core ergänzt `uuid`, `origin=provider_sync`, `profile_id`, `verification=external_platform`, `status`, `fetched_at`, `refresh_due_at`, `consent_publish=0`, Zeitstempel und validiert gegen [`schema/review.v1.json`](schema/review.v1.json). Ungültige Items werden einzeln mit `rc.data.invalid_payload` verworfen und gezählt; die Seite scheitert nicht als Ganzes.
-
-### `disconnect( Connection ): array`
-
-```json
-{ "revoked": true, "method": "api_revoke" }
-```
-
-`method`: `api_revoke` \| `not_supported` (Admin erhält Hinweis, Zugang beim Anbieter manuell zu entziehen). Unabhängig vom Ergebnis löscht der Core die Credentials, setzt offene Provider-Jobs auf `cancelled` (konzept 7.9) und wendet die Aufbewahrungsregel für Snapshots an (RC-027; Ablauf → Tombstone `disconnect_retention`).
-
-### `quota_status( Connection ): array`
-
-```json
-{ "state": "warning", "remaining": 4, "reset_at": "2026-11-16T07:00:00Z", "retry_after_seconds": null, "source": "provider_header" }
-```
-
-`state`: `ok` \| `warning` \| `exhausted` \| `unknown`. Unabhängig davon erzwingt der Core lokale Budgets je Profil (TEC-007).
-
-## Sync-Ablauf (Core/Pro-Runtime)
-
-```mermaid
-sequenceDiagram
-    participant J as Job sync.page
-    participant P as Provider
-    participant DB as reviews / sync_runs
-    J->>DB: Lauf-Lock prüfen (sync_runs.active_profile_id UNIQUE)
-    J->>P: sync_page(connection, profile, cursor, options)
-    P-->>J: items, removed, next_cursor, quota
-    J->>J: normalize + validate je Item
-    J->>DB: BEGIN; Upsert via dedupe_key; Tombstones; meta.last_verified_at
-    J->>DB: UPDATE sync_runs SET cursor=next, page_no=page_no+1 WHERE id=? AND generation=?; COMMIT
-    J->>J: has_more ? Folgejob sync.page (idempotency sync:{profile_id}:{run_uuid}:{page_no}) : Lauf abschließen
-```
-
-- Verarbeitung ist **at-least-once**; Idempotenz durch `dedupe_key`-Upsert und Cursor-CAS (`generation`).
-- Pro-Tabelle `{prefix}review_captain_sync_runs` (Vorschlag): `id`, `uuid`, `profile_id`, `mode`, `status` (`running`\|`succeeded`\|`failed`\|`cancelled`), `active_profile_id` BIGINT NULL **UNIQUE** (= `profile_id` solange `running`, sonst NULL → höchstens ein aktiver Lauf je Profil), `cursor` TEXT, `page_no`, `generation` INT, `items_upserted`, `items_invalid`, `items_removed`, `last_error_code`, `started_at`, `finished_at`.
-- Fehlerbehandlung je Retry-Klasse aus `error-codes.md`; `rc.auth.*` pausiert das Profil (Status `auth_required`), `rc.quota.*` verschiebt auf `retry_after`/`reset_at`.
+- Je Review: der Core überschreibt Herkunftsfelder, die der Provider nicht kontrolliert – `id`/`uuid` leer, `kind = review`, `origin = provider_sync`, `profile_id = $profile_id`, `verification = external_platform`, `author_email`/`author_user_id` = `null`, `consent_publish = false`, `consent_at`/`import_batch_id`/`removed_at` = `null`, `fetched_at` = jetzt, `refresh_due_at` = jetzt + `max(60, ttl_seconds)`, `meta.last_verified_at` = jetzt (ISO 8601).
+- Anfangsstatus neuer Datensätze über den Filter `review_captain_sync_initial_status` (Default `ReviewStatus::PENDING`; nur `PENDING` oder `APPROVED` zulässig).
+- Reviews ohne externe Plattform (`Platform::is_external()`), ohne `external_id` oder mit Validierungsfehlern (`Review::validate()`) werden einzeln als `invalid` gezählt; die Seite scheitert nicht als Ganzes.
+- Upsert über `ReviewRepository::upsert_external()` mit `dedupe_key` ([database.md](../architecture/database.md) §2.1.1). Der Moderationsstatus vorhandener Datensätze bleibt erhalten; zuvor als `removed` markierte Datensätze werden wiederhergestellt. `updated` vs. `unchanged` entscheidet ein Inhalts-Fingerprint (Bewertung, Skala, Titel, Text, Sprache, Autor, Quell-URL, Datum, Kontext).
+- `removed_external_ids` → Status `removed` (Grund `remote_removed`) für den Datensatz mit passendem `dedupe_key`; die Plattform wird aus `profiles.platform` ermittelt.
+- Verarbeitung ist **at-least-once**; Idempotenz durch den `dedupe_key`-Upsert. Cursorverwaltung, Folgejobs und Locks je Profil sind Aufgabe der Pro-Sync-Runtime (in Core 1.0 gibt es keinen Sync-Jobtyp).
 
 ## Fixtures
 
-Ablage: `tests/fixtures/providers/<key>/` (für `demo` zusätzlich als Beispiel unter `examples/`). Pflicht-Fixtures je Provider (RC-083):
+Ablage: `tests/fixtures/providers/<key>/`. Vorhanden für `demo` (RC-083):
 
 | Datei | Inhalt |
 |---|---|
-| `capabilities.json` | Ergebnis von `capabilities()` |
+| `capabilities.json` | Metadaten inkl. `capabilities` (`read_reviews`, `list_profiles`, `summary`, `delete_sync`) |
 | `list_profiles.json` | inkl. eines nicht auswählbaren Profils |
 | `sync_page_1.json`, `sync_page_2.json` | Pagination mit Cursor, ein Duplikat über Seitengrenze |
 | `sync_page_changed.json` | geänderte Review (gleiche `external_id`) |
-| `sync_page_removed.json` | Löschung (`removed` oder Abwesenheit bei Full-Lauf) |
-| `raw_item.json` + `normalized_item.json` | Paar für `normalize()`-Test |
-| `error_401.json`, `error_403.json`, `error_429.json`, `error_5xx.json`, `invalid_payload.json` | Fehlerabbildung |
+| `sync_page_removed.json` | Löschung über `removed` |
+| `error_401.json`, `error_401_expired.json`, `error_403.json`, `error_429.json`, `error_5xx.json`, `invalid_payload.json` | Fehlerabbildung über `ProviderException::from_http()` |
 
-### Beispiel `demo/sync_page_1.json`
-
-```json
-{
-  "request": { "profile_external_ref": "loc-100", "cursor": null, "options": { "mode": "full", "page_size": 2, "since": null, "run_uuid": "5d0a7e3b-2c1f-4e8a-9b6d-7f0e1a2b3c4d" } },
-  "response": {
-    "items": [
-      { "id": "demo-rev-1001", "stars": 4, "headline": "Schnelle Lieferung", "text": "Alles wie beschrieben, gerne wieder.", "lang": "de_DE", "reviewer": { "display": "M. K." }, "created": "2026-11-10T09:12:00Z", "updated": "2026-11-10T09:12:00Z", "link": "https://reviews.example.test/r/demo-rev-1001" },
-      { "id": "demo-rev-1002", "stars": 2, "headline": "", "text": "Wartezeit am Telefon war lang.", "lang": "de", "reviewer": { "display": "" }, "created": "2026-11-11T17:40:00Z", "updated": "2026-11-12T08:00:00Z", "link": "https://reviews.example.test/r/demo-rev-1002", "reply": { "text": "Danke für den Hinweis.", "date": "2026-11-12T08:00:00Z" } }
-    ],
-    "removed": [],
-    "next_cursor": "eyJwIjoyfQ",
-    "has_more": true,
-    "summary": null,
-    "quota": { "state": "ok", "remaining": 59, "reset_at": "2026-11-16T06:01:00Z", "retry_after_seconds": null, "source": "provider_header" },
-    "credentials_update": null
-  }
-}
-```
-
-### Beispiel `demo/normalized_item.json` (für `demo-rev-1002`)
-
-```json
-{
-  "kind": "review",
-  "platform": "other",
-  "external_id": "demo-rev-1002",
-  "rating_value": 2,
-  "rating_scale_min": 1,
-  "rating_scale_max": 5,
-  "title": "",
-  "body": "Wartezeit am Telefon war lang.",
-  "language": "de",
-  "author_name": "",
-  "context_type": null,
-  "context_id": null,
-  "source_url": "https://reviews.example.test/r/demo-rev-1002",
-  "published_at": "2026-11-11T17:40:00Z",
-  "meta": {
-    "provider_key": "demo",
-    "review_type": "service",
-    "remote_updated_at": "2026-11-12T08:00:00Z",
-    "reply": { "body": "Danke für den Hinweis.", "published_at": "2026-11-12T08:00:00Z" },
-    "attribution": { "label": "Demo Reviews", "url": "https://reviews.example.test/p/loc-100", "notice": null }
-  }
-}
-```
-
-### Beispiel `demo/sync_page_removed.json`
-
-```json
-{
-  "request": { "profile_external_ref": "loc-100", "cursor": "eyJkIjoiMjAyNi0xMS0xOCJ9", "options": { "mode": "delta", "page_size": 20, "since": "2026-11-17T06:00:00Z", "run_uuid": "8e2b4c6d-1a3f-4b5c-9d7e-0f1a2b3c4d5e" } },
-  "response": { "items": [], "removed": [ { "external_id": "demo-rev-1001", "reason": "remote_removed" } ], "next_cursor": null, "has_more": false, "summary": null, "quota": { "state": "ok", "remaining": 58, "reset_at": null, "retry_after_seconds": null, "source": "provider_header" }, "credentials_update": null }
-}
-```
+Seitenfixtures haben die Form `{ "request": { "profile_external_ref", "cursor", "options" }, "response": { "items", "removed", "next_cursor", "has_more", "summary", "quota", "credentials_update" } }` (Rohformat des fiktiven Anbieters); `FixtureProvider` wählt die Seite über `request.cursor`, normalisiert `items` zu `Review`-Objekten und übernimmt `removed[].external_id` in `SyncPage::removed_external_ids`.
 
 ### Beispiel `demo/error_429.json`
 
 ```json
-{
-  "http_status": 429,
-  "headers": { "Retry-After": "120" },
-  "expected_exception": { "code": "rc.quota.rate_limited", "retry_after_seconds": 120 }
-}
+{ "http_status": 429, "headers": { "Retry-After": "120" }, "expected_exception": { "code": "rc.quota.rate_limited", "retry_after_seconds": 120 } }
 ```
 
 ## Versionierung und Deprecation
 
-- Minor-Erweiterungen (neue optionale Felder, neue `features`) sind rückwärtskompatibel; Core ignoriert unbekannte Felder, Provider dürfen fehlende optionale Eingaben nicht voraussetzen.
-- Breaking Changes nur mit neuem Hook `review_captain_providers_v2` und neuem Interface-Namespace; v1 bleibt mindestens für die Deprecation-Frist parallel registrierbar (Vorschlag: 12 Monate **und** 2 Minor-Releases des Core; Produktentscheidung offen, siehe README).
+- Minor-Erweiterungen (neue optionale Fähigkeiten, neue Felder in Rückgaben) sind rückwärtskompatibel; der Core ignoriert unbekannte Felder. Eine unbekannte Fähigkeit macht einen Provider in Core 1.0 allerdings inkompatibel (`paused`), daher werden neue Fähigkeiten nur mit Minor-Erhöhung von `CORE_CONTRACT` eingeführt.
+- Breaking Changes nur mit neuem Hook `review_captain_providers_v2` und neuem Interface; v1 bleibt mindestens für die Deprecation-Frist parallel registrierbar (Vorschlag: 12 Monate **und** 2 Minor-Releases des Core; Produktentscheidung offen, siehe [README](README.md)).
+
+## Ausblick (nicht in Vertrag 1.0 umgesetzt)
+
+Die folgenden Teile früherer Entwürfe sind **nicht** Bestandteil von `ProviderInterface` 1.0. Sie dürfen nur per Minor-/Major-Erhöhung und ADR eingeführt werden:
+
+- **`connect( array $request ): array`** mit Modi `oauth_start` / `oauth_callback` / `credentials` (State/Nonce/Redirect-URI-Prüfung durch den Core, TEC-010) und **`disconnect()`** (Token-Widerruf, `api_revoke` \| `not_supported`). In 1.0 verwaltet die Pro-Runtime Verbindungen; siehe [rest-oauth.md](../architecture/rest-oauth.md), [provider-auth.md](../architecture/provider-auth.md).
+- **`Connection`-Value-Object** (`credential()`, `account_ref()`, `http()` mit Host-Allowlist). In 1.0 erhalten Provider Credentials als Array.
+- **`normalize( array $raw, array $profile )`** als Vertragsmethode. In 1.0 normalisiert der Provider intern und liefert `Review`-Objekte in `SyncPage` (`FixtureProvider::normalize()` ist eine öffentliche Hilfsmethode, nicht Teil des Interfaces).
+- **Capabilities-Objekt** (`facts_status`, `auth`, `hosts`, `features` wie `sync_full`/`sync_delta`/`deletion_feed`/`full_listing`, `write_features`, `rating_scale`, `max_page_size`, `max_cache_ttl_seconds`, `rate_limit`, `config_fields`). In 1.0 ist `capabilities()` eine Liste aus `ProviderInterface::CAPABILITIES`; `capabilities.json` der Fixtures enthält die übrigen Felder nur als Dokumentation.
+- **Sync-Rückgabefelder** `summary`, `quota` und `credentials_update` in der Seitenantwort sowie `options` (`mode`, `since`, `run_uuid`).
+- **Tombstoning durch Abwesenheit** bei vollständigen Full-Läufen (`full_listing`, Grund `remote_not_found`).
+- **Pro-Tabelle `{prefix}review_captain_sync_runs`** mit `active_profile_id` UNIQUE (höchstens ein aktiver Lauf je Profil), Cursor-CAS über `generation`, Folgejob `sync.page` mit Idempotenzschlüssel `sync:{profile_id}:{run_uuid}:{page_no}`.
+- Zusätzliche Fehlercodes `rc.auth.insufficient_scope`, `rc.remote.not_found`, `rc.remote.server_error`, `rc.net.connection`, `rc.lock.busy` – in 1.0 durch `rc.auth.permission_denied`, `rc.remote.removed`, `rc.temp.unavailable`, `rc.net.timeout`/`rc.net.unreachable` abgedeckt (siehe [error-codes.md](../architecture/error-codes.md), „geplant“).
 
 ## Abnahme
 
-- [ ] connect, test, list_profiles, sync_page(cursor), normalize, disconnect (delete) + Tombstone-Pfade, quota_status und capabilities() sind mit Signatur und Rückgabeform beschrieben und versioniert (`contract_version() = '1.0'`).
-- [ ] Registry `review_captain_providers_v1`: Contract-Tests für ungültigen Key, doppelten Key, unbekannte Major-Version (→ `incompatible_contract`, kein Fatal), nicht leere `write_features`.
-- [ ] Fixture-Suite für `demo` liegt vor und deckt Pagination, Duplikat über Seitengrenze, Änderung, Löschung (Feed und Abwesenheit), Quota/429, Tokenablauf und ungültiges Payload ab (RC-083).
-- [ ] Zwei parallele Sync-Jobs desselben Profils: nur einer läuft (`active_profile_id` UNIQUE), der zweite endet mit `rc.lock.busy` ohne Datenänderung.
-- [ ] Abgebrochener Full-Lauf tombstont nichts; vollständiger Full-Lauf tombstont nicht mehr gelieferte Datensätze.
+- [ ] `ProviderInterface` (Namespace `ReviewCaptain\Providers\Contract`) mit `key`, `label`, `version`, `platform`, `contract_version`, `capabilities`, `test_connection`, `list_profiles`, `sync_page`, `quota_status` ist mit Signatur und Rückgabeform beschrieben.
+- [ ] Registry `review_captain_providers_v1`: Contract-Tests für fehlendes Interface, werfende Metadaten, ungültigen Key, doppelten Key (`rc.data.duplicate`), Plattform `local`, unbekannte Major-Version und fehlendes `read_reviews` (→ `paused`, `rc.contract.incompatible`, kein Fatal).
+- [ ] Fixture-Suite für `demo` deckt Pagination, Duplikat über Seitengrenze, Änderung, Löschung (Feed), 401/401-abgelaufen/403/429/5xx und ungültiges Payload ab (RC-083).
+- [ ] `SyncService::apply()` ist idempotent (zweimal dieselbe Seite → `created` = 0 beim zweiten Lauf) und erhält den Moderationsstatus.
 - [ ] Kein Log, Fehlertext oder Export enthält Credentials, Header oder Reviewtexte.
-- [ ] Admin zeigt `facts_status` < `sandbox_verified` als „unbestätigt“.

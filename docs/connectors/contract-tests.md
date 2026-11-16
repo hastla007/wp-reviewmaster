@@ -12,18 +12,18 @@ Test-IDs: `CT-<Bereich>-<Nr>`. Jeder Test nennt erwartetes Ergebnis. „Diagnose
 | CT-R-02 | Objekt ohne `ConnectorInterface` wird an `register()` übergeben (über `TypeError`-sicheren Pfad/`mixed`) | verworfen, kein Fatal Error |
 | CT-R-03 | `key()` = `ab` (zu kurz), `Ab-c` (Großbuchstabe), `-abc` (Startzeichen), 65 Zeichen, `ab c` | jeweils verworfen, `rc.data.invalid_payload` |
 | CT-R-04 | `key()` = `abc`, `a_b-c`, 64 Zeichen gültig | registriert |
-| CT-R-05 | Zwei Connectoren mit gleichem Schlüssel | erster bleibt, zweiter verworfen, Diagnose „doppelter Schlüssel“ |
-| CT-R-06 | Reservierter Schlüssel (`woocommerce`, `rc-test`) | verworfen |
+| CT-R-05 | Zwei Connectoren mit gleichem Schlüssel | erster bleibt, zweiter verworfen (`rc.data.duplicate`), Diagnose „doppelter Schlüssel“ |
+| CT-R-06 | Reservierter Schlüssel (`woocommerce`, `rc-test`) | verworfen (`rc.contract.invalid`) |
 | CT-R-07 | `contract_version()` = `1.0`, `1.7`, `1.x` | kompatibel |
-| CT-R-08 | `contract_version()` = `2.0`, `0.9`, `1`, `v1.0`, `` | `incompatible_contract`, nicht ausführbar, kein Fatal Error |
+| CT-R-08 | `contract_version()` = `2.0`, `0.9`, `1`, `v1.0`, `` | Status `paused` mit `rc.contract.incompatible`, nicht ausführbar, kein Fatal Error |
 | CT-R-09 | `contract_version()` = `1.99` (neuer als Core) | kompatibel, Diagnosehinweis |
-| CT-R-10 | `capabilities()` leer | verworfen |
-| CT-R-11 | `capabilities()` enthält `foo_bar` | `incompatible_contract` |
-| CT-R-12 | `capabilities()` enthält `experience_source`, Klasse implementiert `ExperienceSourceInterface` nicht | `incompatible_contract` |
+| CT-R-10 | `capabilities()` leer | verworfen (`rc.contract.invalid`) |
+| CT-R-11 | `capabilities()` enthält `foo_bar` | `paused`, `rc.contract.incompatible` |
+| CT-R-12 | `capabilities()` enthält `experience_source`, Klasse implementiert `ExperienceSourceInterface` nicht | `paused`, `rc.contract.incompatible` |
 | CT-R-13 | Klasse implementiert `ReviewSourceInterface`, Capability nicht deklariert | registriert, `fetch_reviews` wird nie aufgerufen |
-| CT-R-14 | Doppelte Capability-Werte | dedupliziert oder verworfen (deterministisch), kein Fehler zur Laufzeit |
-| CT-R-15 | `label()`/`developer()`/`version()` leer oder > Grenzwert | verworfen |
-| CT-R-16 | Metadaten-Methode wirft `RuntimeException` | verworfen, Diagnose, Request läuft weiter |
+| CT-R-14 | Doppelte Capability-Werte | dedupliziert mit Diagnosehinweis, kein Fehler zur Laufzeit |
+| CT-R-15 | `label()`/`developer()`/`version()` leer oder > Grenzwert | verworfen (`rc.contract.invalid`) |
+| CT-R-16 | Metadaten-Methode wirft `RuntimeException` | verworfen (`rc.contract.invalid`), Diagnose, Request läuft weiter |
 | CT-R-17 | `label()` enthält `<script>` | Ausgabe im Admin escaped |
 | CT-R-18 | Hook wird pro Request genau einmal ausgelöst, auch bei mehrfachem Zugriff auf die Registry | einmal |
 | CT-R-19 | Review Captain inaktiv (Hook nie ausgelöst) – Demo-Connector geladen | kein Fehler, keine Warnung |

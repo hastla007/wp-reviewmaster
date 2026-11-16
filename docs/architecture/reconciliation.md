@@ -30,24 +30,24 @@ Der Job `reconcile` (bzw. CLI) führt die Schritte in dieser Reihenfolge aus, je
 
 | # | Schritt | Aktion |
 |---|---|---|
-| 1 | Schema | `db_version` = Codeversion? Sonst abbrechen und Migration verlangen. `dedupe_key`-Modus prüfen. |
+| 1 | Schema | `db_version` = Codeversion und alle Tabellen aus `Schema::TABLES` vorhanden? Sonst abbrechen und Migration verlangen (`wp review-captain schema upgrade`). (`dedupe_key` ist eine gewöhnliche, von PHP befüllte Spalte – es gibt keinen generierten Modus, der zu prüfen wäre; siehe [database.md](database.md) §2.1.1.) |
 | 2 | Leases | Alle `running`-Jobs: Lease stammt aus der Zeit vor dem Anlass → `queued` (`available_at` = jetzt), `lease_owner`/`lease_expires_at` = NULL, `attempts` unverändert. |
 | 3 | Überfällige Jobs mit Außenwirkung | `queued`-Jobs mit Außenwirkung und `available_at` älter als 24 h → `paused` mit Meldung „Nach Wiederherstellung erneut prüfen“; Pro-Handler validiert vor Freigabe Eligibility (Erlebnis noch gültig, kein Refund/Opt-out, keine bereits versendete Einladung laut Pro-Unique-Key und Versandnachweis). Einmal-Jobs, die laut Versandnachweis bereits ausgeführt wurden → `failed`. |
 | 4 | Credentials | Jedes `api`-Profil: entschlüsselbar? (sonst `auth_required`). Danach (erst nach Aufhebung der Sperre bzw. im Modus `upgrade`/`reactivate`) Testaufruf/Token-Refresh; widerrufen/abgelaufen → `auth_required`, nie als gültig anzeigen. |
 | 5 | Sync-Cursor | Cursor älter als der Anlass gilt als unsicher: auf „Delta ab `last_success_at − 7 Tage`“ zurücksetzen. Duplikate sind durch `dedupe_key` ausgeschlossen; an der Quelle gelöschte Reviews werden beim Delta-Lauf getombstoned. |
 | 6 | Snapshots | Anzeigegrenzen sofort anwenden ([retention-matrix.md](retention-matrix.md)); z. B. alle Trustpilot-Snapshots mit `fetched_at` > 24 h ausblenden. Danach regulärer Purge. Cache-Generation erhöhen ([caching.md](caching.md)). |
 | 7 | Privacy-Nachzug | Im `audit_log` vermerkte Löschungen/Anonymisierungen (`privacy.erased`, Review-UUID) erneut anwenden, falls die Daten durch Restore zurückgekehrt sind. |
-| 8 | Externe IDs / Integrität | Zeilen mit `external_id`, aber `dedupe_key` NULL (Fallback-Modus) → neu berechnen; Kollisionen → ältere Zeile behalten, neuere als Tombstone markieren, Bericht. Reviews mit `profile_id` auf nicht existierendes Profil → `profile_id` behalten, Diagnosewarnung. `import_batches` im Status `importing` ohne aktiven Job → `failed`. |
+| 8 | Externe IDs / Integrität | Zeilen mit `external_id`, aber `dedupe_key` NULL (nur durch Schreibzugriffe am Repository vorbei möglich) → Core v1 zählt sie (`missing_dedupe_keys`); Ausblick: neu berechnen per `Review::dedupe_key()`; Kollisionen → ältere Zeile behalten, neuere als Tombstone markieren, Bericht. Reviews mit `profile_id` auf nicht existierendes Profil → `profile_id` behalten, Diagnosewarnung. `import_batches` im Status `importing` ohne aktiven Job → `failed`. |
 | 9 | Abschluss | `review_captain_instance` aktualisieren, Sperre lösen (außer `clone` ohne Bestätigung), Audit `reconcile.completed` mit Zählern je Schritt. |
 
 ## 4. CLI
 
 ```
-wp review-captain reconcile [--mode=upgrade|reactivate|restore|clone|manual] [--dry-run] [--step=<n>] [--network] [--format=table|json]
+wp review-captain reconcile [--fix] [--mode=upgrade|reactivate|restore|clone|manual] [--format=table|json|csv|yaml]
 ```
 
-- `--dry-run` meldet nur, was geändert würde (Zähler je Schritt), ohne Schreibzugriffe.
-- `--network` iteriert Sites (je Site eigener Lauf und eigene Sperre).
+- Ohne `--fix` ist der Lauf ein Trockenlauf: er meldet nur Zähler je Schritt, ohne Schreibzugriffe (`Reconciler::run( false, … )`).
+- Ausblick (nicht in v1): `--step=<n>` und `--network` (je Site eigener Lauf und eigene Sperre); in v1 je Site mit `--url=` aufrufen.
 - Exit-Code ≠ 0, wenn ein Schritt fehlschlägt; Fehler mit `rc.*`-Code.
 
 ## 5. Garantien
@@ -62,6 +62,6 @@ wp review-captain reconcile [--mode=upgrade|reactivate|restore|clone|manual] [--
 - [ ] Klon auf andere Domain: keine Außenwirkung, bis der Betreiber bestätigt; „Kopie“ pausiert alle API-Profile.
 - [ ] Ein vor dem Backup bereits versendeter Einladungsjob wird nach Restore nicht erneut versendet (Pro-Integrationstest).
 - [ ] Ein nach dem Backup widerrufener Token wird nach Restore als `auth_required` angezeigt.
-- [ ] `wp review-captain reconcile --dry-run` ändert nichts und liefert Zähler; Lauf ist abbrech- und fortsetzbar.
+- [ ] `wp review-captain reconcile` (ohne `--fix`) ändert nichts und liefert Zähler; Lauf ist abbrech- und fortsetzbar.
 - [ ] Nach Upgrade läuft Reconciliation automatisch einmal (Modus `upgrade`) ohne Sperre.
 - [ ] Privacy-Löschung vor dem Restore ist nach Reconciliation wieder wirksam.

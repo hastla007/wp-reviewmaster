@@ -17,7 +17,7 @@ Ein Connector ist ausführbarer PHP-Code eines installierten WordPress-Plugins. 
 | Secrets | Nur über die (Pro-)Konfiguration, maskiert und verschlüsselt gespeichert; nie in Optionen im Klartext, Job-Payloads, Logs oder Diagnoseexporten. |
 | Ausgabe | Alle Connector-Strings (Label, Developer, Fehlermeldungen, Context-Labels) werden beim Ausgeben escaped; Review-HTML über `wp_kses`. |
 | Netzwerk | Lokale Connectoren dürfen intern HTTP nutzen (z. B. eigenes CRM); Review Captain stellt keine frei konfigurierbaren URL-Abrufe/Webhooks aus Admin-Feldern bereit. Externe Ziele: HTTPS, SSRF-Schutz (keine privaten/Loopback-Adressen, wenn vom Admin eingegeben), Signatur. |
-| Inkompatibilität | Bei `incompatible_contract`, `source_unavailable` oder fehlendem Entitlement wird pausiert – nie stillschweigend mit unvollständigen Daten weitergearbeitet. |
+| Inkompatibilität | Bei inkompatiblem Vertrag (`paused` mit `rc.contract.incompatible`), `source_unavailable` oder fehlendem Entitlement wird pausiert – nie stillschweigend mit unvollständigen Daten weitergearbeitet. |
 | Multisite | Registry, Status und Jobs sind pro Site; keine siteübergreifende Datenweitergabe. |
 
 ## Matrix je Fähigkeit

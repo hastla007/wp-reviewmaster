@@ -195,53 +195,57 @@ Nur nach Messung ([scaling.md](scaling.md)) und per ADR: `reviews (profile_id, s
 
 | Option | Autoload | Inhalt |
 |---|---|---|
-| `review_captain_db_version` | ja | Integer-Schemaversion (beginnt bei `1`), unabhängig von der Plugin-Version |
-| `review_captain_settings` | ja | globale Einstellungen (Schema über `review_captain_settings_schema`), keine Secrets |
+| `review_captain_db_version` | nein | Integer-Schemaversion (`Schema::VERSION`, beginnt bei `1`), unabhängig von der Plugin-Version |
+| `review_captain_installed_at` | nein | Zeitpunkt der Erstinstallation (UTC) |
+| `review_captain_settings` | ja | globale Einstellungen (Schema über `review_captain_settings_schema`, siehe [option-schema.md](../settings/option-schema.md)), keine Secrets |
+| `review_captain_settings_version` | nein | Version des Einstellungsschemas (`SettingsSchema::VERSION`) |
 | `review_captain_caps_installed` | nein | Liste der vom Plugin bereits vergebenen Capabilities je Rolle (siehe [capabilities.md](capabilities.md)) |
-| `review_captain_migration_lock` | nein | `{owner, expires_at}` – Migrationssperre |
-| `review_captain_migration_error` | nein | letzter Migrationsfehler (Schritt, Code, Zeit) |
+| `review_captain_upgrade_lock` | nein | Unix-Zeitstempel – Upgrade-Sperre (`Installer::maybe_upgrade()`), gilt 300 s |
 | `review_captain_runner_heartbeat` | nein | letzte Runner-Läufe je Kanal (`wp_cron`, `cli`, `action_scheduler`) |
-| `review_captain_instance` | nein | `{instance_uuid, home_url_hash, last_seen_at}` für Restore-/Klon-Erkennung ([reconciliation.md](reconciliation.md)) |
+| `review_captain_instance` | nein | `{home_url_hash, last_seen_at}` für Restore-/Klon-Erkennung ([reconciliation.md](reconciliation.md)) |
 | `review_captain_reconcile_required` | nein | Sperre für Jobs mit Außenwirkung bis Reconciliation abgeschlossen |
 | `review_captain_key_check` | nein | Schlüssel-Fingerprint + Testchiffrat ([secrets.md](secrets.md)) |
-| `review_captain_oauth_state_{sha256}` | nein | kurzlebige OAuth-States ([rest-oauth.md](rest-oauth.md)) |
+| `review_captain_budget_*` | nein | Budgetzähler je Profil/Fenster (`Jobs\Budget`, [jobs.md](jobs.md) §8) |
+| `review_captain_connectors_state` / `review_captain_connectors_known` | nein | Connector-Status und bekannte Connectoren ([contract-v1.md](../connectors/contract-v1.md)) |
 
-Die Datenlösch-Option bei Deinstallation ist Teil von `review_captain_settings` (`uninstall.delete_all_data`, Default `false`).
+**Ausblick (nicht in v1 umgesetzt):** `review_captain_migration_error` (letzter Migrationsfehler) und `review_captain_oauth_state_{sha256}` (kurzlebige OAuth-States, [rest-oauth.md](rest-oauth.md), Pro).
+
+Die Datenlösch-Option bei Deinstallation ist Teil von `review_captain_settings` (`privacy.delete_data_on_uninstall`, Default `false`).
 
 ## 4. Installation, Upgrade, Rollback
 
 ### 4.1 Wann migriert wird
 
-Nur bei (a) Aktivierung, (b) `admin_init`, wenn `review_captain_db_version` < Codeversion, (c) `wp review-captain db migrate`. **Nie** bei Frontend-, REST- oder Cron-Requests; der Job-Runner prüft die Version und pausiert sich bei Abweichung (kein Claim), bis migriert ist.
+Nur bei (a) Aktivierung, (b) `admin_init`, wenn `review_captain_db_version` < Codeversion, (c) `wp review-captain schema upgrade`. **Nie** bei Frontend-, REST- oder Cron-Requests; der Job-Runner prüft die Version und pausiert sich bei Abweichung (kein Claim), bis migriert ist.
 
 ### 4.2 Ablauf
 
-1. Sperre setzen: `add_option( 'review_captain_migration_lock', … )` (atomar, schlägt fehl, wenn vorhanden). Abgelaufene Sperre (> 10 min) wird per `UPDATE … WHERE option_value = <alter Wert>` übernommen.
+1. Sperre setzen: `add_option( 'review_captain_upgrade_lock', time() )` (atomar, schlägt fehl, wenn vorhanden). Eine Sperre, die älter als 300 s ist, wird übernommen; die Sperre wird im `finally` wieder gelöscht.
 2. `Schema::install()` – dbDelta mit allen Tabellen (strenges dbDelta-Format: zwei Leerzeichen nach `PRIMARY KEY`, jede Spalte eigene Zeile, Schlüssel benannt).
-3. `Migrator` führt geordnete, **idempotente** Schritte `N → N+1` aus (z. B. `Migration0002AddDedupeKey`). Nach jedem Schritt wird `review_captain_db_version` erhöht – ein Abbruch setzt beim nächsten Lauf am fehlenden Schritt fort.
-4. Datenmigrationen über ~5.000 Zeilen laufen nicht synchron, sondern als Job (`maintenance.migrate_backfill`, Batches à 500, Zeitbudget wie alle Jobs).
+3. `Migrator::run( $from, $to )` führt die geordneten, **idempotenten** Schritte aus `Migrator::steps()` (Schlüssel = Zielversion) für `(from, to]` aus. In Schema v1 gibt es nur Schritt `1` (leer). `review_captain_db_version` wird nach allen Schritten auf `Schema::VERSION` gesetzt; da jeder Schritt wiederholbar sein muss, setzt ein abgebrochener Lauf beim nächsten Mal sicher erneut an.
+4. Ausblick (nicht in Schema v1): Datenmigrationen über ~5.000 Zeilen sollen nicht synchron, sondern als Job (`maintenance.migrate_backfill`, Batches à 500) laufen.
 5. Capabilities nachziehen ([capabilities.md](capabilities.md) §4).
-6. Reconciliation-Job einplanen ([reconciliation.md](reconciliation.md)), Sperre lösen.
+6. Action `review_captain_installed( $from, $to )` auslösen; Reconciliation ([reconciliation.md](reconciliation.md)), Sperre lösen.
 
-Fehler: Schritt-ID + Fehlercode in `review_captain_migration_error`, Admin-Hinweis für `review_captain_manage_settings`, Wiederholung frühestens nach 15 min. Das Frontend arbeitet mit dem letzten konsistenten Schema weiter (Schritte sind additiv).
+Fehler: Ausblick (nicht in v1) – Schritt-ID + Fehlercode in `review_captain_migration_error` und Admin-Hinweis; in v1 wird der nächste `admin_init` den Lauf nach Ablauf der Sperre wiederholen. Das Frontend arbeitet mit dem letzten konsistenten Schema weiter (Schritte sind additiv).
 
 ### 4.3 Kompatibilität und Rollback
 
 - **Expand/Contract:** Ein Release fügt nur hinzu (Spalten nullable oder mit Default, neue Indizes, neue Tabellen). Entfernen/Umbenennen erst, wenn mindestens ein Minor-Release lang kein Code die alte Struktur nutzt.
 - **Keine automatischen Down-Migrationen.** Downgrade auf eine ältere Plugin-Version innerhalb derselben Major-Version funktioniert, weil das Schema additiv ist; die ältere Version erkennt `db_version` > bekannte Version, zeigt einen Hinweis und führt keine Migration aus (kein dbDelta, das Spalten „zurückbaut“ – dbDelta löscht ohnehin nie Spalten).
-- Major-Upgrades mit Contract-Schritten: vorher Backup-Hinweis in der Oberfläche; `wp review-captain db migrate --dry-run` listet SQL.
+- Major-Upgrades mit Contract-Schritten: vorher Backup-Hinweis in der Oberfläche; Ausblick: `wp review-captain schema upgrade --dry-run` soll SQL listen (in v1 nicht vorhanden).
 - Restore eines alten Backups: Versionsvergleich + Reconciliation.
 
 ### 4.4 Deinstallation (`uninstall.php`)
 
-Nur wenn `uninstall.delete_all_data = true` **pro Site**: Tabellen droppen, Optionen `review_captain_*` löschen, Capabilities entfernen, Cron-Events entfernen. Sonst bleibt alles erhalten. Daten in Quellsystemen (Plattformen) werden nie gelöscht.
+Nur wenn `privacy.delete_data_on_uninstall = true` **pro Site** (`Privacy\Uninstaller`): Tabellen droppen, Optionen `review_captain_*` löschen, Capabilities entfernen, Cron-Events entfernen. Sonst bleibt alles erhalten. Daten in Quellsystemen (Plattformen) werden nie gelöscht.
 
 ## 5. Multisite-Scope
 
 - Jede Site hat eigene Tabellen und Optionen über `$wpdb->prefix`; es gibt **keine** netzwerkweiten Tabellen (`base_prefix`) in v1.
-- Netzwerkaktivierung installiert nicht synchron alle Sites, sondern jede Site beim ersten `admin_init`/CLI-Aufruf (Versionsvergleich). `wp review-captain db migrate --network` iteriert Sites in Batches.
+- Netzwerkaktivierung installiert nicht synchron alle Sites, sondern jede Site beim ersten `admin_init`/CLI-Aufruf (Versionsvergleich). Ausblick: eine CLI-Option `--network` für `wp review-captain schema upgrade` (in v1 nicht vorhanden; je Site mit `--url=` aufrufen).
 - Neue Site (`wp_initialize_site`): bei netzwerkweit aktivem Plugin sofort installieren.
-- Site-Löschung: Tabellen über den Filter `wpmu_drop_tables` ergänzen, damit WordPress sie mitlöscht.
+- Ausblick (nicht in v1): Site-Löschung – Tabellen über den Filter `wpmu_drop_tables` ergänzen, damit WordPress sie mitlöscht.
 - Details: [multisite.md](multisite.md).
 
 ## 6. Ausblick: Pro-Tabellen (nicht verbindlich)
@@ -261,11 +265,11 @@ Pro-Jobs nutzen die Core-Tabelle `jobs` (eigene `type`-Werte mit Präfix `pro.`)
 
 ## Abnahme
 
-- [ ] Frische Installation (MySQL 8.0, MariaDB 10.6) erzeugt alle sechs Tabellen mit exakt den Spalten/Indizes aus `conventions.md` bzw. diesem Dokument (`SHOW CREATE TABLE` gegen Snapshot-Test).
-- [ ] Zweiter Aktivierungslauf und `wp review-captain db migrate` ändern nichts (dbDelta-Diff leer).
-- [ ] `dedupe_key` funktioniert im generierten und im Fallback-Modus; PHP- und SQL-Formel liefern identische Werte (Test).
+- [ ] Frische Installation (MySQL 8.0, MariaDB 10.6) erzeugt alle sechs Tabellen mit exakt den Spalten/Indizes aus `src/Install/Schema.php` bzw. Abschnitt 2 (`SHOW CREATE TABLE` gegen Snapshot-Test).
+- [ ] Zweiter Aktivierungslauf und `wp review-captain schema upgrade` ändern nichts (dbDelta-Diff leer).
+- [ ] `dedupe_key` wird bei jedem Insert/Update aus `Review::dedupe_key()` gesetzt; zwei Datensätze mit gleicher Plattform/Profil/`external_id` scheitern am UNIQUE-Key bzw. werden per `upsert_external()` zusammengeführt (Test).
 - [ ] Abgebrochene Migration (Fehler in Schritt N simuliert) setzt beim nächsten `admin_init` bei Schritt N fort; Frontend bleibt funktionsfähig.
 - [ ] Frontend-Request mit veralteter `db_version` löst keine Schemaänderung aus (Test mit Query-Logging).
 - [ ] Downgrade um eine Minor-Version erzeugt keinen Fatal Error und keinen Datenverlust.
-- [ ] Multisite: Site 2 und Site 3 haben getrennte Tabellen; Löschen von Site 3 entfernt ihre Tabellen.
+- [ ] Multisite: Site 2 und Site 3 haben getrennte Tabellen. (Ausblick: Löschen von Site 3 entfernt ihre Tabellen.)
 - [ ] Deinstallation ohne Löschoption hinterlässt alle Daten; mit Löschoption sind Tabellen, Optionen, Caps und Cron-Events entfernt.

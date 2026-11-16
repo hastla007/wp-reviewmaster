@@ -1,9 +1,11 @@
 # CON-018 – Developer Guide: eigenen Connector bauen
 
-Status: v1, Stand 2026-11-16. Vertrag: [contract-v1.md](contract-v1.md) (verbindlich). Lauffähige Vorlagen:
+Status: v1, an den implementierten Stand angeglichen (`src/Connectors/**`), Stand 2026-11-16. Vertrag: [contract-v1.md](contract-v1.md) (verbindlich). Lauffähige Vorlagen:
 
-- `examples/review-captain-demo-connector/` – Referenz-Connector (Demo-Buchungsquelle, meldet abgeschlossene Kurse)
-- `examples/connector-sdk/` – kopierbares Skelett mit Fixtures und Tests
+- `examples/review-captain-demo-connector/` – Referenz-Connector `demo-booking` (Fähigkeiten `experience_source`, `context_provider`; Jobtyp `demo-booking.reconcile`, eingereiht mit `rc_demo_connector_enqueue_reconcile()`), geprüft durch `tests/Unit/Connectors/DemoConnectorTest.php`
+- `examples/connector-sdk/` – kopierbares Skelett `my-connector` (Fähigkeiten `experience_source`, `recipient_resolver`, `context_provider`; `src/Connector.php`, `src/JobHandler.php`, Fixture `tests/fixtures/experience-completed.json`, Tests `tests/ConnectorTest.php`)
+
+Das Beispiel unten (`acme-booking`) folgt demselben Aufbau; Dateinamen weichen bewusst vom SDK ab (`Reconcile_Job.php` statt `JobHandler.php`).
 
 Dieser Guide führt durch ein vollständiges Beispiel: einen Connector für ein fiktives Kursbuchungs-Plugin „Acme Booking“, der abgeschlossene Kurse meldet, Empfänger auflöst, Kursnamen liefert und einen eigenen Abgleichjob ausführt.
 
@@ -57,7 +59,7 @@ add_action(
     'review_captain_connectors_v1',
     static function ( \ReviewCaptain\Connectors\Registry $registry ): void {
         if ( ! function_exists( 'acme_booking_get_enrollment' ) ) {
-            return; // Quellsystem nicht aktiv: nicht registrieren (Core zeigt source_unavailable für bekannte Connectoren).
+            return; // Quellsystem nicht aktiv: nicht registrieren (Core zeigt source_unavailable für früher registrierte Connectoren).
         }
         require_once ACME_RC_CONNECTOR_DIR . '/src/Connector.php';
         $registry->register( new \Acme\ReviewConnector\Connector() );
@@ -224,7 +226,19 @@ final class Reconcile_Job {
 
 - Jobtypen: `{connector_key}.{name}` → hier `acme-booking.reconcile`.
 - Payload: JSON-serialisierbar, ≤ 64 KB, Feld `v`, keine Secrets/E-Mails/Reviewtexte.
-- Jobs werden über die Core-Job-API eingereiht (Signatur siehe [contract-v1.md §4](contract-v1.md#4-eigene-jobs-review_captain_process_job_v1)); nie direkt in die Tabelle `jobs` schreiben.
+- Jobs werden über die Core-Job-API eingereiht ([contract-v1.md §4](contract-v1.md#4-eigene-jobs-review_captain_process_job_v1)); nie direkt in die Tabelle `jobs` schreiben:
+
+  ```php
+  if ( class_exists( '\ReviewCaptain\Plugin' ) && \ReviewCaptain\Plugin::instance()->has( 'jobs' ) ) {
+      \ReviewCaptain\Plugin::instance()->get( 'jobs' )->enqueue(
+          'acme-booking.reconcile',
+          [ 'v' => 1, 'course_id' => $course_id ],
+          'acme-booking:reconcile:' . $course_id // Idempotenzschlüssel
+      ); // int|false; vorhandener Schlüssel → bestehende Job-ID
+  }
+  ```
+
+- Statt `['status' => 'succeeded']` darf der Handler auch `['status' => 'continue', 'payload' => [...], 'delay' => 60]` (Checkpoint) oder `['status' => 'retry', 'error_code' => 'rc.temp.unavailable', 'message' => '…']` zurückgeben. Bleibt das Ergebnis `null`, wird der Job mit `rc.contract.incompatible` pausiert und stündlich erneut versucht.
 
 ## 6. Fehlerbehandlung
 
@@ -232,14 +246,17 @@ final class Reconcile_Job {
 |---|---|
 | Zeitüberschreitung des eigenen Systems | `rc.net.timeout` |
 | Temporärer Fehler, Wartung | `rc.temp.unavailable` |
-| Rate Limit | `rc.quota.exceeded` |
-| API-Schlüssel/Login ungültig | `rc.auth.invalid` (Connector wird pausiert) |
-| Fehlende Rechte im Zielsystem | `rc.perm.failed` |
+| Rate Limit (kurzfristig) | `rc.quota.rate_limited` |
+| Tages-/Monatskontingent erschöpft | `rc.quota.exceeded` |
+| API-Schlüssel/Login ungültig | `rc.auth.invalid` (Job wird pausiert, Retry-Klasse `auth`) |
+| Fehlende Rechte im Zielsystem | `rc.auth.permission_denied` (Job pausiert) |
+| Endgültiger Fehler, Wiederholung sinnlos | `rc.perm.failed` (Job `dead`) |
 | Datensatz unbrauchbar | `rc.data.invalid_payload` |
 | Datensatz in Quelle gelöscht | `rc.remote.removed` |
-| Quell-Plugin deaktiviert/fehlt | `rc.source.unavailable` |
+| Quell-Plugin deaktiviert/fehlt | `rc.source.unavailable` (Job pausiert, Retry-Klasse `config`) |
+| Unbekannter eigener Jobtyp | `rc.contract.incompatible` (Job pausiert, Retry-Klasse `config`) |
 
-Regeln: Fehlermeldungen kurz, für Admins verständlich, **ohne** personenbezogene Daten und Secrets. Keine `die()`/`exit`/`wp_die()`. Andere Exceptions fängt Review Captain zwar ab, sie werden aber als temporär gewertet und erzeugen Retries – werfen Sie deshalb gezielt `ConnectorException`.
+Regeln: Fehlermeldungen kurz, für Admins verständlich, **ohne** personenbezogene Daten und Secrets. Keine `die()`/`exit`/`wp_die()`. Andere Exceptions fängt Review Captain zwar ab, sie werden aber als temporär (`rc.temp.unavailable`) gewertet und erzeugen Retries – werfen Sie deshalb gezielt `ConnectorException`. Unbekannte Codes in einer `ConnectorException` werden ebenfalls als `rc.temp.unavailable` behandelt. Die vollständige Liste mit Retry-Klassen steht in [error-codes.md](../architecture/error-codes.md).
 
 ## 7. Datenschutz-Checkliste
 
@@ -254,7 +271,21 @@ Regeln: Fehlermeldungen kurz, für Admins verständlich, **ohne** personenbezoge
 
 ## 8. Tests
 
-Mit dem SDK (`examples/connector-sdk/`) laufen Unit-Tests ohne WordPress:
+Mit dem SDK (`examples/connector-sdk/`) laufen Unit-Tests ohne WordPress, ausgeführt aus dem Review-Captain-Repository (die SDK-Tests gehören nicht zur Standard-Testsuite `tests/Unit` in `phpunit.xml.dist`):
+
+```bash
+vendor/bin/phpunit --bootstrap tests/bootstrap.php examples/connector-sdk/tests
+```
+
+Am robustesten prüfen Sie gegen die Core-Validatoren selbst – so macht es `examples/connector-sdk/tests/ConnectorTest.php`:
+
+```php
+$result = ( new \ReviewCaptain\Connectors\ContractValidator() )->validate( $connector );
+self::assertSame( \ReviewCaptain\Connectors\ContractValidator::OUTCOME_OK, $result['outcome'] );
+self::assertSame( [], \ReviewCaptain\Connectors\ExperienceEvent::validate( $event ) );
+```
+
+Minimalbeispiel ohne Core-Validator:
 
 ```php
 final class ConnectorTest extends \PHPUnit\Framework\TestCase {
