@@ -198,7 +198,7 @@ Das Core-Plugin kennt das Pro-Add-on nicht und enthält keinen Lizenzclient. Pro
 - **Produktschlüssel:** `review-captain-pro`; Rechtepräfix `review.`. Beide müssen im Lizenzserver-Katalog ergänzt und mit `wp-license`/Captain Pro abgestimmt werden.
 - Lizenzclient und Updateprozess aus `wp-license` exportieren; Add-on-Kernel und Namespaces in Captain Pro gemäß Architektur verwenden.
 - Plugin-Version, Core-Mindestversion, Textdomain und Update-URI nach dem bestehenden Captain-Pro-Buildstandard.
-- Planschlüssel: solo (1 Live-Website), studio (5), agency (25); Support-Level standard bzw. priority. Dieselben Site-Limits und Plan-IDs wie Form Captain, Pass Captain Pro und Voucher Captain Pro verwenden. Produktpreise bleiben je Produkt separat.
+- Planschlüssel (laut Lizenz-Sitzung vom Inhaber am 16.11.2026 suiteweit festgelegt, hier noch zu bestätigen): single (1 Live-Website), business (5), agency (25), gleicher Funktionsumfang; Support-Level standard bzw. priority. Dieselben Site-Limits und Plan-IDs wie Form Captain, Pass Captain Pro und Voucher Captain Pro verwenden. Produktpreise bleiben je Produkt separat.
 - **Alle Pro-Funktionen in jedem bezahlten Plan.** Die Pläne differieren primär nach Live-Website-Limit und Support, nicht nach künstlich abgeschnittenen Funktionen.
 - Preise aus dem bestehenden Shopkatalog ableiten und mit den übrigen Captain-Pro-Produkten abstimmen. Die Produktstruktur und Site-Limits sind vereinheitlicht; Review-Preise bleiben eine eigene kommerzielle Entscheidung.
 - Staging-/Development-Aktivierungen entsprechend WP License Captain nicht als zusätzliche Live-Website werten.
