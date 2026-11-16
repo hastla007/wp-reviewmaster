@@ -142,14 +142,14 @@ Diese Infrastrukturentscheidungen müssen vor den davon abhängigen Core-/Pro-Im
 
 ## M3 – Pro-Add-on und Lizenzierung
 
-- [ ] **RC-056 – Add-on in Captain Pro registrieren.** Ergebnis: Ordner, Slug, Textdomain, Buildkonfiguration und Mindest-Core-Version sind korrekt.
-- [ ] **RC-057 – Lizenzclient und Kernel integrieren.** Ergebnis: Export/Bundling folgt Captain-Pro-Namespace- und Buildregeln; Core bleibt frei von Lizenzcode.
+- [x] **RC-056 – Add-on in Captain Pro registrieren.** Ergebnis: Ordner, Slug, Textdomain, Buildkonfiguration und Mindest-Core-Version sind korrekt.
+- [x] **RC-057 – Lizenzclient und Kernel integrieren.** Ergebnis: Export/Bundling folgt Captain-Pro-Namespace- und Buildregeln; Core bleibt frei von Lizenzcode.
 - [ ] **RC-058 – Review-Produkt und Pläne in WP License Captain anlegen.** Ergebnis: review-captain-pro, Plan-IDs single/business/agency, Site-Limits und Supportlevel stimmen mit Shopkatalog überein.
-- [ ] **RC-059 – Entitlement-Katalog aktualisieren.** Ergebnis: nur tatsächlich implementierte review.*-Keys sind auswählbar und je Plan nachvollziehbar vergeben.
-- [ ] **RC-060 – Lizenzseite und Statushinweise einbauen.** Ergebnis: Aktivieren, Deaktivieren, Site-Limit, Ablauf, Verlängerung, Updates und Kundenkonto-Link funktionieren.
-- [ ] **RC-061 – Lizenzablaufverhalten implementieren.** Ergebnis: neue Pro-Schreibaktionen/Syncs werden gestoppt; vorhandene Reviews bleiben lesbar/exportierbar und werden nicht gelöscht.
-- [ ] **RC-062 – Pro-Updater konfigurieren.** Ergebnis: signierte Lizenzprüfung und Updatepakete funktionieren ohne unerlaubte API-Aufrufe bei normalem Frontend-Aufruf.
-- [ ] **RC-063 – Pro-Build und Release-ZIP integrieren.** Ergebnis: beide Plugins getrennt verteilbar; Build prüft Produktkey, Version, Host, Schlüssel und Entitlements.
+- [x] **RC-059 – Entitlement-Katalog aktualisieren.** Ergebnis: nur tatsächlich implementierte review.*-Keys sind auswählbar und je Plan nachvollziehbar vergeben.
+- [x] **RC-060 – Lizenzseite und Statushinweise einbauen.** Ergebnis: Aktivieren, Deaktivieren, Site-Limit, Ablauf, Verlängerung, Updates und Kundenkonto-Link funktionieren.
+- [x] **RC-061 – Lizenzablaufverhalten implementieren.** Ergebnis: neue Pro-Schreibaktionen/Syncs werden gestoppt; vorhandene Reviews bleiben lesbar/exportierbar und werden nicht gelöscht.
+- [x] **RC-062 – Pro-Updater konfigurieren.** Ergebnis: signierte Lizenzprüfung und Updatepakete funktionieren ohne unerlaubte API-Aufrufe bei normalem Frontend-Aufruf.
+- [x] **RC-063 – Pro-Build und Release-ZIP integrieren.** Ergebnis: beide Plugins getrennt verteilbar; Build prüft Produktkey, Version, Host, Schlüssel und Entitlements.
 - [ ] **RC-064 – E2E-Lizenzlauf vorbereiten.** Ergebnis: Installieren, Aktivieren, Rechte, Ablauf, Update und Deaktivieren werden gegen den echten Testserver durchgespielt.
 
 **Meilenstein M3 ist erreicht, wenn:** Pro mit gültiger Lizenz freischaltet und Ablauf keine Core-Daten oder Core-Funktion beschädigt.
@@ -160,35 +160,35 @@ Jeder Provider durchläuft dieselbe Reihenfolge: Verbindung → Test → Profilw
 
 ### Google Business Profile
 
-- [ ] **RC-065 – OAuth-Verbindung und sichere Callback-Prüfung umsetzen.** Ergebnis: State/Nonce, Redirect, Reconnect und Token-Widerruf funktionieren.
-- [ ] **RC-066 – Berechtigte Profile/Standorte auflisten.** Ergebnis: nur vom eingeloggten Konto verwaltete/verifizierte Standorte sind auswählbar.
-- [ ] **RC-067 – Reviews paginiert synchronisieren.** Ergebnis: Cursors, Update-Zeit, Zuordnung zu Location und Idempotenz sind robust.
-- [ ] **RC-068 – Google-Attribution und Löschregeln umsetzen.** Ergebnis: Quellenlink/-label, Aktualisierungszeit, Fehler- und Cache-Regeln sind sichtbar.
+- [x] **RC-065 – OAuth-Verbindung und sichere Callback-Prüfung umsetzen.** Ergebnis: State/Nonce, Redirect, Reconnect und Token-Widerruf funktionieren.
+- [x] **RC-066 – Berechtigte Profile/Standorte auflisten.** Ergebnis: nur vom eingeloggten Konto verwaltete/verifizierte Standorte sind auswählbar.
+- [x] **RC-067 – Reviews paginiert synchronisieren.** Ergebnis: Cursors, Update-Zeit, Zuordnung zu Location und Idempotenz sind robust.
+- [x] **RC-068 – Google-Attribution und Löschregeln umsetzen.** Ergebnis: Quellenlink/-label, Aktualisierungszeit, Fehler- und Cache-Regeln sind sichtbar.
 - [ ] **RC-069 – Google-Places-Fallback separat implementieren oder streichen.** Ergebnis: Place-ID, maximaler Umfang, Kosten, Limit und Fallback sind dokumentiert; niemals mit GBP-OAuth-Daten vermischen.
 
 ### Trustpilot
 
-- [ ] **RC-070 – Trustpilot-Credential-/OAuth-Flow implementieren.** Ergebnis: API-Recht, Business Unit und Berechtigungen werden vor Synchronisierung geprüft.
-- [ ] **RC-071 – Trustpilot-Reviews und Summaries synchronisieren.** Ergebnis: Pagination, erlaubte Cache-Aktualisierung, Löschung und Originalprofil-Link funktionieren.
+- [x] **RC-070 – Trustpilot-Credential-/OAuth-Flow implementieren.** Ergebnis: API-Recht, Business Unit und Berechtigungen werden vor Synchronisierung geprüft.
+- [x] **RC-071 – Trustpilot-Reviews und Summaries synchronisieren.** Ergebnis: Pagination, erlaubte Cache-Aktualisierung, Löschung und Originalprofil-Link funktionieren.
 - [ ] **RC-072 – Trustpilot-Einladungsfähigkeit prüfen.** Ergebnis: nur freigeschaltete offizielle Invitation-Endpunkte werden angeboten; sonst Profil-/Review-Link-Fallback.
 - [x] **RC-073 – TrustBox/Widget-Fallback dokumentieren.** Ergebnis: offizieller Embed-Code lässt sich ohne Tracking-Skript vor Zustimmung nicht automatisch laden.
 
 ### Trusted Shops / eTrusted
 
-- [ ] **RC-074 – eTrusted-API-Client verbinden.** Ergebnis: API-Client, Channel, Berechtigung und Tokenrefresh werden geprüft.
-- [ ] **RC-075 – eTrusted-Reviews paginiert synchronisieren.** Ergebnis: Service-/Produktreviews werden korrekt typisiert und dem Kanal zugeordnet.
+- [x] **RC-074 – eTrusted-API-Client verbinden.** Ergebnis: API-Client, Channel, Berechtigung und Tokenrefresh werden geprüft.
+- [x] **RC-075 – eTrusted-Reviews paginiert synchronisieren.** Ergebnis: Service-/Produktreviews werden korrekt typisiert und dem Kanal zugeordnet.
 - [ ] **RC-076 – eTrusted-Review-Invite-Modus integrieren.** Ergebnis: Event-/Invite-API läuft nur mit gültigem Vertrag und zugelassenen Datenfeldern.
 - [ ] **RC-077 – Trusted-Shops-Widget-Fallback einbauen.** Ergebnis: offizieller Badge-/Embed-Weg ist konfigurierbar, trennbar und im Frontend datenschutzbewusst.
 
 ### Apple App Store und Google Play
 
-- [ ] **RC-078 – App Store Connect Credential-Speicher implementieren.** Ergebnis: Team/App/Key-Zuordnung, Rotation und Widerruf funktionieren ohne Geheimnis in Logs.
-- [ ] **RC-079 – App-Store-Reviews synchronisieren.** Ergebnis: Territory, Version, Sterne, Reviewer-Alias, Datum und Antwortstatus bleiben korrekt zugeordnet.
-- [ ] **RC-080 – Google-Play-Verbindung implementieren.** Ergebnis: Betreiber autorisiert nur eigene Play-Console-App; Rechte sind minimal und widerrufbar.
-- [ ] **RC-081 – Play-Reviews synchronisieren.** Ergebnis: Pagination, Übersetzungssprache, App-Version und vorhandene Antwort werden abgeglichen.
+- [x] **RC-078 – App Store Connect Credential-Speicher implementieren.** Ergebnis: Team/App/Key-Zuordnung, Rotation und Widerruf funktionieren ohne Geheimnis in Logs.
+- [x] **RC-079 – App-Store-Reviews synchronisieren.** Ergebnis: Territory, Version, Sterne, Reviewer-Alias, Datum und Antwortstatus bleiben korrekt zugeordnet.
+- [x] **RC-080 – Google-Play-Verbindung implementieren.** Ergebnis: Betreiber autorisiert nur eigene Play-Console-App; Rechte sind minimal und widerrufbar.
+- [x] **RC-081 – Play-Reviews synchronisieren.** Ergebnis: Pagination, Übersetzungssprache, App-Version und vorhandene Antwort werden abgeglichen.
 - [x] **RC-082 – Provider-Fehler- und Quota-Verhalten vereinheitlichen.** Ergebnis: 401/403, 404, 429, 5xx, Timeout und Datenlöschung führen in nachvollziehbare Status-/Retry-Wege.
 - [x] **RC-083 – Provider-Sandbox-/Fixture-Suite erstellen.** Ergebnis: jeder Adapter hat Tests für Pagination, Duplikate, Änderungen, Löschung, Quota, Tokenablauf und ungültiges Payload.
-- [ ] **RC-084 – Quellenübersicht und Syncdiagnose bauen.** Ergebnis: Profil, letzter Lauf, nächste Ausführung, Anzahl importierter/entfernter Reviews und verständlicher Fehlergrund sind sichtbar.
+- [x] **RC-084 – Quellenübersicht und Syncdiagnose bauen.** Ergebnis: Profil, letzter Lauf, nächste Ausführung, Anzahl importierter/entfernter Reviews und verständlicher Fehlergrund sind sichtbar.
 
 **Meilenstein M4 ist erreicht, wenn:** jede zum Launch versprochene Plattform einen echten, dokumentierten Verbindungstest plus regelkonformen Fallback bestanden hat.
 
@@ -196,46 +196,46 @@ Jeder Provider durchläuft dieselbe Reihenfolge: Verbindung → Test → Profilw
 
 ### Review-Anfrage-Engine
 
-- [ ] **RC-085 – Kampagnenverwaltung bauen.** Ergebnis: Auslöser, Zielplattform, Verzögerung, Sprache, Vorlage, Empfängerregel und Aktivierungsstatus sind versioniert gespeichert.
-- [ ] **RC-086 – Dauerhafte Versandqueue implementieren.** Ergebnis: Job-Sperre, Retry, Backoff, endgültiger Fehler und manuelles Wiederholen ohne Doppelsendung.
-- [ ] **RC-087 – Einladungs-Deduplizierung implementieren.** Ergebnis: Unique-Key aus Erlebnis, Empfänger und Kampagne verhindert doppelte Einladung über konkurrierende Adapter.
-- [ ] **RC-088 – Empfänger-Resolver und Berechtigungsprüfung anbinden.** Ergebnis: Kontakt wird erst zum Versandzeitpunkt geladen; unbekannte oder widerrufene Berechtigung stoppt den Versand.
-- [ ] **RC-089 – Betreiber-eigenen Mailtransport unterstützen.** Ergebnis: klare Anforderungen an Absenderdomain/SMTP, Testmail, Fehlerstatus, Bounce/Unsubscribe und keine harte Abhängigkeit von stillschweigendem Standardversand.
-- [ ] **RC-090 – Opt-out- und Suppression-Liste umsetzen.** Ergebnis: Abmeldelink und siteweite Sperre werden vor jedem Versand geprüft.
-- [ ] **RC-091 – Plattformziel und Kampagnenregeln umsetzen.** Ergebnis: Zielplattform ist vorab festgelegt und für alle geeigneten Empfänger gleich; keine Auswahl anhand von Sternebewertung oder Stimmung.
-- [ ] **RC-092 – Erinnerungen optional einbauen.** Ergebnis: standardmäßig aus; eine Erinnerung bleibt derselben Experience-/Recipient-Grenze unterworfen und wird protokolliert.
-- [ ] **RC-093 – Versandprotokoll und Vorschau bauen.** Ergebnis: Testmodus, Zustände, Skip-Gründe, Templatevorschau und datensparsame Logs funktionieren.
-- [ ] **RC-094 – Erinnerungs-/Kampagnenlokalisierung ergänzen.** Ergebnis: Sprache aus Quelle/Empfänger, Fallback und fehlende Übersetzung sind nachvollziehbar.
+- [x] **RC-085 – Kampagnenverwaltung bauen.** Ergebnis: Auslöser, Zielplattform, Verzögerung, Sprache, Vorlage, Empfängerregel und Aktivierungsstatus sind versioniert gespeichert.
+- [x] **RC-086 – Dauerhafte Versandqueue implementieren.** Ergebnis: Job-Sperre, Retry, Backoff, endgültiger Fehler und manuelles Wiederholen ohne Doppelsendung.
+- [x] **RC-087 – Einladungs-Deduplizierung implementieren.** Ergebnis: Unique-Key aus Erlebnis, Empfänger und Kampagne verhindert doppelte Einladung über konkurrierende Adapter.
+- [x] **RC-088 – Empfänger-Resolver und Berechtigungsprüfung anbinden.** Ergebnis: Kontakt wird erst zum Versandzeitpunkt geladen; unbekannte oder widerrufene Berechtigung stoppt den Versand.
+- [x] **RC-089 – Betreiber-eigenen Mailtransport unterstützen.** Ergebnis: klare Anforderungen an Absenderdomain/SMTP, Testmail, Fehlerstatus, Bounce/Unsubscribe und keine harte Abhängigkeit von stillschweigendem Standardversand.
+- [x] **RC-090 – Opt-out- und Suppression-Liste umsetzen.** Ergebnis: Abmeldelink und siteweite Sperre werden vor jedem Versand geprüft.
+- [x] **RC-091 – Plattformziel und Kampagnenregeln umsetzen.** Ergebnis: Zielplattform ist vorab festgelegt und für alle geeigneten Empfänger gleich; keine Auswahl anhand von Sternebewertung oder Stimmung.
+- [x] **RC-092 – Erinnerungen optional einbauen.** Ergebnis: standardmäßig aus; eine Erinnerung bleibt derselben Experience-/Recipient-Grenze unterworfen und wird protokolliert.
+- [x] **RC-093 – Versandprotokoll und Vorschau bauen.** Ergebnis: Testmodus, Zustände, Skip-Gründe, Templatevorschau und datensparsame Logs funktionieren.
+- [x] **RC-094 – Erinnerungs-/Kampagnenlokalisierung ergänzen.** Ergebnis: Sprache aus Quelle/Empfänger, Fallback und fehlende Übersetzung sind nachvollziehbar.
 
 ### Suite-Adapter
 
-- [ ] **RC-095 – WooCommerce-Adapter implementieren.** Ergebnis: konfigurierbare Bestellstatus, Produktmapping, HPOS und Classic-Speicher; Blocks-Checkout wird nicht verändert.
-- [ ] **RC-096 – WooCommerce-Mehrprodukt-Anfrage umsetzen.** Ergebnis: eine E-Mail kann mehrere bewertbare Positionen sammeln, ohne native WooReviews zu duplizieren.
-- [ ] **RC-097 – Refund-/Stornoausschlüsse anbinden.** Ergebnis: offene Einladung wird bei Refund, Chargeback oder Storno je definierter Kampagnenregel gestoppt.
-- [ ] **RC-098 – Voucher-Captain-Vertrag erweitern.** Ergebnis: echte Einlösung/Leistung wird versioniert gemeldet; Ausstellung, Kauf und Guthabenaufladung lösen keine Anfrage aus.
-- [ ] **RC-099 – Voucher-Empfängerlogik umsetzen.** Ergebnis: Käufer und Beschenkter werden unterschieden; Einladung geht nur an den zulässigen tatsächlichen Empfänger.
+- [x] **RC-095 – WooCommerce-Adapter implementieren.** Ergebnis: konfigurierbare Bestellstatus, Produktmapping, HPOS und Classic-Speicher; Blocks-Checkout wird nicht verändert.
+- [x] **RC-096 – WooCommerce-Mehrprodukt-Anfrage umsetzen.** Ergebnis: eine E-Mail kann mehrere bewertbare Positionen sammeln, ohne native WooReviews zu duplizieren.
+- [x] **RC-097 – Refund-/Stornoausschlüsse anbinden.** Ergebnis: offene Einladung wird bei Refund, Chargeback oder Storno je definierter Kampagnenregel gestoppt.
+- [x] **RC-098 – Voucher-Captain-Vertrag erweitern.** Ergebnis: echte Einlösung/Leistung wird versioniert gemeldet; Ausstellung, Kauf und Guthabenaufladung lösen keine Anfrage aus.
+- [x] **RC-099 – Voucher-Empfängerlogik umsetzen.** Ergebnis: Käufer und Beschenkter werden unterschieden; Einladung geht nur an den zulässigen tatsächlichen Empfänger.
 - [ ] **RC-100 – Pass-Captain-Completion-Vertrag ergänzen.** Ergebnis: Check-in/Teilnahme, No-show, Absage und Refund besitzen stabile Ereignisse und Experience-ID.
 - [ ] **RC-101 – Ticketkäufer-/Teilnehmerregel umsetzen.** Ergebnis: bei mehreren Tickets wird der definierte tatsächliche Teilnehmer adressiert und Deduplizierung greift je Erlebnis.
 - [ ] **RC-102 – Affiliate-Captain-Adapter implementieren.** Ergebnis: nur Kampagnen-/Partnerreferenz und aggregierte Kennzahlen, keine Kunden- oder Reviewtexte.
-- [ ] **RC-103 – Form-Captain-Aktion implementieren.** Ergebnis: ausgewählte Form-Captain-Einsendung kann mit explizitem Opt-in als Review-Captain-Entwurf übergeben werden; standardmäßig moderiert, nicht automatisch veröffentlicht.
+- [x] **RC-103 – Form-Captain-Aktion implementieren.** Ergebnis: ausgewählte Form-Captain-Einsendung kann mit explizitem Opt-in als Review-Captain-Entwurf übergeben werden; standardmäßig moderiert, nicht automatisch veröffentlicht.
 - [ ] **RC-104 – Form-Captain-Vertragskompatibilität prüfen.** Ergebnis: Form-Captain-Core reicht als Quelle; Review-Captain-Pro-Recht schaltet die Review-Aktion frei; inkompatible Vertragsversion wird sauber angezeigt.
-- [ ] **RC-105 – Suite-Integrationsstatus bauen.** Ergebnis: installierte Version, Vertragskompatibilität, letzte Annahme, Queue, Fehler und Verbindungstest je Adapter.
+- [x] **RC-105 – Suite-Integrationsstatus bauen.** Ergebnis: installierte Version, Vertragskompatibilität, letzte Annahme, Queue, Fehler und Verbindungstest je Adapter.
 - [ ] **RC-106 – Suite-E2E-Läufe ausführen und dokumentieren.** Ergebnis: Kauf→Gutschein-Einlösung, Ticket→Check-in, Woo-Refund, Formular-Submission, Affiliate-Attribution, Opt-out, Plugin fehlt und Duplicate-Events sind abgedeckt.
 
 **Meilenstein M5 ist erreicht, wenn:** die Einladungsregel durch alle Quellen identisch durchgesetzt wird und kein Plugin fremde interne Tabellen benötigt.
 
 ## M6 – Social Proof, Testimonials und Trust-Badges
 
-- [ ] **RC-107 – Testimonial-Bibliothek implementieren.** Ergebnis: Text, Bild, Video und Audio mit Kontext, Sprache, Status und Widerruf sind verwaltbar.
-- [ ] **RC-108 – Rechte-/Freigabeprozess umsetzen.** Ergebnis: jede Medienveröffentlichung verlangt belegte Nutzungsrechte für Name, Bild und Stimme; abgelaufene/widerrufene Einwilligung blendet Inhalt aus.
-- [ ] **RC-109 – Medien-Upload absichern.** Ergebnis: erlaubte MIME-Typen, Größenlimit, Dateiprüfung, Zugriffskontrolle und sichere Löschung sind implementiert.
-- [ ] **RC-110 – Video-/Audio-Ausgabe barrierearm bauen.** Ergebnis: keine Autoplay-Wiedergabe, Tastatursteuerung, Untertitel/Transkript, Posterbild und click-to-load für externe Player.
-- [ ] **RC-111 – Trustmark-/Award-Verwaltung bauen.** Ergebnis: Herausgeber, gültig ab/bis, Asset/Embed, Verifizierungslink und Markenrechte sind Pflichtfelder.
-- [ ] **RC-112 – Plattform-Bewertungsleiste bauen.** Ergebnis: Score, Originalskala, Anzahl, Quelle, Zeitraum, Datenstand und Link je Plattform sind sichtbar.
-- [ ] **RC-113 – Summenanzahl transparent darstellen.** Ergebnis: Count-Summe trägt Label „über ausgewählte Plattformen“, Zeitraum und Hinweis auf fehlende plattformübergreifende Personendeduplizierung.
+- [x] **RC-107 – Testimonial-Bibliothek implementieren.** Ergebnis: Text, Bild, Video und Audio mit Kontext, Sprache, Status und Widerruf sind verwaltbar.
+- [x] **RC-108 – Rechte-/Freigabeprozess umsetzen.** Ergebnis: jede Medienveröffentlichung verlangt belegte Nutzungsrechte für Name, Bild und Stimme; abgelaufene/widerrufene Einwilligung blendet Inhalt aus.
+- [x] **RC-109 – Medien-Upload absichern.** Ergebnis: erlaubte MIME-Typen, Größenlimit, Dateiprüfung, Zugriffskontrolle und sichere Löschung sind implementiert.
+- [x] **RC-110 – Video-/Audio-Ausgabe barrierearm bauen.** Ergebnis: keine Autoplay-Wiedergabe, Tastatursteuerung, Untertitel/Transkript, Posterbild und click-to-load für externe Player.
+- [x] **RC-111 – Trustmark-/Award-Verwaltung bauen.** Ergebnis: Herausgeber, gültig ab/bis, Asset/Embed, Verifizierungslink und Markenrechte sind Pflichtfelder.
+- [x] **RC-112 – Plattform-Bewertungsleiste bauen.** Ergebnis: Score, Originalskala, Anzahl, Quelle, Zeitraum, Datenstand und Link je Plattform sind sichtbar.
+- [x] **RC-113 – Summenanzahl transparent darstellen.** Ergebnis: Count-Summe trägt Label „über ausgewählte Plattformen“, Zeitraum und Hinweis auf fehlende plattformübergreifende Personendeduplizierung.
 - [x] **RC-114 – Plattformübergreifenden Score blockieren oder erklären.** Ergebnis: standardmäßig kein gemeinsamer Score; falls aktiviert, sind Normalisierung, Gewichtung, Quelle und Stichprobe vollständig sichtbar.
-- [ ] **RC-115 – Testimonial-Wall/Video-/Audio-Carousel bauen.** Ergebnis: mobile, performante Layouts mit manueller Moderationsauswahl und klarer Quellenart.
-- [ ] **RC-116 – Floating Trust-Badge bauen.** Ergebnis: pro Seite/Position konfigurierbar, minimierbar, mobil getestet und kollidiert nicht mit Kauf-, Chat- oder Ticketaktionen.
+- [x] **RC-115 – Testimonial-Wall/Video-/Audio-Carousel bauen.** Ergebnis: mobile, performante Layouts mit manueller Moderationsauswahl und klarer Quellenart.
+- [x] **RC-116 – Floating Trust-Badge bauen.** Ergebnis: pro Seite/Position konfigurierbar, minimierbar, mobil getestet und kollidiert nicht mit Kauf-, Chat- oder Ticketaktionen.
 - [x] **RC-117 – Page-/Produkt-/Event-Kontextfilter anbinden.** Ergebnis: Editor kann Reviews und Testimonials passend zu Woo-Produkt, Gutschein, Event, App oder Formular auswählen.
 - [x] **RC-118 – Widget-Registry und Embed-Shortcodes finalisieren.** Ergebnis: Blocks, Shortcodes, SSR und Builder-Integrationen geben dieselbe freigegebene Widgetdefinition aus.
 - [ ] **RC-119 – Page-Builder-Mindestumfang festlegen.** Ergebnis: Elementor/Divi/andere Builder sind ausdrücklich unterstützt oder als nicht unterstützt dokumentiert.
@@ -335,9 +335,9 @@ Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile E
 
 - [x] **CON-008 – Core-Registry und Contract-Validator implementieren.** Ergebnis: registrierte Connectoren werden dedupliziert, validiert und ohne Fatal Error bei inkompatibler Version als pausiert ausgewiesen.
 - [x] **CON-009 – Jobrunner-Erweiterung implementieren.** Ergebnis: versionierte Connectorjob-Typen laufen mit atomarem Claim/Lease, Idempotency-Key, Retry/Backoff, Dead-Letter und Hook für Connectorfehler (Vorschlag wp_review_captain_process_job_v1); keine Connector-Jobverarbeitung im Frontend-Request.
-- [ ] **CON-010 – Pro-Manager-Seite gestalten und bauen.** Ergebnis: Statuskarten zeigen Entwickler, Version, Fähigkeiten, Contract-Kompatibilität, Aktivstatus, letzte Ausführung, wartende Jobs und sanitisierten Fehler; Test, Pause, Disconnect und Wiederholen sind capability-/nonce-geschützt.
-- [ ] **CON-011 – Schema-basierte Connector-Konfiguration bereitstellen.** Ergebnis: Felder sind typisiert und validiert; Secrets werden maskiert/verschlüsselt gespeichert und erscheinen weder in Logs noch Diagnoseexporten; keine frei ausführbaren PHP-Felder.
-- [ ] **CON-012 – Dry-Run und Diagnose hinzufügen.** Ergebnis: Test-Fixture zeigt normalisierte Payload, Mapping, Eligibility-/Consent-/Dedupe-Entscheidung und erwartete Aktion, ohne reale E-Mail oder externe Schreibaktion auszulösen.
+- [x] **CON-010 – Pro-Manager-Seite gestalten und bauen.** Ergebnis: Statuskarten zeigen Entwickler, Version, Fähigkeiten, Contract-Kompatibilität, Aktivstatus, letzte Ausführung, wartende Jobs und sanitisierten Fehler; Test, Pause, Disconnect und Wiederholen sind capability-/nonce-geschützt.
+- [x] **CON-011 – Schema-basierte Connector-Konfiguration bereitstellen.** Ergebnis: Felder sind typisiert und validiert; Secrets werden maskiert/verschlüsselt gespeichert und erscheinen weder in Logs noch Diagnoseexporten; keine frei ausführbaren PHP-Felder.
+- [x] **CON-012 – Dry-Run und Diagnose hinzufügen.** Ergebnis: Test-Fixture zeigt normalisierte Payload, Mapping, Eligibility-/Consent-/Dedupe-Entscheidung und erwartete Aktion, ohne reale E-Mail oder externe Schreibaktion auszulösen.
 - [x] **CON-013 – Error-/Health-Vertrag umsetzen.** Ergebnis: stabile Fehlercodes für Authentifizierung, Rate Limit, Timeout, inkompatiblen Vertrag, ungültige Payload, temporären und permanenten Fehler; Status enthält nächste sinnvolle Admin-Aktion.
 - [x] **CON-014 – Inkompatibilität und Plugin-Lifecycle behandeln.** Ergebnis: Deaktivierung oder Entfernung eines Quell-Plugins pausiert offene Connectorjobs und zeigt source_unavailable; erneute Aktivierung validiert Vertrag, Consent und Fristen vor einem Resume.
 
@@ -356,8 +356,8 @@ Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile E
 - [x] RC-WF-01 – Öffentlichen Providervertrag v1 mit Schema-Version, stabiler Event-ID, Capability, Entitlement, Payload-Allowlist, Idempotency-Key und Deprecation-Regel dokumentieren.
 - [x] RC-WF-02 – Post-Commit-Events für Anfrage geplant/übersprungen/gesendet/fehlgeschlagen, Erinnerung, Antwort, Review erstellt/moderiert/veröffentlicht/zurückgezogen und Opt-out bereitstellen; keine Reviewtexte, E-Mail oder Tokens in Logs.
 - [ ] RC-WF-03 – Services zum Planen/Abbrechen zulässiger Anfragen, Erstellen genehmigter Entwürfe und Lesen datensparsamer Aggregate anbieten. Workflow darf Einladungsberechtigung, Consent, Opt-out, Suppression, Frequenzlimits, Plattformziel oder Moderation nicht umgehen.
-- [ ] RC-WF-04 – Suite-Trigger und erweiterte Actions an Review-Pro-Recht binden, native Queue als Standard behalten und explizite Ownership-Übergabe unterstützen; parallele Woo/Pass/Voucher/Workflow-Einladungen deduplizieren.
-- [ ] RC-WF-05 – Review-Admin um Workflow-Verbindung, Contract-Version, aktive Übergabe, Eventannahme, Ablehnungsgrund und Retrystatus ergänzen; fehlendes/inkompatibles Workflow lässt Review Core normal laufen.
+- [x] RC-WF-04 – Suite-Trigger und erweiterte Actions an Review-Pro-Recht binden, native Queue als Standard behalten und explizite Ownership-Übergabe unterstützen; parallele Woo/Pass/Voucher/Workflow-Einladungen deduplizieren.
+- [x] RC-WF-05 – Review-Admin um Workflow-Verbindung, Contract-Version, aktive Übergabe, Eventannahme, Ablehnungsgrund und Retrystatus ergänzen; fehlendes/inkompatibles Workflow lässt Review Core normal laufen.
 - [x] RC-WF-06 – Pass-Check-in und qualifizierte Voucher-Leistung dürfen Anfrage planen; Refund, Absage, No-show, Consent fehlt, Opt-out und Duplikat blockieren. Form-Entry darf nur explizit gemappten pending/unverified Entwurf übergeben.
 - Abnahme: Workflow kann Review-Regeln, Moderation und Einwilligung nicht umgehen; höchstens eine Einladung je Experience/Empfänger/Kampagne.
 
@@ -413,7 +413,7 @@ Die Einstellungsseite soll globale Standardwerte und Richtlinien enthalten. Obje
 - [x] **SET-009 – Progressive Disclosure und Kontextfelder implementieren.** Ergebnis: Provider-/Versandweg-spezifische Felder erscheinen erst bei Bedarf; Erweitert-Optionen sind eingeklappt, Pro-Sperren und Abhängigkeiten verständlich.
 - [x] **SET-010 – Allgemeine Website-Defaults implementieren.** Ergebnis: Standardsprache, Zeitzone, Marken-/Absenderidentität und Standardanzeige sind zentral definiert und in Vorschauen erkennbar.
 - [x] **SET-011 – Quellen- und Sync-Defaults umsetzen.** Ergebnis: globale Jobfenster/-limits, Quota- und Fehlerpause sind einstellbar; individuelle Credentials, Profile und Anbieterscopes bleiben ausschließlich auf der Quellen-Seite.
-- [ ] **SET-012 – Globale Anfrage- und Versandrichtlinien umsetzen.** Ergebnis: Absender/Testmail, Versandzeitfenster, globale Frequenzgrenze, Erinnerungsstandard, Suppression/Opt-out und Bounce-/Fehlerstatus sind vorhanden; Kampagnenwerte werden an der Kampagne gepflegt.
+- [x] **SET-012 – Globale Anfrage- und Versandrichtlinien umsetzen.** Ergebnis: Absender/Testmail, Versandzeitfenster, globale Frequenzgrenze, Erinnerungsstandard, Suppression/Opt-out und Bounce-/Fehlerstatus sind vorhanden; Kampagnenwerte werden an der Kampagne gepflegt.
 - [x] **SET-013 – Einreichungs- und Moderationsdefaults umsetzen.** Ergebnis: neue lokale Reviews sind standardmäßig moderiert; Spam- und Uploadschutz sowie Formular-Standardfelder lassen sich zentral konfigurieren.
 - [x] **SET-014 – globale Darstellungsdefaults umsetzen.** Ergebnis: Sterne, Attribution, Datum, Avatar/Autor, leere Zustände und Barrierefreiheitspräferenzen bilden die Voreinstellung neuer Widgets; externe Quellenangabe kann nicht entfernt werden.
 - [x] **SET-015 – Datenschutz- und Aufbewahrungsseite umsetzen.** Ergebnis: Fristen für Snapshots, Anfragen, Logs und Medien sind getrennt; Export, Eraser, Disconnect, Settings-Reset und vollständige Datenlöschung haben klare getrennte Folgen.
