@@ -57,6 +57,7 @@ wp review-captain reconcile [--fix] [--mode=upgrade|reactivate|restore|clone|man
 - Eine Wiederherstellung sendet keine alten Einladungen doppelt (Sperre + Schritt 3 + Pro-Unique-Keys) und führt keine alten API-Schreibaktionen aus.
 - Abgelaufene oder widerrufene Tokens werden nie als gültig dargestellt (Schritt 4).
 - Reconciliation löscht keine Reviews außerhalb der definierten Fristen/Tombstone-Regeln.
+- **Einwilligung/Opt-out (RC-139):** Ein Backup kennt keine Einwilligungen, Widerrufe oder Opt-outs, die danach erfasst wurden. Deshalb bleiben Jobs mit Außenwirkung bis zur Reconciliation gesperrt (§2) und überfällige Einladungen werden vor Freigabe neu geprüft (Schritt 3). Opt-outs, die nach dem Backup-Zeitpunkt erklärt wurden, gehen mit dem Restore verloren: Betreiber müssen sie aus Abmelde-E-Mails bzw. Logs nachtragen, bevor sie die Sperre aufheben (Runbook, Abschnitt Restore). Veröffentlichungseinwilligungen (`consent_publish`) lokaler Reviews haben den Stand des Backups.
 
 ## Abnahme
 

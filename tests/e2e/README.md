@@ -25,6 +25,8 @@ Quellen (nur offizielle Wege, keine Phars, keine globalen Installationen):
 ```bash
 source tests/e2e/env.sh            # Variablen + Funktion `wp` (WP-CLI gegen $E2E_WP)
 tests/e2e/setup.sh --fresh         # WordPress + SQLite installieren, Core (git archive HEAD) + Pro (build.php) + Demo-Connector kopieren
+tests/e2e/install-woo.sh           # WooCommerce 5.9.1 + Yoast 27.0 über Packagist (RC-131/RC-133)
+tests/e2e/deploy-suite.sh          # Form/Pass/Voucher/Affiliate Captain aus lokalen Checkouts (RC-131)
 server_start                       # php -S 127.0.0.1:8899 -t $E2E_WP im Hintergrund
 tests/e2e/smoke.sh                 # RC-131: Aktivieren/Deaktivieren/Deinstallieren Core, Pro, Core+Pro, debug.log
 tests/e2e/multisite.sh             # RC-131: Multisite-Smoke auf eigener Instanz $E2E_DIR/wp-ms
