@@ -2,7 +2,7 @@
 
 **Status:** Checkliste bereit – Anbieterrichtlinien müssen je Logo/Badge an der Primärquelle geprüft und mit Datum eingetragen werden  
 **Stand:** 2026-11-16  
-**Quellen:** [Konzept §5, §8.10, §9](../../konzept.md), [RC-008](rc-008-provider-matrix.md)
+**Quellen:** [Konzept §5, §8.10, §9](../../konzept.md), [Provider-Matrix](../providers/matrix.md)
 
 ## Allgemeine Regeln (gelten für alle Quellen)
 
