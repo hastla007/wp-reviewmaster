@@ -11,6 +11,13 @@ else
 	( cd "$E2E_CORE_SRC" && git archive "$E2E_CORE_REF" review-captain.php uninstall.php readme.txt LICENSE src templates assets blocks languages ) | tar -xf - -C "$STAGE"
 fi
 rm -rf "$PL/review-captain"; cp -a "$STAGE" "$PL/review-captain"
+# MINVER-1: the repository requires PHP 8.5. On an older local PHP, lower the header in the *test copy only*
+# (WordPress blocks activation by header); wp-config.e2e.php sets REVIEW_CAPTAIN_DEV_IGNORE_PHP_MIN for the runtime check.
+LOCAL_PHP="$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')"
+if php -r 'exit(version_compare(PHP_VERSION,"8.5",">=")?0:1);'; then :; else
+	sed -i "s/^ \* Requires PHP:      8\.5$/ * Requires PHP:      $LOCAL_PHP/" "$PL/review-captain/review-captain.php"
+	echo "Hinweis: Testkopie mit Requires PHP $LOCAL_PHP (lokal kein PHP 8.5)"
+fi
 echo "Core: $(cd "$E2E_CORE_SRC" && git rev-parse --short "${E2E_CORE_REF/worktree/HEAD}") ($E2E_CORE_REF)"
 
 # Demo-Connector (CON-016)

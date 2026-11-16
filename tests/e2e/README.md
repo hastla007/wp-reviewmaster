@@ -5,7 +5,7 @@ Sie ändern keinen Produktcode; alles Laufzeitmaterial liegt unter `$E2E_DIR` (S
 
 ## Voraussetzungen
 
-- PHP ≥ 8.1 mit `pdo_sqlite`, `sodium`, `zip`; Composer; `git`, `unzip`, `curl`, `bc`, Python 3 mit Pillow (nur `shrink-png.py`).
+- PHP ≥ 8.1 (Testkopie: `deploy-plugins.sh` senkt unter PHP 8.5 den `Requires PHP`-Kopf nur in der Kopie, `wp-config.e2e.php` setzt `REVIEW_CAPTAIN_DEV_IGNORE_PHP_MIN`) mit `pdo_sqlite`, `sodium`, `zip`; Composer; `git`, `unzip`, `curl`, `bc`, Python 3 mit Pillow (nur `shrink-png.py`).
 - Node.js mit Playwright/Chromium (`NODE_PATH` auf das Modulverzeichnis, hier `/opt/node-tools/node_modules`).
 - `axe-core` lokal: `mkdir -p $E2E_DIR/node && cd $E2E_DIR/node && npm init -y && npm install axe-core@4`.
 - Kein MySQL nötig: Datenbank ist SQLite über das offizielle Plugin *SQLite Database Integration*.
@@ -18,7 +18,7 @@ Quellen (nur offizielle Wege, keine Phars, keine globalen Installationen):
 | WordPress | Packagist `johnpbloch/wordpress-core` (`WP_CONSTRAINT`, Standard `^6.7` → 6.9.x) | |
 | WP-CLI | Packagist `wp-cli/wp-cli-bundle`, gestartet als `php …/wp-cli/php/boot-fs.php` | `vendor/bin/wp` ist nur ein Shell-Wrapper |
 | SQLite-Integration | GitHub `WordPress/sqlite-database-integration`, Tag `v3.1.3` | wpackagist.org und downloads.wordpress.org sind in der Sandbox per Proxy gesperrt (403) |
-| Yoast SEO (optional) | Packagist `yoast/wordpress-seo` (Yoast-dist), z. B. 27.0 für WP 6.9 (28.x verlangt WP 7.0) | danach im Pluginordner `composer dump-autoload --no-dev` |
+| Yoast SEO (optional) | Packagist `yoast/wordpress-seo` (Yoast-dist), z. B. 27.0 für WP 6.9 (28.x verlangt WP 7.0) | danach im Pluginordner `composer dump-autoload --no-dev --no-scripts` |
 
 ## Ablauf
 
@@ -33,6 +33,7 @@ wp eval-file tests/e2e/php/content.php            # Testseiten (Shortcodes, Blö
 NODE_PATH=/opt/node-tools/node_modules node tests/e2e/functional.cjs   # Formular, Moderation, Rendering, CSV, Datenschutz
 wp eval-file tests/e2e/php/connector-status.php   # CON-016 Registry-Status (E2E_CONNECTOR_ACTION=enqueue|poll)
 tests/e2e/seo.sh                                  # SEO-016 JSON-LD ohne/mit Yoast
+cp tests/e2e/mu-plugins/e2e-seo-switch.php $E2E_WP/wp-content/mu-plugins/ && tests/e2e/seo-scenarios.sh  # SEO-016 Checkliste §3/§4 mit Assertions
 # optional Pro mit simulierter Lizenz (siehe unten), dann:
 wp eval-file tests/e2e/php/content-pro.php        # Pro-Widgets + schwebendes Badge
 NODE_PATH=/opt/node-tools/node_modules node tests/e2e/a11y-mobile.cjs  # axe, Tastatur, iPhone/Pixel, Screenshots

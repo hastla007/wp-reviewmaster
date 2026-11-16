@@ -23,6 +23,10 @@ mkdir -p "$CI_DIR/composer"
 rm -rf "$WP" && cp -r "$CI_DIR/composer/vendor/johnpbloch/wordpress-core" "$WP"
 mkdir -p "$WP/wp-content/plugins/review-captain"
 ( cd "$ROOT" && git archive HEAD ) | tar -x -C "$WP/wp-content/plugins/review-captain"
+if [ -n "${RC_DEV_IGNORE_PHP_MIN:-}" ]; then
+	# Local runs on PHP < 8.5 only: lower the header in the test copy (CI runs PHP 8.5 without this).
+	sed -i "s/^ \* Requires PHP:      8\.5$/ * Requires PHP:      $(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')/" "$WP/wp-content/plugins/review-captain/review-captain.php"
+fi
 
 cat > "$WP/wp-config.php" <<PHP
 <?php
@@ -32,6 +36,8 @@ foreach ( array( 'AUTH_KEY', 'SECURE_AUTH_KEY', 'LOGGED_IN_KEY', 'NONCE_KEY', 'A
 \$table_prefix = 'wp_';
 define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true ); define( 'WP_DEBUG_DISPLAY', false );
 if ( ! defined( 'DISABLE_WP_CRON' ) ) { define( 'DISABLE_WP_CRON', true ); }
+define( 'WP_ENVIRONMENT_TYPE', 'local' );
+if ( getenv( 'RC_DEV_IGNORE_PHP_MIN' ) ) { define( 'REVIEW_CAPTAIN_DEV_IGNORE_PHP_MIN', true ); }
 if ( ! defined( 'ABSPATH' ) ) { define( 'ABSPATH', __DIR__ . '/' ); }
 require_once ABSPATH . 'wp-settings.php';
 PHP

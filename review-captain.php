@@ -27,7 +27,15 @@ define( 'REVIEW_CAPTAIN_MIN_WP', '6.5' );
 /*
  * Mindestversion prüfen, bevor neuere PHP-Syntax geladen wird.
  */
-if ( version_compare( PHP_VERSION, REVIEW_CAPTAIN_MIN_PHP, '<' ) || version_compare( get_bloginfo( 'version' ), REVIEW_CAPTAIN_MIN_WP, '<' ) ) {
+/*
+ * REVIEW_CAPTAIN_DEV_IGNORE_PHP_MIN: test environments only (local QA where PHP 8.5 is not available).
+ * Ignored on production sites (wp_get_environment_type() === 'production') and below PHP 8.1 (code syntax).
+ */
+$review_captain_php_ok = version_compare( PHP_VERSION, REVIEW_CAPTAIN_MIN_PHP, '>=' )
+	|| ( defined( 'REVIEW_CAPTAIN_DEV_IGNORE_PHP_MIN' ) && REVIEW_CAPTAIN_DEV_IGNORE_PHP_MIN
+		&& function_exists( 'wp_get_environment_type' ) && 'production' !== wp_get_environment_type()
+		&& version_compare( PHP_VERSION, '8.1', '>=' ) );
+if ( ! $review_captain_php_ok || version_compare( get_bloginfo( 'version' ), REVIEW_CAPTAIN_MIN_WP, '<' ) ) {
 	add_action(
 		'admin_notices',
 		static function () {

@@ -72,6 +72,6 @@ Die Pro-Komponenten (Plattform-Clients, Anfragen, Widgets) wurden in diesem Beri
 
 ## Mindestversionen (MINVER-1)
 
-- PHP 8.5, MySQL 9.7 LTS und MariaDB 12.3 LTS sind im Code und in der CI eingetragen, konnten in der Entwicklungsumgebung aber **nicht lokal** getestet werden (dort nur PHP 8.3 und MariaDB 10.11, keine Pakete für die neuen Versionen, kein Docker). Lokal verifiziert wurden Unit-Tests (PHP 8.3, mit `--ignore-platform-req=php`) und die DB-Integration auf MariaDB 10.11. Der erste Lauf der CI-Jobs `PHP 8.5`, `MariaDB 12.3` und `MySQL 9.7` steht aus; ebenso der Test der Inhaberin auf einem echten Host.
+- PHP 8.5, MySQL 9.7 LTS und MariaDB 12.3 LTS sind im Code und in der CI eingetragen, konnten in der Entwicklungsumgebung aber **nicht lokal** getestet werden (dort nur PHP 8.3 und MariaDB 10.11, keine Pakete für die neuen Versionen, kein Docker). Lokal verifiziert wurden Unit-Tests (PHP 8.3, mit `--ignore-platform-req=php`) und die DB-Integration auf MariaDB 10.11. Für lokale QA gibt es den Testschalter `REVIEW_CAPTAIN_DEV_IGNORE_PHP_MIN` (wirkt nicht auf Produktionsumgebungen, nie unter PHP 8.1). Der erste Lauf der CI-Jobs `PHP 8.5`, `MariaDB 12.3` und `MySQL 9.7` steht aus; ebenso der Test der Inhaberin auf einem echten Host.
 - Review Captain Pro muss nachziehen (Pro `Requires PHP` = Core-Minimum, captain-pro Entscheidung B3) – im Pro-Branch noch nicht geändert.
 

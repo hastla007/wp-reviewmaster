@@ -16,6 +16,8 @@ define( 'WP_DEBUG_DISPLAY', false );
 define( 'SCRIPT_DEBUG', false );
 define( 'WP_ENVIRONMENT_TYPE', 'local' );
 define( 'DISABLE_WP_CRON', true );
+// MINVER-1: minimum PHP is 8.5; allow local QA on older PHP (non-production only).
+define( 'REVIEW_CAPTAIN_DEV_IGNORE_PHP_MIN', true );
 if ( file_exists( __DIR__ . '/wp-config-e2e-extra.php' ) ) { require __DIR__ . '/wp-config-e2e-extra.php'; }
 if ( ! defined( 'ABSPATH' ) ) { define( 'ABSPATH', __DIR__ . '/' ); }
 require_once ABSPATH . 'wp-settings.php';
