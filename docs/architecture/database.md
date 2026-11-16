@@ -14,7 +14,7 @@ Wo dieses Dokument und der Code abweichen, gilt `src/Install/Schema.php`. Nicht 
 
 ## 2. Tabellen
 
-Maßgeblich ist `src/Install/Schema.php` (`Schema::VERSION = 2`, Option `review_captain_db_version`; Änderungen von v2 siehe 2.8). Die Tabellen unten geben das dbDelta-SQL von Schema v1 **exakt** wieder (Typen in der Schreibweise des Codes). Spalten, die frühere Fassungen dieses Dokuments vorgesehen hatten, die aber nicht in Schema v1 enthalten sind, stehen jeweils unter „Ausblick (nicht in Schema v1)“; sie dürfen nur über einen neuen Migrationsschritt (`Schema::VERSION` erhöhen, Schritt in `Migrator::steps()`) eingeführt werden.
+Maßgeblich ist `src/Install/Schema.php` (`Schema::VERSION = 3`, Option `review_captain_db_version`; Änderungen von v2 siehe 2.8, v3: Spalte `reviews.sorted_at` + Index `status_sorted`, ADR-0010). Die Tabellen unten geben das dbDelta-SQL von Schema v1 **exakt** wieder (Typen in der Schreibweise des Codes). Spalten, die frühere Fassungen dieses Dokuments vorgesehen hatten, die aber nicht in Schema v1 enthalten sind, stehen jeweils unter „Ausblick (nicht in Schema v1)“; sie dürfen nur über einen neuen Migrationsschritt (`Schema::VERSION` erhöhen, Schritt in `Migrator::steps()`) eingeführt werden.
 
 Logische Tabellenschlüssel (`Schema::TABLES`): `reviews`, `review_events`, `profiles`, `jobs`, `import_batches`, `audit_log`, ab v2 zusätzlich `review_tags`, `review_reports`, `review_media`, `questions` (2.8). Der volle Name ergibt sich aus `Schema::table( $key )` = `$wpdb->prefix . 'review_captain_' . $key`.
 
@@ -45,6 +45,7 @@ Logische Tabellenschlüssel (`Schema::TABLES`): `reviews`, `review_events`, `pro
 | `context_id` | `varchar(64) NULL` | |
 | `source_url` | `text NULL` | nur `https`, validiert (siehe [embed-security.md](embed-security.md)) |
 | `published_at` | `datetime NULL` | Originaldatum |
+| `sorted_at` | `datetime NULL` | Sortierdatum = `published_at`, sonst `created_at`; vom Repository gepflegt, Index `status_sorted (status, sorted_at)` (Schema v3, ADR-0010) |
 | `fetched_at` | `datetime NULL` | letzter erfolgreicher Abruf |
 | `refresh_due_at` | `datetime NULL` | Pflicht-Refresh laut [retention-matrix.md](retention-matrix.md) |
 | `consent_publish` | `tinyint(1) NOT NULL DEFAULT 0` | |

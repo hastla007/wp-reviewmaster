@@ -13,7 +13,7 @@ use ReviewCaptain\Tests\TestCase;
 final class SchemaV2Test extends TestCase {
 
 	public function test_version_tables_and_columns(): void {
-		$this->assertSame( 2, Schema::VERSION );
+		$this->assertGreaterThanOrEqual( 2, Schema::VERSION );
 		foreach ( array( 'review_tags', 'review_reports', 'review_media', 'questions' ) as $key ) {
 			$this->assertContains( $key, Schema::TABLES );
 			$this->assertSame( 0, $this->rows( $key ) );

@@ -97,7 +97,9 @@ class ReviewRepository {
 		$review->created_at = '' !== $review->created_at ? $review->created_at : $now;
 		$review->updated_at = $now;
 
-		$ok = $wpdb->insert( $this->table(), self::nullify( $review->to_row() ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$row              = $review->to_row();
+		$row['sorted_at'] = self::sorted_at( $row['published_at'] ?? null, $review->created_at );
+		$ok               = $wpdb->insert( $this->table(), self::nullify( $row ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		if ( false === $ok ) {
 			throw new \RuntimeException( 'review_insert_failed: ' . $wpdb->last_error ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
@@ -189,6 +191,9 @@ class ReviewRepository {
 		$review->updated_at = gmdate( 'Y-m-d H:i:s' );
 		$row                = $review->to_row();
 		unset( $row['uuid'], $row['created_at'], $row['revision'] );
+		if ( array_key_exists( 'published_at', $row ) && ( null !== $row['published_at'] || '' !== $review->created_at ) ) {
+			$row['sorted_at'] = self::sorted_at( $row['published_at'], $review->created_at );
+		}
 		if ( ! $include_status ) {
 			unset( $row['status'], $row['removed_at'] );
 		}
@@ -361,7 +366,7 @@ class ReviewRepository {
 		global $wpdb;
 		[ $where, $params ] = $this->build_where( $args );
 		$orderby            = match ( $args['orderby'] ?? 'created_at' ) {
-			'published_at' => 'COALESCE(published_at, created_at)',
+			'published_at' => 'sorted_at', // = COALESCE(published_at, created_at), indexed (status, sorted_at); TEC-014.
 			'rating'       => '((rating_value - rating_scale_min) / NULLIF(rating_scale_max - rating_scale_min, 0))',
 			'id'           => 'id',
 			default        => 'created_at',
@@ -432,6 +437,19 @@ class ReviewRepository {
 	}
 
 	/**
+	 * Sort date of a review: publication date, else creation date (TEC-014, schema v3).
+	 *
+	 * @param mixed  $published_at Published date or null.
+	 * @param string $created_at   Created date.
+	 */
+	public static function sorted_at( $published_at, string $created_at ): ?string {
+		if ( is_string( $published_at ) && '' !== $published_at ) {
+			return $published_at;
+		}
+		return '' !== $created_at ? $created_at : null;
+	}
+
+	/**
 	 * Build WHERE clause.
 	 *
 	 * @param array<string, mixed> $args Args.
@@ -454,6 +472,11 @@ class ReviewRepository {
 				$where[] = "{$col} IN (" . implode( ',', array_fill( 0, count( $values ), '%s' ) ) . ')';
 				$params  = array_merge( $params, $values );
 			}
+		}
+		if ( ! empty( $args['after_id'] ) ) {
+			// Keyset pagination for large exports (TEC-014): constant cost per batch instead of OFFSET.
+			$where[]  = 'id > %d';
+			$params[] = (int) $args['after_id'];
 		}
 		foreach ( array( 'profile_id', 'import_batch_id' ) as $col ) {
 			if ( isset( $args[ $col ] ) && '' !== $args[ $col ] ) {

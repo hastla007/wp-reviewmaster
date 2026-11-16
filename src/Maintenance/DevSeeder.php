@@ -45,8 +45,8 @@ class DevSeeder {
 				$external = 'local' === $platform ? null : 'seed-' . $run . '-' . $seq;
 				// Local rows: literal NULL for the unique external columns.
 				$values[] = null === $external
-					? '(%s, %s, %s, %s, NULL, NULL, %f, %s, %s, %s, %s, %s, %d, %s, %s, %s)'
-					: '(%s, %s, %s, %s, %s, %s, %f, %s, %s, %s, %s, %s, %d, %s, %s, %s)';
+					? '(%s, %s, %s, %s, NULL, NULL, %f, %s, %s, %s, %s, %s, %d, %s, %s, %s, %s)'
+					: '(%s, %s, %s, %s, %s, %s, %f, %s, %s, %s, %s, %s, %d, %s, %s, %s, %s)';
 				array_push( $params, wp_generate_uuid4(), 'review', null === $external ? 'manual' : 'provider_sync', $platform );
 				if ( null !== $external ) {
 					array_push( $params, $external, sha1( $platform . '|0|' . $external ) );
@@ -62,11 +62,12 @@ class DevSeeder {
 					1,
 					'{"rc_seed":1}',
 					$created,
+					$created,
 					$created
 				);
 			}
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-			$sql = $wpdb->prepare( "INSERT INTO {$table} (uuid, kind, origin, platform, external_id, dedupe_key, rating_value, title, body, author_name, verification, status, consent_publish, meta, created_at, updated_at) VALUES " . implode( ', ', $values ), $params );
+			$sql = $wpdb->prepare( "INSERT INTO {$table} (uuid, kind, origin, platform, external_id, dedupe_key, rating_value, title, body, author_name, verification, status, consent_publish, meta, created_at, updated_at, sorted_at) VALUES " . implode( ', ', $values ), $params );
 			$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery
 			$done += $n;
 			if ( null !== $progress ) {

@@ -68,16 +68,17 @@ class CsvExporter {
 		fwrite( $handle, Csv::BOM ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 		Csv::put( $handle, self::columns( $include_personal ) );
 
-		$count  = 0;
-		$offset = 0;
+		$count = 0;
+		$last  = 0;
 		do {
-			$args['offset'] = $offset;
-			$batch          = $this->reviews->query( $args );
+			// Keyset pagination (id > last) keeps each batch equally fast on large tables (TEC-014).
+			$args['after_id'] = $last;
+			$batch            = $this->reviews->query( $args );
 			foreach ( $batch as $review ) {
 				Csv::put( $handle, self::row( $review, $include_personal ) );
 				++$count;
+				$last = (int) $review->id;
 			}
-			$offset += count( $batch );
 		} while ( count( $batch ) === $args['limit'] );
 
 		return $count;

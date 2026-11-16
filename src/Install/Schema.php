@@ -17,7 +17,7 @@ final class Schema {
 	/**
 	 * Bump on every schema change and add a migration step in Migrator.
 	 */
-	public const VERSION = 2;
+	public const VERSION = 3;
 
 	public const OPTION_VERSION = 'review_captain_db_version';
 
@@ -81,6 +81,7 @@ final class Schema {
   context_id varchar(64) NULL,
   source_url text NULL,
   published_at datetime NULL,
+  sorted_at datetime NULL,
   fetched_at datetime NULL,
   refresh_due_at datetime NULL,
   consent_publish tinyint(1) NOT NULL DEFAULT 0,
@@ -100,6 +101,7 @@ final class Schema {
   KEY status_kind_platform (status,kind,platform),
   KEY rating_value (rating_value),
   KEY created_at (created_at),
+  KEY status_sorted (status,sorted_at),
   KEY context (context_type,context_id),
   KEY author_email (author_email),
   KEY import_batch_id (import_batch_id),

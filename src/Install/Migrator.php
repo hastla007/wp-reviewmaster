@@ -48,6 +48,22 @@ final class Migrator {
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 				$wpdb->query( "UPDATE {$reviews} SET revision = 0 WHERE revision IS NULL" );
 			},
+			3 => static function (): void {
+				// Schema v3 (TEC-014): dbDelta adds reviews.sorted_at and KEY status_sorted. Backfill in
+				// batches so large tables do not hold one long lock; re-running only touches NULL rows.
+				global $wpdb;
+				$reviews = Schema::table( 'reviews' );
+				do {
+					// Portable batching (no UPDATE … LIMIT, which SQLite does not support).
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+					$ids = array_map( 'intval', (array) $wpdb->get_col( "SELECT id FROM {$reviews} WHERE sorted_at IS NULL ORDER BY id ASC LIMIT 5000" ) );
+					if ( $ids ) {
+						$in = implode( ',', $ids );
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+						$wpdb->query( "UPDATE {$reviews} SET sorted_at = COALESCE(published_at, created_at) WHERE id IN ({$in})" );
+					}
+				} while ( count( $ids ) === 5000 );
+			},
 		);
 	}
 }
