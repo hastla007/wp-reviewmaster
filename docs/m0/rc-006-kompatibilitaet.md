@@ -1,6 +1,6 @@
 # RC-006 – Kompatibilitätsziele
 
-**Status:** Entwurf – konkrete Versionsnummern werden am Feature-Freeze nach der Regel unten eingesetzt  
+**Status:** **Freigegeben** (Entscheidung der Inhaberin am 16.11.2026); konkrete Versionsnummern werden am Feature-Freeze nach der Regel unten eingesetzt  
 **Stand:** 2026-11-16  
 **Quellen:** [Konzept §10, §15 Nr. 6](../../konzept.md), TODO RC-133
 

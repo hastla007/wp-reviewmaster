@@ -1,6 +1,6 @@
 # RC-001 – Produktnamen und Slugs
 
-**Status:** Entwurf – Freigabe offen  
+**Status:** **Freigegeben** (Entscheidung der Inhaberin am 16.11.2026)  
 **Stand:** 2026-11-16 (abgeglichen mit der Umsetzung im Core)  
 **Quellen:** [Konzept, Kopfdaten und Abschnitt 6/10](../../konzept.md), [TODO.md](../../TODO.md)
 
@@ -20,7 +20,7 @@
 | Tabellenpräfix | `{$wpdb->prefix}review_captain_` (z. B. `wp_review_captain_reviews`, so umgesetzt) | Pro-Tabellen mit eigenem Präfix `review_captain_pro_` |
 | Capabilities | `review_captain_*` (z. B. `review_captain_moderate`, so umgesetzt, siehe `docs/architecture/capabilities.md`) | dieselben Core-Capabilities, keine Parallelrechte |
 | REST-Namespace | `review-captain/v1` | `review-captain-pro/v1` |
-| Shortcode | `[review_captain_widget id="…"]` (versioniert über Attribut `v`) | Pro erweitert nur Attribute, keinen zweiten Shortcode-Namen |
+| Shortcode | `[review_captain v="1" …]`, `[review_captain_form]`, `[review_captain_cta]` (versioniert über Attribut `v`, so umgesetzt) | Pro erweitert nur Attribute, keinen zweiten Shortcode-Namen |
 | Block-Namespace | `review-captain/*` | `review-captain-pro/*` |
 | WP-CLI | `wp review-captain …` | `wp review-captain pro …` (Subcommand) |
 | Lizenz-Produktkey | – (Core ohne Lizenz) | `review-captain-pro` |
@@ -40,6 +40,8 @@
 - [ ] Abgleich mit der Captain-Pro-Build-Registry: Namespace-Konvention und Vendor-Präfix des Add-on-Kernels übernehmen.
 
 ## Offen / Freigabe
+
+- **Freigegeben** (Entscheidung der Inhaberin am 16.11.2026). Vor der WordPress.org-Einreichung bleiben die Prüfungen oben (Slug-Verfügbarkeit, Marken-Kurzprüfung) als Release-Aufgabe bestehen.
 
 - Produktverantwortung bestätigt Namen und Slugs.
 - Captain-Pro-Maintainer bestätigt Namespace des Add-ons.

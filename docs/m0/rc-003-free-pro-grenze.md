@@ -1,6 +1,6 @@
 # RC-003 – Free/Pro-Grenze
 
-**Status:** Entwurf – Freigabe offen  
+**Status:** **Freigegeben** (Entscheidung der Inhaberin am 16.11.2026)  
 **Stand:** 2026-11-16  
 **Quellen:** [Konzept §5, §6, §8](../../konzept.md), [RC-002](rc-002-scope-1-0.md), [RC-005](rc-005-entitlements.md)
 

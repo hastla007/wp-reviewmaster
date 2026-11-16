@@ -1,6 +1,6 @@
 # RC-002 – 1.0-Scope
 
-**Status:** Entwurf – Freigabe offen  
+**Status:** **Freigegeben** (Entscheidung der Inhaberin am 16.11.2026), ergänzt um die Entscheidung zu RC-005  
 **Stand:** 2026-11-16  
 **Quellen:** [Konzept §4, §5, §13, §15](../../konzept.md), [TODO.md M2–M7](../../TODO.md)
 
@@ -47,6 +47,10 @@ Fällt die Google-API-Freischaltung bis zum Feature-Freeze aus, wird Google in 1
 - Anfrage-Engine: Kampagnen, Queue, Dedupe, Resolver, eigener Mailtransport, Opt-out, Vorschau, Lokalisierung (RC-085 – RC-094; Erinnerungen RC-092 standardmäßig aus).
 - WooCommerce-Adapter inkl. Mehrprodukt-Anfrage und Refund-Ausschluss (RC-095 – RC-097).
 - Pro-Widgets: Carousel, Badge/Score, Plattform-Bewertungsleiste mit transparenter Summe (RC-112 – RC-114, RC-118).
+
+## Ergänzung durch RC-005 (Entscheidung der Inhaberin am 16.11.2026)
+
+Alle sechs gebauten Pro-Rechte werden ab Pro 1.0 verkauft. Damit gehören zusätzlich zu Pro 1.0: **Suite-Anbindungen** (`review.suite_integrations`: Woo-unabhängige Adapter Voucher/Pass/Affiliate/Form, Workflow Captain), **eigene Connectoren** (`review.custom_connectors`) und **Auswertungen** (`review.analytics`). Einschränkung: Ein Suite-Adapter ist nur aktiv, wenn das jeweilige Captain-Plugin den Review-Vertrag liefert (Pass/Voucher heute nicht auf `main`, siehe [Suite-Abgleich](../contracts/suite-abgleich-2026-11-16.md)); Verkaufstexte nennen nur abgenommene Anbindungen. Die Zeile „Pro 1.1“ unten gilt damit nur noch für Anbindungen, deren Partnervertrag bis zum Release fehlt.
 
 ## Nach 1.0
 

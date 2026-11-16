@@ -1,6 +1,6 @@
 # RC-005 – Lizenz-Entitlements
 
-**Status:** Entwurf – Freigabe offen; abgeglichen mit dem gebauten Add-on (captain-pro, Branch `claude/review-captain-pro`)  
+**Status:** **Freigegeben** (Entscheidung der Inhaberin am 16.11.2026): alle sechs gebauten Rechte ab Pro 1.0; abgeglichen mit dem gebauten Add-on (captain-pro, Branch `claude/review-captain-pro`)  
 **Stand:** 2026-11-16  
 **Quellen:** [Konzept §6 Vorgeschlagene Entitlements, §7.4, §8.8](../../konzept.md), [RC-003](rc-003-free-pro-grenze.md)
 
@@ -40,7 +40,9 @@ Ein Recht kommt erst in den Lizenzkatalog, wenn die zugehörige Funktion **gebau
 - Jede Pro-Aktion prüft genau ein Recht aus obiger Tabelle (zentrale Map `feature => entitlement` im Add-on).
 - Fehlendes Recht → Aktion wird nicht ausgeführt, UI zeigt Grund und Lizenzseite; keine Daten werden verändert.
 
-## Offen / Freigabe
+## Entscheidung (Entscheidung der Inhaberin am 16.11.2026)
 
-- Produkt/Lizenz: neues Recht `review.social_proof` bestätigen.
-- WP License Captain: Katalogeintrag zu Pro 1.0 nur mit den drei 1.0-Rechten anlegen (RC-058/RC-059).
+- **Alle sechs gebauten Rechte werden ab Pro 1.0 verkauft:** `review.platform_sync`, `review.review_requests`, `review.advanced_widgets`, `review.suite_integrations`, `review.custom_connectors`, `review.analytics`. Die Spalte „Ab Release“ oben ist für diese sechs damit überholt.
+- Kein eigenes Recht `review.social_proof`: Testimonial-Wand, Trust-Badge und Auszeichnungen bleiben unter `review.advanced_widgets` (frühere Entscheidung bestätigt).
+- `review.platform_replies` bleibt nach MVP.
+- **Umsetzung in Pro (offen, Pro-Branch):** `hold` in `addons/review-captain-pro/wplc-catalog.php` für die sechs Rechte entfernen; Katalogeintrag in WP License Captain mit allen sechs Rechten (RC-058). Release erst nach Preisen (RC-004) und Go/No-Go (RC-142).

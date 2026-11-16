@@ -1,6 +1,6 @@
 # RC-007 – Supportumfang und Releasekanäle
 
-**Status:** Entwurf – Freigabe offen  
+**Status:** **Freigegeben** (Entscheidung der Inhaberin am 16.11.2026); Support- und Security-Adresse folgen (OPS-009)  
 **Stand:** 2026-11-16  
 **Quellen:** [Konzept §6, §8.11](../../konzept.md), [RC-004](rc-004-planmodell.md), TODO M8/M9
 

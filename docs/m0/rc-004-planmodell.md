@@ -1,6 +1,6 @@
 # RC-004 – Pro-Planmodell
 
-**Status:** Entwurf – Preise und Supportzeiten sind Shopentscheidung, Freigabe offen  
+**Status:** Planstruktur **freigegeben** (Entscheidung der Inhaberin am 16.11.2026); **Preise offen** (Inhaberin legt sie später fest)  
 **Stand:** 2026-11-16  
 **Quellen:** [Konzept §6 Lizenzvertragsvorschlag](../../konzept.md), [RC-005](rc-005-entitlements.md), [RC-007](rc-007-support-release.md)
 
