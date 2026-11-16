@@ -1,0 +1,237 @@
+{
+  "out": [
+    {
+      "url": "/wp-admin/admin.php?page=review-captain",
+      "status": 200,
+      "title": "Dashboard ‹ Review Captain ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-reviews",
+      "status": 200,
+      "title": "Reviews ‹ Review Captain ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-widgets",
+      "status": 200,
+      "title": "Widgets ‹ Review Captain ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-sources",
+      "status": 200,
+      "title": "Quellen & Profile ‹ Review Captain ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings",
+      "status": 200,
+      "title": "Einstellungen ‹ Review Captain ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings&tab=general",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings&tab=sources",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings&tab=requests",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings&tab=submissions",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings&tab=display",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings&tab=privacy",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings&tab=access",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-settings&tab=advanced",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-diagnostics",
+      "status": 200,
+      "title": "Diagnose ‹ Review Captain ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings",
+        "DISABLE_WP_CRON ist gesetzt, aber der Job-Runner lief in letzter Zeit nicht. Bitte den System-Cron prüfen."
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-testimonials",
+      "status": 200,
+      "title": "Testimonials ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings",
+        "Review Captain Pro is not licensed on this site. Existing entries stay readable and can be exported; adding, changing and publishing needs a"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-trust",
+      "status": 200,
+      "title": "Trust signals ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings",
+        "Review Captain Pro is not licensed on this site. Existing entries stay readable and can be exported; adding, changing and publishing needs a"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-analytics",
+      "status": 200,
+      "title": "Analytics ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-suite",
+      "status": 200,
+      "title": "Captain Suite ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-connectors",
+      "status": 200,
+      "title": "Connectors ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-provider-widgets",
+      "status": 200,
+      "title": "Provider widgets ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings",
+        "Review Captain Pro is not licensed on this site. Provider widgets are not loaded; pages show a link to the profile instead. The settings can"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-sources",
+      "status": 200,
+      "title": "Platform connections ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings",
+        "Platform sync needs an active Review Captain Pro license. Connected profiles and synced reviews stay visible; connecting and syncing are loc",
+        "Credentials are encrypted with a key derived from the WordPress salts. If the salts change, every source must be connected again. Set REVIEW"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-import-export",
+      "status": 200,
+      "title": "Import & Export ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-requests",
+      "status": 200,
+      "title": "Review requests ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete. Open license settings"
+      ]
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-requests&tab=campaigns",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-requests&tab=log",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-requests&tab=preview",
+      "status": 200,
+      "tab": true,
+      "critical": false
+    },
+    {
+      "url": "/wp-admin/admin.php?page=review-captain-pro-license",
+      "status": 200,
+      "title": "Review Captain Pro – License ‹ E2E — WordPress",
+      "critical": false,
+      "notices": [
+        "Review Captain Pro: the license settings of this plugin are incomplete.",
+        "This copy of the add-on does not contain the address or the public key of the license server, so a license cannot be activated. Please downl"
+      ]
+    }
+  ],
+  "consoleErrors": [
+    "/wp-admin/: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-settings: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-settings&tab=sources: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-settings&tab=submissions: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-settings&tab=display: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-settings&tab=access: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-diagnostics: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-pro-trust: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-pro-analytics: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-pro-connectors: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-pro-requests&tab=campaigns: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "/wp-admin/admin.php?page=review-captain-pro-license: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED"
+  ]
+}

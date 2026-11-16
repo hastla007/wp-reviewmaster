@@ -1,0 +1,105 @@
+{
+  "run": "mwj2pomc",
+  "results": [
+    {
+      "id": "form.submit",
+      "ok": true,
+      "detail": "Redirect /rc-shortcodes/?rc_submitted=1&rc_form=1#rc-form-1; Meldung: Danke! Ihre Bewertung wird nach Prüfung veröffentlicht."
+    },
+    {
+      "id": "form.submit.product",
+      "ok": true,
+      "detail": "Redirect /rc-produkt/?rc_submitted=1&rc_form=1#rc-form-1"
+    },
+    {
+      "id": "form.too_fast",
+      "ok": true,
+      "detail": "Sofortiges Absenden → /rc-shortcodes/?rc_error=too_fast&rc_form=1#rc-form-1"
+    },
+    {
+      "id": "form.validation",
+      "ok": true,
+      "detail": "Fehlercodes rating,body_short,name,email,consent; Entwurf erhalten: true; Fehlertext sichtbar: true"
+    },
+    {
+      "id": "form.validation.focus",
+      "ok": null,
+      "detail": "Fokus nach Fehler-Reload: wp-singular page-template-default page page-id-9 wp-embed-responsive wp-theme-twentytwentyfive"
+    },
+    {
+      "id": "form.nonce",
+      "ok": true,
+      "detail": "Ungültige Nonce → 303 /rc-shortcodes/?rc_error=nonce&rc_form=1#rc-form-1"
+    },
+    {
+      "id": "grid.pending_hidden",
+      "ok": true,
+      "detail": "Ausstehende Review erscheint nicht im Grid"
+    },
+    {
+      "id": "admin.login",
+      "ok": true,
+      "detail": "/wp-admin/"
+    },
+    {
+      "id": "admin.approve",
+      "ok": true,
+      "detail": "Row-Action \"Freigeben\" → /wp-admin/admin.php?page=review-captain-reviews&rc_notice=status_changed"
+    },
+    {
+      "id": "admin.bulk_approve",
+      "ok": true,
+      "detail": "Bulk \"approve\" → /wp-admin/admin.php?page=review-captain-reviews&status=pending&rc_notice=bulk_done&rc_count=1"
+    },
+    {
+      "id": "admin.status_db",
+      "ok": true,
+      "detail": "E2E Shortcode mwj2pomc\tapproved\tNULL\tNULL | E2E Produkt mwj2pomc\tapproved\tproduct\t11"
+    },
+    {
+      "id": "render.shortcode",
+      "ok": true,
+      "detail": "Grid enthält freigegebene Review: true"
+    },
+    {
+      "id": "render.cta",
+      "ok": true,
+      "detail": "CTA-Button: true"
+    },
+    {
+      "id": "render.block",
+      "ok": true,
+      "detail": "Block-Seite: Review true, Formular true"
+    },
+    {
+      "id": "render.product_context",
+      "ok": true,
+      "detail": "Produktseite zeigt nur Produkt-Review: true"
+    },
+    {
+      "id": "csv.export",
+      "ok": true,
+      "detail": "4 Datenzeilen; Kopf: kind,platform,external_id,rating_value,rating_scale_max,title,body,language,author_name,published_at,source_url,verifica; E-Mail enthalten: false"
+    },
+    {
+      "id": "csv.import.preview",
+      "ok": true,
+      "detail": "Vorschau mit Bestätigen-Knopf: true; Reviews vor/nach Vorschau: 4/4; Auszug: Import & Export Prüflauf abgeschlossen. Bitte Ergebnis prüfen und Import bestätigen. Export Exportiert Bewertungen und Erfahrungsberichte als CSV (UTF-8) im Importformat. E-Mail-Adressen werden nur exportiert, wenn du das ausdrücklich auswählst. Typ Alle Bewer"
+    },
+    {
+      "id": "csv.import.cancel",
+      "ok": true,
+      "detail": "Nach Abbrechen: 4 (vorher 4)"
+    },
+    {
+      "id": "privacy.export",
+      "ok": true,
+      "detail": "ZIP 1753 B; Review-Titel enthalten: true; Gruppe Review Captain: true"
+    },
+    {
+      "id": "privacy.erase",
+      "ok": true,
+      "detail": "DB nach Löschung: approved / Anonym / NULL; UI: ?"
+    }
+  ]
+}

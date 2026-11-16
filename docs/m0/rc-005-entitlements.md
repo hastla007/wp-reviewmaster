@@ -1,8 +1,14 @@
 # RC-005 – Lizenz-Entitlements
 
-**Status:** Entwurf – Freigabe offen; Katalogeintrag erst nach Implementierung (RC-059)  
+**Status:** Entwurf – Freigabe offen; abgeglichen mit dem gebauten Add-on (captain-pro, Branch `claude/review-captain-pro`)  
 **Stand:** 2026-11-16  
 **Quellen:** [Konzept §6 Vorgeschlagene Entitlements, §7.4, §8.8](../../konzept.md), [RC-003](rc-003-free-pro-grenze.md)
+
+## Abgleich mit dem gebauten Add-on (2026-11-16)
+
+Gebaut sind sechs Rechte (Feature-Klassen mit Konstante `KEY`): `review.platform_sync`, `review.review_requests`, `review.advanced_widgets`, `review.analytics`, `review.suite_integrations`, `review.custom_connectors`. Alle stehen per `hold` in `addons/review-captain-pro/wplc-catalog.php` auf „gebaut, Freigabe des Inhabers ausstehend (RC-005)“; die Katalogdatei führt sie deshalb als `planned`, und `--release` lehnt ab.
+
+Abweichung von diesem Entwurf: Testimonial-Wand, Trust-Badge und Auszeichnungen laufen im Add-on unter `review.advanced_widgets`, nicht unter einem eigenen Recht `review.social_proof`. **Entscheidung des Inhabers:** so lassen (einfacher, alles in 1.0) oder abtrennen (siehe ADR-Vorschlag unten). `review.platform_replies` ist nicht gebaut und steht nicht im Katalog – korrekt nach der Regel „nur gebaute Rechte“.
 
 ## Regel
 

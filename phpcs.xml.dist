@@ -1,65 +1,35 @@
 <?xml version="1.0"?>
 <ruleset name="Review Captain">
-	<description>WordPress Coding Standards for Review Captain.</description>
+	<description>WordPress Coding Standards for Review Captain (RC-033).</description>
 	<file>review-captain.php</file>
 	<file>uninstall.php</file>
 	<file>src</file>
+	<file>templates</file>
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<exclude-pattern>tests/*</exclude-pattern>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
-	<arg name="colors"/>
 	<config name="testVersion" value="8.1-"/>
 	<config name="minimum_wp_version" value="6.5"/>
-	<rule ref="PHPCompatibilityWP"/>
-	<rule ref="WordPress-Extra">
-		<!-- PSR-4 class files instead of class-*.php naming. -->
+	<rule ref="WordPress">
+		<!-- PSR-4 file names instead of class-*.php. -->
 		<exclude name="WordPress.Files.FileName"/>
-		<!-- Short array syntax is allowed in tests only; production code uses array(). -->
-		<exclude name="Universal.Arrays.DisallowShortArraySyntax.Found"/>
-		<!-- Custom tables are the documented design (ADR 0002). -->
-		<exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching"/>
-		<exclude name="WordPress.DB.DirectDatabaseQuery.SchemaChange"/>
+		<!-- Typed properties are documented by their type. -->
+		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
 	</rule>
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<property name="text_domain" type="array">
-				<element value="review-captain"/>
-			</property>
+			<property name="text_domain" type="array"><element value="review-captain"/></property>
 		</properties>
 	</rule>
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="review_captain"/>
-				<element value="wp_review_captain"/>
 				<element value="ReviewCaptain"/>
 				<element value="REVIEW_CAPTAIN"/>
 			</property>
 		</properties>
 	</rule>
-	<rule ref="WordPress.Security.NonceVerification">
-		<properties>
-			<!-- Capabilities::check() verifies capability and nonce for every admin action. -->
-			<property name="customNonceVerificationFunctions" type="array">
-				<element value="review_captain_check_request"/>
-			</property>
-		</properties>
-	</rule>
-	<rule ref="WordPress.WP.Capabilities">
-		<properties>
-			<property name="custom_capabilities" type="array">
-				<element value="rc_view_reviews"/>
-				<element value="rc_moderate_reviews"/>
-				<element value="rc_manage_reviews"/>
-				<element value="rc_manage_widgets"/>
-				<element value="rc_manage_testimonials"/>
-				<element value="rc_manage_trust"/>
-				<element value="rc_connect_sources"/>
-				<element value="rc_manage_requests"/>
-				<element value="rc_send_requests"/>
-				<element value="rc_view_reports"/>
-				<element value="rc_manage_privacy"/>
-				<element value="rc_manage_settings"/>
-			</property>
-		</properties>
-	</rule>
+	<rule ref="PHPCompatibilityWP"/>
 </ruleset>

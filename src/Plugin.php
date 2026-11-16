@@ -1,74 +1,225 @@
 <?php
 /**
- * Bootstrap: wires all services into WordPress hooks.
+ * Plugin bootstrap and tiny service container.
  *
  * @package ReviewCaptain
  */
 
+declare(strict_types=1);
+
 namespace ReviewCaptain;
 
-use ReviewCaptain\Database\Schema;
+use ReviewCaptain\Audit\AuditLog;
+use ReviewCaptain\Events\Events;
+use ReviewCaptain\Install\Installer;
+use ReviewCaptain\Repository\ReviewRepository;
+use ReviewCaptain\Settings\Settings;
+use ReviewCaptain\Workflow\WorkflowService;
 
-defined( 'ABSPATH' ) || exit;
-
+/**
+ * Central plugin object.
+ */
 final class Plugin {
 
-	private static bool $booted = false;
+	/**
+	 * Feature modules. Missing classes are skipped so the core never fatals.
+	 *
+	 * @var list<class-string<Module>>
+	 */
+	private const MODULES = array(
+		\ReviewCaptain\Jobs\JobsModule::class,
+		\ReviewCaptain\Providers\ProvidersModule::class,
+		\ReviewCaptain\Connectors\ConnectorsModule::class,
+		\ReviewCaptain\Privacy\PrivacyModule::class,
+		\ReviewCaptain\ImportExport\ImportExportModule::class,
+		\ReviewCaptain\Frontend\FrontendModule::class,
+		\ReviewCaptain\Seo\SeoModule::class,
+		\ReviewCaptain\Admin\AdminModule::class,
+		\ReviewCaptain\Cli\CliModule::class,
+	);
 
+	/**
+	 * Singleton instance.
+	 *
+	 * @var Plugin|null
+	 */
+	private static ?Plugin $instance = null;
+
+	/**
+	 * Lazily created services.
+	 *
+	 * @var array<string, object>
+	 */
+	private array $services = array();
+
+	/**
+	 * Service factories.
+	 *
+	 * @var array<string, callable(Plugin): object>
+	 */
+	private array $factories = array();
+
+	/**
+	 * Registered modules.
+	 *
+	 * @var array<class-string, Module>
+	 */
+	private array $modules = array();
+
+	/**
+	 * Boot on plugins_loaded.
+	 */
 	public static function boot(): void {
-		if ( self::$booted ) {
+		if ( null !== self::$instance ) {
 			return;
 		}
-		self::$booted = true;
+		self::$instance = new self();
+		self::$instance->init();
+	}
 
-		add_action(
-			'init',
-			static function () {
-				load_plugin_textdomain( 'review-captain', false, dirname( plugin_basename( REVIEW_CAPTAIN_FILE ) ) . '/languages' );
-			},
-			1
-		);
-
-		// Schema upgrades only in admin/CLI, never on frontend requests (RC-028).
-		add_action( 'admin_init', array( self::class, 'maybe_upgrade' ) );
-
-		Jobs\Runner::register();
-		Maintenance\Retention::register();
-		Privacy\PrivacyIntegration::register();
-		Connectors\Registry::instance()->register_hooks();
-		Frontend\Assets::register();
-		Frontend\Shortcodes::register();
-		Frontend\Blocks::register();
-		Frontend\SubmissionController::register();
-		Seo\SchemaOutput::register();
-		Api\PublicApi::register();
-
-		add_action( 'wp_initialize_site', array( Install\Activator::class, 'on_new_site' ), 20 );
-		add_filter( 'wpmu_drop_tables', array( Install\Activator::class, 'drop_tables_for_site' ) );
-
-		if ( is_admin() ) {
-			Admin\Menu::register();
+	/**
+	 * Get the instance (boots if needed).
+	 */
+	public static function instance(): self {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
 		}
+		return self::$instance;
+	}
 
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			\WP_CLI::add_command( 'review-captain', Cli\Command::class );
+	/**
+	 * Reset (tests only).
+	 */
+	public static function reset_for_tests(): void {
+		self::$instance = null;
+	}
+
+	/**
+	 * Constructor registers core services.
+	 */
+	private function __construct() {
+		$this->factory( 'settings', static fn() => new Settings() );
+		$this->factory( 'reviews', static fn() => new ReviewRepository() );
+		$this->factory( 'audit', static fn() => new AuditLog() );
+		$this->factory( 'events', static fn() => new Events() );
+		$this->factory( 'workflow', static fn( Plugin $p ) => new WorkflowService( $p ) );
+	}
+
+	/**
+	 * Initialise hooks and modules.
+	 */
+	private function init(): void {
+		add_action( 'init', array( $this, 'load_textdomain' ), 0 );
+		add_action( 'admin_init', array( Installer::class, 'maybe_upgrade' ) );
+		add_action( 'wp_initialize_site', array( Installer::class, 'on_new_site' ), 20 );
+
+		foreach ( self::MODULES as $class ) {
+			if ( class_exists( $class ) ) {
+				$module = new $class();
+				if ( $module instanceof Module ) {
+					$module->register( $this );
+					$this->modules[ $class ] = $module;
+				}
+			}
 		}
 
 		/**
-		 * Fires after Review Captain Core is fully loaded. Add-ons (e.g. Pro) hook in here.
+		 * Fires when Review Captain core is ready. Pro add-on and connectors hook in here.
 		 *
-		 * @param string $version Core version.
+		 * @param Plugin $plugin Plugin instance.
 		 */
-		do_action( 'review_captain_loaded', REVIEW_CAPTAIN_VERSION );
+		do_action( 'review_captain_loaded', $this );
 	}
 
-	public static function maybe_upgrade(): void {
-		if ( ! Schema::needs_upgrade() ) {
-			return;
+	/**
+	 * Load translations.
+	 */
+	public function load_textdomain(): void {
+		load_plugin_textdomain( 'review-captain', false, dirname( plugin_basename( REVIEW_CAPTAIN_FILE ) ) . '/languages' );
+	}
+
+	/**
+	 * Register a service factory.
+	 *
+	 * @param string                  $id      Service ID.
+	 * @param callable(Plugin):object $factory Factory.
+	 */
+	public function factory( string $id, callable $factory ): void {
+		$this->factories[ $id ] = $factory;
+		unset( $this->services[ $id ] );
+	}
+
+	/**
+	 * Get a service.
+	 *
+	 * @param string $id Service ID.
+	 * @throws \OutOfBoundsException When unknown.
+	 */
+	public function get( string $id ): object {
+		if ( ! isset( $this->services[ $id ] ) ) {
+			if ( ! isset( $this->factories[ $id ] ) ) {
+				throw new \OutOfBoundsException( 'Unknown Review Captain service: ' . $id ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+			}
+			$this->services[ $id ] = ( $this->factories[ $id ] )( $this );
 		}
-		if ( ! current_user_can( 'activate_plugins' ) && ! current_user_can( 'rc_manage_settings' ) ) {
-			return;
-		}
-		Install\Activator::install_site();
+		return $this->services[ $id ];
+	}
+
+	/**
+	 * Whether a service exists.
+	 *
+	 * @param string $id Service ID.
+	 */
+	public function has( string $id ): bool {
+		return isset( $this->factories[ $id ] );
+	}
+
+	/**
+	 * Review repository.
+	 */
+	public function reviews(): ReviewRepository {
+		/** @var ReviewRepository */
+		return $this->get( 'reviews' );
+	}
+
+	/**
+	 * Settings.
+	 */
+	public function settings(): Settings {
+		/** @var Settings */
+		return $this->get( 'settings' );
+	}
+
+	/**
+	 * Audit log.
+	 */
+	public function audit(): AuditLog {
+		/** @var AuditLog */
+		return $this->get( 'audit' );
+	}
+
+	/**
+	 * Event dispatcher.
+	 */
+	public function events(): Events {
+		/** @var Events */
+		return $this->get( 'events' );
+	}
+
+	/**
+	 * Workflow services (RC-WF-03).
+	 */
+	public function workflow(): WorkflowService {
+		/** @var WorkflowService */
+		return $this->get( 'workflow' );
+	}
+
+	/**
+	 * Registered module by class.
+	 *
+	 * @param class-string $class Module class.
+	 */
+	public function module( string $class ): ?Module {
+		return $this->modules[ $class ] ?? null;
 	}
 }

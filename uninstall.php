@@ -1,35 +1,20 @@
 <?php
 /**
- * Uninstall: keeps data unless "Delete all data when the plugin is deleted" is enabled (RC-048).
+ * Uninstall Review Captain (RC-048).
+ *
+ * Data is kept unless "Daten beim Löschen des Plugins entfernen" (privacy.delete_data_on_uninstall)
+ * is enabled. Runs without the plugin bootstrap: only the autoloader is loaded.
  *
  * @package ReviewCaptain
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
-if ( ! defined( 'REVIEW_CAPTAIN_DIR' ) ) {
-	define( 'REVIEW_CAPTAIN_DIR', plugin_dir_path( __FILE__ ) );
+if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+	return; // The plugin never ran on this PHP version, so it stored no data.
 }
-if ( ! defined( 'REVIEW_CAPTAIN_FILE' ) ) {
-	define( 'REVIEW_CAPTAIN_FILE', REVIEW_CAPTAIN_DIR . 'review-captain.php' );
-}
-if ( ! defined( 'REVIEW_CAPTAIN_VERSION' ) ) {
-	define( 'REVIEW_CAPTAIN_VERSION', '0.1.0' );
-}
-require_once REVIEW_CAPTAIN_DIR . 'src/Autoloader.php';
-\ReviewCaptain\Autoloader::register();
 
-if ( is_multisite() ) {
-	foreach ( get_sites(
-		array(
-			'fields' => 'ids',
-			'number' => 0,
-		)
-	) as $review_captain_site_id ) {
-		switch_to_blog( (int) $review_captain_site_id );
-		\ReviewCaptain\Install\Uninstaller::uninstall_site();
-		restore_current_blog();
-	}
-} else {
-	\ReviewCaptain\Install\Uninstaller::uninstall_site();
-}
+require_once __DIR__ . '/src/Autoloader.php';
+\ReviewCaptain\Autoloader::register( __DIR__ . '/src/' );
+
+\ReviewCaptain\Privacy\Uninstaller::run();

@@ -1,0 +1,5 @@
+﻿kind,platform,external_id,rating_value,rating_scale_max,title,body,language,author_name,published_at,source_url,verification,status,context_type,context_id
+review,local,,5,5,Toller Kurs,"Sehr gut erklärt.
+Gerne wieder.",de_DE,Anna,2026-11-01,,,approved,post,12
+review,google,g-1,"4,5",5,,Freundliches Team,de,Bernd K.,2026-10-20T10:00:00+02:00,https://maps.google.com/?cid=1,,pending,,
+testimonial,local,,,,Danke,Unser Partner seit Jahren,de,Firma C,2026-09-01T08:00:00Z,,unverified,archived,,

@@ -2,7 +2,7 @@
 
 **Status:** Checklisten bereit – Freischaltungen sind externe Aktionen und noch nicht erfolgt  
 **Stand:** 2026-11-16  
-**Quellen:** [RC-008 Provider-Matrix](rc-008-provider-matrix.md), [Konzept §4](../../konzept.md)
+**Quellen:** [RC-008 Provider-Matrix](../providers/matrix.md), [Konzept §4](../../konzept.md)
 
 Jede Checkliste endet mit einem **Nachweis**, der im Abschnitt „Ergebnisprotokoll“ eingetragen wird (Datum, Verantwortliche Person, Ablageort der Zugangsdaten im Passwortmanager – niemals Secrets in dieses Repository).
 
@@ -58,7 +58,7 @@ Allgemeine Regeln:
 - [ ] Google-Cloud-Projekt (gleiches wie RC-009 möglich) mit aktivierter Android Publisher API.
 - [ ] Service Account anlegen und in der Play Console unter „Nutzer und Berechtigungen“ nur für die Test-App einladen; minimale Berechtigung (Reviews ansehen; Antworten erst später) ⚠.
 - [ ] Alternative OAuth-Variante für Betreiber ohne Service-Account-Kenntnisse bewerten; Empfehlung 1.0: **Service-Account-JSON-Upload** (verschlüsselt gespeichert), OAuth als Folgeoption.
-- [ ] Zeitfenster-Einschränkung von `reviews.list` verifizieren und im Setup-Text erklären ([RC-008](rc-008-provider-matrix.md)).
+- [ ] Zeitfenster-Einschränkung von `reviews.list` verifizieren und im Setup-Text erklären ([RC-008](../providers/matrix.md)).
 - **Nachweis:** Abruf `reviews.list` der Test-App.
 
 ## Ergebnisprotokoll

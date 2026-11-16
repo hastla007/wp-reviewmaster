@@ -1,0 +1,39 @@
+PASS Core aktiviert
+PASS Schema-Tabellen angelegt (6): audit_log import_batches jobs profiles review_events reviews 
+PASS Option review_captain_db_version gesetzt
+Notice: Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>review-captain</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.) in /tmp/claude-0/wp-e2e/wp/wp-includes/functions.php on line 6131
+PASS doctor läuft
+FAIL keine review_captain_-Cron-Events nach Aktivierung per WP-CLI (erst nach admin_init)
+PASS Cron-Events nach admin_init geplant
+PASS Core deaktiviert
+PASS Cron-Events nach Deaktivierung entfernt
+PASS Tabellen bleiben nach Deaktivierung erhalten
+PASS Reaktivierung
+FAIL Core Aktivierung/Deaktivierung: debug.log enthält 10 Meldungen
+      8     E2E-TRACE _load_textdomain_just_in_time <= review-captain/src/Cli/CliModule.php:58 <= review-captain/src/Cli/CliModule.php:30 <= review-captain/src/Plugin.php:118 <= review-captain/src/Plugin.php:76
+      1     E2E-TRACE wp_add_privacy_policy_content <= 
+      1     E2E-TRACE wp_add_privacy_policy_content <= review-captain/src/Privacy/PrivacyModule.php:79
+Notice: Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>review-captain</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.) in /tmp/claude-0/wp-e2e/wp/wp-includes/functions.php on line 6131
+PASS Deinstallation ohne Löschoption: Tabellen bleiben
+Notice: Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>review-captain</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.) in /tmp/claude-0/wp-e2e/wp/wp-includes/functions.php on line 6131
+Notice: Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>review-captain</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.) in /tmp/claude-0/wp-e2e/wp/wp-includes/functions.php on line 6131
+PASS Deinstallation mit Löschoption: alle Tabellen entfernt
+PASS Deinstallation: keine review_captain_*-Optionen übrig
+PASS Deinstallation: Capabilities entfernt
+FAIL Core Deinstallation: debug.log enthält 3 Meldungen
+      3     E2E-TRACE _load_textdomain_just_in_time <= review-captain/src/Cli/CliModule.php:58 <= review-captain/src/Cli/CliModule.php:30 <= review-captain/src/Plugin.php:118 <= review-captain/src/Plugin.php:76
+PASS Pro ohne Core: Aktivierung verweigert (Warning: Failed to activate plugin. Review Captain Pro requires 1 plugin to be installed and activated: Review Captain. . Error: No plugins activated. )
+PASS Frontend 200 mit Pro ohne Core
+PASS Pro ohne Core: debug.log ohne Notices/Warnings/Deprecations
+PASS Pro aktiviert neben Core
+PASS Pro ohne Lizenz: keine Rechte (review.platform_sync=0 review.review_requests=0 review.advanced_widgets=0 review.analytics=0 review.suite_integrations=0 review.custom_connectors=0 )
+PASS Frontend 200 mit Core+Pro
+PASS Tabellen mit Core+Pro: 6 (audit_log import_batches jobs profiles review_events reviews )
+PASS Frontend 200: Pro aktiv, Core deaktiviert
+PASS Pro deaktiviert
+Notice: Function _load_textdomain_just_in_time was called <strong>incorrectly</strong>. Translation loading for the <code>review-captain</code> domain was triggered too early. This is usually an indicator for some code in the plugin or theme running too early. Translations should be loaded at the <code>init</code> action or later. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 6.7.0.) in /tmp/claude-0/wp-e2e/wp/wp-includes/functions.php on line 6131
+PASS Pro-Deinstallation: keine review_captain_pro_*-Optionen
+PASS Core bleibt nach Pro-Deinstallation aktiv
+PASS Core-Tabellen nach Pro-Deinstallation vorhanden
+FAIL Core+Pro: debug.log enthält 9 Meldungen
+      9     E2E-TRACE _load_textdomain_just_in_time <= review-captain/src/Cli/CliModule.php:58 <= review-captain/src/Cli/CliModule.php:30 <= review-captain/src/Plugin.php:118 <= review-captain/src/Plugin.php:76

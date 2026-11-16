@@ -1,19 +1,19 @@
-<?xml version="1.0"?>
-<phpunit
-	bootstrap="tests/bootstrap.php"
-	defaultTestSuite="review-captain"
-	backupGlobals="false"
-	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	>
-	<testsuites>
-		<testsuite name="review-captain">
-			<directory suffix="Test.php">./tests/integration</directory>
-		</testsuite>
-		<testsuite name="perf">
-			<directory suffix="Test.php">./tests/perf</directory>
-		</testsuite>
-	</testsuites>
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         failOnWarning="true"
+         failOnRisky="true">
+    <testsuites>
+        <testsuite name="unit">
+            <directory suffix="Test.php">tests/Unit</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
 </phpunit>

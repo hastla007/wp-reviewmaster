@@ -1,106 +1,139 @@
 <?php
 /**
- * Daily retention job (RC-027, RC-048). Batched and time-bounded.
+ * Retention / data minimisation (RC-048, SET-015, retention-matrix.md).
  *
  * @package ReviewCaptain
  */
 
+declare(strict_types=1);
+
 namespace ReviewCaptain\Maintenance;
 
-use ReviewCaptain\Database\Schema;
-use ReviewCaptain\Jobs\Queue;
-use ReviewCaptain\Settings\Settings;
+use ReviewCaptain\Install\Schema;
+use ReviewCaptain\Jobs\JobQueue;
+use ReviewCaptain\Plugin;
 
-defined( 'ABSPATH' ) || exit;
+/**
+ * Daily purge according to the privacy.* settings. Batched (max 500 rows per category and run)
+ * and time-budgeted; remaining rows are handled by the next run.
+ */
+class Retention {
 
-final class Retention {
-
-	public const HOOK   = 'review_captain_daily_maintenance';
-	private const BATCH = 500;
-
-	public static function register(): void {
-		add_action( self::HOOK, array( self::class, 'enqueue' ) );
-	}
-
-	public static function schedule(): void {
-		if ( ! wp_next_scheduled( self::HOOK ) ) {
-			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::HOOK );
-		}
-	}
-
-	public static function unschedule(): void {
-		wp_clear_scheduled_hook( self::HOOK );
-	}
-
-	public static function enqueue(): void {
-		Queue::enqueue(
-			'maintenance.retention',
-			array(),
-			array(
-				'unique_key' => 'daily',
-				'priority'   => 1,
-			)
-		);
-		Reconcile::detect_restore();
-	}
+	public const BATCH = 500;
 
 	/**
-	 * Run all retention rules once.
+	 * Constructor.
 	 *
-	 * @return array<string,int> Deleted/anonymized rows per rule.
+	 * @param Plugin   $plugin Plugin.
+	 * @param JobQueue $queue  Queue.
 	 */
-	public static function run(): array {
+	public function __construct( private Plugin $plugin, private JobQueue $queue ) {}
+
+	/**
+	 * Run all purges.
+	 *
+	 * @param float $time_budget Seconds.
+	 * @return array{rejected_deleted:int, external_deleted:int, logs_deleted:int, jobs_deleted:int, questions_deleted:int, complete:bool}
+	 */
+	public function run( float $time_budget = 20.0 ): array {
+		$deadline = microtime( true ) + max( 1.0, $time_budget );
+		$settings = $this->plugin->settings();
+		$out      = array(
+			'rejected_deleted'  => 0,
+			'external_deleted'  => 0,
+			'logs_deleted'      => 0,
+			'jobs_deleted'      => 0,
+			'questions_deleted' => 0,
+			'complete'          => true,
+		);
+
+		$rejected_days = (int) $settings->get( 'privacy', 'retention_rejected_days', 90 );
+		$external_days = (int) $settings->get( 'privacy', 'retention_external_days', 30 );
+		$logs_days     = (int) $settings->get( 'privacy', 'retention_logs_days', 90 );
+		$jobs_days     = (int) $settings->get( 'privacy', 'retention_jobs_days', 30 );
+
 		global $wpdb;
-		$reviews = Schema::table( 'rc_reviews' );
-		$log     = Schema::table( 'rc_review_log' );
-		$audit   = Schema::table( 'rc_audit_log' );
-		$batches = Schema::table( 'rc_import_batches' );
-		$tests   = Schema::table( 'rc_testimonials' );
-		$result  = array();
+		$table = Schema::table( 'reviews' );
 
-		$cut = static function ( int $days ): string {
-			return gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
-		};
+		// 1. Rejected local reviews (status change time = updated_at).
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$ids                     = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE platform = 'local' AND status = 'rejected' AND updated_at < %s ORDER BY id ASC LIMIT %d", self::cutoff( $rejected_days ), self::BATCH ) );
+		$out['rejected_deleted'] = $this->delete_reviews( $ids, $deadline, $out['complete'] );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
-		$ids                        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$reviews} WHERE status IN ('rejected','spam') AND updated_at < %s LIMIT %d", $cut( (int) Settings::get( 'retention_rejected_reviews_days' ) ), self::BATCH ) );
-		$result['rejected_reviews'] = self::delete_reviews( array_map( 'intval', $ids ) );
+		// 1b. Rejected product questions (RC-122) – same retention as rejected reviews.
+		$questions = Schema::table( 'questions' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$out['questions_deleted'] = max( 0, (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$questions} WHERE status = 'rejected' AND updated_at < %s", self::cutoff( $rejected_days ) ) ) );
 
-		$ids                          = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$reviews} WHERE tombstoned_at IS NOT NULL AND tombstoned_at < %s LIMIT %d", $cut( 7 ), self::BATCH ) );
-		$result['tombstoned_reviews'] = self::delete_reviews( array_map( 'intval', $ids ) );
+		// 2. Removed external snapshots (tombstones) past their retention.
+		if ( microtime( true ) < $deadline ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+			$ids                     = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE platform <> 'local' AND status = 'removed' AND removed_at IS NOT NULL AND removed_at < %s ORDER BY id ASC LIMIT %d", self::cutoff( $external_days ), self::BATCH ) );
+			$out['external_deleted'] = $this->delete_reviews( $ids, $deadline, $out['complete'] );
+		} else {
+			$out['complete'] = false;
+		}
 
-		$result['audit_log']      = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$audit} WHERE created_at < %s LIMIT %d", $cut( (int) Settings::get( 'retention_logs_days' ) ), self::BATCH ) );
-		$result['import_batches'] = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$batches} WHERE created_at < %s LIMIT %d", $cut( 90 ), self::BATCH ) );
-		$result['orphan_log']     = (int) $wpdb->query( "DELETE l FROM {$log} l LEFT JOIN {$reviews} r ON r.id = l.review_id WHERE r.id IS NULL" );
+		// 3. Audit log.
+		if ( microtime( true ) < $deadline ) {
+			$out['logs_deleted'] = $this->plugin->audit()->purge_older_than( $logs_days );
+		} else {
+			$out['complete'] = false;
+		}
 
-		// Testimonials: revoked → media cleanup after configured days is done by Pro (media); core hides immediately.
-		$result['revoked_testimonials'] = (int) $wpdb->query( $wpdb->prepare( "UPDATE {$tests} SET status='archived' WHERE revoked_at IS NOT NULL AND status <> 'archived' AND revoked_at < %s", $cut( 0 ) ) );
-		// phpcs:enable
+		// 4. Finished jobs.
+		if ( microtime( true ) < $deadline ) {
+			$out['jobs_deleted'] = $this->queue->purge_finished( $jobs_days, self::BATCH );
+		} else {
+			$out['complete'] = false;
+		}
 
-		$result['jobs'] = Queue::purge();
-
-		/**
-		 * Lets add-ons apply their retention rules (requests, experiences, suppressions …).
-		 *
-		 * @param array<string,int> $result Counts so far.
-		 */
-		return (array) apply_filters( 'review_captain_retention_run', $result );
+		$total = $out['rejected_deleted'] + $out['external_deleted'] + $out['logs_deleted'] + $out['jobs_deleted'] + $out['questions_deleted'];
+		if ( $total > 0 ) {
+			$this->plugin->audit()->record(
+				'retention.purged',
+				'retention',
+				'',
+				array(
+					'count'  => $total,
+					'fields' => array( $out['rejected_deleted'], $out['external_deleted'], $out['logs_deleted'], $out['jobs_deleted'] ),
+				)
+			);
+		}
+		return $out;
 	}
 
 	/**
-	 * @param int[] $ids Review IDs.
+	 * UTC cutoff N days ago.
+	 *
+	 * @param int $days Days.
 	 */
-	private static function delete_reviews( array $ids ): int {
-		global $wpdb;
-		if ( ! $ids ) {
-			return 0;
+	private static function cutoff( int $days ): string {
+		return gmdate( 'Y-m-d H:i:s', time() - max( 1, $days ) * DAY_IN_SECONDS );
+	}
+
+	/**
+	 * Delete reviews via the repository (removes history, fires removal event).
+	 *
+	 * @param array<int, mixed> $ids      IDs.
+	 * @param float             $deadline Deadline.
+	 * @param bool              $complete Set to false when stopped early.
+	 */
+	private function delete_reviews( array $ids, float $deadline, bool &$complete ): int {
+		$repo    = $this->plugin->reviews();
+		$deleted = 0;
+		foreach ( $ids as $id ) {
+			if ( microtime( true ) >= $deadline ) {
+				$complete = false;
+				break;
+			}
+			if ( $repo->delete( (int) $id ) ) {
+				++$deleted;
+			}
 		}
-		$in      = implode( ',', array_map( 'intval', $ids ) );
-		$log     = Schema::table( 'rc_review_log' );
-		$reviews = Schema::table( 'rc_reviews' );
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- IDs are cast to int above.
-		$wpdb->query( "DELETE FROM {$log} WHERE review_id IN ({$in})" );
-		return (int) $wpdb->query( "DELETE FROM {$reviews} WHERE id IN ({$in})" );
-		// phpcs:enable
+		if ( count( $ids ) >= self::BATCH ) {
+			$complete = false;
+		}
+		return $deleted;
 	}
 }

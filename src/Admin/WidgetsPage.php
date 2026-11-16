@@ -1,136 +1,231 @@
 <?php
 /**
- * Widget definitions: list, editor with live preview (UX-003, RC-118).
+ * Widgets page: shortcode/block help with a server-side shortcode generator.
  *
  * @package ReviewCaptain
  */
 
+declare(strict_types=1);
+
 namespace ReviewCaptain\Admin;
 
-use ReviewCaptain\Frontend\Renderer;
-use ReviewCaptain\Reviews\ReviewRepository;
-use ReviewCaptain\Reviews\ReviewService;
-use ReviewCaptain\Widgets\WidgetRepository;
+use ReviewCaptain\Domain\Platform;
+use ReviewCaptain\Plugin;
+use ReviewCaptain\Security\Capabilities;
 
-defined( 'ABSPATH' ) || exit;
-
+/**
+ * Builds `[review_captain v="1" …]` (widget contract v1). Works without JavaScript; the
+ * optional admin.js only adds a copy button.
+ */
 final class WidgetsPage {
 
-	private const PAGE = 'review-captain-widgets';
+	public const SLUG = 'review-captain-widgets';
 
-	public static function register_actions(): void {
-		add_action( 'admin_post_review_captain_save_widget', array( self::class, 'handle_save' ) );
-		add_action( 'admin_post_review_captain_delete_widget', array( self::class, 'handle_delete' ) );
+	/**
+	 * Attribute defaults of the widget contract v1 (attributes equal to the default are omitted).
+	 *
+	 * @return array<string, string>
+	 */
+	public static function defaults(): array {
+		return array(
+			'layout'       => 'grid',
+			'platform'     => '',
+			'kind'         => 'review',
+			'min_rating'   => '',
+			'limit'        => '10',
+			'context_type' => '',
+			'context_id'   => '',
+			'show_source'  => '1',
+			'show_date'    => '1',
+			'profile'      => '',
+		);
 	}
 
-	public static function render(): void {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$action = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : '';
-		$id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
-		// phpcs:enable
-		if ( in_array( $action, array( 'add', 'edit' ), true ) ) {
-			self::render_editor( $id );
-			return;
+	/**
+	 * Context types allowed by widget contract v1.
+	 */
+	public const CONTEXT_TYPES = array( 'post', 'product', 'event', 'voucher', 'app', 'form' );
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Plugin $plugin Plugin.
+	 */
+	public function __construct( private Plugin $plugin ) {}
+
+	/**
+	 * Sanitize generator input to attribute values (rules of docs/contracts/widget-v1.md).
+	 *
+	 * @param array<string, mixed> $input Raw input.
+	 * @return array<string, string>
+	 */
+	public static function sanitize( array $input ): array {
+		$d   = self::defaults();
+		$out = $d;
+
+		$layout        = sanitize_key( (string) ( $input['layout'] ?? '' ) );
+		$out['layout'] = in_array( $layout, array( 'grid', 'list' ), true ) ? $layout : $d['layout'];
+
+		$platforms = array();
+		foreach ( self::csv( $input['platform'] ?? '' ) as $p ) {
+			$p = sanitize_key( $p );
+			if ( in_array( $p, Platform::values(), true ) ) {
+				$platforms[] = $p;
+			}
 		}
-		echo '<div class="wrap"><h1 class="wp-heading-inline">' . esc_html__( 'Widgets', 'review-captain' ) . '</h1> <a class="page-title-action" href="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE . '&action=add' ) ) . '">' . esc_html__( 'Add widget', 'review-captain' ) . '</a><hr class="wp-header-end">';
-		Menu::notices();
-		$widgets = WidgetRepository::all();
-		if ( ! $widgets ) {
-			echo '<div class="rc-empty"><h2>' . esc_html__( 'No widgets yet', 'review-captain' ) . '</h2><p>' . esc_html__( 'A widget defines which reviews are shown and how. You can then place it with the “Review Captain Widget” block or a shortcode.', 'review-captain' ) . '</p><p><a class="button button-primary" href="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE . '&action=add' ) ) . '">' . esc_html__( 'Create first widget', 'review-captain' ) . '</a></p></div></div>';
-			return;
+		$out['platform'] = implode( ',', array_values( array_unique( $platforms ) ) );
+
+		$kind        = sanitize_key( (string) ( $input['kind'] ?? '' ) );
+		$out['kind'] = in_array( $kind, array( 'review', 'testimonial', 'all' ), true ) ? $kind : $d['kind'];
+
+		$min               = str_replace( ',', '.', trim( (string) ( $input['min_rating'] ?? '' ) ) );
+		$out['min_rating'] = preg_match( '/^[1-5](\.\d)?$/', $min ) && (float) $min <= 5.0 ? $min : '';
+
+		$limit        = is_numeric( $input['limit'] ?? null ) ? (int) $input['limit'] : (int) $d['limit'];
+		$out['limit'] = (string) max( 1, min( 50, $limit ) );
+
+		$ctx                 = sanitize_key( (string) ( $input['context_type'] ?? '' ) );
+		$out['context_type'] = in_array( $ctx, self::CONTEXT_TYPES, true ) ? $ctx : '';
+		$ctx_id              = (string) preg_replace( '/[^A-Za-z0-9_.:\-]/', '', (string) ( $input['context_id'] ?? '' ) );
+		$out['context_id']   = '' !== $out['context_type'] ? mb_substr( $ctx_id, 0, 64 ) : '';
+
+		foreach ( array( 'show_source', 'show_date' ) as $flag ) {
+			$value        = strtolower( trim( (string) ( $input[ $flag ] ?? $d[ $flag ] ) ) );
+			$out[ $flag ] = in_array( $value, array( '0', 'false' ), true ) ? '0' : ( in_array( $value, array( '1', 'true' ), true ) ? '1' : $d[ $flag ] );
 		}
-		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Title', 'review-captain' ) . '</th><th>' . esc_html__( 'Layout', 'review-captain' ) . '</th><th>' . esc_html__( 'Shortcode', 'review-captain' ) . '</th><th>' . esc_html__( 'Updated', 'review-captain' ) . '</th></tr></thead><tbody>';
-		foreach ( $widgets as $w ) {
-			echo '<tr><td><a href="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE . '&action=edit&id=' . (int) $w['id'] ) ) . '"><strong>' . esc_html( $w['title'] ) . '</strong></a></td><td>' . esc_html( $w['layout'] ) . '</td><td><code>[review_captain_widget id="' . (int) $w['id'] . '"]</code></td><td>' . esc_html( $w['updated_at'] ) . ' UTC</td></tr>';
+
+		$profiles = array();
+		foreach ( self::csv( $input['profile'] ?? '' ) as $id ) {
+			if ( ctype_digit( $id ) && (int) $id > 0 ) {
+				$profiles[] = (string) (int) $id;
+			}
 		}
-		echo '</tbody></table></div>';
+		$out['profile'] = implode( ',', array_values( array_unique( $profiles ) ) );
+		return $out;
 	}
 
-	private static function render_editor( int $id ): void {
-		$widget = $id ? WidgetRepository::find( $id ) : null;
-		$config = $widget ? $widget['config'] : WidgetRepository::default_config();
-		$layout = $widget ? $widget['layout'] : 'grid';
-		$title  = $widget ? $widget['title'] : '';
-		echo '<div class="wrap"><h1>' . esc_html( $id ? __( 'Edit widget', 'review-captain' ) : __( 'Add widget', 'review-captain' ) ) . '</h1>';
-		Menu::notices();
-		echo '<div class="rc-columns"><div class="rc-main"><form method="post" action="' . esc_url( Menu::post_url() ) . '"><input type="hidden" name="action" value="review_captain_save_widget"><input type="hidden" name="id" value="' . (int) $id . '">';
-		wp_nonce_field( 'rc_save_widget' );
+	/**
+	 * Split a comma list (string or array).
+	 *
+	 * @param mixed $value Value.
+	 * @return list<string>
+	 */
+	private static function csv( mixed $value ): array {
+		$items = is_array( $value ) ? $value : explode( ',', (string) $value );
+		return array_values( array_filter( array_map( static fn( $v ) => trim( (string) $v ), $items ), static fn( $v ) => '' !== $v ) );
+	}
+
+	/**
+	 * Build the shortcode string from sanitized attributes.
+	 *
+	 * @param array<string, mixed> $input Raw input.
+	 */
+	public static function build_shortcode( array $input ): string {
+		$atts  = self::sanitize( $input );
+		$parts = array( 'v="1"' );
+		foreach ( self::defaults() as $key => $default ) {
+			if ( $atts[ $key ] !== $default && '' !== $atts[ $key ] ) {
+				$parts[] = $key . '="' . $atts[ $key ] . '"';
+			}
+		}
+		return '[review_captain ' . implode( ' ', $parts ) . ']';
+	}
+
+	/**
+	 * Page callback.
+	 */
+	public function render(): void {
+		if ( ! current_user_can( Capabilities::MODERATE ) ) {
+			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only generator.
+		$submitted = isset( $_GET['rc_gen'] );
+		$input     = $submitted ? wp_unslash( $_GET ) : self::defaults(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$atts      = self::sanitize( is_array( $input ) ? $input : array() );
+		if ( ! $submitted ) {
+			$atts = self::defaults();
+		}
+		$shortcode = self::build_shortcode( $atts );
+
+		echo '<div class="wrap rc-admin">';
+		echo View::header( __( 'Widgets', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<p>' . esc_html__( 'Zeige ausgewählte Reviews auf deiner Website – als Block „Review Captain – Reviews“ im Editor oder per Shortcode. Die Ausgabe wird serverseitig erzeugt; es werden keine externen Skripte geladen.', 'review-captain' ) . '</p>';
+
+		if ( 0 === $this->plugin->reviews()->count( array( 'status' => 'approved' ) ) ) {
+			echo View::notice( 'info', __( 'Noch keine freigegebenen Reviews – ein Widget zeigt dann den Leerzustand-Text aus den Darstellungs-Einstellungen.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+
+		echo '<div class="rc-admin-columns"><div class="rc-admin-main">';
+		echo '<h2>' . esc_html__( 'Shortcode erstellen', 'review-captain' ) . '</h2>';
+		echo '<form method="get"><input type="hidden" name="page" value="' . esc_attr( self::SLUG ) . '" /><input type="hidden" name="rc_gen" value="1" />';
 		echo '<table class="form-table" role="presentation"><tbody>';
-		echo '<tr><th><label for="rc-w-title">' . esc_html__( 'Title (internal)', 'review-captain' ) . '</label></th><td><input type="text" id="rc-w-title" name="title" class="regular-text" value="' . esc_attr( $title ) . '" required></td></tr>';
-		echo '<tr><th>' . esc_html__( 'Sources', 'review-captain' ) . '</th><td><fieldset>';
-		foreach ( array_merge( array( 'site' ), ReviewService::EXTERNAL_PROVIDERS ) as $p ) {
-			printf( '<label><input type="checkbox" name="providers[]" value="%s"%s> %s</label><br>', esc_attr( $p ), checked( in_array( $p, $config['providers'], true ), true, false ), esc_html( ReviewService::provider_label( $p ) ) );
+
+		$this->select( 'layout', __( 'Layout', 'review-captain' ), array( 'grid' => __( 'Raster', 'review-captain' ), 'list' => __( 'Liste', 'review-captain' ) ), $atts['layout'], __( 'Karussell, Badge und Trustbar gibt es in Review Captain Pro.', 'review-captain' ) );
+		$this->select( 'platform', __( 'Plattform', 'review-captain' ), array( '' => __( 'Alle Plattformen', 'review-captain' ) ) + ReviewsPage::platform_choices(), $atts['platform'] );
+		$this->select(
+			'kind',
+			__( 'Art', 'review-captain' ),
+			array(
+				'all'         => __( 'Bewertungen und Erfahrungsberichte', 'review-captain' ),
+				'review'      => __( 'Nur Bewertungen', 'review-captain' ),
+				'testimonial' => __( 'Nur Erfahrungsberichte', 'review-captain' ),
+			),
+			$atts['kind']
+		);
+		$ratings = array( '' => __( 'Keine Mindestbewertung', 'review-captain' ) );
+		for ( $i = 5; $i >= 1; $i-- ) {
+			/* translators: %d: stars */
+			$ratings[ (string) $i ] = sprintf( __( 'ab %d von 5', 'review-captain' ), $i );
 		}
-		echo '<p class="description">' . esc_html__( 'Nothing selected = all sources. The source of external reviews is always shown.', 'review-captain' ) . '</p></fieldset></td></tr>';
-		echo '<tr><th><label for="rc-w-layout">' . esc_html__( 'Layout', 'review-captain' ) . '</label></th><td><select id="rc-w-layout" name="layout">';
-		foreach ( (array) apply_filters( 'review_captain_widget_layouts', WidgetRepository::CORE_LAYOUTS ) as $l ) {
-			printf( '<option value="%s"%s>%s</option>', esc_attr( $l ), selected( $layout, $l, false ), esc_html( ucfirst( $l ) ) );
+		$this->select( 'min_rating', __( 'Mindestbewertung', 'review-captain' ), $ratings, $atts['min_rating'], __( 'Andere Skalen werden nur zum Filtern umgerechnet; angezeigt wird immer die Originalbewertung.', 'review-captain' ) );
+		echo '<tr><th scope="row"><label for="rc-w-limit">' . esc_html__( 'Anzahl', 'review-captain' ) . '</label></th><td><input type="number" min="1" max="50" id="rc-w-limit" name="limit" class="small-text" value="' . esc_attr( $atts['limit'] ) . '" /></td></tr>';
+		$contexts = array_intersect_key( ReviewsPage::context_choices(), array_flip( array_merge( array( '' ), self::CONTEXT_TYPES ) ) );
+		$this->select( 'context_type', __( 'Bezug', 'review-captain' ), $contexts, $atts['context_type'] );
+		echo '<tr><th scope="row"><label for="rc-w-context_id">' . esc_html__( 'Bezugs-ID', 'review-captain' ) . '</label></th><td><input type="text" id="rc-w-context_id" name="context_id" class="regular-text" value="' . esc_attr( $atts['context_id'] ) . '" /><p class="description">' . esc_html__( 'z. B. Produkt- oder Beitrags-ID. Leer = alle.', 'review-captain' ) . '</p></td></tr>';
+		$profiles = array( '' => __( 'Alle Profile', 'review-captain' ) );
+		foreach ( ( new Profiles() )->all() as $profile ) {
+			$profiles[ (string) $profile['id'] ] = (string) $profile['label'];
+		}
+		$this->select( 'profile', __( 'Profil', 'review-captain' ), $profiles, $atts['profile'] );
+		echo '<tr><th scope="row">' . esc_html__( 'Anzeige', 'review-captain' ) . '</th><td><fieldset><legend class="screen-reader-text">' . esc_html__( 'Anzeige', 'review-captain' ) . '</legend>';
+		echo '<input type="hidden" name="show_source" value="0" /><label><input type="checkbox" name="show_source" value="1"' . checked( $atts['show_source'], '1', false ) . ' /> ' . esc_html__( 'Quelle anzeigen', 'review-captain' ) . '</label><br />';
+		echo '<input type="hidden" name="show_date" value="0" /><label><input type="checkbox" name="show_date" value="1"' . checked( $atts['show_date'], '1', false ) . ' /> ' . esc_html__( 'Datum anzeigen', 'review-captain' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Die Quellenangabe externer Bewertungen (Plattformname und Link) bleibt immer sichtbar.', 'review-captain' ) . '</p></fieldset></td></tr>';
+		echo '</tbody></table><p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Shortcode erzeugen', 'review-captain' ) . '</button></p></form>';
+		echo '</div><div class="rc-admin-side">';
+
+		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Dein Shortcode', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<label class="screen-reader-text" for="rc-shortcode">' . esc_html__( 'Shortcode', 'review-captain' ) . '</label>';
+		echo '<textarea id="rc-shortcode" class="large-text code" rows="3" readonly>' . esc_textarea( $shortcode ) . '</textarea>';
+		echo '<p><button type="button" class="button rc-admin-copy" data-target="rc-shortcode" data-done="' . esc_attr__( 'Kopiert', 'review-captain' ) . '" hidden>' . esc_html__( 'Kopieren', 'review-captain' ) . '</button> <span class="rc-admin-copy-status" aria-live="polite"></span></p>';
+		echo '<p class="description">' . esc_html__( 'In einen Shortcode-Block, ein klassisches Textfeld oder ein Widget-Feld einfügen.', 'review-captain' ) . '</p></div></div>';
+
+		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Block-Editor', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<p>' . esc_html__( 'Füge den Block „Review Captain – Reviews“ ein und stelle dieselben Optionen in der Seitenleiste ein. Für das Bewertungsformular gibt es den Block „Review Captain – Formular“ bzw. den Shortcode:', 'review-captain' ) . '</p>';
+		echo '<p><code>[review_captain_form v="1"]</code></p>';
+		echo '<p class="description">' . esc_html__( 'Bewertungs-Markup für Suchmaschinen wird nur für freigegebene Bewertungen dieser Website ausgegeben – nie für externe Plattformbewertungen oder Erfahrungsberichte.', 'review-captain' ) . '</p></div></div>';
+		echo '</div></div></div>';
+	}
+
+	/**
+	 * Select row.
+	 *
+	 * @param string                $name    Name.
+	 * @param string                $label   Label.
+	 * @param array<string, string> $choices Choices.
+	 * @param string                $current Current.
+	 * @param string                $help    Help.
+	 */
+	private function select( string $name, string $label, array $choices, string $current, string $help = '' ): void {
+		$id = 'rc-w-' . $name;
+		echo '<tr><th scope="row"><label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label></th><td><select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
+		foreach ( $choices as $value => $text ) {
+			echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( (string) $value, $current, false ) . '>' . esc_html( $text ) . '</option>';
 		}
 		echo '</select>';
-		if ( ! has_filter( 'review_captain_widget_layouts' ) ) {
-			echo '<p class="description">' . esc_html__( 'Carousel, badge and rating bar are available with Review Captain Pro.', 'review-captain' ) . '</p>';
+		if ( '' !== $help ) {
+			echo '<p class="description">' . esc_html( $help ) . '</p>';
 		}
 		echo '</td></tr>';
-		printf( '<tr><th><label for="rc-w-limit">%s</label></th><td><input type="number" id="rc-w-limit" name="limit" min="1" max="24" value="%d" class="small-text"></td></tr>', esc_html__( 'Number of reviews', 'review-captain' ), (int) $config['limit'] );
-		printf( '<tr><th><label for="rc-w-columns">%s</label></th><td><input type="number" id="rc-w-columns" name="columns" min="0" max="4" value="%d" class="small-text"><p class="description">%s</p></td></tr>', esc_html__( 'Columns', 'review-captain' ), (int) $config['columns'], esc_html__( '0 = automatic', 'review-captain' ) );
-		printf( '<tr><th><label for="rc-w-rating">%s</label></th><td><input type="number" id="rc-w-rating" name="rating_min" min="0" max="5" value="%d" class="small-text"><p class="description">%s</p></td></tr>', esc_html__( 'Minimum rating shown', 'review-captain' ), (int) $config['rating_min'], esc_html__( 'Display filter only. It never influences who is asked for a review.', 'review-captain' ) );
-		echo '<tr><th>' . esc_html__( 'Type', 'review-captain' ) . '</th><td>';
-		foreach ( ReviewRepository::TYPES as $t ) {
-			printf( '<label><input type="checkbox" name="types[]" value="%s"%s> %s</label> ', esc_attr( $t ), checked( in_array( $t, $config['types'], true ), true, false ), esc_html( ReviewsListTable::type_label( $t ) ) );
-		}
-		echo '</td></tr>';
-		printf( '<tr><th><label for="rc-w-ctype">%s</label></th><td><input type="text" id="rc-w-ctype" name="context_type" value="%s" class="regular-text" placeholder="product"> <input type="text" name="context_id" value="%s" class="small-text" aria-label="%s" placeholder="ID"></td></tr>', esc_html__( 'Context', 'review-captain' ), esc_attr( $config['context_type'] ), esc_attr( $config['context_id'] ), esc_attr__( 'Context ID', 'review-captain' ) );
-		printf( '<tr><th><label for="rc-w-ids">%s</label></th><td><input type="text" id="rc-w-ids" name="ids" value="%s" class="regular-text"><p class="description">%s</p></td></tr>', esc_html__( 'Hand-picked reviews', 'review-captain' ), esc_attr( implode( ',', $config['ids'] ) ), esc_html__( 'Optional: comma-separated review IDs.', 'review-captain' ) );
-		printf( '<tr><th>%s</th><td><label><input type="checkbox" name="include_testimonials" value="1"%s> %s</label><br><label><input type="checkbox" name="show_summary" value="1"%s> %s</label></td></tr>', esc_html__( 'Content', 'review-captain' ), checked( $config['include_testimonials'], true, false ), esc_html__( 'Include testimonials', 'review-captain' ), checked( $config['show_summary'], true, false ), esc_html__( 'Show summary per source', 'review-captain' ) );
-		echo '</tbody></table>';
-		submit_button( __( 'Save widget', 'review-captain' ) );
-		echo '</form>';
-		if ( $id ) {
-			echo '<p>' . esc_html__( 'Shortcode:', 'review-captain' ) . ' <code>[review_captain_widget id="' . (int) $id . '"]</code></p>';
-			echo '<form method="post" action="' . esc_url( Menu::post_url() ) . '" onsubmit="return confirm(\'' . esc_js( __( 'Delete this widget? Pages using it will show nothing.', 'review-captain' ) ) . '\');"><input type="hidden" name="action" value="review_captain_delete_widget"><input type="hidden" name="id" value="' . (int) $id . '">';
-			wp_nonce_field( 'rc_delete_widget_' . $id );
-			submit_button( __( 'Delete widget', 'review-captain' ), 'delete', 'submit', false );
-			echo '</form>';
-		}
-		echo '<div class="notice notice-info inline"><p>' . esc_html__( 'Structured data (SEO): only approved reviews collected on this website for a product, course, event or app are marked up – and only on the page of that item. Reviews from other platforms, reviews about your company and testimonials never get review markup. Rich results are not guaranteed.', 'review-captain' ) . '</p></div>';
-		echo '</div><div class="rc-side"><h2>' . esc_html__( 'Preview', 'review-captain' ) . '</h2><div class="rc-preview">';
-		wp_enqueue_style( 'review-captain' );
-		$preview = Renderer::widget( $config, $layout );
-		echo '' !== $preview ? $preview : '<p>' . esc_html__( 'No reviews match these settings yet.', 'review-captain' ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in Renderer.
-		echo '</div></div></div></div>';
-	}
-
-	public static function handle_save(): void {
-		review_captain_check_request( 'rc_manage_widgets', 'rc_save_widget' );
-		$in     = wp_unslash( $_POST );
-		$config = array(
-			'providers'            => (array) ( $in['providers'] ?? array() ),
-			'types'                => (array) ( $in['types'] ?? array() ),
-			'limit'                => (int) ( $in['limit'] ?? 6 ),
-			'columns'              => (int) ( $in['columns'] ?? 0 ),
-			'rating_min'           => (int) ( $in['rating_min'] ?? 0 ),
-			'context_type'         => (string) ( $in['context_type'] ?? '' ),
-			'context_id'           => (string) ( $in['context_id'] ?? '' ),
-			'ids'                  => array_filter( array_map( 'absint', explode( ',', (string) ( $in['ids'] ?? '' ) ) ) ),
-			'include_testimonials' => ! empty( $in['include_testimonials'] ),
-			'show_summary'         => ! empty( $in['show_summary'] ),
-		);
-		$id     = WidgetRepository::save( absint( $in['id'] ?? 0 ), (string) ( $in['title'] ?? '' ), (string) ( $in['layout'] ?? 'grid' ), $config );
-		Menu::back(
-			self::PAGE,
-			'saved',
-			'',
-			array(
-				'action' => 'edit',
-				'id'     => (string) $id,
-			)
-		);
-	}
-
-	public static function handle_delete(): void {
-		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		review_captain_check_request( 'rc_manage_widgets', 'rc_delete_widget_' . $id );
-		WidgetRepository::delete( $id );
-		Menu::back( self::PAGE, 'deleted' );
 	}
 }

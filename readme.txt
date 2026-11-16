@@ -1,57 +1,87 @@
 === Review Captain ===
 Contributors: captainsuite
-Tags: reviews, testimonials, social proof, ratings, woocommerce
+Tags: reviews, testimonials, social proof, bewertungen, schema
 Requires at least: 6.5
-Tested up to: 6.9
+Tested up to: 6.7
 Requires PHP: 8.1
-Stable tag: 0.1.0
-License: GPLv2 or later
+Stable tag: 0.1.0-dev
+License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Collect, moderate and display authentic reviews with clear source attribution – without scraping and without review gating.
+Authentische, sauber attribuierte Kundenbewertungen und Erfahrungsberichte in WordPress – ohne Scraping, ohne Lizenzpflicht.
 
 == Description ==
 
-Review Captain helps you show honest social proof on your WordPress site:
+Review Captain sammelt Bewertungen auf deiner Website und zeigt sie zusammen mit manuell gepflegten Auszügen externer Plattformen an. Jede externe Bewertung behält Herkunft, Originalskala und Link zur Quelle.
 
-* Collect your own reviews with an accessible form (spam protection, moderation queue).
-* Add reviews from other platforms manually – always with original rating scale, date, source note and link to the original.
-* Show reviews with a block or shortcode in grid or list layout, rendered on the server (fast, no tracking, works without JavaScript).
-* Text testimonials, clearly labelled and separate from platform reviews, with documented permission.
-* Neutral “Review us on …” buttons – the same for every visitor, no star pre-selection.
-* CSV export (protected against spreadsheet formula injection) and CSV import with a check run, duplicate detection and undo.
-* WordPress privacy export/erasure, retention rules and roles.
-* Structured data only for eligible reviews collected on your site; works together with Yoast SEO.
+* Lokale Bewertungsformulare mit Moderation, Einwilligung, Honeypot und Rate-Limit
+* Manuell kuratierte externe Bewertungen (Google, Trustpilot, Trusted Shops, App Store, Google Play) mit Pflicht-Quellenangabe
+* Website-eigene Text-Erfahrungsberichte, klar von Plattformbewertungen getrennt
+* Block „Review Captain: Bewertungen“ und Shortcode `[review_captain v="1"]`, serverseitig gerendert, ohne Pflicht-JavaScript
+* Neutraler „Bewerte uns“-Link zu deinen Profilen – ohne Review-Gating
+* Strukturierte Daten nur für zulässige, auf dieser Website gesammelte Bewertungen; Yoast-SEO-kompatibel
+* CSV-Import mit Prüflauf und Rollback, CSV-Export mit Formelschutz
+* WordPress-Datenschutz-Export/-Löschung, Aufbewahrungsfristen, Multisite-Trennung
+* Öffentlicher Connector-Vertrag für eigene Integrationen
 
-Review Captain never scrapes platforms, never filters who is asked for a review by expected rating, and never modifies review texts.
-
-= Review Captain Pro =
-
-The separately licensed Pro add-on adds official API connections (where the platform grants access), automatic review invitations after real customer experiences, additional layouts and Captain Suite integrations. The free plugin works fully without Pro, without a license and without external services.
-
-== External services ==
-
-The free plugin does not contact external services. Links to review platforms are only followed when a visitor clicks them. Official platform widgets or videos you embed are loaded only after a click (or when your consent tool allows it).
+Offizielle API-Synchronisierung, automatische Bewertungsanfragen und erweiterte Widgets bietet das separat lizenzierte Add-on Review Captain Pro. Der Core funktioniert vollständig ohne Pro, WooCommerce oder externe Konten.
 
 == Installation ==
 
-1. Install and activate the plugin.
-2. Follow the setup assistant (Review Captain → Setup).
-3. Add the “Review Captain Review Form” or “Review Captain Widget” block to a page.
+1. Plugin hochladen und aktivieren.
+2. „Review Captain › Dashboard“ öffnen und der Erststart-Checkliste folgen.
+3. Für zuverlässige Hintergrundjobs einen System-Cron einrichten: `wp review-captain jobs run` alle 5 Minuten.
 
-For reliable background tasks on busy sites, run `wp review-captain queue run --time=50` every minute via a server cron job.
+== External services ==
+
+Der kostenlose Core stellt keine Verbindung zu externen Diensten her: Er führt keine serverseitigen HTTP-Anfragen aus, lädt im Frontend keine Schriften, Skripte, Bilder oder Avatare von Drittanbietern und sendet keine Nutzungs- oder Telemetriedaten. Bewertungen externer Plattformen pflegst du im Core manuell; die Links zu Profilen und Originalbewertungen sind normale Links, die erst beim Anklicken durch den Besucher aufgerufen werden.
+
+Für Erweiterungen enthält der Core eine Klick-zum-Laden-Richtlinie (feste Host-Liste: youtube-nocookie.com, player.vimeo.com, widget.trustpilot.com, widgets.trustedshops.com). Der Core selbst bettet darüber nichts ein. Nutzt ein Add-on sie, lädt erst der Klick des Besuchers den Inhalt vom jeweiligen Anbieter; vorher wird nichts übertragen.
+
+Das separat lizenzierte Add-on Review Captain Pro verbindet sich mit dem Lizenzserver seines Anbieters und – nur nach Einrichtung durch dich – mit Plattform-APIs (Google, Trustpilot, Trusted Shops, Apple, Google Play). Diese Dienste beschreibt die readme.txt von Review Captain Pro.
 
 == Frequently Asked Questions ==
 
-= Can I import reviews from Google or Trustpilot automatically? =
+= Werden Google- oder Trustpilot-Bewertungen automatisch importiert? =
 
-Not in the free plugin. You can add reviews you are allowed to show manually, or import a CSV file. Automatic synchronisation via official APIs is part of Review Captain Pro and depends on the access the platform grants to your account.
+Nicht im kostenlosen Core. Dort pflegst du ausgewählte Auszüge manuell mit Quelle und Link. Offizielle API-Verbindungen sind Teil von Review Captain Pro und setzen eigene Anbieterzugänge voraus.
 
-= Does Review Captain add star rich snippets for platform reviews? =
+= Erzeugt das Plugin Sterne in Google-Suchergebnissen? =
 
-No. Structured data is only output for eligible reviews collected on your own site. Reviews from other platforms never receive review markup.
+Review Captain gibt strukturierte Daten nur für zulässige, auf dieser Website gesammelte Bewertungen aus. Ob Google Rich Results anzeigt, entscheidet Google; es gibt keine Garantie.
+
+= Was passiert bei der Deinstallation? =
+
+Standardmäßig bleiben alle Daten erhalten. Nur wenn unter „Einstellungen › Datenschutz & Aufbewahrung“ die Löschoption aktiviert ist, werden Tabellen und Optionen entfernt.
+
+== Screenshots ==
+
+1. Dashboard mit Erststart-Checkliste und Moderationsübersicht.
+2. Bewertungsliste mit Statusfiltern, Massenmoderation und Pflichtbegründung.
+3. Bewertung bearbeiten: externe Bewertung mit Quelle, Originalskala und Link.
+4. Quellen: Profile der Plattformen mit Profil- und Bewertungslink.
+5. Widgets: Shortcode-Generator für `[review_captain v="1"]` und Hinweise zum Block.
+6. Frontend: Bewertungsraster mit Plattformzusammenfassung und Quellenangabe je Karte.
+7. Frontend: Bewertungsformular mit Einwilligung.
+8. Einstellungen: Tabs von „Allgemein“ bis „Erweitert“, darunter „Einreichungen & Moderation“ und „Datenschutz & Aufbewahrung“.
+9. Import/Export: CSV-Prüflauf mit Vorschau und Rollback.
+10. Diagnose: Jobs, Connectoren und SEO-Status mit JSON-Export.
 
 == Changelog ==
 
-= 0.1.0 =
-* First development version of the free core.
+= 0.1.0-dev =
+* Erste Entwicklungsversion des kostenlosen Core (noch nicht veröffentlicht).
+* Lokale Bewertungen und Erfahrungsberichte mit Moderation, Formular (Einwilligung, Honeypot, Rate-Limit), manuell gepflegte externe Bewertungen mit Pflicht-Quellenangabe.
+* Block und Shortcode `[review_captain v="1"]`, serverseitig gerendert; neutraler Bewertungs-Link ohne Review-Gating.
+* Strukturierte Daten nur für zulässige lokale Bewertungen, Yoast-SEO-Integration, `noindex` für Paginierungsparameter.
+* CSV-Import mit Prüflauf, Dedupe und Rollback; CSV-Export mit Formelschutz; Konfigurationsexport ohne Secrets.
+* Datenschutz-Export/-Löschung, Aufbewahrungsfristen, Deinstallation nur mit Opt-in, Multisite-Trennung.
+* Hintergrundjobs mit Lease, Retry und Dead-Letter, WP-CLI `wp review-captain`, Verschlüsselung mit libsodium.
+* Öffentliche Verträge für Provider und Connectoren, Demo-Connector und Connector-SDK.
+* Sicherheitsprüfung November 2026: Rate-Limit für IPv6, Bereinigung von Import-Uploads, Rollen-Tab, Moderationskonflikte, keine E-Mail-Vorbefüllung.
+* Vollständige Liste: CHANGELOG.md im Repository.
+
+== Upgrade Notice ==
+
+= 0.1.0-dev =
+Entwicklungsversion zum Testen. Nicht auf Live-Websites einsetzen; Datenbankschema und Einstellungen können sich bis 1.0 noch ändern.

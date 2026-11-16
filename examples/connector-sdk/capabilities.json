@@ -1,0 +1,14 @@
+{
+  "connector_key": "my-connector",
+  "contract_version": "1.0",
+  "capabilities": {
+    "experience_source": { "interface": "ReviewCaptain\\Connectors\\Contract\\ExperienceSourceInterface", "event_types": ["experience_completed", "experience_cancelled"], "object_types": ["course"] },
+    "recipient_resolver": { "interface": "ReviewCaptain\\Connectors\\Contract\\RecipientResolverInterface", "purposes": ["review_request", "review_request_reminder"] },
+    "context_provider": { "interface": "ReviewCaptain\\Connectors\\Contract\\ContextProviderInterface", "context_types": ["course"] }
+  },
+  "job_types": ["my-connector.reconcile"],
+  "personal_data": {
+    "event_payload": "nur recipient_ref (opake Referenz), keine E-Mail/Namen",
+    "resolver": "email, locale, permission – nur zur Versandzeit"
+  }
+}

@@ -6,10 +6,12 @@
 
 ## Planstruktur (übernommen aus der Suite-Lizenzregel)
 
+> **Abgleich 2026-11-16:** Suite-weit gelten die Plan-Schlüssel `single` / `business` / `agency` (Commit e948151 im Core-Branch, captain-pro `docs/TARIFE.md`). Alle Preise sind netto zzgl. USt.; für Review Captain Pro ist noch **kein** Preis genannt (captain-pro TODO E1/E9).
+
 | Plan-ID | Live-Websites | Supportlevel | Funktionsumfang | Preis |
 |---|---|---|---|---|
-| `solo` | 1 | `standard` | alle Pro-Funktionen der jeweiligen Version | **offen – Shopentscheidung** |
-| `studio` | 5 | `standard` | alle Pro-Funktionen | **offen – Shopentscheidung** |
+| `single` | 1 | `standard` | alle Pro-Funktionen der jeweiligen Version | **offen – Shopentscheidung** |
+| `business` | 5 | `standard` | alle Pro-Funktionen | **offen – Shopentscheidung** |
 | `agency` | 25 | `priority` | alle Pro-Funktionen | **offen – Shopentscheidung** |
 
 Regeln:
@@ -33,7 +35,7 @@ Nicht enthalten in allen Stufen: Beantragung von Anbieter-API-Zugängen im Namen
 
 - [ ] Preise je Plan festlegen und mit übrigen Captain-Pro-Produkten abstimmen.
 - [ ] Verlängerungsrabatt/-modell bestätigen.
-- [ ] Upgrade-Pfad solo → studio → agency (anteilige Verrechnung) bestätigen.
+- [ ] Upgrade-Pfad single → business → agency (anteilige Verrechnung) bestätigen.
 - [ ] Produktbeschreibung darf nur Plattformen mit bestandener Abnahme als „Synchronisierung“ bewerben (siehe RC-002).
 
 ## Offen / Freigabe

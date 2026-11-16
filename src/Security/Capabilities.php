@@ -1,50 +1,63 @@
 <?php
 /**
- * Capability model (RC-029, docs/m1/rc-029-030-rechte-fehlercodes.md).
+ * Capability model (RC-029, RC-037).
  *
  * @package ReviewCaptain
  */
 
+declare(strict_types=1);
+
 namespace ReviewCaptain\Security;
 
-defined( 'ABSPATH' ) || exit;
-
+/**
+ * Plugin capabilities and helpers for capability + nonce checks.
+ */
 final class Capabilities {
 
-	public const ROLE = 'rc_review_manager';
-
-	public const ALL = array(
-		'rc_view_reviews',
-		'rc_moderate_reviews',
-		'rc_manage_reviews',
-		'rc_manage_widgets',
-		'rc_manage_testimonials',
-		'rc_manage_trust',
-		'rc_connect_sources',
-		'rc_manage_requests',
-		'rc_send_requests',
-		'rc_view_reports',
-		'rc_manage_privacy',
-		'rc_manage_settings',
-	);
+	public const MODERATE        = 'review_captain_moderate';
+	public const MANAGE_SOURCES  = 'review_captain_manage_sources';
+	public const MANAGE_REQUESTS = 'review_captain_manage_requests';
+	public const VIEW_REPORTS    = 'review_captain_view_reports';
+	public const MANAGE_TRUST    = 'review_captain_manage_trust';
+	public const MANAGE_PRIVACY  = 'review_captain_manage_privacy';
+	public const MANAGE_SETTINGS = 'review_captain_manage_settings';
 
 	/**
-	 * Default role => capabilities map.
+	 * Default role grants.
 	 *
-	 * @return array<string,string[]>
+	 * @return array<string, list<string>>
 	 */
 	public static function defaults(): array {
+		$all = self::all();
 		return array(
-			'administrator' => self::ALL,
-			'editor'        => array( 'rc_view_reviews', 'rc_moderate_reviews', 'rc_manage_widgets' ),
-			'shop_manager'  => array( 'rc_view_reviews', 'rc_moderate_reviews', 'rc_manage_reviews', 'rc_manage_widgets', 'rc_manage_requests', 'rc_view_reports' ),
-			self::ROLE      => array( 'rc_view_reviews', 'rc_moderate_reviews', 'rc_manage_reviews', 'rc_manage_widgets', 'rc_manage_testimonials', 'rc_manage_trust', 'rc_view_reports' ),
+			'administrator' => $all,
+			'editor'        => array( self::MODERATE ),
 		);
 	}
 
+	/**
+	 * All capabilities.
+	 *
+	 * @return list<string>
+	 */
+	public static function all(): array {
+		return array(
+			self::MODERATE,
+			self::MANAGE_SOURCES,
+			self::MANAGE_REQUESTS,
+			self::VIEW_REPORTS,
+			self::MANAGE_TRUST,
+			self::MANAGE_PRIVACY,
+			self::MANAGE_SETTINGS,
+		);
+	}
+
+	/**
+	 * Grant default capabilities (only once per site, so admins can later revoke them).
+	 */
 	public static function install(): void {
-		if ( ! get_role( self::ROLE ) ) {
-			add_role( self::ROLE, 'Review Manager', array( 'read' => true ) ); // Role names are translated on display.
+		if ( get_option( 'review_captain_caps_installed' ) ) {
+			return;
 		}
 		foreach ( self::defaults() as $role_name => $caps ) {
 			$role = get_role( $role_name );
@@ -55,58 +68,62 @@ final class Capabilities {
 				$role->add_cap( $cap );
 			}
 		}
+		update_option( 'review_captain_caps_installed', 1, false );
 	}
 
 	/**
-	 * Apply a role map from the settings page. Administrators always keep all capabilities.
+	 * Sync role grants for one capability to the given roles (used by Settings › Zugriff & Rollen).
+	 * The administrator role always keeps every capability to prevent lock-out.
 	 *
-	 * @param array<string,string[]> $map Role => capabilities.
+	 * @param string       $cap   Capability.
+	 * @param list<string> $roles Role names.
 	 */
-	public static function apply_map( array $map ): void {
-		foreach ( wp_roles()->role_objects as $role_name => $role ) {
-			if ( 'administrator' === $role_name ) {
-				continue;
-			}
-			$wanted = isset( $map[ $role_name ] ) ? array_intersect( (array) $map[ $role_name ], self::ALL ) : array();
-			foreach ( self::ALL as $cap ) {
-				if ( in_array( $cap, $wanted, true ) ) {
-					$role->add_cap( $cap );
-				} else {
-					$role->remove_cap( $cap );
-				}
-			}
+	public static function sync_roles( string $cap, array $roles ): void {
+		if ( ! in_array( $cap, self::all(), true ) ) {
+			return;
 		}
-	}
-
-	/**
-	 * Current role map for display.
-	 *
-	 * @return array<string,string[]>
-	 */
-	public static function current_map(): array {
-		$map = array();
-		foreach ( wp_roles()->role_objects as $role_name => $role ) {
-			$map[ $role_name ] = array_values( array_filter( self::ALL, array( $role, 'has_cap' ) ) );
-		}
-		return $map;
-	}
-
-	public static function uninstall(): void {
-		foreach ( wp_roles()->role_objects as $role ) {
-			foreach ( self::ALL as $cap ) {
+		$roles[] = 'administrator';
+		foreach ( wp_roles()->role_objects as $name => $role ) {
+			if ( in_array( $name, $roles, true ) ) {
+				$role->add_cap( $cap );
+			} else {
 				$role->remove_cap( $cap );
 			}
 		}
-		remove_role( self::ROLE );
 	}
 
 	/**
-	 * Guard for admin actions: capability + nonce. Dies with 403 on failure.
+	 * Remove all capabilities (explicit data deletion on uninstall).
 	 */
-	public static function check( string $capability, string $nonce_action ): void {
-		if ( ! current_user_can( $capability ) ) {
-			wp_die( esc_html__( 'You are not allowed to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
+	public static function uninstall(): void {
+		foreach ( wp_roles()->role_objects as $role ) {
+			foreach ( self::all() as $cap ) {
+				$role->remove_cap( $cap );
+			}
 		}
-		check_admin_referer( $nonce_action );
+		delete_option( 'review_captain_caps_installed' );
+	}
+
+	/**
+	 * Nonce action name.
+	 *
+	 * @param string $action Short action.
+	 */
+	public static function nonce_action( string $action ): string {
+		return 'review_captain_' . $action;
+	}
+
+	/**
+	 * Abort unless the user has the capability and a valid nonce was sent (admin forms).
+	 *
+	 * @param string $cap    Capability.
+	 * @param string $action Short action.
+	 * @param string $field  Request field holding the nonce.
+	 */
+	public static function verify_request( string $cap, string $action, string $field = '_rc_nonce' ): void {
+		if ( ! current_user_can( $cap ) ) {
+			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+		}
+		check_admin_referer( self::nonce_action( $action ), $field );
 	}
 }

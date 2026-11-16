@@ -1,436 +1,826 @@
 <?php
 /**
- * Settings page with tabs, progressive disclosure, role matrix, danger zone and config import/export (SET-007 – SET-019).
+ * Settings page with tabs (SET-007, SET-009..SET-019).
  *
  * @package ReviewCaptain
  */
 
+declare(strict_types=1);
+
 namespace ReviewCaptain\Admin;
 
-use ReviewCaptain\Audit\AuditLog;
-use ReviewCaptain\Database\Schema as DbSchema;
+use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
-use ReviewCaptain\Settings\Schema;
 use ReviewCaptain\Settings\Settings;
+use ReviewCaptain\Settings\SettingsSchema;
 
-defined( 'ABSPATH' ) || exit;
-
+/**
+ * Renders fields from SettingsSchema automatically; saves only the submitted tab.
+ */
 final class SettingsPage {
 
-	private const PAGE = 'review-captain-settings';
+	public const SLUG = 'review-captain-settings';
 
-	/** Changes to these keys are audited (SET-019). */
-	private const AUDITED = array( 'sender_name', 'sender_email', 'cooldown_days', 'daily_send_limit', 'existing_customer_basis', 'default_status', 'retention_requests_days', 'retention_logs_days', 'delete_data_on_uninstall', 'external_services_consent_mode' );
+	/**
+	 * Input name of the settings array.
+	 */
+	public const INPUT = 'review_captain_settings';
 
-	public static function register_actions(): void {
-		add_action( 'admin_post_review_captain_save_settings', array( self::class, 'handle_save' ) );
-		add_action( 'admin_post_review_captain_reset_settings', array( self::class, 'handle_reset' ) );
-		add_action( 'admin_post_review_captain_save_roles', array( self::class, 'handle_roles' ) );
-		add_action( 'admin_post_review_captain_erase_all', array( self::class, 'handle_erase_all' ) );
-		add_action( 'admin_post_review_captain_export_config', array( self::class, 'handle_export_config' ) );
-		add_action( 'admin_post_review_captain_import_config', array( self::class, 'handle_import_config' ) );
+	/**
+	 * Transient prefix for a pending import preview.
+	 */
+	private const IMPORT_TRANSIENT = 'review_captain_import_';
+
+	/**
+	 * Max import size in bytes.
+	 */
+	private const IMPORT_MAX_BYTES = 200000;
+
+	/**
+	 * Role keys of the access tab and the capability each one grants.
+	 */
+	private const ROLE_CAPS = array(
+		'moderate_roles' => Capabilities::MODERATE,
+		'settings_roles' => Capabilities::MANAGE_SETTINGS,
+	);
+
+	/**
+	 * Constructor.
+	 *
+	 * @param Plugin $plugin Plugin.
+	 */
+	public function __construct( private Plugin $plugin ) {}
+
+	/**
+	 * Settings service.
+	 */
+	private function settings(): Settings {
+		return $this->plugin->settings();
 	}
 
 	/**
-	 * @return array<string,array{label:string, help:string}>
+	 * Transfer helper.
 	 */
-	private static function labels(): array {
+	private function transfer(): ConfigTransfer {
+		return new ConfigTransfer( $this->settings() );
+	}
+
+	/**
+	 * Whether Pro-owned fields may be written (Pro add-on opts in; the Core never does).
+	 */
+	public static function pro_writable(): bool {
+		/**
+		 * Filter whether Pro-owned settings fields are editable on the settings page.
+		 * The Pro add-on returns true while its license/entitlement allows it.
+		 *
+		 * @param bool $writable Default false.
+		 */
+		return (bool) apply_filters( 'review_captain_pro_settings_writable', false );
+	}
+
+	/**
+	 * Whether the current user may write a tab. Privacy needs manage_privacy, access needs
+	 * promote_users in addition to manage_settings (no privilege escalation via roles tab).
+	 *
+	 * @param string $tab Tab.
+	 */
+	public static function can_write_tab( string $tab ): bool {
+		if ( ! current_user_can( Capabilities::MANAGE_SETTINGS ) ) {
+			return false;
+		}
+		if ( 'privacy' === $tab ) {
+			return current_user_can( Capabilities::MANAGE_PRIVACY );
+		}
+		if ( 'access' === $tab ) {
+			return current_user_can( 'promote_users' );
+		}
+		return true;
+	}
+
+	/**
+	 * Tabs the current user may write.
+	 *
+	 * @return list<string>
+	 */
+	public static function writable_tabs(): array {
+		return array_values( array_filter( array_keys( SettingsSchema::tabs() ), array( self::class, 'can_write_tab' ) ) );
+	}
+
+	/**
+	 * Current tab from request.
+	 */
+	public static function current_tab(): string {
+		$tab = View::req( $_GET, 'tab', 'general' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return array_key_exists( $tab, SettingsSchema::tabs() ) ? $tab : 'general';
+	}
+
+	/**
+	 * Tab URL.
+	 *
+	 * @param string               $tab  Tab.
+	 * @param array<string, mixed> $args Extra args.
+	 */
+	public static function tab_url( string $tab, array $args = array() ): string {
+		return View::page_url( self::SLUG, array_merge( array( 'tab' => $tab ), $args ) );
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// Write logic.
+
+	/**
+	 * Save one tab. Only the given tab is processed; Pro fields stay untouched unless Pro opts in.
+	 *
+	 * @param string               $tab   Tab key.
+	 * @param array<string, mixed> $input Raw (unslashed) input keyed by tab.
+	 * @return array{changed: list<string>, invalid: list<string>}
+	 */
+	public function save_tab( string $tab, array $input ): array {
+		$fields  = SettingsSchema::fields()[ $tab ] ?? array();
+		$raw     = isset( $input[ $tab ] ) && is_array( $input[ $tab ] ) ? $input[ $tab ] : array();
+		$pro     = self::pro_writable();
+		$values  = $this->settings()->sanitize( $input, array( $tab ), $pro );
+		$invalid = array();
+
+		foreach ( $fields as $key => $field ) {
+			if ( ( 'pro' === $field['owner'] && ! $pro ) || ! array_key_exists( $key, $raw ) || ! is_scalar( $raw[ $key ] ) ) {
+				continue;
+			}
+			if ( in_array( $field['type'], array( 'int', 'enum', 'time', 'email' ), true ) ) {
+				$given = trim( (string) $raw[ $key ] );
+				if ( 'email' === $field['type'] && '' === $given ) {
+					continue;
+				}
+				if ( (string) $values[ $tab ][ $key ] !== $given ) {
+					$invalid[] = $tab . '-' . $key;
+				}
+			}
+		}
+
+		if ( 'access' === $tab ) {
+			$existing = array_keys( wp_roles()->role_objects );
+			foreach ( array( 'moderate_roles', 'settings_roles' ) as $key ) {
+				$roles                   = array_values( array_intersect( (array) ( $values['access'][ $key ] ?? array() ), $existing ) );
+				$values['access'][ $key ] = array_values( array_unique( array_merge( array( 'administrator' ), $roles ) ) );
+			}
+			$values['access'] = self::keep_unheld_role_keys( $values['access'], $this->settings()->all()['access'] ?? array() );
+		}
+
+		$changed = $this->settings()->save( $values );
+		if ( 'access' === $tab ) {
+			$this->sync_roles( $values['access'] );
+		}
+		if ( $changed ) {
+			$this->plugin->audit()->record(
+				'settings.changed',
+				'settings',
+				$tab,
+				array(
+					'tab'    => $tab,
+					'fields' => $changed,
+				)
+			);
+		}
 		return array(
-			'brand_name'                            => array( __( 'Brand name', 'review-captain' ), __( 'Used in templates and widgets.', 'review-captain' ) ),
-			'default_locale'                        => array( __( 'Default language', 'review-captain' ), __( 'Language for new templates, e.g. de_AT.', 'review-captain' ) ),
-			'date_format'                           => array( __( 'Date format', 'review-captain' ), __( 'PHP date format for widgets.', 'review-captain' ) ),
-			'new_review_type_default'               => array( __( 'Default type for new reviews', 'review-captain' ), '' ),
-			'sync_interval_hours'                   => array( __( 'Sync frequency (hours)', 'review-captain' ), __( 'How often new reviews are fetched. More frequent checks use more of the platform limit; more than 24 hours is not possible because platforms require fresh data.', 'review-captain' ) ),
-			'sync_lookback_days'                    => array( __( 'First import: days back', 'review-captain' ), '' ),
-			'sync_max_items_per_run'                => array( __( 'Maximum reviews per run', 'review-captain' ), '' ),
-			'sync_quota_warn_percent'               => array( __( 'Warn at platform limit usage (%)', 'review-captain' ), '' ),
-			'sender_name'                           => array( __( 'Sender name', 'review-captain' ), '' ),
-			'sender_email'                          => array( __( 'Sender e-mail', 'review-captain' ), __( 'Invitations are only sent after this address is set and tested.', 'review-captain' ) ),
-			'reply_to'                              => array( __( 'Reply-to address', 'review-captain' ), '' ),
-			'test_recipient'                        => array( __( 'Test recipient', 'review-captain' ), '' ),
-			'send_window_start'                     => array( __( 'Send window from', 'review-captain' ), __( 'In the time zone of this website.', 'review-captain' ) ),
-			'send_window_end'                       => array( __( 'Send window until', 'review-captain' ), '' ),
-			'daily_send_limit'                      => array( __( 'Maximum invitations per day', 'review-captain' ), '' ),
-			'cooldown_days'                         => array( __( 'Minimum days between invitations to the same person', 'review-captain' ), __( 'Applies across all campaigns.', 'review-captain' ) ),
-			'reminders_default'                     => array( __( 'Enable reminders for new campaigns', 'review-captain' ), '' ),
-			'existing_customer_basis'               => array( __( 'Allow existing-customer rule', 'review-captain' ), __( 'Allows invitations without explicit consent when the legal requirements are met (e.g. customer was informed about the right to object at purchase). Have this checked legally – if in doubt, leave it off.', 'review-captain' ) ),
-			'bounce_behavior'                       => array( __( 'Undeliverable addresses', 'review-captain' ), '' ),
-			'default_status'                        => array( __( 'New reviews', 'review-captain' ), __( 'Recommended: publish only after moderation. Immediate publication can make spam or unlawful content public.', 'review-captain' ) ),
-			'honeypot_enabled'                      => array( __( 'Use spam trap', 'review-captain' ), '' ),
-			'rate_limit_per_hour'                   => array( __( 'Submissions per hour and visitor', 'review-captain' ), '' ),
-			'min_text_length'                       => array( __( 'Minimum text length', 'review-captain' ), '' ),
-			'max_text_length'                       => array( __( 'Maximum text length', 'review-captain' ), '' ),
-			'require_email'                         => array( __( 'Require e-mail address', 'review-captain' ), __( 'The address is never published.', 'review-captain' ) ),
-			'consent_text'                          => array( __( 'Consent text', 'review-captain' ), __( 'If set, visitors must tick this text before submitting.', 'review-captain' ) ),
-			'notify_moderators'                     => array( __( 'Notify about new reviews', 'review-captain' ), '' ),
-			'show_date'                             => array( __( 'Show date', 'review-captain' ), '' ),
-			'author_mode'                           => array( __( 'Show names as', 'review-captain' ), '' ),
-			'show_avatar'                           => array( __( 'Show profile pictures', 'review-captain' ), __( 'Pictures from other platforms are loaded from their servers.', 'review-captain' ) ),
-			'empty_state'                           => array( __( 'Widgets without reviews', 'review-captain' ), '' ),
-			'load_css'                              => array( __( 'Load plugin styles', 'review-captain' ), '' ),
-			'source_attribution'                    => array( __( 'Show source of external reviews', 'review-captain' ), __( 'Always on. External reviews must show where they come from.', 'review-captain' ) ),
-			'retention_requests_days'               => array( __( 'Keep invitation records (days)', 'review-captain' ), __( 'Afterwards records are anonymized.', 'review-captain' ) ),
-			'retention_pending_requests_days'       => array( __( 'Unsent invitations expire after (days)', 'review-captain' ), '' ),
-			'retention_logs_days'                   => array( __( 'Keep technical logs (days)', 'review-captain' ), '' ),
-			'retention_rejected_reviews_days'       => array( __( 'Delete rejected reviews after (days)', 'review-captain' ), '' ),
-			'retention_media_after_revocation_days' => array( __( 'Delete media after withdrawal (days)', 'review-captain' ), '' ),
-			'erase_review_text_on_request'          => array( __( 'Delete review text on erasure requests', 'review-captain' ), __( 'If off, the review stays anonymized.', 'review-captain' ) ),
-			'external_services_consent_mode'        => array( __( 'External content', 'review-captain' ), __( 'Videos and official platform widgets are loaded only after a click, or when your consent tool allows it.', 'review-captain' ) ),
-			'delete_data_on_uninstall'              => array( __( 'Delete all data when the plugin is deleted', 'review-captain' ), __( 'Off by default: reviews stay in the database when the plugin is removed.', 'review-captain' ) ),
-			'job_runner'                            => array( __( 'Background tasks run via', 'review-captain' ), __( '“Automatic” uses Action Scheduler if available, otherwise WP-Cron. Choose “System cron” only if a server cron job runs wp review-captain queue run every minute.', 'review-captain' ) ),
-			'job_time_budget_seconds'               => array( __( 'Time budget per run (seconds)', 'review-captain' ), '' ),
+			'changed' => $changed,
+			'invalid' => $invalid,
 		);
 	}
 
-	public static function render(): void {
-		$tab    = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$groups = Schema::group_labels();
-		if ( ! isset( $groups[ $tab ] ) ) {
+	/**
+	 * Apply role selections to capabilities (administrator always keeps everything).
+	 *
+	 * @param array<string, mixed> $access Access tab values.
+	 */
+	private function sync_roles( array $access ): void {
+		$map = array(
+			Capabilities::MODERATE        => (array) ( $access['moderate_roles'] ?? array() ),
+			Capabilities::MANAGE_SETTINGS => (array) ( $access['settings_roles'] ?? array() ),
+		);
+		foreach ( $map as $cap => $roles ) {
+			if ( ! current_user_can( $cap ) ) {
+				// Only capabilities the acting user holds may be (re)assigned (capabilities.md §3).
+				continue;
+			}
+			$roles = array_values( array_map( 'strval', $roles ) );
+			Capabilities::sync_roles( $cap, $roles );
+			$this->plugin->audit()->record(
+				'roles.capabilities_changed',
+				'capability',
+				$cap,
+				array(
+					'capability' => $cap,
+					'roles'      => array_values( array_unique( array_merge( $roles, array( 'administrator' ) ) ) ),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Keep the stored role list for every capability the acting user does not hold, so the roles
+	 * tab (save, import, reset, restore) can never hand out a capability its user lacks.
+	 *
+	 * @param array<string, mixed> $access  New access tab values.
+	 * @param array<string, mixed> $current Stored access tab values.
+	 * @return array<string, mixed>
+	 */
+	public static function keep_unheld_role_keys( array $access, array $current ): array {
+		$defaults = SettingsSchema::defaults()['access'] ?? array();
+		foreach ( self::ROLE_CAPS as $key => $cap ) {
+			if ( ! current_user_can( $cap ) ) {
+				$access[ $key ] = $current[ $key ] ?? ( $defaults[ $key ] ?? array( 'administrator' ) );
+			}
+		}
+		return $access;
+	}
+
+	/**
+	 * After a bulk write (reset/import/restore): put back role lists the user may not change.
+	 *
+	 * @param array<string, mixed> $before Access tab values before the write.
+	 */
+	private function restore_unheld_role_keys( array $before ): void {
+		$all  = $this->settings()->all();
+		$kept = self::keep_unheld_role_keys( (array) ( $all['access'] ?? array() ), $before );
+		if ( $kept !== ( $all['access'] ?? array() ) ) {
+			$all['access'] = $kept;
+			$this->settings()->save( $all );
+		}
+	}
+
+	/**
+	 * Reset tabs to defaults (reviews untouched). Returns reset tabs.
+	 *
+	 * @param list<string> $tabs Requested tabs.
+	 * @return list<string>
+	 */
+	public function reset_tabs( array $tabs ): array {
+		$tabs = array_values( array_intersect( $tabs, self::writable_tabs() ) );
+		if ( ! $tabs ) {
+			return array();
+		}
+		$this->transfer()->backup();
+		$before = (array) ( $this->settings()->all()['access'] ?? array() );
+		$this->settings()->reset( $tabs );
+		if ( in_array( 'access', $tabs, true ) ) {
+			$this->restore_unheld_role_keys( $before );
+			$this->sync_roles( $this->settings()->all()['access'] ?? array() );
+		}
+		$this->plugin->audit()->record(
+			'settings.reset',
+			'settings',
+			implode( ',', $tabs ),
+			array( 'fields' => $tabs )
+		);
+		return $tabs;
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// Handlers (admin-post).
+
+	/**
+	 * Handler: save current tab.
+	 */
+	public function handle_save(): void {
+		Capabilities::verify_request( Capabilities::MANAGE_SETTINGS, 'save_settings' );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verified above.
+		$tab   = sanitize_key( wp_unslash( (string) ( $_POST['tab'] ?? '' ) ) );
+		$input = isset( $_POST[ self::INPUT ] ) && is_array( $_POST[ self::INPUT ] ) ? wp_unslash( $_POST[ self::INPUT ] ) : array();
+		// phpcs:enable
+		if ( ! array_key_exists( $tab, SettingsSchema::tabs() ) ) {
 			$tab = 'general';
 		}
-		echo '<div class="wrap"><h1>' . esc_html__( 'Settings', 'review-captain' ) . '</h1>';
-		Menu::notices();
-		echo '<nav class="nav-tab-wrapper" aria-label="' . esc_attr__( 'Settings sections', 'review-captain' ) . '">';
-		foreach ( $groups as $key => $label ) {
-			printf( '<a href="%s" class="nav-tab%s"%s>%s</a>', esc_url( admin_url( 'admin.php?page=' . self::PAGE . '&tab=' . $key ) ), $key === $tab ? ' nav-tab-active' : '', $key === $tab ? ' aria-current="page"' : '', esc_html( $label ) );
+		if ( ! self::can_write_tab( $tab ) ) {
+			View::redirect( Notices::url( self::tab_url( $tab ), 'tab_forbidden' ) );
+			return;
+		}
+		$result = $this->save_tab( $tab, $input );
+		if ( $result['invalid'] ) {
+			View::redirect( Notices::url( self::tab_url( $tab ), 'saved_invalid', $result['invalid'] ) );
+			return;
+		}
+		View::redirect( Notices::url( self::tab_url( $tab ), $result['changed'] ? 'saved' : 'unchanged' ) );
+	}
+
+	/**
+	 * Handler: reset settings (tab or all) – requires confirmation.
+	 */
+	public function handle_reset(): void {
+		Capabilities::verify_request( Capabilities::MANAGE_SETTINGS, 'reset_settings' );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verified above.
+		$tab     = sanitize_key( wp_unslash( (string) ( $_POST['tab'] ?? 'privacy' ) ) );
+		$scope   = sanitize_key( wp_unslash( (string) ( $_POST['scope'] ?? 'tab' ) ) );
+		$confirm = ! empty( $_POST['confirm'] );
+		// phpcs:enable
+		$back = self::tab_url( array_key_exists( $tab, SettingsSchema::tabs() ) ? $tab : 'privacy' );
+		if ( ! $confirm ) {
+			View::redirect( Notices::url( $back, 'confirm_required' ) );
+			return;
+		}
+		$tabs = 'all' === $scope ? array_keys( SettingsSchema::tabs() ) : array( $tab );
+		$done = $this->reset_tabs( $tabs );
+		View::redirect( Notices::url( $back, $done ? 'reset_done' : 'tab_forbidden' ) );
+	}
+
+	/**
+	 * Handler: download configuration export (JSON).
+	 */
+	public function handle_export(): void {
+		Capabilities::verify_request( Capabilities::MANAGE_SETTINGS, 'export_settings' );
+		$doc = $this->transfer()->export();
+		$this->plugin->audit()->record( 'settings.exported', 'settings', '', array( 'version' => SettingsSchema::VERSION ) );
+		nocache_headers();
+		header( 'Content-Type: application/json; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="review-captain-settings-' . gmdate( 'Y-m-d' ) . '.json"' );
+		header( 'X-Content-Type-Options: nosniff' );
+		echo wp_json_encode( $doc, JSON_PRETTY_PRINT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON download.
+		exit;
+	}
+
+	/**
+	 * Handler: upload/paste a configuration and create a preview.
+	 */
+	public function handle_import_preview(): void {
+		Capabilities::verify_request( Capabilities::MANAGE_SETTINGS, 'import_settings' );
+		$json = $this->read_import_payload();
+		$back = self::tab_url( 'advanced' );
+		if ( null === $json ) {
+			View::redirect( Notices::url( $back, 'import_invalid' ) );
+			return;
+		}
+		$preview = $this->transfer()->preview( $json, self::writable_tabs() );
+		if ( null === $preview ) {
+			View::redirect( Notices::url( $back, 'import_invalid' ) );
+			return;
+		}
+		if ( ! $preview['diff'] ) {
+			View::redirect( Notices::url( $back, 'import_empty' ) );
+			return;
+		}
+		set_transient( self::IMPORT_TRANSIENT . get_current_user_id(), $preview, 15 * MINUTE_IN_SECONDS );
+		View::redirect( Notices::url( self::tab_url( 'advanced', array( 'import' => 'preview' ) ), 'import_preview' ) );
+	}
+
+	/**
+	 * Handler: apply or discard a pending import.
+	 */
+	public function handle_import_apply(): void {
+		Capabilities::verify_request( Capabilities::MANAGE_SETTINGS, 'import_apply' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
+		$decision = sanitize_key( wp_unslash( (string) ( $_POST['decision'] ?? '' ) ) );
+		$key      = self::IMPORT_TRANSIENT . get_current_user_id();
+		$preview  = get_transient( $key );
+		delete_transient( $key );
+		$back = self::tab_url( 'advanced' );
+		if ( 'apply' !== $decision ) {
+			View::redirect( Notices::url( $back, 'import_discarded' ) );
+			return;
+		}
+		if ( ! is_array( $preview ) || ! isset( $preview['values'], $preview['tabs'] ) ) {
+			View::redirect( Notices::url( $back, 'import_expired' ) );
+			return;
+		}
+		// Re-check permissions per tab at apply time.
+		$tabs = array_values( array_intersect( (array) $preview['tabs'], self::writable_tabs() ) );
+		$changed = $this->apply_import( (array) $preview['values'], $tabs );
+		View::redirect( Notices::url( $back, $changed ? 'import_applied' : 'import_empty' ) );
+	}
+
+	/**
+	 * Apply a previewed import: backup, save, sync roles, audit.
+	 *
+	 * @param array<string, array<string, mixed>> $values Previewed values.
+	 * @param list<string>                        $tabs   Tabs to apply.
+	 * @return list<string> Changed keys.
+	 */
+	public function apply_import( array $values, array $tabs ): array {
+		$current = $this->settings()->all();
+		foreach ( $tabs as $tab ) {
+			if ( isset( $values[ $tab ] ) && is_array( $values[ $tab ] ) ) {
+				$current[ $tab ] = $values[ $tab ];
+			}
+		}
+		if ( in_array( 'access', $tabs, true ) ) {
+			foreach ( array( 'moderate_roles', 'settings_roles' ) as $role_key ) {
+				$current['access'][ $role_key ] = array_values( array_unique( array_merge( array( 'administrator' ), (array) ( $current['access'][ $role_key ] ?? array() ) ) ) );
+			}
+			$current['access'] = self::keep_unheld_role_keys( $current['access'], $this->settings()->all()['access'] ?? array() );
+		}
+		$changed = $this->transfer()->apply( $current );
+		if ( in_array( 'access', $tabs, true ) ) {
+			$this->sync_roles( $current['access'] );
+		}
+		$this->plugin->audit()->record( 'settings.imported', 'settings', '', array( 'fields' => $changed ) );
+		return $changed;
+	}
+
+	/**
+	 * Handler: restore the settings backup.
+	 */
+	public function handle_rollback(): void {
+		Capabilities::verify_request( Capabilities::MANAGE_SETTINGS, 'rollback_settings' );
+		$back = self::tab_url( 'advanced' );
+		if ( count( self::writable_tabs() ) < count( SettingsSchema::tabs() ) ) {
+			// A full restore touches every tab; only users who may write all tabs may do it.
+			View::redirect( Notices::url( $back, 'tab_forbidden' ) );
+			return;
+		}
+		$before  = (array) ( $this->settings()->all()['access'] ?? array() );
+		$changed = $this->transfer()->rollback();
+		if ( null === $changed ) {
+			View::redirect( Notices::url( $back, 'rollback_missing' ) );
+			return;
+		}
+		$this->settings()->flush();
+		$this->restore_unheld_role_keys( $before );
+		$this->sync_roles( $this->settings()->all()['access'] ?? array() );
+		$this->plugin->audit()->record( 'settings.restored', 'settings', '', array( 'fields' => $changed ) );
+		View::redirect( Notices::url( $back, 'rollback_done' ) );
+	}
+
+	/**
+	 * Read import JSON from upload or textarea.
+	 */
+	private function read_import_payload(): ?string {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verified by caller.
+		if ( ! empty( $_FILES['config_file']['tmp_name'] ) && is_string( $_FILES['config_file']['tmp_name'] ) && is_uploaded_file( $_FILES['config_file']['tmp_name'] ) ) {
+			$size = (int) ( $_FILES['config_file']['size'] ?? 0 );
+			if ( $size <= 0 || $size > self::IMPORT_MAX_BYTES ) {
+				return null;
+			}
+			$json = file_get_contents( $_FILES['config_file']['tmp_name'] ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			return is_string( $json ) ? $json : null;
+		}
+		$json = isset( $_POST['config_json'] ) && is_string( $_POST['config_json'] ) ? wp_unslash( $_POST['config_json'] ) : '';
+		// phpcs:enable
+		$json = trim( $json );
+		return '' === $json || strlen( $json ) > self::IMPORT_MAX_BYTES ? null : $json;
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// Rendering.
+
+	/**
+	 * Page callback.
+	 */
+	public function render(): void {
+		if ( ! current_user_can( Capabilities::MANAGE_SETTINGS ) ) {
+			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+		}
+		$tab    = self::current_tab();
+		$tabs   = SettingsSchema::tabs();
+		$schema = SettingsSchema::fields();
+		$values = $this->settings()->all();
+		$pro    = self::pro_writable();
+
+		echo '<div class="wrap rc-admin">';
+		echo View::header( __( 'Einstellungen', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		echo '<nav class="nav-tab-wrapper" aria-label="' . esc_attr__( 'Einstellungsbereiche', 'review-captain' ) . '">';
+		foreach ( $tabs as $key => $label ) {
+			$has_pro_only = $this->tab_is_pro_only( $schema[ $key ] ?? array() );
+			$active       = $key === $tab;
+			echo '<a href="' . esc_url( self::tab_url( $key ) ) . '" class="nav-tab' . ( $active ? ' nav-tab-active' : '' ) . '"' . ( $active ? ' aria-current="page"' : '' ) . '>' . esc_html( $label );
+			if ( $has_pro_only && ! $pro ) {
+				echo ' <span class="dashicons dashicons-lock" aria-hidden="true"></span><span class="screen-reader-text"> ' . esc_html__( '(Review Captain Pro)', 'review-captain' ) . '</span>';
+			}
+			echo '</a>';
 		}
 		echo '</nav>';
 
-		if ( 'access' === $tab ) {
-			self::render_roles();
-			echo '</div>';
-			return;
+		$this->render_tab_notes( $tab );
+
+		$writable = self::can_write_tab( $tab );
+		if ( ! $writable ) {
+			echo View::notice( 'warning', 'access' === $tab ? __( 'Rollen kann nur ändern, wer selbst Benutzerrollen vergeben darf.', 'review-captain' ) : __( 'Diese Einstellungen darf nur ändern, wer das Recht „Datenschutz verwalten“ hat.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		$entitlement = Schema::GROUP_ENTITLEMENTS[ $tab ] ?? null;
-		$active      = null === $entitlement || (bool) apply_filters( 'review_captain_has_entitlement', false, $entitlement );
-		if ( ! $active ) {
-			echo '<div class="notice notice-info inline"><p>' . esc_html__( 'These settings take effect with Review Captain Pro. Values you save are kept and are not changed if a license expires.', 'review-captain' ) . '</p></div>';
-		}
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="rc-admin-settings-form">';
+		echo View::form_fields( 'save_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />';
 
-		$labels = self::labels();
-		$fields = array_filter( Schema::fields_for_group( $tab ), static fn( $f ) => empty( $f['internal'] ) );
-		echo '<form method="post" action="' . esc_url( Menu::post_url() ) . '"><input type="hidden" name="action" value="review_captain_save_settings"><input type="hidden" name="group" value="' . esc_attr( $tab ) . '">';
-		wp_nonce_field( 'rc_save_settings_' . $tab );
-		foreach ( array( 'basic', 'advanced' ) as $level ) {
-			$level_fields = array_filter( $fields, static fn( $f ) => $f['level'] === $level );
-			if ( ! $level_fields ) {
-				continue;
-			}
-			if ( 'advanced' === $level ) {
-				echo '<details class="rc-advanced"><summary>' . esc_html__( 'Advanced options', 'review-captain' ) . '</summary>';
-			}
-			echo '<table class="form-table" role="presentation"><tbody>';
-			foreach ( $level_fields as $key => $field ) {
-				self::render_field( $key, $field, $labels[ $key ] ?? array( $key, '' ), ! $active );
-			}
-			echo '</tbody></table>';
-			if ( 'advanced' === $level ) {
-				echo '</details>';
+		$fields   = $schema[ $tab ] ?? array();
+		$sections = SettingsFields::sections()[ $tab ] ?? array();
+		$placed   = array();
+		$advanced = array();
+		foreach ( $fields as $key => $field ) {
+			if ( ! empty( $field['advanced'] ) ) {
+				$advanced[] = $key;
 			}
 		}
-		submit_button();
-		echo '</form>';
+		foreach ( $sections as $heading => $keys ) {
+			$keys   = array_values( array_filter( $keys, static fn( $k ) => isset( $fields[ $k ] ) && empty( $fields[ $k ]['advanced'] ) ) );
+			$placed = array_merge( $placed, $keys );
+			if ( $keys ) {
+				$this->render_section( $heading, $tab, $keys, $fields, $values, $writable, $pro );
+			}
+		}
+		$rest = array_values( array_diff( array_keys( $fields ), $placed, $advanced ) );
+		if ( $rest ) {
+			$this->render_section( __( 'Weitere Optionen', 'review-captain' ), $tab, $rest, $fields, $values, $writable, $pro );
+		}
+		if ( $advanced ) {
+			$open = 'advanced' === $tab;
+			foreach ( $advanced as $key ) {
+				if ( ( $values[ $tab ][ $key ] ?? null ) !== $fields[ $key ]['default'] ) {
+					$open = true;
+				}
+			}
+			echo '<details class="rc-admin-advanced"' . ( $open ? ' open' : '' ) . '><summary>' . esc_html__( 'Erweitert anzeigen', 'review-captain' ) . '</summary>';
+			$this->render_section( '', $tab, $advanced, $fields, $values, $writable, $pro );
+			echo '</details>';
+		}
 
-		echo '<form method="post" action="' . esc_url( Menu::post_url() ) . '" class="rc-inline" onsubmit="return confirm(\'' . esc_js( __( 'Reset this section to its defaults?', 'review-captain' ) ) . '\');"><input type="hidden" name="action" value="review_captain_reset_settings"><input type="hidden" name="group" value="' . esc_attr( $tab ) . '">';
-		wp_nonce_field( 'rc_reset_settings' );
-		submit_button( __( 'Reset this section', 'review-captain' ), 'secondary', 'submit', false );
+		$any_writable = $writable && array_filter( $fields, static fn( $f ) => 'pro' !== $f['owner'] || $pro );
+		if ( $any_writable ) {
+			echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'review-captain' ) . '</button></p>';
+		}
 		echo '</form>';
 
 		if ( 'privacy' === $tab ) {
-			self::render_danger_zone();
+			$this->render_privacy_actions();
 		}
 		if ( 'advanced' === $tab ) {
-			self::render_config_io();
+			$this->render_maintenance();
 		}
 		echo '</div>';
 	}
 
 	/**
-	 * @param array<string,mixed> $field Field definition.
-	 * @param array<int,string>   $label [label, help].
+	 * Whether every field of a tab is Pro-owned.
+	 *
+	 * @param array<string, array<string, mixed>> $fields Fields.
 	 */
-	private static function render_field( string $key, array $field, array $label, bool $disabled ): void {
-		$value = Settings::get( $key );
-		$name  = 'settings[' . $key . ']';
-		$id    = 'rc-set-' . $key;
-		$dis   = ( $disabled || ! empty( $field['locked'] ) ) ? ' disabled' : '';
-		echo '<tr><th scope="row"><label for="' . esc_attr( $id ) . '">' . esc_html( $label[0] ) . '</label></th><td>';
+	private function tab_is_pro_only( array $fields ): bool {
+		if ( ! $fields ) {
+			return false;
+		}
+		foreach ( $fields as $field ) {
+			if ( 'pro' !== ( $field['owner'] ?? 'core' ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Context notes per tab.
+	 *
+	 * @param string $tab Tab.
+	 */
+	private function render_tab_notes( string $tab ): void {
+		$fields = SettingsSchema::fields()[ $tab ] ?? array();
+		$notes  = array();
+		if ( $this->tab_is_pro_only( $fields ) && ! self::pro_writable() ) {
+			$notes[] = array( 'info', __( 'Diese Einstellungen benötigen Review Captain Pro. Sie sind sichtbar, aber gesperrt; gespeicherte Werte bleiben unverändert erhalten.', 'review-captain' ) );
+		}
+		if ( 'requests' === $tab ) {
+			$notes[] = array( 'info', __( 'Immer gilt: höchstens eine Einladung je tatsächlichem Erlebnis und Empfänger, kein Versand ohne bekannte Versanderlaubnis, Abmeldungen sperren jede weitere Einladung, keine Filterung nach Zufriedenheit.', 'review-captain' ) );
+		}
+		if ( 'sources' === $tab ) {
+			$notes[] = array( 'info', __( 'Diese Werte wirken erst, wenn eine Quelle automatisch abgeglichen wird (Review Captain Pro oder ein Connector). Profile und Links verwaltest du unter „Quellen & Profile“.', 'review-captain' ) );
+		}
+		if ( 'display' === $tab ) {
+			$notes[] = array( 'info', __( 'Voreinstellung für neue Widgets. Die Quellenangabe externer Bewertungen wird immer angezeigt und lässt sich nicht abschalten.', 'review-captain' ) );
+		}
+		if ( 'submissions' === $tab && false === $this->settings()->get( 'submissions', 'require_consent' ) ) {
+			$notes[] = array( 'warning', __( 'Die Einwilligung zur Veröffentlichung wird nicht abgefragt. Stelle die Rechtsgrundlage anders sicher.', 'review-captain' ) );
+		}
+		if ( 'advanced' === $tab && defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
+			$notes[] = array( 'warning', __( 'WP-Cron ist deaktiviert. Richte einen Server-Cron ein, z. B. „wp cron event run --due-now“ alle 5 Minuten.', 'review-captain' ) );
+		}
+		if ( in_array( $tab, array( 'access', 'privacy' ), true ) && is_multisite() ) {
+			$notes[] = array( 'info', __( 'Multisite: Diese Einstellungen gelten nur für diese Website. Jede Website des Netzwerks hat eigene Einstellungen, Rollen und Daten; Netzwerkadministratoren ändern sie je Website.', 'review-captain' ) );
+		}
+		foreach ( $notes as [ $type, $text ] ) {
+			echo View::notice( $type, $text, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+	}
+
+	/**
+	 * Render a section with a form-table.
+	 *
+	 * @param string                              $heading  Heading (empty = none).
+	 * @param string                              $tab      Tab.
+	 * @param list<string>                        $keys     Keys.
+	 * @param array<string, array<string, mixed>> $fields   Fields.
+	 * @param array<string, array<string, mixed>> $values   Values.
+	 * @param bool                                $writable Tab writable.
+	 * @param bool                                $pro      Pro fields writable.
+	 */
+	private function render_section( string $heading, string $tab, array $keys, array $fields, array $values, bool $writable, bool $pro ): void {
+		if ( '' !== $heading ) {
+			echo '<h2>' . esc_html( $heading ) . '</h2>';
+		}
+		echo '<table class="form-table" role="presentation"><tbody>';
+		foreach ( $keys as $key ) {
+			$field    = $fields[ $key ];
+			$disabled = ! $writable || ( 'pro' === $field['owner'] && ! $pro );
+			$this->render_field( $tab, $key, $field, $values[ $tab ][ $key ] ?? $field['default'], $disabled, 'pro' === $field['owner'] && ! $pro );
+		}
+		echo '</tbody></table>';
+	}
+
+	/**
+	 * Render one field row (type → control).
+	 *
+	 * @param string               $tab      Tab.
+	 * @param string               $key      Key.
+	 * @param array<string, mixed> $field    Field.
+	 * @param mixed                $value    Value.
+	 * @param bool                 $disabled Disabled.
+	 * @param bool                 $pro_lock Show Pro lock.
+	 */
+	public function render_field( string $tab, string $key, array $field, mixed $value, bool $disabled, bool $pro_lock ): void {
+		$id    = 'rc-' . $tab . '-' . $key;
+		$name  = self::INPUT . '[' . $tab . '][' . $key . ']';
+		$label = SettingsFields::label( $tab, $key, $field );
+		$desc  = SettingsFields::description( $tab, $key, $field );
+		$dis   = $disabled ? ' disabled="disabled"' : '';
+		$descr = '' !== $desc || $pro_lock ? ' aria-describedby="' . esc_attr( $id . '-desc' ) . '"' : '';
+
+		echo '<tr><th scope="row">';
+		echo in_array( $field['type'], array( 'bool', 'array' ), true ) ? esc_html( $label ) : '<label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+		echo '</th><td>';
+
 		switch ( $field['type'] ) {
 			case 'bool':
-				printf( '<input type="checkbox" id="%s" name="%s" value="1"%s%s>', esc_attr( $id ), esc_attr( $name ), checked( (bool) $value, true, false ), esc_attr( $dis ) );
+				echo '<label for="' . esc_attr( $id ) . '"><input type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="1"' . checked( (bool) $value, true, false ) . $dis . $descr . ' /> ' . esc_html__( 'Aktiv', 'review-captain' ) . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
 			case 'int':
-				printf( '<input type="number" id="%s" name="%s" value="%d" min="%d" max="%d" class="small-text"%s>', esc_attr( $id ), esc_attr( $name ), (int) $value, (int) $field['min'], (int) min( $field['max'], 999999 ), esc_attr( $dis ) );
+				$min = isset( $field['min'] ) ? ' min="' . esc_attr( (string) $field['min'] ) . '"' : '';
+				$max = isset( $field['max'] ) ? ' max="' . esc_attr( (string) $field['max'] ) . '"' : '';
+				echo '<input type="number" step="1" class="small-text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) $value ) . '"' . $min . $max . $dis . $descr . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
 			case 'enum':
-				printf( '<select id="%s" name="%s"%s>', esc_attr( $id ), esc_attr( $name ), esc_attr( $dis ) );
-				foreach ( $field['options'] as $opt ) {
-					printf( '<option value="%s"%s>%s</option>', esc_attr( $opt ), selected( $value, $opt, false ), esc_html( self::option_label( $opt ) ) );
+				echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"' . $dis . $descr . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				foreach ( (array) ( $field['choices'] ?? array() ) as $choice ) {
+					echo '<option value="' . esc_attr( (string) $choice ) . '"' . selected( (string) $choice, (string) $value, false ) . '>' . esc_html( SettingsFields::choice_label( $tab, $key, (string) $choice ) ) . '</option>';
 				}
 				echo '</select>';
 				break;
-			case 'textarea':
-				printf( '<textarea id="%s" name="%s" rows="3" class="large-text"%s>%s</textarea>', esc_attr( $id ), esc_attr( $name ), esc_attr( $dis ), esc_textarea( (string) $value ) );
-				break;
 			case 'time':
-				printf( '<input type="time" id="%s" name="%s" value="%s"%s>', esc_attr( $id ), esc_attr( $name ), esc_attr( (string) $value ), esc_attr( $dis ) );
+				echo '<input type="time" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) $value ) . '"' . $dis . $descr . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
+			case 'email':
+				echo '<input type="email" class="regular-text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) $value ) . '"' . $dis . $descr . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				break;
+			case 'textarea':
+				echo '<textarea class="large-text" rows="4" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"' . $dis . $descr . '>' . esc_textarea( (string) $value ) . '</textarea>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				break;
+			case 'array':
+				$this->render_array_field( $tab, $key, $field, (array) $value, $name, $disabled );
+				break;
+			case 'string':
 			default:
-				printf( '<input type="%s" id="%s" name="%s" value="%s" class="regular-text"%s>', 'email' === $field['type'] ? 'email' : 'text', esc_attr( $id ), esc_attr( $name ), esc_attr( (string) $value ), esc_attr( $dis ) );
+				echo '<input type="text" class="regular-text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( is_scalar( $value ) ? (string) $value : '' ) . '"' . $dis . $descr . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				break;
 		}
-		if ( '' !== $label[1] ) {
-			echo '<p class="description">' . esc_html( $label[1] ) . '</p>';
+
+		if ( '' !== $desc || $pro_lock ) {
+			echo '<p class="description" id="' . esc_attr( $id . '-desc' ) . '">' . esc_html( $desc );
+			if ( $pro_lock ) {
+				echo ( '' !== $desc ? ' ' : '' ) . View::pro_lock( __( 'Benötigt Review Captain Pro', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			echo '</p>';
 		}
 		echo '</td></tr>';
 	}
 
-	private static function option_label( string $opt ): string {
-		$labels = array(
-			'service'            => __( 'Service', 'review-captain' ),
-			'product'            => __( 'Product', 'review-captain' ),
-			'app'                => __( 'App', 'review-captain' ),
-			'event'              => __( 'Event', 'review-captain' ),
-			'voucher'            => __( 'Voucher', 'review-captain' ),
-			'general'            => __( 'General', 'review-captain' ),
-			'suppress'           => __( 'Block address for future invitations', 'review-captain' ),
-			'log_only'           => __( 'Only log', 'review-captain' ),
-			'pending'            => __( 'Publish after moderation (recommended)', 'review-captain' ),
-			'approved'           => __( 'Publish immediately', 'review-captain' ),
-			'full'               => __( 'Full name', 'review-captain' ),
-			'first_name_initial' => __( 'First name and initial', 'review-captain' ),
-			'initials'           => __( 'Initials', 'review-captain' ),
-			'anonymous'          => __( 'No name', 'review-captain' ),
-			'hide'               => __( 'Show nothing', 'review-captain' ),
-			'message'            => __( 'Show “No reviews yet”', 'review-captain' ),
-			'click_to_load'      => __( 'Load after click', 'review-captain' ),
-			'consent_hook'       => __( 'Let my consent tool decide', 'review-captain' ),
-			'auto'               => __( 'Automatic', 'review-captain' ),
-			'wp_cron'            => 'WP-Cron',
-			'system_cron'        => __( 'System cron (WP-CLI)', 'review-captain' ),
-		);
-		return $labels[ $opt ] ?? $opt;
-	}
-
-	private static function render_roles(): void {
-		$map    = Capabilities::current_map();
-		$roles  = wp_roles()->get_names();
-		$labels = array(
-			'rc_view_reviews'        => __( 'See reviews', 'review-captain' ),
-			'rc_moderate_reviews'    => __( 'Moderate', 'review-captain' ),
-			'rc_manage_reviews'      => __( 'Add/import/export', 'review-captain' ),
-			'rc_manage_widgets'      => __( 'Widgets', 'review-captain' ),
-			'rc_manage_testimonials' => __( 'Testimonials', 'review-captain' ),
-			'rc_manage_trust'        => __( 'Trust badges', 'review-captain' ),
-			'rc_connect_sources'     => __( 'Connect sources', 'review-captain' ),
-			'rc_manage_requests'     => __( 'Campaigns', 'review-captain' ),
-			'rc_send_requests'       => __( 'Send invitations', 'review-captain' ),
-			'rc_view_reports'        => __( 'Reports & diagnostics', 'review-captain' ),
-			'rc_manage_privacy'      => __( 'Privacy & deletion', 'review-captain' ),
-			'rc_manage_settings'     => __( 'Settings', 'review-captain' ),
-		);
-		echo '<p>' . esc_html__( 'Choose which roles may do what. Administrators always keep all rights.', 'review-captain' ) . '</p>';
-		if ( is_multisite() ) {
-			echo '<p class="description">' . esc_html__( 'Multisite: these rights and all Review Captain data apply to this site only.', 'review-captain' ) . '</p>';
-		}
-		echo '<form method="post" action="' . esc_url( Menu::post_url() ) . '"><input type="hidden" name="action" value="review_captain_save_roles">';
-		wp_nonce_field( 'rc_save_roles' );
-		echo '<div class="rc-table-scroll"><table class="widefat striped rc-roles"><thead><tr><th>' . esc_html__( 'Role', 'review-captain' ) . '</th>';
-		foreach ( $labels as $l ) {
-			echo '<th scope="col">' . esc_html( $l ) . '</th>';
-		}
-		echo '</tr></thead><tbody>';
-		foreach ( $roles as $role => $name ) {
-			$admin = 'administrator' === $role;
-			echo '<tr><th scope="row">' . esc_html( translate_user_role( $name ) ) . '</th>';
-			foreach ( array_keys( $labels ) as $cap ) {
-				printf(
-					'<td><input type="checkbox" name="roles[%s][]" value="%s" aria-label="%s"%s%s></td>',
-					esc_attr( $role ),
-					esc_attr( $cap ),
-					esc_attr( translate_user_role( $name ) . ': ' . $labels[ $cap ] ),
-					checked( in_array( $cap, $map[ $role ] ?? array(), true ), true, false ),
-					$admin ? ' disabled' : ''
-				);
+	/**
+	 * Array field: role checkboxes for *_roles, otherwise checkboxes from 'choices'.
+	 *
+	 * @param string               $tab      Tab.
+	 * @param string               $key      Key.
+	 * @param array<string, mixed> $field    Field.
+	 * @param array<int, mixed>    $value    Value.
+	 * @param string               $name     Input name.
+	 * @param bool                 $disabled Disabled.
+	 */
+	private function render_array_field( string $tab, string $key, array $field, array $value, string $name, bool $disabled ): void {
+		$roles   = str_ends_with( $key, '_roles' );
+		$choices = array();
+		if ( $roles ) {
+			foreach ( wp_roles()->role_names as $role => $role_label ) {
+				$choices[ (string) $role ] = function_exists( 'translate_user_role' ) ? translate_user_role( (string) $role_label ) : (string) $role_label;
 			}
-			echo '</tr>';
+		} else {
+			foreach ( (array) ( $field['choices'] ?? array() ) as $choice ) {
+				$choices[ (string) $choice ] = (string) $choice;
+			}
 		}
-		echo '</tbody></table></div>';
-		submit_button( __( 'Save roles', 'review-captain' ) );
-		echo '</form>';
+		$dis = $disabled ? ' disabled="disabled"' : '';
+		echo '<fieldset><legend class="screen-reader-text">' . esc_html( SettingsFields::label( $tab, $key, $field ) ) . '</legend>';
+		// Empty marker so "nothing checked" is submitted as an empty list.
+		echo '<input type="hidden" name="' . esc_attr( $name . '[]' ) . '" value=""' . $dis . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		foreach ( $choices as $choice => $label ) {
+			$id     = 'rc-' . $tab . '-' . $key . '-' . sanitize_html_class( $choice );
+			$locked = $roles && 'administrator' === $choice;
+			$on     = $locked || in_array( $choice, array_map( 'strval', $value ), true );
+			echo '<label for="' . esc_attr( $id ) . '"><input type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name . '[]' ) . '" value="' . esc_attr( $choice ) . '"' . checked( $on, true, false ) . ( $locked || $disabled ? ' disabled="disabled"' : '' ) . ' /> ' . esc_html( $label ) . '</label>';
+			if ( $locked ) {
+				echo '<input type="hidden" name="' . esc_attr( $name . '[]' ) . '" value="administrator"' . $dis . ' /> <span class="description">' . esc_html__( '(immer)', 'review-captain' ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			echo '<br />';
+		}
+		echo '</fieldset>';
+		if ( $roles && 'access' === $tab && 'settings_roles' === $key ) {
+			$this->render_capability_table();
+		}
 	}
 
-	private static function render_danger_zone(): void {
-		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'rc_manage_privacy' ) ) {
+	/**
+	 * Read-only table of all plugin capabilities and the roles holding them.
+	 */
+	private function render_capability_table(): void {
+		$labels = array(
+			Capabilities::MODERATE        => __( 'Reviews moderieren', 'review-captain' ),
+			Capabilities::MANAGE_SOURCES  => __( 'Quellen verwalten', 'review-captain' ),
+			Capabilities::MANAGE_REQUESTS => __( 'Anfragen verwalten (Pro)', 'review-captain' ),
+			Capabilities::VIEW_REPORTS    => __( 'Berichte & Diagnose ansehen', 'review-captain' ),
+			Capabilities::MANAGE_TRUST    => __( 'Vertrauenssignale verwalten (Pro)', 'review-captain' ),
+			Capabilities::MANAGE_PRIVACY  => __( 'Datenschutz verwalten', 'review-captain' ),
+			Capabilities::MANAGE_SETTINGS => __( 'Einstellungen ändern', 'review-captain' ),
+		);
+		echo '<details class="rc-admin-advanced"><summary>' . esc_html__( 'Alle Rechte und Rollen anzeigen', 'review-captain' ) . '</summary>';
+		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Recht', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Rollen', 'review-captain' ) . '</th></tr></thead><tbody>';
+		$roles = wp_roles()->role_objects;
+		foreach ( Capabilities::all() as $cap ) {
+			$holders = array();
+			foreach ( $roles as $name => $role ) {
+				if ( method_exists( $role, 'has_cap' ) && $role->has_cap( $cap ) ) {
+					$holders[] = (string) $name;
+				}
+			}
+			echo '<tr><td>' . esc_html( $labels[ $cap ] ?? $cap ) . '<br /><code>' . esc_html( $cap ) . '</code></td><td>' . esc_html( $holders ? implode( ', ', $holders ) : '–' ) . '</td></tr>';
+		}
+		echo '</tbody></table></details>';
+	}
+
+	/**
+	 * Privacy tab: reset settings vs. full data deletion (separate, clearly labelled).
+	 */
+	private function render_privacy_actions(): void {
+		echo '<hr /><h2>' . esc_html__( 'Einstellungen zurücksetzen', 'review-captain' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Setzt Einstellungen auf die Standardwerte zurück. Reviews, Profile, Verlauf und Protokolle bleiben erhalten. Der vorherige Stand wird gesichert und kann unter „Erweitert“ wiederhergestellt werden.', 'review-captain' ) . '</p>';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo View::form_fields( 'reset_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<input type="hidden" name="tab" value="privacy" />';
+		echo '<fieldset><legend class="screen-reader-text">' . esc_html__( 'Umfang', 'review-captain' ) . '</legend>';
+		echo '<label><input type="radio" name="scope" value="tab" checked="checked" /> ' . esc_html__( 'Nur „Datenschutz & Aufbewahrung“', 'review-captain' ) . '</label><br />';
+		echo '<label><input type="radio" name="scope" value="all" /> ' . esc_html__( 'Alle Einstellungen (Pro-Einstellungen bleiben unverändert)', 'review-captain' ) . '</label></fieldset>';
+		echo '<p><label><input type="checkbox" name="confirm" value="1" required /> ' . esc_html__( 'Ich möchte die Einstellungen zurücksetzen.', 'review-captain' ) . '</label></p>';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Einstellungen zurücksetzen', 'review-captain' ) . '</button></p></form>';
+
+		echo '<div class="rc-admin-danger"><h2>' . esc_html__( 'Alle Plugin-Daten löschen', 'review-captain' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Daten beim Deinstallieren löschen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews.', 'review-captain' ) . '</p>';
+		echo '<p>' . esc_html__( 'Einzelne Personen betreffende Löschanfragen bearbeitest du unter', 'review-captain' ) . ' <a href="' . esc_url( admin_url( 'erase-personal-data.php' ) ) . '">' . esc_html__( 'Werkzeuge › Personenbezogene Daten löschen', 'review-captain' ) . '</a>.</p></div>';
+	}
+
+	/**
+	 * Advanced tab: config export/import with preview and rollback.
+	 */
+	private function render_maintenance(): void {
+		echo '<hr /><h2>' . esc_html__( 'Konfiguration exportieren', 'review-captain' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Lädt die Einstellungen als JSON-Datei herunter – ohne Zugangsdaten und ohne personenbezogene Angaben. Reviews sind nicht enthalten.', 'review-captain' ) . '</p>';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo View::form_fields( 'export_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Konfiguration herunterladen', 'review-captain' ) . '</button></p></form>';
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
+		$preview = 'preview' === View::req( $_GET, 'import' ) ? get_transient( self::IMPORT_TRANSIENT . get_current_user_id() ) : false;
+		echo '<h2>' . esc_html__( 'Konfiguration importieren', 'review-captain' ) . '</h2>';
+		if ( is_array( $preview ) && ! empty( $preview['diff'] ) ) {
+			echo '<p>' . esc_html__( 'Folgende Werte werden geändert. Alle anderen Einstellungen bleiben unverändert.', 'review-captain' ) . '</p>';
+			echo '<table class="widefat striped rc-admin-diff"><thead><tr><th scope="col">' . esc_html__( 'Bereich', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Einstellung', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Bisher', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Neu', 'review-captain' ) . '</th></tr></thead><tbody>';
+			$tabs = SettingsSchema::tabs();
+			foreach ( (array) $preview['diff'] as $row ) {
+				echo '<tr><td>' . esc_html( $tabs[ $row['tab'] ] ?? (string) $row['tab'] ) . '</td><td>' . esc_html( SettingsFields::label( (string) $row['tab'], (string) $row['key'] ) ) . '</td><td>' . esc_html( ConfigTransfer::display_value( $row['old'] ) ) . '</td><td><strong>' . esc_html( ConfigTransfer::display_value( $row['new'] ) ) . '</strong></td></tr>';
+			}
+			echo '</tbody></table>';
+			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+			echo View::form_fields( 'import_apply' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<p><button type="submit" name="decision" value="apply" class="button button-primary">' . esc_html__( 'Import übernehmen', 'review-captain' ) . '</button> ';
+			echo '<button type="submit" name="decision" value="discard" class="button">' . esc_html__( 'Verwerfen', 'review-captain' ) . '</button></p></form>';
+		} else {
+			echo '<p>' . esc_html__( 'Lade einen Export hoch oder füge den Inhalt ein. Vor dem Übernehmen siehst du eine Vorschau aller Änderungen; ungültige Werte werden wie beim Speichern korrigiert.', 'review-captain' ) . '</p>';
+			echo '<form method="post" enctype="multipart/form-data" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+			echo View::form_fields( 'import_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<p><label for="rc-config-file">' . esc_html__( 'Datei (JSON)', 'review-captain' ) . '</label><br /><input type="file" id="rc-config-file" name="config_file" accept="application/json,.json" /></p>';
+			echo '<p><label for="rc-config-json">' . esc_html__( 'oder Inhalt einfügen', 'review-captain' ) . '</label><br /><textarea id="rc-config-json" name="config_json" rows="6" class="large-text code"></textarea></p>';
+			echo '<p><button type="submit" class="button">' . esc_html__( 'Vorschau anzeigen', 'review-captain' ) . '</button></p></form>';
+		}
+
+		$backup = $this->transfer()->get_backup();
+		echo '<h2>' . esc_html__( 'Sicherung wiederherstellen', 'review-captain' ) . '</h2>';
+		if ( null === $backup ) {
+			echo '<p>' . esc_html__( 'Es ist noch keine Sicherung vorhanden. Sie wird automatisch vor jedem Import und jedem Zurücksetzen angelegt.', 'review-captain' ) . '</p>';
 			return;
 		}
-		$domain = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-		echo '<div class="rc-danger postbox"><div class="inside"><h2>' . esc_html__( 'Danger zone: delete all Review Captain data', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Deletes all reviews, widgets, testimonials, logs and settings of this site immediately. This cannot be undone. Resetting settings above does not delete any content.', 'review-captain' ) . '</p>';
-		echo '<form method="post" action="' . esc_url( Menu::post_url() ) . '"><input type="hidden" name="action" value="review_captain_erase_all">';
-		wp_nonce_field( 'rc_erase_all' );
-		/* translators: %s: domain */
-		echo '<p><label for="rc-erase-confirm">' . esc_html( sprintf( __( 'Type %s to confirm', 'review-captain' ), $domain ) ) . '</label><br><input type="text" id="rc-erase-confirm" name="confirm" autocomplete="off"></p>';
-		submit_button( __( 'Delete all data now', 'review-captain' ), 'delete', 'submit', false );
-		echo '</form></div></div>';
-	}
-
-	private static function render_config_io(): void {
-		echo '<div class="postbox"><div class="inside"><h2>' . esc_html__( 'Export / import configuration', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'The export contains settings only – no reviews, no personal data and no access credentials. After importing, platforms must be connected again.', 'review-captain' ) . '</p>';
-		echo '<form method="post" action="' . esc_url( Menu::post_url() ) . '" class="rc-inline"><input type="hidden" name="action" value="review_captain_export_config">';
-		wp_nonce_field( 'rc_export_config' );
-		submit_button( __( 'Download configuration', 'review-captain' ), 'secondary', 'submit', false );
-		echo '</form>';
-		echo '<form method="post" enctype="multipart/form-data" action="' . esc_url( Menu::post_url() ) . '"><input type="hidden" name="action" value="review_captain_import_config">';
-		wp_nonce_field( 'rc_import_config' );
-		echo '<p><input type="file" name="config" accept=".json,application/json" required> ';
-		submit_button( __( 'Import configuration', 'review-captain' ), 'secondary', 'submit', false );
-		echo '</p></form></div></div>';
-	}
-
-	public static function handle_save(): void {
-		$group = isset( $_POST['group'] ) ? sanitize_key( wp_unslash( $_POST['group'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		review_captain_check_request( 'rc_manage_settings', 'rc_save_settings_' . $group );
-		if ( ! in_array( $group, Schema::GROUPS, true ) || 'access' === $group ) {
-			Menu::back( self::PAGE );
-		}
-		if ( 'privacy' === $group && ! current_user_can( 'rc_manage_privacy' ) ) {
-			wp_die( esc_html__( 'You are not allowed to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
-		}
-		$input       = isset( $_POST['settings'] ) && is_array( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field.
-		$result      = Settings::sanitize_group( $group, $input );
-		$entitlement = Schema::GROUP_ENTITLEMENTS[ $group ] ?? null;
-		if ( null !== $entitlement && ! apply_filters( 'review_captain_has_entitlement', false, $entitlement ) ) {
-			Menu::back( self::PAGE, '', '', array( 'tab' => $group ) ); // Disabled fields: never overwrite stored values.
-		}
-		$changed = Settings::save_group( $group, $result['values'] );
-		if ( 'advanced' === $group && in_array( 'job_runner', $changed, true ) ) {
-			\ReviewCaptain\Jobs\Runner::unschedule();
-			\ReviewCaptain\Jobs\Runner::schedule();
-		}
-		$audited = array_values( array_intersect( $changed, self::AUDITED ) );
-		if ( $audited ) {
-			AuditLog::log(
-				'settings_changed',
-				'settings',
-				$group,
-				array(
-					'changed_keys' => $audited,
-					'group'        => $group,
-				)
-			);
-		}
-		Menu::back( self::PAGE, $result['errors'] ? '' : 'saved', $result['errors'] ? implode( ' ', $result['errors'] ) : '', array( 'tab' => $group ) );
-	}
-
-	public static function handle_reset(): void {
-		review_captain_check_request( 'rc_manage_settings', 'rc_reset_settings' );
-		$group = isset( $_POST['group'] ) ? sanitize_key( wp_unslash( $_POST['group'] ) ) : '';
-		if ( in_array( $group, Schema::GROUPS, true ) ) {
-			Settings::reset_group( $group );
-			AuditLog::log( 'settings_reset', 'settings', $group, array( 'group' => $group ) );
-		}
-		Menu::back( self::PAGE, 'reset', '', array( 'tab' => $group ) );
-	}
-
-	public static function handle_roles(): void {
-		review_captain_check_request( 'manage_options', 'rc_save_roles' );
-		$map = array();
-		foreach ( (array) ( $_POST['roles'] ?? array() ) as $role => $caps ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$map[ sanitize_key( $role ) ] = array_map( 'sanitize_key', (array) $caps );
-		}
-		Capabilities::apply_map( $map );
-		AuditLog::log( 'roles_changed', 'settings', 'access' );
-		Menu::back( self::PAGE, 'saved', '', array( 'tab' => 'access' ) );
-	}
-
-	public static function handle_erase_all(): void {
-		review_captain_check_request( 'rc_manage_privacy', 'rc_erase_all' );
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You are not allowed to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
-		}
-		$domain  = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-		$confirm = isset( $_POST['confirm'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['confirm'] ) ) ) : '';
-		if ( ! hash_equals( $domain, $confirm ) ) {
-			Menu::back( self::PAGE, '', __( 'Confirmation did not match. Nothing was deleted.', 'review-captain' ), array( 'tab' => 'privacy' ) );
-		}
-		\ReviewCaptain\Install\Uninstaller::erase_site_data();
-		\ReviewCaptain\Install\Activator::install_site(); // Fresh empty tables so the plugin keeps working.
-		Menu::back( self::PAGE, 'erased', '', array( 'tab' => 'privacy' ) );
-	}
-
-	/**
-	 * Configuration export without secrets or personal data (SET-018).
-	 *
-	 * @return array<string,mixed>
-	 */
-	public static function config_export(): array {
-		$out = array(
-			'plugin'         => 'review-captain',
-			'schema_version' => Settings::VERSION,
-			'exported_at'    => gmdate( 'c' ),
-			'settings'       => array(),
-		);
-		foreach ( Schema::GROUPS as $group ) {
-			foreach ( Schema::fields_for_group( $group ) as $key => $field ) {
-				if ( ! empty( $field['internal'] ) || 1 === ( $field['privacy'] ?? 0 ) || 'S' === ( $field['privacy'] ?? 0 ) ) {
-					continue; // Exclude operator contact data and secrets.
-				}
-				$out['settings'][ $group ][ $key ] = Settings::get( $key );
-			}
-		}
-		return $out;
-	}
-
-	public static function handle_export_config(): void {
-		review_captain_check_request( 'rc_manage_settings', 'rc_export_config' );
-		nocache_headers();
-		header( 'Content-Type: application/json; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=review-captain-config-' . gmdate( 'Y-m-d' ) . '.json' );
-		echo wp_json_encode( self::config_export(), JSON_PRETTY_PRINT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		exit;
-	}
-
-	/**
-	 * @param array<string,mixed> $data Decoded config.
-	 * @return array{applied:int, errors:string[]}
-	 */
-	public static function config_import( array $data ): array {
-		$errors = array();
-		if ( 'review-captain' !== ( $data['plugin'] ?? '' ) || (int) ( $data['schema_version'] ?? 0 ) > Settings::VERSION || ! is_array( $data['settings'] ?? null ) ) {
-			return array(
-				'applied' => 0,
-				'errors'  => array( __( 'This file is not a compatible Review Captain configuration.', 'review-captain' ) ),
-			);
-		}
-		$applied = 0;
-		foreach ( $data['settings'] as $group => $values ) {
-			if ( ! in_array( $group, Schema::GROUPS, true ) || ! is_array( $values ) ) {
-				continue;
-			}
-			// Keep current values for keys not in the file (e.g. excluded contact data).
-			$merged = array_merge( Settings::group( $group ), $values );
-			$result = Settings::sanitize_group( $group, $merged );
-			$errors = array_merge( $errors, array_values( $result['errors'] ) );
-			Settings::save_group( $group, $result['values'] );
-			++$applied;
-		}
-		AuditLog::log( 'settings_imported', 'settings', null, array( 'count' => $applied ) );
-		return array(
-			'applied' => $applied,
-			'errors'  => $errors,
-		);
-	}
-
-	public static function handle_import_config(): void {
-		review_captain_check_request( 'rc_manage_settings', 'rc_import_config' );
-		$tmp = isset( $_FILES['config']['tmp_name'] ) ? (string) $_FILES['config']['tmp_name'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		if ( '' === $tmp || ! is_uploaded_file( $tmp ) || filesize( $tmp ) > 256 * KB_IN_BYTES ) {
-			Menu::back( self::PAGE, '', __( 'Please choose a configuration file.', 'review-captain' ), array( 'tab' => 'advanced' ) );
-		}
-		$data   = json_decode( (string) file_get_contents( $tmp ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$result = self::config_import( is_array( $data ) ? $data : array() );
-		Menu::back( self::PAGE, $result['errors'] ? '' : 'saved', implode( ' ', $result['errors'] ), array( 'tab' => 'advanced' ) );
+		/* translators: %s: date */
+		echo '<p>' . esc_html( sprintf( __( 'Sicherung vom %s. Beim Wiederherstellen wird der aktuelle Stand seinerseits gesichert.', 'review-captain' ), View::date( (string) $backup['created_at'], true ) ) ) . '</p>';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo View::form_fields( 'rollback_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Sicherung wiederherstellen', 'review-captain' ) . '</button></p></form>';
 	}
 }

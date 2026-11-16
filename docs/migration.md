@@ -1,69 +1,105 @@
-# Migration zu Review Captain (RC-046)
+# Migration und Import (RC-046)
 
-**Stand:** 2026-11-16 · gilt für Review Captain Core 0.1+  
-**Werkzeug:** Review Captain → Import & Export (CSV mit Prüflauf, Duplikaterkennung und „Import rückgängig machen“)
+Status: Entwurf zur Abnahme, Stand 2026-11-16. Bezug: RC-042 (Woo getrennt halten), RC-044/RC-045 (CSV-Export/-Import), conventions.md (Tabellen `reviews`, `import_batches`).
 
-## Grundregeln
+## 1. WooCommerce-Produktreviews
 
-1. **Erst prüfen, dann importieren.** Jede Datei durchläuft einen Prüflauf; gespeichert wird erst nach Bestätigung.
-2. **Herkunft bleibt erhalten.** Bewertungen von anderen Plattformen werden mit `provider`, Originalskala, Datum und Link importiert und sind immer als externe Bewertung gekennzeichnet.
-3. **Nichts wird verifiziert.** Importierte Bewertungen erhalten nie „Kauf verifiziert“ oder „Teilnahme bestätigt“ – auch wenn das Quellsystem das kannte. Verifizierung setzt nur ein offizieller Quellvertrag (RC-041).
-4. **WooCommerce bleibt unberührt.** Native WooCommerce-Produktbewertungen werden nicht verschoben, kopiert oder in Woo-Kommentare zurückgeschrieben (RC-042). Ein Import ist nur nötig, wenn Sie Woo-Bewertungen zusätzlich in Review-Captain-Widgets zeigen wollen.
-5. **Rückgängig machen** ist bis zu 90 Tage nach dem Import möglich (Import-Batch).
+### Entscheidung (Vorschlag)
 
-## CSV-Format
+- Woo-Produktreviews bleiben in WooCommerce (System of Record = Woo). Review Captain **liest** sie nur und kann sie in eigenen Widgets **anzeigen** (Option am Widget: Quelle „WooCommerce-Produktreviews“).
+- **Kein Duplizieren in Woo:** Review Captain legt nie Kommentare vom Typ `review` an und verändert keine Woo-Sterne (`_wc_average_rating`, `_wc_rating_count`).
+- **Kein Kopieren nach Review Captain in 1.0:** keine einmalige Migration in `reviews`, um Doppelhaltung, doppelte Moderation und doppeltes Schema-Markup zu vermeiden. (OFFEN: Bedarf für eine echte Umzugsfunktion, falls Betreiber Woo-Reviews abschalten wollen.)
+- **Kein Schema-Markup** von Review Captain für Woo-Reviews; Woo bzw. das SEO-Plugin bleibt dafür zuständig.
+- Lesen nur, wenn WooCommerce aktiv ist; sonst ist die Quelle im Widget nicht wählbar. Kein Pflicht-Dependency.
 
-UTF-8, Trennzeichen Komma oder Semikolon (wird erkannt), erste Zeile = Spaltennamen. Maximal 5.000 Zeilen und 10 MB pro Datei.
+### Feldmapping (Leseadapter → normalisierte Anzeige, nicht gespeichert)
 
-| Spalte | Pflicht | Inhalt |
+| WooCommerce (Quelle) | Review-Captain-Feld (Anzeige-DTO) | Regel |
 |---|---|---|
-| `provider` | ja | `site` (auf Ihrer Website abgegeben) oder `google`, `trustpilot`, `etrusted`, `apple_app_store`, `google_play`, `other` |
-| `external_id` | empfohlen bei Plattformen | ID der Bewertung beim Anbieter – verhindert doppelte Importe |
-| `rating_value` | ja, wenn kein Text | Originalbewertung |
-| `rating_min` / `rating_max` | nein | Skala, Standard 1/5 |
-| `title`, `content` | einer davon oder Rating | Text ohne HTML (HTML wird entfernt) |
-| `author_name` | nein | öffentlicher Anzeigename |
-| `language` | nein | z. B. `de-AT` |
-| `type` | nein | `service`, `product`, `app`, `event`, `voucher`, `general` |
-| `context_type`, `context_id` | nein | z. B. `product` / `123` (Woo-Produkt-ID) |
-| `source_url` | **ja bei Plattformen** | https-Link zur Bewertung oder zum Profil |
-| `attribution` | empfohlen | Quellenhinweis, z. B. „Bewertung auf Google“ |
-| `status` | nein | `approved` veröffentlicht sofort, sonst „ausstehend“ |
-| `published_at` | empfohlen | Datum der Bewertung (ISO 8601) |
+| `wp_comments.comment_type = 'review'` | `kind = review` | nur dieser Typ; normale Kommentare/Antworten (`comment_parent ≠ 0`) ausgeschlossen |
+| `comment_ID` | `external_id` = `woo:{comment_ID}` | nur zur Referenz/Link |
+| – | `platform = local`, `origin = connector` (virtuell) | Anzeige-Label „Produktbewertung im Shop“ |
+| `comment_post_ID` (Post-Typ `product`) | `context_type = product`, `context_id` | Produkt-Filter im Widget |
+| Comment-Meta `rating` (1–5) | `rating_value`, `rating_scale_max = 5` | fehlt/0 → ohne Sterne anzeigen |
+| Comment-Meta `verified` (`1`) | `verification = purchase_verified` | von Woo gesetzt; Review Captain setzt es nie selbst |
+| `comment_content` | `body` | Ausgabe escaped (`wp_kses_post` → Text), keine Shortcodes |
+| `comment_author` | `author_name` | `display.show_author` beachten |
+| `comment_author_email` | – | **nie** gelesen/ausgegeben |
+| `comment_date_gmt` | `published_at` | UTC |
+| `comment_approved = '1'` | `status = approved` | **nur** freigegebene werden angezeigt; `0`, `spam`, `trash` nie |
+| Permalink Produkt + `#comment-{ID}` | `source_url` | Link „im Shop ansehen“ |
+| Anhänge/Bilder (Plugin-spezifisch) | – | nicht unterstützt |
 
-Duplikate werden erkannt über `provider` + `external_id` bzw. – ohne ID – über Name + Datum + Text innerhalb der Datei.
+- Abfrage über `get_comments()` mit `type => 'review'`, `status => 'approve'`, paginiert, per Transient/Objekt-Cache zwischengespeichert, invalidiert bei `comment_post`/`edit_comment`/`wp_set_comment_status`.
+- Moderation bleibt in Woo (Produkte › Bewertungen); Review Captain zeigt dafür einen Link statt eigener Aktionen.
+- HPOS ist nicht betroffen (Reviews sind Kommentare, keine Bestelldaten).
 
-## Aus WooCommerce-Produktbewertungen
+## 2. Andere lokale Review-Systeme
 
-Nur sinnvoll, wenn Woo-Bewertungen zusätzlich in Review-Captain-Widgets erscheinen sollen. Export z. B. per WP-CLI:
+Kein spezifischer Importer in 1.0. Weg: Export aus dem Fremdsystem → Umwandlung in das CSV-Format aus §3 → Import mit Prüflauf. Für häufige Fremdformate können später Vorlagen/Mapping-Profile folgen (OFFEN, nach Pilotbedarf).
 
-```bash
-wp comment list --type=review --status=approve --fields=comment_ID,comment_post_ID,comment_author,comment_date_gmt,comment_content --format=csv > woo-reviews.csv
-```
+## 3. CSV-Format des Core-Imports
 
-Mapping: `comment_ID` → `external_id` (Präfix `woo-` empfehlen), `comment_post_ID` → `context_id` mit `context_type=product`, `comment_author` → `author_name`, `comment_date_gmt` → `published_at`, `comment_content` → `content`, Bewertung aus Kommentar-Meta `rating` → `rating_value`. `provider` = `site`, `type` = `product`.
+### Datei
 
-**Grenzen:** Der Status „verifizierter Käufer“ wird nicht übernommen. Bilder in Bewertungen werden nicht importiert. Die Original-Woo-Bewertungen bleiben bestehen; um doppelte Anzeige zu vermeiden, Woo-Bewertungs-Tab oder Review-Captain-Widget auf der Produktseite wählen.
+- UTF-8 (BOM erlaubt und wird entfernt), Trennzeichen `,` (Semikolon wird automatisch erkannt, wenn die Kopfzeile damit getrennt ist), Feldbegrenzer `"`, Zeilenende LF oder CRLF.
+- Erste Zeile = Kopfzeile mit exakt den Spaltennamen unten (Reihenfolge beliebig, unbekannte Spalten → Warnung, ignoriert).
+- Grenzen (Vorschlag): max. 5 MB und 10 000 Datenzeilen je Datei; Verarbeitung in Jobs zu je 200 Zeilen innerhalb `advanced.job_time_budget`.
+- Upload nur mit `review_captain_moderate` **und** `review_captain_manage_privacy` (Vorschlag, da personenbezogene Massendaten) + Nonce; Datei wird nach Abschluss/Abbruch gelöscht.
 
-## Aus anderen lokalen Review-Plugins
+### Spalten
 
-Die meisten lokalen Review-Plugins speichern Bewertungen als eigenen Beitragstyp oder als Kommentare und bieten einen CSV-Export. Typisches Mapping:
+| Spalte | Pflicht | Format / erlaubte Werte | Regel |
+|---|---|---|---|
+| `kind` | ja | `review` \| `testimonial` | |
+| `platform` | ja | `local` \| `google` \| `trustpilot` \| `trusted_shops` \| `app_store` \| `google_play` \| `other` | `testimonial` nur mit `local` |
+| `external_id` | bei `platform ≠ local` empfohlen | max. 191 Zeichen | Dedupe-Schlüssel (siehe unten) |
+| `rating_value` | bei `kind=review` ja | Dezimal mit `.` oder `,` | `rating_scale_min (1) ≤ Wert ≤ rating_scale_max` |
+| `rating_scale_max` | nein | Dezimal, Default `5` | > 1 |
+| `title` | nein | max. 255 | Text, HTML wird entfernt |
+| `body` | ja | Text | HTML wird entfernt (`wp_strip_all_tags`), Zeilenumbrüche bleiben |
+| `language` | nein | BCP-47/Locale, max. 20 (`de`, `de_DE`) | |
+| `author_name` | ja | max. 191 | |
+| `published_at` | ja | ISO 8601 (`2026-11-14` oder `2026-11-14T10:00:00+01:00`) | ohne Zone = Website-Zeitzone; in UTC gespeichert; nicht in der Zukunft |
+| `source_url` | bei `platform ≠ local` ja | `https://…` | Pflicht-Quellenlink für externe Reviews |
+| `verification` | nein | `unverified` \| `external_platform` | Default: `local` → `unverified`, extern → `external_platform`. `purchase_verified`/`attendance_confirmed` sind **nicht** importierbar (nur Quellenvertrag darf verifizieren) |
+| `status` | nein | `pending` \| `approved` \| `rejected` \| `archived` | Default `pending`; `flagged`/`removed` nicht importierbar |
+| `context_type` | nein | `post` \| `product` \| `event` \| `voucher` \| `app` \| `form` | |
+| `context_id` | mit `context_type` | max. 64 | Existenz wird bei `post`/`product` geprüft (Warnung, kein Fehler) |
 
-| Quellfeld (typisch) | Review-Captain-Spalte | Hinweis |
-|---|---|---|
-| Bewertung/Rating (1–5) | `rating_value` | andere Skalen über `rating_max` angeben |
-| Titel | `title` | |
-| Inhalt/Text | `content` | HTML wird entfernt |
-| Name des Autors | `author_name` | E-Mail-Adressen **nicht** importieren |
-| Datum | `published_at` | |
-| zugeordnete Seite/Produkt | `context_type` + `context_id` | |
-| Status freigegeben | `status=approved` | sonst Moderationsqueue |
-| Plattform (bei aggregierten Reviews) | `provider`, `source_url`, `attribution` | ohne Link kein Import externer Reviews |
+Bewusst **keine** Spalte für `author_email`, Avatar, Anhänge oder Antworten: keine Kontaktdaten per Massenimport, keine Medien in 1.0.
+Gespeichert wird `origin = csv_import`, `import_batch_id`, `consent_publish = 0` (Hinweis im Prüflauf: „Für importierte Reviews liegt keine im Plugin dokumentierte Einwilligung vor“).
 
-**Grenzen:** Antworten des Betreibers, Upvotes, benutzerdefinierte Felder, Anhänge/Bilder und Verifizierungs-Flags werden nicht übernommen. E-Mail-Adressen der Autoren werden bewusst nicht importiert (Datenminimierung); Datenschutzauskünfte für importierte Bewertungen sind daher nur über den Namen manuell möglich.
+### Prüflauf (Dry-run)
 
-## Nach dem Import
+Pflichtschritt vor jedem Import. Ergebnis je Zeile: `ok` · `Warnung` · `Fehler` · `vermutetes Duplikat`.
 
-1. Reviews → Filter „Import“ bzw. Batch-Link prüfen.
-2. Widgets anlegen und Darstellung prüfen.
-3. Altes Plugin deaktivieren, sobald die Anzeige stimmt; Daten des alten Plugins erst nach Ablauf der Rückgängig-Frist löschen.
+- **Duplikat sicher:** gleicher `dedupe_key` = `sha1(platform|profile_id|external_id)` (CSV: `profile_id` leer) existiert → Zeile wird übersprungen (keine Aktualisierung in 1.0).
+- **Duplikat vermutet** (ohne `external_id`): gleicher `platform` + `author_name` + `published_at` (Tag) + Hash der ersten 200 Zeichen `body` → Standard „überspringen“, pro Zeile umschaltbar.
+- Ausgabe: Zusammenfassung + herunterladbare Fehlerliste (CSV mit Zeilennummer und Grund, mit Formel-Injection-Schutz).
+
+### Rollback per `import_batch`
+
+- Jeder Import erzeugt einen `import_batches`-Eintrag (Dateiname gekürzt, Zeilenzahlen, Nutzer, Zeit, Status `dry_run|running|completed|rolled_back|failed`).
+- „Import rückgängig machen“ (Reviews › Importe) löscht alle Reviews mit dieser `import_batch_id` samt `review_events`.
+- Reviews, die seit dem Import moderiert/bearbeitet wurden, werden vorher aufgelistet und benötigen eine zusätzliche Bestätigung; Widgets mit handverlesener Auswahl verlieren diese Einträge (Hinweis).
+- Rollback ist ein Job (zeitbudgetiert), idempotent, und erzeugt Audit-Einträge `import.completed` / `import.rolled_back`.
+- Abgebrochener Import (`failed`) kann fortgesetzt oder vollständig zurückgerollt werden.
+
+## 4. Grenzen
+
+- Keine Übernahme von Anhängen, Bildern, Videos, Antworten, Hilfreich-Stimmen.
+- Keine Übernahme von Kauf-/Teilnahmeverifizierung aus CSV.
+- Keine Aktualisierung bestehender Reviews per CSV (nur Neuanlage) in 1.0.
+- Importierte externe Reviews sind **manuelle Auszüge**: sie werden nicht automatisch aktualisiert und unterliegen nicht `retention_external_days` (gilt nur für `provider_sync`/`connector`); Plattformbedingungen zur Weiterverwendung von Texten muss der Betreiber selbst prüfen.
+- Kein Schema-Markup für importierte externe Reviews.
+- Export (RC-044) nutzt dieselben Spaltennamen plus `uuid`, `origin`, `created_at`; Zellen, die mit `= + - @ Tab CR` beginnen, werden mit `'` präfixiert.
+
+## Abnahme
+
+Entspricht RC-046, wenn:
+
+- [ ] das Feldmapping WooCommerce → Anzeige, die Statusübernahme (nur freigegebene), die Behandlung von Anhängen (nicht unterstützt) und die Grenzen dokumentiert sind;
+- [ ] feststeht, dass nichts in Woo dupliziert und keine Woo-Sterne verändert werden (Test zu RC-042);
+- [ ] das CSV-Format mit allen Spalten, Pflichtfeldern, Validierung, Dedupe-Regel und Rollback per `import_batch` beschrieben und mit der Implementierung von RC-045 abgeglichen ist;
+- [ ] die offene Entscheidung „echter Woo-Umzug ja/nein“ getroffen ist.

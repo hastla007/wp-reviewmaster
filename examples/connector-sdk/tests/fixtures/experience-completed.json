@@ -1,0 +1,13 @@
+{
+  "contract": "1.0",
+  "event_id": "my-connector-1001-attended",
+  "event_type": "experience_completed",
+  "experience_id": "my-connector:1001",
+  "occurred_at": "2026-11-15T10:00:00Z",
+  "object_type": "course",
+  "object_id": "C-1",
+  "recipient_ref": "my-connector:customer:42",
+  "locale": "de_DE",
+  "communication_allowed": true,
+  "consent": { "status": "granted", "source": "checkout_optin", "at": "2026-11-01T09:00:00Z" }
+}

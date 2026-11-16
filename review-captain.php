@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Review Captain
  * Plugin URI:        https://github.com/hastla007/wp-reviewmaster
- * Description:       Collect, moderate and display authentic reviews with clear source attribution – local reviews, curated platform reviews and testimonials.
- * Version:           0.1.0
+ * Description:       Authentische, sauber attribuierte Kundenbewertungen und Testimonials in WordPress verwalten und anzeigen – ohne Scraping und ohne Lizenzpflicht.
+ * Version:           0.1.0-dev
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            Captain Suite
@@ -17,40 +17,43 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'REVIEW_CAPTAIN_VERSION', '0.1.0' );
-define( 'REVIEW_CAPTAIN_DB_VERSION', 1 );
-define( 'REVIEW_CAPTAIN_MIN_PHP', '8.1' );
-define( 'REVIEW_CAPTAIN_MIN_WP', '6.5' );
+define( 'REVIEW_CAPTAIN_VERSION', '0.1.0-dev' );
 define( 'REVIEW_CAPTAIN_FILE', __FILE__ );
 define( 'REVIEW_CAPTAIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'REVIEW_CAPTAIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'REVIEW_CAPTAIN_MIN_PHP', '8.1' );
+define( 'REVIEW_CAPTAIN_MIN_WP', '6.5' );
 
 /*
- * Requirement check without any PHP 8 syntax so that old PHP versions get a
- * readable notice instead of a parse error.
+ * Mindestversion prüfen, bevor PHP-8.1-Syntax geladen wird.
  */
 if ( version_compare( PHP_VERSION, REVIEW_CAPTAIN_MIN_PHP, '<' ) || version_compare( get_bloginfo( 'version' ), REVIEW_CAPTAIN_MIN_WP, '<' ) ) {
 	add_action(
 		'admin_notices',
-		function () {
-			echo '<div class="notice notice-error"><p>';
+		static function () {
+			if ( ! current_user_can( 'activate_plugins' ) ) {
+				return;
+			}
 			printf(
-				/* translators: 1: required PHP version, 2: required WordPress version */
-				esc_html__( 'Review Captain requires PHP %1$s and WordPress %2$s or newer. The plugin is not running.', 'review-captain' ),
-				esc_html( REVIEW_CAPTAIN_MIN_PHP ),
-				esc_html( REVIEW_CAPTAIN_MIN_WP )
+				'<div class="notice notice-error"><p>%s</p></div>',
+				esc_html(
+					sprintf(
+						/* translators: 1: required PHP version, 2: required WordPress version */
+						__( 'Review Captain benötigt mindestens PHP %1$s und WordPress %2$s. Das Plugin ist deshalb inaktiv.', 'review-captain' ),
+						REVIEW_CAPTAIN_MIN_PHP,
+						REVIEW_CAPTAIN_MIN_WP
+					)
+				)
 			);
-			echo '</p></div>';
 		}
 	);
 	return;
 }
 
 require_once REVIEW_CAPTAIN_DIR . 'src/Autoloader.php';
-\ReviewCaptain\Autoloader::register();
-require_once REVIEW_CAPTAIN_DIR . 'src/Api/functions.php';
+\ReviewCaptain\Autoloader::register( REVIEW_CAPTAIN_DIR . 'src/' );
 
-register_activation_hook( __FILE__, array( \ReviewCaptain\Install\Activator::class, 'activate' ) );
-register_deactivation_hook( __FILE__, array( \ReviewCaptain\Install\Deactivator::class, 'deactivate' ) );
+register_activation_hook( __FILE__, array( \ReviewCaptain\Install\Installer::class, 'activate' ) );
+register_deactivation_hook( __FILE__, array( \ReviewCaptain\Install\Installer::class, 'deactivate' ) );
 
-add_action( 'plugins_loaded', array( \ReviewCaptain\Plugin::class, 'boot' ) );
+add_action( 'plugins_loaded', array( \ReviewCaptain\Plugin::class, 'boot' ), 5 );

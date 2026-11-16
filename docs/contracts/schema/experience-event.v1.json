@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://review-captain.invalid/schema/experience-event.v1.json",
+  "title": "Review Captain – Experience-Ereignis v1",
+  "description": "Payload für review_captain_experience_event_v1 / review_captain_submit_experience_event_v1(). Semantische Regeln (Owner-Präfix, occurred_at nicht in der Zukunft, PII-Prüfung) siehe experience-event-v1.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "contract", "source", "event_id", "experience_id", "event_type",
+    "occurred_at", "object_ref", "recipient_ref", "locale", "send_permission", "idempotency_key"
+  ],
+  "properties": {
+    "schema": { "const": "review_captain.experience_event.v1" },
+    "contract": { "type": "string", "pattern": "^1\\.(0|[1-9][0-9]*)$" },
+    "source": { "$ref": "#/$defs/source_key" },
+    "event_id": { "$ref": "#/$defs/uuid_v4" },
+    "experience_id": { "type": "string", "minLength": 3, "maxLength": 191, "pattern": "^[a-z0-9][a-z0-9_.-]{1,63}:[^\\s@|]+$" },
+    "event_type": {
+      "enum": [
+        "experience_created", "experience_completed", "experience_updated",
+        "experience_cancelled", "experience_refunded", "experience_no_show",
+        "experience_voided", "permission_changed"
+      ]
+    },
+    "occurred_at": { "type": "string", "format": "date-time", "pattern": "Z$" },
+    "object_ref": { "$ref": "#/$defs/object_ref" },
+    "recipient_ref": {
+      "type": ["string", "null"],
+      "minLength": 3,
+      "maxLength": 191,
+      "pattern": "^[a-z0-9][a-z0-9_.-]{1,63}:[a-z0-9_]{1,40}:[^\\s@|]{1,128}$"
+    },
+    "locale": { "type": ["string", "null"], "maxLength": 20, "pattern": "^[a-z]{2,3}([-_][A-Za-z0-9]{2,8})*$" },
+    "send_permission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "channel"],
+      "properties": {
+        "status": { "enum": ["granted", "denied", "revoked", "unknown"] },
+        "channel": { "const": "email" },
+        "basis": { "enum": ["consent", "legitimate_interest", "contract", "other", null] },
+        "recorded_at": { "type": ["string", "null"], "format": "date-time" },
+        "origin": { "type": ["string", "null"], "maxLength": 64 },
+        "evidence_ref": { "type": ["string", "null"], "maxLength": 191 }
+      }
+    },
+    "idempotency_key": { "type": "string", "minLength": 3, "maxLength": 191, "pattern": "^[^\\s@|]+$" },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "campaign_ref": { "type": "string", "maxLength": 64 },
+        "affiliate_ref": { "type": "string", "maxLength": 64 },
+        "items": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/object_ref" } },
+        "trigger_detail": { "type": "string", "maxLength": 40, "pattern": "^[a-z0-9_]+$" }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plugin": { "type": "string", "maxLength": 64 },
+        "version": { "type": "string", "maxLength": 32 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "event_type": { "enum": ["experience_created", "experience_completed", "experience_updated", "permission_changed"] } } },
+      "then": { "properties": { "recipient_ref": { "type": "string" } } }
+    }
+  ],
+  "$defs": {
+    "source_key": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]{1,63}$" },
+    "uuid_v4": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" },
+    "object_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1, "maxLength": 40, "pattern": "^[a-z0-9_]+$" },
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "context_type": { "enum": ["post", "product", "event", "voucher", "app", "form", null] }
+      }
+    }
+  }
+}

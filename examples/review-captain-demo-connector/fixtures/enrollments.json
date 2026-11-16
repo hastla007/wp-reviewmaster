@@ -1,0 +1,8 @@
+{
+  "courses": [
+    { "id": "C-101", "title": "Einführungskurs Segeln", "public": true, "url": "https://example.test/kurse/segeln" }
+  ],
+  "enrollments": [
+    { "id": 1, "course_id": "C-101", "participant_ref": "p-7f3a", "status": "attended", "attended_ts": 1794816000, "locale": "de_DE", "review_mail_opt_in": true }
+  ]
+}
