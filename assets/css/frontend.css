@@ -71,3 +71,6 @@
 :where(.rc-embed-placeholder) img { max-width: 100%; height: auto; border-radius: 6px; }
 :where(.rc-embed-note) { font-size: .8em; color: var(--rc-text-muted); }
 :where(.rc-embed) { width: 100%; aspect-ratio: 16 / 9; border: 0; }
+/* Buttons need real specificity: theme link colors must not reduce contrast. */
+.rc-btn, a.rc-btn, a.rc-btn:visited { color: #fff; text-decoration: none; }
+a.rc-btn:hover, a.rc-btn:focus { color: #fff; text-decoration: underline; }

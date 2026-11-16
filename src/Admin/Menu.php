@@ -48,7 +48,16 @@ final class Menu {
 		add_submenu_page( self::SLUG, __( 'Settings', 'review-captain' ), __( 'Settings', 'review-captain' ), 'rc_manage_settings', 'review-captain-settings', array( SettingsPage::class, 'render' ) );
 		add_submenu_page( self::SLUG, __( 'Diagnostics', 'review-captain' ), __( 'Diagnostics', 'review-captain' ), 'rc_view_reports', 'review-captain-diagnostics', array( DiagnosticsPage::class, 'render' ) );
 		// Setup wizard without menu entry.
-		add_submenu_page( '', __( 'Setup', 'review-captain' ), __( 'Setup', 'review-captain' ), 'rc_manage_settings', 'review-captain-setup', array( SetupWizard::class, 'render' ) );
+		$setup_hook = add_submenu_page( '', __( 'Setup', 'review-captain' ), __( 'Setup', 'review-captain' ), 'rc_manage_settings', 'review-captain-setup', array( SetupWizard::class, 'render' ) );
+		if ( $setup_hook ) {
+			// Hidden pages have no menu title; set it so the admin header gets a proper <title>.
+			add_action(
+				'load-' . $setup_hook,
+				static function () {
+					$GLOBALS['title'] = __( 'Set up Review Captain', 'review-captain' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				}
+			);
+		}
 	}
 
 	public static function setup_redirect(): void {

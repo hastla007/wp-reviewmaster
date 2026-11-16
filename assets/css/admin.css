@@ -31,3 +31,6 @@
 .rc-step--current a { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; }
 .rc-preview { background: #fff; border: 1px solid #c3c4c7; padding: 16px; }
 .rc-diag th { width: 220px; }
+.rc-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.rc-stars { color: #b26200; letter-spacing: 1px; white-space: nowrap; }
+.rc-stars__off { color: #c3c4c7; }
