@@ -74,7 +74,11 @@ final class ErrorCode {
 	 * @return list<string>
 	 */
 	public static function all(): array {
-		return array_values( ( new \ReflectionClass( self::class ) )->getConstants() );
+		$codes = array_filter(
+			( new \ReflectionClass( self::class ) )->getConstants(),
+			static fn( $value ) => is_string( $value ) && str_starts_with( $value, 'rc.' )
+		);
+		return array_values( $codes );
 	}
 
 	/**

@@ -11,7 +11,7 @@
 
 - Codes sind **stabile öffentliche Werte** (Hooks, Diagnoseexport, `jobs.last_error_code`, `requests.status_code`). Umbenennen nur per ADR mit Alias-Frist.
 - Ein Code hat genau **eine** Retry-Klasse. Unbekannte Codes: `retry_class()` liefert `transient`; `ConnectorException::error_code()` und die Jobauswertung normalisieren auf `rc.temp.unavailable`, `ProviderException`/`ProviderResult::error()` auf `rc.perm.failed`. Der Originalcode bleibt über `raw_error_code()` für die Diagnose erhalten.
-- Hinweis zur Implementierung: `ErrorCode::all()` liefert per Reflection **alle** Klassenkonstanten, also auch die Klassennamen (`transient`, `rate_limit`, …); `is_known()` ist für diese Werte daher ebenfalls `true`. Praktisch unschädlich, weil Jobs zusätzlich das Muster `rc.<bereich>.<code>` prüfen.
+- Hinweis zur Implementierung: `ErrorCode::all()` und `is_known()` berücksichtigen nur Werte im Format `rc.<bereich>.<code>`; die Klassennamen (`transient`, `rate_limit`, …) sind keine Fehlercodes.
 - `last_error_message` ist sanitisiert, max. 500 Zeichen, ohne Tokens, Header, Reviewtexte, E-Mail-Adressen.
 - Admin-Texte sind übersetzbar (`review-captain`); der Code wird zusätzlich angezeigt (Support).
 

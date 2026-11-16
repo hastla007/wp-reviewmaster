@@ -27,10 +27,10 @@ Code-Regel: Keine Verwendung von `$wpdb->base_prefix`, `get_site_option()`/`upda
 | Fall | Verhalten |
 |---|---|
 | Einzelsite-Aktivierung in Multisite | Installation nur für diese Site |
-| Netzwerkaktivierung | keine synchrone Schleife über alle Sites (Timeout-Gefahr). Jede Site installiert beim ersten `admin_init` (Versionsvergleich) bzw. über `wp review-captain db migrate --network`. Bis zur Installation ist die Site für Review Captain inaktiv (Shortcodes rendern leer, kein Fehler). |
+| Netzwerkaktivierung | keine synchrone Schleife über alle Sites (Timeout-Gefahr). Jede Site installiert beim ersten `admin_init` (Versionsvergleich) bzw. über `wp review-captain schema upgrade --url=<site>` (Ausblick, nicht in v1: Option `--network`). Bis zur Installation ist die Site für Review Captain inaktiv (Shortcodes rendern leer, kein Fehler). |
 | Neue Site bei netzwerkaktivem Plugin | Hook `wp_initialize_site` (Priorität > 10): Tabellen, Optionen, Capabilities, Cron-Event anlegen |
 | Site gelöscht | Filter `wpmu_drop_tables` ergänzt die sechs Tabellen; Cron-Events verschwinden mit der Options-Tabelle |
-| Site archiviert/deaktiviert/als Spam markiert | WordPress führt dort keinen Cron aus; `jobs run --network` überspringt Sites mit `archived`, `deleted`, `spam` |
+| Site archiviert/deaktiviert/als Spam markiert | WordPress führt dort keinen Cron aus; Ausblick (nicht in v1): `jobs run --network` überspringt Sites mit `archived`, `deleted`, `spam` |
 
 ## 3. Deaktivierung und Reaktivierung
 

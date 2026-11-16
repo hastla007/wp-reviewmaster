@@ -29,6 +29,8 @@ jobs:
         run: composer lint
       - name: Plugin metadata
         run: php bin/check-plugin-meta.php
+      - name: Hook reference up to date
+        run: php bin/list-hooks.php --check
       - name: Unit tests
         run: vendor/bin/phpunit
 
