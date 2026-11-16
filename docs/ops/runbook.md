@@ -1,6 +1,6 @@
 # Betriebs- und Incident-Runbook (OPS-004)
 
-Status: Entwurf, Stand 2026-11-16. Zuständigkeiten/Kontakte: **OFFEN** (OPS-003, OPS-009). Platzhalter: `{Incident-Lead}`, `{Security-Kontakt}`, `{Support}`.
+Status: Entwurf, Stand 2026-11-16. Zuständigkeiten/Kontakte: **OFFEN** (OPS-009); Supportwege: [support-process.md](support-process.md). Platzhalter: `{Incident-Lead}`, `{Security-Kontakt}`, `{Support}`.
 
 ## 0. Allgemeiner Ablauf
 
