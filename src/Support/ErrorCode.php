@@ -41,6 +41,7 @@ final class ErrorCode {
 	public const CLASS_AUTH       = 'auth';
 	public const CLASS_PERMANENT  = 'permanent';
 	public const CLASS_DATA       = 'data';
+	public const CLASS_CONFIG     = 'config';
 
 	/**
 	 * Retry class for a code. Unknown codes are treated as transient.
@@ -52,7 +53,8 @@ final class ErrorCode {
 			self::AUTH_INVALID, self::AUTH_EXPIRED, self::AUTH_REVOKED, self::PERMISSION_DENIED, self::CRYPTO_KEY_MISSING, self::CRYPTO_DECRYPT_FAILED => self::CLASS_AUTH,
 			self::QUOTA_EXCEEDED, self::RATE_LIMITED, self::BUDGET_EXHAUSTED => self::CLASS_RATE_LIMIT,
 			self::DATA_INVALID_PAYLOAD, self::DATA_DUPLICATE, self::CONSENT_MISSING => self::CLASS_DATA,
-			self::CONTRACT_INCOMPATIBLE, self::CONTRACT_INVALID, self::REMOTE_REMOVED, self::PERMANENT_FAILURE => self::CLASS_PERMANENT,
+			self::CONTRACT_INCOMPATIBLE, self::SOURCE_UNAVAILABLE => self::CLASS_CONFIG,
+			self::CONTRACT_INVALID, self::REMOTE_REMOVED, self::PERMANENT_FAILURE => self::CLASS_PERMANENT,
 			default => self::CLASS_TRANSIENT,
 		};
 	}
@@ -84,6 +86,7 @@ final class ErrorCode {
 		return match ( self::retry_class( $code ) ) {
 			self::CLASS_AUTH       => __( 'Verbindung neu autorisieren bzw. Schlüssel prüfen.', 'review-captain' ),
 			self::CLASS_RATE_LIMIT => __( 'Keine Aktion nötig – automatischer Neuversuch nach Ablauf des Limits.', 'review-captain' ),
+			self::CLASS_CONFIG     => __( 'Quell-Plugin bzw. Connector prüfen (aktiv, kompatible Vertragsversion); der Vorgang wird danach automatisch fortgesetzt.', 'review-captain' ),
 			self::CLASS_DATA       => __( 'Eingangsdaten bzw. Mapping prüfen; der Vorgang wird nicht wiederholt.', 'review-captain' ),
 			self::CLASS_PERMANENT  => __( 'Vorgang ist endgültig fehlgeschlagen; Konfiguration oder Vertrag prüfen.', 'review-captain' ),
 			default                => __( 'Keine Aktion nötig – automatischer Neuversuch mit Wartezeit.', 'review-captain' ),

@@ -53,7 +53,7 @@
 | `rc.perm.failed` | endgültiger, nicht näher klassifizierter Fehler (Fallback) | permanent | Diagnose exportieren, Support |
 | `rc.lock.busy` | Sperre/Lease von anderem Worker gehalten (paralleler Sync/Versand) | transient | keine |
 | **Verträge** | | | |
-| `rc.contract.incompatible` | unbekannte Major-Version eines Providers/Connectors/Ereignisses | permanent | Plugin aktualisieren; Status `incompatible_contract` |
+| `rc.contract.incompatible` | unbekannte Major-Version eines Providers/Connectors/Ereignisses | config (paused) | Plugin aktualisieren; Status `incompatible_contract` |
 | `rc.contract.invalid_metadata` | Pflichtmetadaten fehlen/ungültig (Key, Plattform, Version) | permanent | Entwickler des Add-ons informieren |
 | `rc.contract.invalid_capabilities` | Capability-Deklaration ungültig (z. B. `write_features` in v1) | permanent | Add-on aktualisieren |
 | `rc.contract.duplicate_key` | Schlüssel bereits registriert | permanent | doppeltes Add-on deaktivieren |
@@ -64,7 +64,7 @@
 | `rc.data.pii_forbidden` | Kontaktdaten/Text in Feld ohne entsprechende Fähigkeit | data | Quell-Add-on korrigieren |
 | `rc.data.too_large` | Größenlimit überschritten | data | Quell-Add-on korrigieren |
 | **Quellen / Ereignisse** | | | |
-| `rc.source.unavailable` | Quell-Plugin deaktiviert/entfernt oder Resolver nicht erreichbar | transient | Quell-Plugin aktivieren; wartende Anfragen bleiben pausiert |
+| `rc.source.unavailable` | Quell-Plugin deaktiviert/entfernt oder Resolver nicht erreichbar | config (paused) | Quell-Plugin aktivieren; wartende Anfragen bleiben pausiert |
 | `rc.source.disabled` | Adapter in Review Captain ausgeschaltet | permanent | Adapter unter „Integrationen“ aktivieren |
 | `rc.source.not_owner` | `experience_id` gehört nicht zur meldenden Quelle | data | Quell-Add-on korrigieren |
 | `rc.event.duplicate` | Ereignis bereits verarbeitet (Info, kein Fehler) | permanent | keine |

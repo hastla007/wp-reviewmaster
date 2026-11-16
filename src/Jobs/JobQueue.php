@@ -372,6 +372,7 @@ class JobQueue {
 				$fields['available_at'] = $this->now( $delay );
 				break;
 			case ErrorCode::CLASS_AUTH:
+			case ErrorCode::CLASS_CONFIG:
 				$fields['status'] = self::STATUS_PAUSED;
 				break;
 			case ErrorCode::CLASS_PERMANENT:

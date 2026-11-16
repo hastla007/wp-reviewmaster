@@ -45,6 +45,10 @@ final class Installer {
 	public static function deactivate(): void {
 		wp_clear_scheduled_hook( 'review_captain_run_jobs' );
 		wp_clear_scheduled_hook( 'review_captain_daily_maintenance' );
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			as_unschedule_all_actions( 'review_captain_run_jobs', array(), 'review-captain' );
+			as_unschedule_all_actions( 'review_captain_daily_maintenance', array(), 'review-captain' );
+		}
 	}
 
 	/**
