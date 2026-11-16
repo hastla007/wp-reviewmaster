@@ -1,6 +1,6 @@
 # Entscheidungsvorlage: Page-Builder-Unterstützung in 1.0 (RC-119)
 
-Status: **Vorschlag – nicht entschieden**, Stand 2026-11-16. Entscheidung durch: Produkt (OFFEN). Bei Annahme ggf. als ADR unter `docs/adr/` übernehmen.
+Status: **Entschieden** (Inhaberin, 16.11.2026). Entscheidung durch: Produkt (OFFEN). Bei Annahme ggf. als ADR unter `docs/adr/` übernehmen.
 
 ## Frage
 
@@ -40,3 +40,7 @@ Sollen Review Captain Core/Pro 1.0 native Module für Page Builder (z. B. Elemen
 ## Abnahme
 
 Die Vorlage gilt als entschieden, wenn Produkt Vorschlag oder Alternative gewählt, die Liste der geprüften Builder festgelegt und RC-119 im TODO entsprechend aktualisiert hat.
+
+## Entscheidung der Inhaberin (16.11.2026)
+
+Abweichend vom Vorschlag: **natives Elementor-Widget bereits in 1.0** (neue Aufgabe **RC-119A**). Alle anderen Builder (Divi, Beaver Builder, Bricks, WPBakery) bleiben in 1.0 beim Shortcode-Fallback. Das Elementor-Widget ist eine dünne Hülle um den versionierten Shortcode-/Widget-Vertrag (`widget-v1`, SSR), lädt nur bei aktivem Elementor und kein eigenes Frontend-JS.

@@ -1,6 +1,6 @@
 # ADR-0008: Plattformzugänge im MVP über Betreiber-Credentials, Captain-OAuth-App später
 
-- **Status:** Vorgeschlagen
+- **Status:** **Abgelehnt zugunsten einer Captain-OAuth-App in 1.0** (Entscheidung der Inhaberin am 16.11.2026)
 - **Datum:** 2026-11-16
 - **Autor:in / Entscheider:** Claude (Vorschlag) / Produkt + Core-Maintainer (Entscheidung offen)
 - **Betrifft:** RC-026, RC-065, RC-070, RC-074, RC-078, RC-080; [provider-auth.md](../architecture/provider-auth.md) §8, [secrets.md](../architecture/secrets.md)
@@ -37,3 +37,11 @@ Option 3: Im MVP gelten **ausschließlich Betreiber-Credentials** für alle fün
 
 - [provider-auth.md](../architecture/provider-auth.md) §8; Konzept §7.9 „Authentifizierung und Eigentümerschaft der Verbindungen“
 - captain-pro `addons/review-captain-pro/src/Platforms/Auth/`
+
+## Entscheidung der Inhaberin (16.11.2026)
+
+Der Vorschlag (nur Betreiber-Credentials im MVP) wird **nicht** angenommen. Für **Google Business Profile** gibt es bereits in 1.0 eine **Captain-OAuth-App** („Verbinden“-Knopf ohne eigene Google-Cloud-Einrichtung beim Kunden). Für die übrigen Anbieter (App Store Connect, Google Play, Trustpilot, eTrusted) bleiben Betreiber-Zugänge, weil deren APIs keine Fremd-App vorsehen.
+
+Pflichtbedingungen aus diesem ADR gelten weiter und sind Release-Voraussetzung für die App (neue Aufgabe **RC-026A**): Broker ohne Token-Speicherung (Tokens nur auf der Kundenseite, verschlüsselt), signierte Site↔Broker-Kommunikation, Auftragsverarbeitungsvertrag, Kontingentkonzept, abgeschlossene Google-OAuth-Verifizierung (inkl. Prüfung sensibler Scopes), Datenschutzerklärung des Brokers. Betreiber-Credentials bleiben als Alternative verfügbar.
+
+Folgen: RC-002 (Google in 1.0 nativ) hängt zusätzlich an der Google-Verifizierung der App; Zeitplan beachten (Verifizierung kann Wochen dauern).

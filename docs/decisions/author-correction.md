@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | **Vorlage – Entscheidung des Inhabers offen** (Stand 2026-11-16) |
+| Status | **Entschieden** (Inhaberin, 16.11.2026) |
 | Art | Spezifikation, **nicht implementiert** |
 | Bezug | TODO RC-125; konzept.md §3 (Wettbewerbslücken), §7.3; [review-schema-v1.md](../contracts/review-schema-v1.md); [race-conditions.md](../contracts/race-conditions.md) R-12; [database.md](../architecture/database.md) §2.8 (`reviews.revision`) |
 | Gilt für | nur **lokale** Reviews (`platform = local`, `origin` ∈ `local_submission`, `connector`). Externe Reviews werden ausschließlich bei der Plattform geändert und per Sync übernommen. |
@@ -57,3 +57,7 @@ Freigegebene Korrektur löst `review_captain_review_status_changed_v1` **nicht**
 ## Aufwand (Schätzung)
 
 Schema v3 + Migrator, Korrekturformular + Token-Versand, Moderationsansicht mit Diff, Retention/Export/Eraser-Erweiterung, Tests (inkl. Race „Korrekturfreigabe vs. Sync/Moderation“): ca. 6–8 Personentage.
+
+## Entscheidung der Inhaberin (16.11.2026)
+
+**Umsetzung in 1.0** (neue Aufgabe **RC-125A**) nach diesem Vorschlag: Identitätsprüfung per Einmal-Link (Weg B) und für angemeldete Nutzer (Weg A), Versionierung in `review_revisions` (Schema v4), Korrektur nie automatisch veröffentlicht, „bearbeitet am …“ sichtbar, Rücknahme sofort wirksam, Audit ohne Texte.

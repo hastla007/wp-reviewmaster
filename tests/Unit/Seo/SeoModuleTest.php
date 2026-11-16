@@ -94,7 +94,7 @@ final class SeoModuleTest extends FrontendTestCase {
 		$this->seo->set_environment( SeoEnvironment::from_state( array( 'foreign' => array( 'Rank Math' ) ) ) );
 		$this->assertSame( '', $this->seo->fallback_schema() );
 
-		$this->seo->set_environment( SeoEnvironment::from_state( array( 'yoast_version' => '24.0' ) ) );
+		$this->seo->set_environment( SeoEnvironment::from_state( array( 'yoast_version' => '26.0' ) ) );
 		$this->assertSame( '', $this->seo->fallback_schema(), 'with Yoast no own JSON-LD' );
 
 		$this->seo->set_environment( SeoEnvironment::from_state( array( 'yoast_version' => '12.0' ) ) );
@@ -134,7 +134,7 @@ final class SeoModuleTest extends FrontendTestCase {
 	}
 
 	public function test_yoast_graph_array_integration(): void {
-		$this->seo->set_environment( SeoEnvironment::from_state( array( 'yoast_version' => '24.0' ) ) );
+		$this->seo->set_environment( SeoEnvironment::from_state( array( 'yoast_version' => '26.0' ) ) );
 		$r = $this->review( array( 'context_type' => 'product', 'context_id' => '10' ) );
 		$this->review( array( 'platform' => Platform::GOOGLE, 'context_type' => 'product', 'context_id' => '10' ) );
 		$this->seo->prime_from_main_content( "<!-- wp:paragraph --><p>x</p><!-- /wp:paragraph -->\n<!-- wp:review-captain/reviews {\"limit\":5} /-->" );
@@ -207,16 +207,16 @@ final class SeoModuleTest extends FrontendTestCase {
 		}
 		$this->assertStringContainsString( 'Fallback', $report[1]['message'] );
 
-		$yoast = SeoStatus::report( SeoEnvironment::from_state( array( 'yoast_version' => '24.0', 'yoast_premium' => true ) ) );
+		$yoast = SeoStatus::report( SeoEnvironment::from_state( array( 'yoast_version' => '26.0', 'yoast_premium' => true ) ) );
 		$this->assertSame( 'ok', $yoast[0]['status'] );
-		$this->assertStringContainsString( '24.0', $yoast[0]['message'] );
+		$this->assertStringContainsString( '26.0', $yoast[0]['message'] );
 		$this->assertSame( 'ok', $yoast[1]['status'] );
 
 		$old = SeoStatus::report( SeoEnvironment::from_state( array( 'yoast_version' => '13.0' ) ) );
 		$this->assertSame( 'warn', $old[0]['status'] );
 		$this->assertSame( 'warn', $old[1]['status'] );
 
-		$conflict = SeoStatus::report( SeoEnvironment::from_state( array( 'yoast_version' => '24.0', 'foreign' => array( 'Rank Math' ) ) ) );
+		$conflict = SeoStatus::report( SeoEnvironment::from_state( array( 'yoast_version' => '26.0', 'foreign' => array( 'Rank Math' ) ) ) );
 		$messages = implode( ' ', array_column( $conflict, 'message' ) );
 		$this->assertStringContainsString( 'Rank Math', $messages );
 		$this->assertStringContainsString( 'Mehrere SEO-Plugins', $messages );

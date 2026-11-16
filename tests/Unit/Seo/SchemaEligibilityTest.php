@@ -54,7 +54,7 @@ final class SchemaEligibilityTest extends TestCase {
 		$r->rating_value = null;
 		$this->assertTrue( SchemaEligibility::is_eligible( $r, $this->ctx() ) );
 		// Compatible Yoast.
-		$this->assertTrue( SchemaEligibility::is_eligible( $this->eligible_review(), $this->ctx( array( 'yoast_version' => '24.1' ) ) ) );
+		$this->assertTrue( SchemaEligibility::is_eligible( $this->eligible_review(), $this->ctx( array( 'yoast_version' => '26.1' ) ) ) );
 	}
 
 	public function test_e1_external_platforms(): void {
@@ -115,7 +115,7 @@ final class SchemaEligibilityTest extends TestCase {
 		);
 		$this->assertSame( 'woo_product_schema', $this->reason( $r, $this->ctx( $env ) ) );
 		// Yoast WooCommerce SEO as owner as well.
-		$this->assertSame( 'woo_product_schema', $this->reason( $r, $this->ctx( $env + array( 'yoast_version' => '24.0', 'yoast_woo' => true ) ) ) );
+		$this->assertSame( 'woo_product_schema', $this->reason( $r, $this->ctx( $env + array( 'yoast_version' => '26.0', 'yoast_woo' => true ) ) ) );
 		// Non-Woo product (own product post) remains eligible.
 		$r->context_id = '11';
 		$this->assertSame( 'eligible', $this->reason( $r, $this->ctx( $env ) ) );
@@ -130,8 +130,8 @@ final class SchemaEligibilityTest extends TestCase {
 		foreach ( array( 'Rank Math', 'All in One SEO', 'SEOPress', 'Schema Pro' ) as $owner ) {
 			$this->assertSame( 'foreign_schema_owner', $this->reason( $r, $this->ctx( array( 'foreign' => array( $owner ) ) ) ), $owner );
 		}
-		$this->assertSame( 'foreign_schema_owner', $this->reason( $r, $this->ctx( array( 'yoast_version' => '24.0', 'foreign' => array( 'Schema Pro' ) ) ) ) );
-		$this->assertSame( 'yoast_incompatible', $this->reason( $r, $this->ctx( array( 'yoast_version' => '13.5' ) ) ) );
+		$this->assertSame( 'foreign_schema_owner', $this->reason( $r, $this->ctx( array( 'yoast_version' => '26.0', 'foreign' => array( 'Schema Pro' ) ) ) ) );
+		$this->assertSame( 'yoast_incompatible', $this->reason( $r, $this->ctx( array( 'yoast_version' => '24.9' ) ) ) );
 		$this->assertSame( 'yoast_incompatible', $this->reason( $r, $this->ctx( array( 'yoast_version' => 'trunk' ) ) ) );
 	}
 

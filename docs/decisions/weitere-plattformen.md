@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | **Vorlage – Entscheidung des Inhabers offen** (Stand 2026-11-16) |
+| Status | **Entschieden** (Inhaberin, 16.11.2026) |
 | Bezug | TODO RC-128; konzept.md §3 (Wettbewerbslücken), [providers/matrix.md](../providers/matrix.md), [contracts/provider-v1.md](../contracts/provider-v1.md), [ops/api-change-routine.md](../ops/api-change-routine.md) |
 | Hinweis | Alle Angaben zu Plattformen stammen aus **öffentlich zugänglichen Informationen** zum Recherchezeitpunkt und sind **ungeprüft** (keine Partnerverträge, keine Testzugänge). Vor jeder Umsetzung sind API-Bedingungen, Kosten und Nutzungsrechte bei der Plattform zu verifizieren und datiert festzuhalten. |
 
@@ -45,3 +45,7 @@ Bewertung: K1–K4 = Ausschluss bei „nein“; K5–K9 je 0–2 Punkte, Priorit
 - Wer prüft die API-Bedingungen (Name, Datum) – Voraussetzung K2/K3?
 - Wer trägt API-Kosten (K4): Kunde mit eigenem Schlüssel oder wir?
 - Reihenfolge nach Nachfrageerhebung.
+
+## Entscheidung der Inhaberin (16.11.2026)
+
+Empfehlung angenommen: keine neue Plattform für 1.x zusagen; Bedarf bei Pilotkunden erheben; ProvenExpert erster Kandidat, kununu nur Badge, Yelp/Facebook nur bei Bedarf; Pflichtkriterien K1–K4.

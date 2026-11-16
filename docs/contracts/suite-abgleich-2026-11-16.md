@@ -56,3 +56,7 @@ Folge: Ohne Angleichung greift die Dedupe-Ebene „Erlebnis“ (`experience_id` 
 - Pass: Check-in-Payload um `occurrence_id` ergänzen; Hooks für „Teilnahme bestätigt“, Eventende, No-show; Resolver unter neuem Namen (z. B. `wp_pass_captain_attendee_service_v1`); `WPCAP_CONTRACT_VERSION`; Branch `claude/sharp-mendel-xiiwf3` mergen.
 - Voucher: PR #16 mergen (1.2.0, `vcap_review_*`); stabile Einlöse-ID; Vertragskonstante.
 - Pro: Quellschlüssel auf Core-Format; Form-Entitlement-Filtername; Affiliate-Versionsangabe aktualisieren.
+
+## Entscheidung RC-022 (Inhaberin, 16.11.2026)
+
+**Es gilt das Core-Format** aus [experience-ownership.md](experience-ownership.md) (mit Site-ID). Review Captain Pro übernimmt es für Pass, Voucher und Form (Umsetzung im Pro-Repository offen).

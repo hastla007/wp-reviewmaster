@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | **Vorlage – Entscheidung des Inhabers offen** (Stand 2026-11-16) |
+| Status | **Entschieden** (Inhaberin, 16.11.2026) |
 | Bezug | TODO RC-127; konzept.md §3 (Wettbewerbslücken: Shopping-Sterne), [seo/schema-eligibility.md](../seo/schema-eligibility.md) |
 | Quellen | öffentliche Google-Hilfeseiten zum „Product Ratings“-Programm und zur „Product Reviews Feed“-Spezifikation (XML-Schema). **Alle Angaben ungeprüft gegen den aktuellen Stand** – Programmbedingungen ändern sich; vor einer Umsetzung muss die verantwortliche Person die aktuellen Seiten im Merchant Center prüfen und mit Datum dokumentieren. |
 
@@ -46,3 +46,7 @@ Soll Review Captain einen Feed lokaler Produktbewertungen für das Google Mercha
 - Pro oder eigenes Add-on? Preisstufe?
 - Pilot-Händler und verantwortliche Person für die Richtlinienprüfung.
 - Akzeptieren wir die Consent-Text-Änderung im Core-Formular (Opt-in-Checkbox „auch an Google übermitteln“)?
+
+## Entscheidung der Inhaberin (16.11.2026)
+
+Empfehlung angenommen: **nicht im Core**, später als **Pro-Funktion** nach Pilotbedarf; vor Umsetzung Google-Regeln prüfen und Einwilligungstext ergänzen.

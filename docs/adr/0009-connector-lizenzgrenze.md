@@ -1,6 +1,6 @@
 # ADR-0009: Lizenzgrenze für kundenspezifische Connectoren
 
-- **Status:** Vorgeschlagen
+- **Status:** **Angenommen** (Entscheidung der Inhaberin am 16.11.2026)
 - **Datum:** 2026-11-16
 - **Autor:in / Entscheider:** Claude (Vorschlag) / Produkt (Entscheidung offen, hängt an RC-005)
 - **Betrifft:** CON-006, RC-005; [connectors/licensing.md](../connectors/licensing.md)

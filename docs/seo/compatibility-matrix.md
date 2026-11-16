@@ -59,7 +59,7 @@ Zukünftige Integrationen mit Rank Math/AIOSEO/SEOPress-APIs sind möglich, aber
 
 | Komponente | Vorschlag | Begründung |
 |---|---|---|
-| Yoast SEO | **technisch ≥ 14.0** (öffentliche Schema-API, `Abstract_Schema_Piece`); **Support-/Testzusage: aktuelle Major + zwei vorherige Majors** | Yoast veröffentlicht ca. alle zwei Wochen; ältere Versionen werden nicht getestet und erhalten im Zweifel kein Markup |
+| Yoast SEO | **aktuelle Major − 2** (Entscheidung 16.11.2026; Stand: ≥ 25.0, `SeoEnvironment::YOAST_MIN_VERSION`, beim Freeze neu setzen); **Support-/Testzusage: aktuelle Major + zwei vorherige Majors** | Yoast veröffentlicht ca. alle zwei Wochen; ältere Versionen werden nicht getestet und erhalten im Zweifel kein Markup |
 | Yoast WooCommerce SEO | aktuelle Major zum Release-Zeitpunkt | nur Erkennung, keine API-Nutzung |
 | WooCommerce | gemäß Review-Captain-Woo-Adapter (offen) | nur Erkennung des Produkt-Schemas |
 | WordPress | 6.5 (Arbeitsannahme RC-006) | `wp_robots`-API seit 5.7 vorhanden |
@@ -68,7 +68,7 @@ Zukünftige Integrationen mit Rank Math/AIOSEO/SEOPress-APIs sind möglich, aber
 
 | ID | Frage | Vorschlag |
 |---|---|---|
-| SEO-OPEN-1 | Finale Yoast-Mindestversion | Konstante `REVIEW_CAPTAIN_YOAST_MIN` mit konkretem Wert zum Release festlegen (aktuelle Major − 2) |
-| SEO-OPEN-2 | Schema Pro neben Yoast als Besitzer werten? | ja (konservativ) |
+| SEO-OPEN-1 | Finale Yoast-Mindestversion | **Entschieden 16.11.2026:** aktuelle Major − 2, derzeit 25.0 |
+| SEO-OPEN-2 | Schema Pro neben Yoast als Besitzer werten? | **Entschieden 16.11.2026:** ja (konservativ) |
 | SEO-OPEN-3 | Spätere Graph-Integration für Rank Math/AIOSEO/SEOPress | nach v1, eigener Task |
 | SEO-OPEN-4 | Erkennungsmerkmale Schema Pro / Yoast WooCommerce SEO | bei SEO-005 gegen aktuelle Plugin-Versionen verifizieren |

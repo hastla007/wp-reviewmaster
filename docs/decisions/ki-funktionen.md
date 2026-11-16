@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | **Vorlage – Entscheidung des Inhabers offen** (Stand 2026-11-16) |
+| Status | **Entschieden** (Inhaberin, 16.11.2026) |
 | Bezug | TODO RC-129 („nur als separates Produktdecision-Dokument mit Datenfluss, Einwilligung und menschlicher Kontrolle; kein automatisches Veröffentlichen“); konzept.md §3; [ops/privacy-checklist.md](../ops/privacy-checklist.md) |
 | Rahmen | DSGVO (Art. 6, 13, 22, 28, 44 ff.), EU AI Act (Transparenzpflichten für KI-generierte Inhalte), UWG/Omnibus-Richtlinie (keine irreführenden Bewertungen). Rechtliche Einordnung ist **nicht geprüft** – vor Umsetzung Datenschutzberatung einbinden. |
 
@@ -49,3 +49,7 @@
 - Grundsätzlich KI-Funktionen im Produkt (ja/nein, Pro-Stufe)?
 - Lokales Modell vs. EU-Anbieter (Kosten, Qualität)?
 - Wer verantwortet Rechtsprüfung und DSFA?
+
+## Entscheidung der Inhaberin (16.11.2026)
+
+**Keine KI-Funktionen** – weder im Core noch in Pro, auch nicht als Experiment. Das Thema ist bis auf eine neue ausdrückliche Produktentscheidung gestrichen.
