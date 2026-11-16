@@ -113,6 +113,7 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `date_style` | enum `relative`\|`absolute` | `absolute` | Enum | site | P0 | — |
 | `empty_text` | string | `''` (= „Noch keine Bewertungen vorhanden.“) | `sanitize_text_field`, max. 200 | site | P0 | — |
 | `reduced_motion` | bool | `true` | bool | site | P0 | — |
+| `schema_enabled` | bool | `true` | bool | site | P0 | — |
 | `load_css` | bool | `true` | bool | site | P0 | — |
 
 - Quellenlabel/-link externer Reviews ist **nicht abschaltbar** und hat daher keinen Schalter.

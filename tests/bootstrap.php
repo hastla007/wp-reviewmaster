@@ -270,3 +270,23 @@ if ( ! function_exists( 'locate_template' ) ) {
 if ( ! function_exists( 'wp_validate_redirect' ) ) {
 	function wp_validate_redirect( $location, $fallback = '' ) { $host = parse_url( (string) $location, PHP_URL_HOST ); if ( null === $host && str_starts_with( (string) $location, '/' ) && ! str_starts_with( (string) $location, '//' ) ) { return $location; } return 'example.test' === $host ? $location : $fallback; }
 }
+
+// Admin module stubs (function_exists/class_exists-guarded).
+if ( ! function_exists( 'add_menu_page' ) ) { function add_menu_page( $page_title, $menu_title, $cap, $slug, $cb = '', $icon = '', $pos = null ) { $GLOBALS['rc_test_menus'][ $slug ] = compact( 'page_title', 'menu_title', 'cap', 'slug', 'cb', 'icon' ); return 'toplevel_page_' . $slug; } }
+if ( ! class_exists( 'WP_List_Table' ) ) {
+	class WP_List_Table {
+		public $items = array(); protected $_args = array(); protected $_pagination_args = array(); public $_column_headers = array();
+		public function __construct( $args = array() ) { $this->_args = (array) $args; }
+		public function get_pagenum() { return max( 1, absint( $_REQUEST['paged'] ?? 1 ) ); }
+		protected function set_pagination_args( $args ) { $this->_pagination_args = $args; }
+		public function get_pagination_arg( $key ) { return $this->_pagination_args[ $key ] ?? null; }
+		public function has_items() { return ! empty( $this->items ); }
+		protected function row_actions( $actions, $always_visible = false ) { return '<div class="row-actions">' . implode( ' | ', $actions ) . '</div>'; }
+		protected function get_views() { return array(); }
+		public function views() { echo implode( ' | ', $this->get_views() ); }
+		protected function get_bulk_actions() { return array(); }
+		protected function extra_tablenav( $which ) {}
+		public function no_items() { echo 'No items'; }
+		public function display() { $this->extra_tablenav( 'top' ); if ( ! $this->has_items() ) { $this->no_items(); return; } foreach ( $this->items as $item ) { foreach ( array_keys( $this->get_columns() ) as $col ) { $m = 'column_' . $col; echo method_exists( $this, $m ) ? $this->$m( $item ) : $this->column_default( $item, $col ); } } }
+	}
+}

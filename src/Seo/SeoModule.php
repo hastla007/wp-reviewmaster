@@ -85,7 +85,7 @@ final class SeoModule implements Module {
 	 * Admin switch "Review-Markup ausgeben" (default on). Can only disable.
 	 */
 	public function markup_enabled(): bool {
-		return false !== $this->plugin->settings()->get( 'seo', 'schema_enabled', true );
+		return false !== $this->plugin->settings()->get( 'display', 'schema_enabled', true );
 	}
 
 	/**

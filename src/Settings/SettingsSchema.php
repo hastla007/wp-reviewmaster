@@ -110,6 +110,7 @@ final class SettingsSchema {
 				),
 				'empty_text'     => array( 'type' => 'string', 'default' => '' ),
 				'reduced_motion' => array( 'type' => 'bool', 'default' => true ),
+				'schema_enabled' => array( 'type' => 'bool', 'default' => true ),
 				'load_css'       => array( 'type' => 'bool', 'default' => true, 'advanced' => true ),
 			),
 			'privacy'     => array(

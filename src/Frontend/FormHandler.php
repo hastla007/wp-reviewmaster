@@ -79,6 +79,7 @@ class FormHandler {
 				'rc_form'  => $form,
 			);
 			if ( $draft ) {
+				$this->rate_hit( 'fails' );
 				$token = strtolower( wp_generate_password( 20, false, false ) );
 				$token = preg_replace( '/[^a-z0-9]/', '', $token );
 				set_transient( 'review_captain_draft_' . $token, $draft, self::DRAFT_TTL );
@@ -130,8 +131,10 @@ class FormHandler {
 			return $fail( array( 'context' ) );
 		}
 
+		// Accepted submissions count fully; failed validations (which store a short-lived
+		// draft) are limited to three times the hourly limit.
 		$limit = (int) $settings->get( 'submissions', 'rate_limit_per_hour', 5 );
-		if ( $this->rate_count() >= $limit ) {
+		if ( $this->rate_count() >= $limit || $this->rate_count( 'fails' ) >= 3 * $limit ) {
 			return $fail( array( 'rate_limited' ) );
 		}
 
@@ -345,26 +348,31 @@ class FormHandler {
 	}
 
 	/**
-	 * Submissions in the current window.
+	 * Counter value in the current window.
+	 *
+	 * @param string $counter count|fails.
 	 */
-	private function rate_count(): int {
+	private function rate_count( string $counter = 'count' ): int {
 		$v = get_transient( self::rate_key() );
-		return is_array( $v ) && isset( $v['count'], $v['start'] ) && (int) $v['start'] > time() - HOUR_IN_SECONDS ? (int) $v['count'] : 0;
+		return is_array( $v ) && isset( $v[ $counter ], $v['start'] ) && (int) $v['start'] > time() - HOUR_IN_SECONDS ? (int) $v[ $counter ] : 0;
 	}
 
 	/**
-	 * Count a submission (fixed one-hour window).
+	 * Increment a counter (fixed one-hour window).
+	 *
+	 * @param string $counter count|fails.
 	 */
-	private function rate_hit(): void {
+	private function rate_hit( string $counter = 'count' ): void {
 		$key = self::rate_key();
 		$v   = get_transient( $key );
 		if ( ! is_array( $v ) || ! isset( $v['start'] ) || (int) $v['start'] <= time() - HOUR_IN_SECONDS ) {
 			$v = array(
 				'count' => 0,
+				'fails' => 0,
 				'start' => time(),
 			);
 		}
-		++$v['count'];
+		$v[ $counter ] = (int) ( $v[ $counter ] ?? 0 ) + 1;
 		set_transient( $key, $v, max( 60, HOUR_IN_SECONDS - ( time() - (int) $v['start'] ) ) );
 	}
 

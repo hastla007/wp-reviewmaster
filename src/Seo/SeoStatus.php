@@ -67,7 +67,7 @@ final class SeoStatus {
 			);
 		}
 
-		if ( false === $plugin->settings()->get( 'seo', 'schema_enabled', true ) ) {
+		if ( false === $plugin->settings()->get( 'display', 'schema_enabled', true ) ) {
 			$items[] = self::item( __( 'Einstellung', 'review-captain' ), 'warn', __( '„Review-Markup ausgeben“ ist deaktiviert.', 'review-captain' ) );
 		}
 
