@@ -31,7 +31,7 @@ final class WidgetRepository {
 			'context_id'           => '',
 			'ids'                  => array(),      // hand-picked review IDs.
 			'include_testimonials' => false,
-			'show_date'            => null,         // null = global default.
+			'show_date'            => null,         // Null means: use the global default.
 			'author_mode'          => null,
 			'show_summary'         => true,
 			'order'                => 'date',

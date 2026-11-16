@@ -10,7 +10,6 @@ namespace ReviewCaptain\Admin;
 
 use ReviewCaptain\Profiles\ProfileRepository;
 use ReviewCaptain\Reviews\ReviewService;
-use ReviewCaptain\Security\Capabilities;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -78,7 +77,7 @@ final class SourcesPage {
 	}
 
 	public static function handle_save(): void {
-		Capabilities::check( 'rc_manage_reviews', 'rc_save_profile' );
+		review_captain_check_request( 'rc_manage_reviews', 'rc_save_profile' );
 		$res = ProfileRepository::save_link(
 			0,
 			isset( $_POST['provider'] ) ? sanitize_key( wp_unslash( $_POST['provider'] ) ) : '',
@@ -90,7 +89,7 @@ final class SourcesPage {
 
 	public static function handle_delete(): void {
 		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_reviews', 'rc_delete_profile_' . $id );
+		review_captain_check_request( 'rc_manage_reviews', 'rc_delete_profile_' . $id );
 		ProfileRepository::delete( $id );
 		Menu::back( self::PAGE, 'deleted' );
 	}

@@ -35,7 +35,7 @@ Tabellenpräfix `{$wpdb->prefix}rc_` (je Site, auch in Multisite). Zeichensatz `
 | `verification` | VARCHAR(20) | ✓ | `unverified`, `purchase`, `attendance`, `external` (RC-041) |
 | `verification_ref` | VARCHAR(191) NULL | | Quellvertrag, der verifiziert hat (z. B. `woocommerce:order`) |
 | `reported_count` | INT UNSIGNED | ✓ | Default 0 |
-| `published_at` | DATETIME NULL | | Originaldatum der Bewertung |
+| `published_at` | DATETIME | ✓ | Originaldatum der Bewertung; ohne Angabe = Erstellzeit (Index-Nutzung, TEC-014) |
 | `source_updated_at` | DATETIME NULL | | letzte Änderung beim Anbieter |
 | `fetched_at` | DATETIME NULL | | letzter erfolgreicher Abruf (Aktualitätsprüfung) |
 | `tombstoned_at` | DATETIME NULL | | beim Anbieter gelöscht/nicht mehr geliefert → nie mehr ausgeben |

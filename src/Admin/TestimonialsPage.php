@@ -7,7 +7,6 @@
 
 namespace ReviewCaptain\Admin;
 
-use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Testimonials\TestimonialRepository;
 
 defined( 'ABSPATH' ) || exit;
@@ -36,8 +35,8 @@ final class TestimonialsPage {
 		echo '<p class="description">' . esc_html__( 'Testimonials are curated statements of your customers. They are always labelled as testimonials and never shown as platform reviews. Publish only with documented permission.', 'review-captain' ) . '</p>';
 
 		if ( $edit ) {
-			$t = $id ? TestimonialRepository::find( $id ) : null;
-			$v = wp_parse_args(
+			$t       = $id ? TestimonialRepository::find( $id ) : null;
+			$v       = wp_parse_args(
 				(array) $t,
 				array(
 					'quote'             => '',
@@ -73,7 +72,11 @@ final class TestimonialsPage {
 			printf( '<tr><th><label for="rc-t-consent">%s</label></th><td><input type="text" id="rc-t-consent" name="consent_note" value="%s" class="large-text"><p class="description">%s</p></td></tr>', esc_html__( 'Proof of permission', 'review-captain' ), esc_attr( $note ), esc_html__( 'How and when did the person agree (e.g. “signed form 2026-11-02, stored in CRM”)? Required for publishing.', 'review-captain' ) );
 			printf( '<tr><th><label for="rc-t-valid">%s</label></th><td><input type="date" id="rc-t-valid" name="valid_until" value="%s"><p class="description">%s</p></td></tr>', esc_html__( 'Permission valid until', 'review-captain' ), esc_attr( $v['valid_until'] ? substr( (string) $v['valid_until'], 0, 10 ) : '' ), esc_html__( 'Optional. Expired testimonials are hidden automatically.', 'review-captain' ) );
 			echo '<tr><th>' . esc_html__( 'Status', 'review-captain' ) . '</th><td><select name="status">';
-			foreach ( array( 'draft' => __( 'Draft', 'review-captain' ), 'approved' => __( 'Published', 'review-captain' ), 'archived' => __( 'Archived', 'review-captain' ) ) as $k => $l ) {
+			foreach ( array(
+				'draft'    => __( 'Draft', 'review-captain' ),
+				'approved' => __( 'Published', 'review-captain' ),
+				'archived' => __( 'Archived', 'review-captain' ),
+			) as $k => $l ) {
 				printf( '<option value="%s"%s>%s</option>', esc_attr( $k ), selected( $v['status'], $k, false ), esc_html( $l ) );
 			}
 			echo '</select></td></tr></tbody></table>';
@@ -106,26 +109,42 @@ final class TestimonialsPage {
 	}
 
 	public static function handle_save(): void {
-		Capabilities::check( 'rc_manage_testimonials', 'rc_save_testimonial' );
+		review_captain_check_request( 'rc_manage_testimonials', 'rc_save_testimonial' );
 		$in  = wp_unslash( $_POST );
 		$id  = absint( $in['id'] ?? 0 );
 		$res = TestimonialRepository::save_text( $id, $in );
 		if ( is_wp_error( $res ) ) {
-			Menu::back( self::PAGE, '', $res->get_error_message(), array( 'action' => $id ? 'edit' : 'add', 'id' => (string) $id ) );
+			Menu::back(
+				self::PAGE,
+				'',
+				$res->get_error_message(),
+				array(
+					'action' => $id ? 'edit' : 'add',
+					'id'     => (string) $id,
+				)
+			);
 		}
-		Menu::back( self::PAGE, 'saved', '', array( 'action' => 'edit', 'id' => (string) $res ) );
+		Menu::back(
+			self::PAGE,
+			'saved',
+			'',
+			array(
+				'action' => 'edit',
+				'id'     => (string) $res,
+			)
+		);
 	}
 
 	public static function handle_revoke(): void {
 		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_testimonials', 'rc_testimonial_revoke_' . $id );
+		review_captain_check_request( 'rc_manage_testimonials', 'rc_testimonial_revoke_' . $id );
 		TestimonialRepository::revoke( $id );
 		Menu::back( self::PAGE, 'saved' );
 	}
 
 	public static function handle_delete(): void {
 		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_testimonials', 'rc_testimonial_delete_' . $id );
+		review_captain_check_request( 'rc_manage_testimonials', 'rc_testimonial_delete_' . $id );
 		TestimonialRepository::delete( $id );
 		Menu::back( self::PAGE, 'deleted' );
 	}

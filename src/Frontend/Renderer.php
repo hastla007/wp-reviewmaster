@@ -100,7 +100,15 @@ final class Renderer {
 
 		$schema = SchemaOutput::eligible_reviews( $reviews );
 		SchemaOutput::collect( $schema );
-		wp_cache_set( $cache_key, array( 'html' => $html, 'schema' => $schema ), 'review_captain', 15 * MINUTE_IN_SECONDS );
+		wp_cache_set(
+			$cache_key,
+			array(
+				'html'   => $html,
+				'schema' => $schema,
+			),
+			'review_captain',
+			15 * MINUTE_IN_SECONDS
+		);
 		Assets::enqueue_frontend();
 		ReviewService::milestone( 'first_widget_published_at', ! is_admin() && ! wp_is_json_request() );
 		return $html;

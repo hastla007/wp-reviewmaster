@@ -247,7 +247,7 @@ final class SchemaOutput {
 	}
 
 	private static function page_is_noindex(): bool {
-		$robots = function_exists( 'wp_robots' ) ? apply_filters( 'wp_robots', array() ) : array();
+		$robots = function_exists( 'wp_robots' ) ? apply_filters( 'wp_robots', array() ) : array(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook.
 		return ! empty( $robots['noindex'] ) || ! get_option( 'blog_public' );
 	}
 

@@ -70,7 +70,14 @@ final class TestimonialRepository {
 
 	public static function revoke( int $id ): void {
 		global $wpdb;
-		$wpdb->update( self::table(), array( 'revoked_at' => current_time( 'mysql', true ), 'status' => 'archived' ), array( 'id' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->update(
+			self::table(),
+			array(
+				'revoked_at' => current_time( 'mysql', true ),
+				'status'     => 'archived',
+			),
+			array( 'id' => $id )
+		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		\ReviewCaptain\Reviews\ReviewService::bump_cache();
 	}
 

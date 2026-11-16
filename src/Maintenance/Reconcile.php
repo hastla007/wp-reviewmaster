@@ -39,7 +39,14 @@ final class Reconcile {
 			file_put_contents( $file, (string) $now ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		}
 		if ( $restored ) {
-			Queue::enqueue( 'maintenance.reconcile', array( 'reason' => 'restore' ), array( 'unique_key' => 'reconcile', 'priority' => 100 ) );
+			Queue::enqueue(
+				'maintenance.reconcile',
+				array( 'reason' => 'restore' ),
+				array(
+					'unique_key' => 'reconcile',
+					'priority'   => 100,
+				)
+			);
 		}
 		return $restored;
 	}

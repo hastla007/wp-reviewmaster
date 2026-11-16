@@ -48,6 +48,7 @@ if ( version_compare( PHP_VERSION, REVIEW_CAPTAIN_MIN_PHP, '<' ) || version_comp
 
 require_once REVIEW_CAPTAIN_DIR . 'src/Autoloader.php';
 \ReviewCaptain\Autoloader::register();
+require_once REVIEW_CAPTAIN_DIR . 'src/Api/functions.php';
 
 register_activation_hook( __FILE__, array( \ReviewCaptain\Install\Activator::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( \ReviewCaptain\Install\Deactivator::class, 'deactivate' ) );

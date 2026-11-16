@@ -224,7 +224,17 @@ final class ReviewsListTable extends \WP_List_Table {
 				'rejected' => __( 'Reject', 'review-captain' ),
 			) as $to => $label ) {
 				if ( $item['status'] !== $to ) {
-					$url            = wp_nonce_url( add_query_arg( array( 'action' => 'review_captain_moderate', 'id' => (int) $item['id'], 'to' => $to ), admin_url( 'admin-post.php' ) ), 'rc_moderate_' . (int) $item['id'] );
+					$url            = wp_nonce_url(
+						add_query_arg(
+							array(
+								'action' => 'review_captain_moderate',
+								'id'     => (int) $item['id'],
+								'to'     => $to,
+							),
+							admin_url( 'admin-post.php' )
+						),
+						'rc_moderate_' . (int) $item['id']
+					);
 					$actions[ $to ] = '<a href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a>';
 				}
 			}

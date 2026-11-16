@@ -125,8 +125,8 @@ final class Settings {
 			}
 		}
 		if ( 'requests' === $group && $values['send_window_start'] >= $values['send_window_end'] ) {
-			$errors['send_window_end'] = __( 'The end of the send window must be after its start.', 'review-captain' );
-			$values['send_window_end'] = self::get( 'send_window_end' );
+			$errors['send_window_end']   = __( 'The end of the send window must be after its start.', 'review-captain' );
+			$values['send_window_end']   = self::get( 'send_window_end' );
 			$values['send_window_start'] = self::get( 'send_window_start' );
 		}
 		return array(

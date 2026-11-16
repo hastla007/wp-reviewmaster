@@ -142,7 +142,7 @@ final class ReviewService {
 	 * @return array{success:bool, code:string, review_id:int|null}
 	 */
 	public static function create_from_connector( array $payload ): array {
-		$fail = static function ( string $code ) {
+		$fail   = static function ( string $code ) {
 			return array(
 				'success'   => false,
 				'code'      => $code,

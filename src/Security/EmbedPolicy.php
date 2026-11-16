@@ -57,6 +57,7 @@ final class EmbedPolicy {
 		if ( 'consent_hook' === $mode && apply_filters( 'review_captain_external_consent_given', false, $host ) ) {
 			return '<iframe class="rc-embed" src="' . esc_url( $url ) . '" title="' . esc_attr( $title ) . '" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
 		}
+		wp_enqueue_script( 'review-captain-embed' );
 		/* translators: %s: host name */
 		$button = sprintf( __( 'Load content from %s', 'review-captain' ), $host );
 		$html   = '<div class="rc-embed-placeholder" data-rc-embed="' . esc_url( $url ) . '" data-rc-title="' . esc_attr( $title ) . '">';

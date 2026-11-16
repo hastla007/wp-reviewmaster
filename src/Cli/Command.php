@@ -140,7 +140,8 @@ final class Command {
 		$now       = gmdate( 'Y-m-d H:i:s' );
 		for ( $i = 0; $i < $reviews; $i += 500 ) {
 			$values = array();
-			for ( $j = $i; $j < min( $reviews, $i + 500 ); $j++ ) {
+			$end    = min( $reviews, $i + 500 );
+			for ( $j = $i; $j < $end; $j++ ) {
 				$p        = $providers[ $j % 5 ];
 				$values[] = $wpdb->prepare(
 					'(%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s)',

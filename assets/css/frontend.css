@@ -67,3 +67,7 @@
 :where(.rc-notice--error) { border-color: #d63638; }
 :where(.rc-editor-hint) { padding: 12px; border: 1px dashed var(--rc-border); color: #50575e; }
 @media (prefers-reduced-motion: reduce) { :where(.rc-widget, .rc-form-wrap) * { transition: none !important; animation: none !important; } }
+:where(.rc-embed-placeholder) { border: 1px solid var(--rc-border); border-radius: var(--rc-radius); padding: var(--rc-pad); text-align: center; background: var(--rc-surface); }
+:where(.rc-embed-placeholder) img { max-width: 100%; height: auto; border-radius: 6px; }
+:where(.rc-embed-note) { font-size: .8em; color: var(--rc-text-muted); }
+:where(.rc-embed) { width: 100%; aspect-ratio: 16 / 9; border: 0; }

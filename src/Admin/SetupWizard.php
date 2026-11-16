@@ -8,7 +8,6 @@
 namespace ReviewCaptain\Admin;
 
 use ReviewCaptain\Profiles\ProfileRepository;
-use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Settings\Settings;
 use ReviewCaptain\Widgets\WidgetRepository;
 
@@ -57,7 +56,7 @@ final class SetupWizard {
 	public static function checklist_notice(): void {
 		$state = self::state();
 		$done  = count( array_filter( $state, static fn( $s ) => 'todo' !== $s ) );
-		if ( $done === count( $state ) || ! current_user_can( 'rc_manage_settings' ) ) {
+		if ( count( $state ) === $done || ! current_user_can( 'rc_manage_settings' ) ) {
 			return;
 		}
 		/* translators: 1: done steps, 2: total steps */
@@ -126,7 +125,7 @@ final class SetupWizard {
 
 	public static function handle_step(): void {
 		$step = isset( $_POST['step'] ) ? sanitize_key( wp_unslash( $_POST['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_settings', 'rc_setup_' . $step );
+		review_captain_check_request( 'rc_manage_settings', 'rc_setup_' . $step );
 		$steps = self::steps();
 		if ( ! isset( $steps[ $step ] ) ) {
 			Menu::back( self::PAGE );

@@ -50,9 +50,9 @@ final class Blocks {
 			'review-captain-blocks',
 			'window.reviewCaptainBlocks = ' . wp_json_encode(
 				array(
-					'widgets'   => $widgets,
-					'adminUrl'  => admin_url( 'admin.php?page=review-captain-widgets' ),
-					'layouts'   => (array) apply_filters( 'review_captain_widget_layouts', WidgetRepository::CORE_LAYOUTS ),
+					'widgets'  => $widgets,
+					'adminUrl' => admin_url( 'admin.php?page=review-captain-widgets' ),
+					'layouts'  => (array) apply_filters( 'review_captain_widget_layouts', WidgetRepository::CORE_LAYOUTS ),
 				)
 			) . ';',
 			'before'

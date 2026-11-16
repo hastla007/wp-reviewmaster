@@ -26,8 +26,8 @@ final class ProfileRepository {
 		if ( '' === $url || ! ReviewService::valid_https_url( $url ) ) {
 			return new \WP_Error( 'url', __( 'Please enter the https link to your profile.', 'review-captain' ) );
 		}
-		$now  = current_time( 'mysql', true );
-		$data = array(
+		$now      = current_time( 'mysql', true );
+		$data     = array(
 			'provider'     => $provider,
 			'label'        => substr( sanitize_text_field( $label ), 0, 191 ),
 			'public_url'   => $url,

@@ -10,7 +10,6 @@ namespace ReviewCaptain\Admin;
 use ReviewCaptain\Frontend\Renderer;
 use ReviewCaptain\Reviews\ReviewRepository;
 use ReviewCaptain\Reviews\ReviewService;
-use ReviewCaptain\Security\Capabilities;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -67,17 +66,23 @@ final class ReviewsPage {
 		Menu::notices();
 		echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE ) ) . '">&larr; ' . esc_html__( 'Back to reviews', 'review-captain' ) . '</a></p>';
 		echo '<div class="rc-columns"><div class="rc-main postbox"><div class="inside">';
-		echo Renderer::card( $r, array( 'author_mode' => 'full', 'show_date' => true ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in Renderer.
+		echo Renderer::card( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Renderer escapes all fields.
+			$r,
+			array(
+				'author_mode' => 'full',
+				'show_date'   => true,
+			)
+		); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in Renderer.
 		echo '<table class="widefat striped rc-meta-table"><tbody>';
 		$labels = ReviewsListTable::status_labels();
 		$rows   = array(
-			__( 'Status', 'review-captain' )       => $labels[ $r['status'] ] ?? $r['status'],
-			__( 'Source', 'review-captain' )       => ReviewService::provider_label( (string) $r['provider'] ),
-			__( 'Origin', 'review-captain' )       => $r['origin'],
-			__( 'Type', 'review-captain' )         => ReviewsListTable::type_label( (string) $r['type'] ),
-			__( 'Verification', 'review-captain' ) => $r['verification'] . ( $r['verification_ref'] ? ' (' . $r['verification_ref'] . ')' : '' ),
-			__( 'Context', 'review-captain' )      => trim( $r['context_type'] . ' ' . $r['context_id'] ),
-			__( 'Language', 'review-captain' )     => (string) $r['language'],
+			__( 'Status', 'review-captain' )           => $labels[ $r['status'] ] ?? $r['status'],
+			__( 'Source', 'review-captain' )           => ReviewService::provider_label( (string) $r['provider'] ),
+			__( 'Origin', 'review-captain' )           => $r['origin'],
+			__( 'Type', 'review-captain' )             => ReviewsListTable::type_label( (string) $r['type'] ),
+			__( 'Verification', 'review-captain' )     => $r['verification'] . ( $r['verification_ref'] ? ' (' . $r['verification_ref'] . ')' : '' ),
+			__( 'Context', 'review-captain' )          => trim( $r['context_type'] . ' ' . $r['context_id'] ),
+			__( 'Language', 'review-captain' )         => (string) $r['language'],
 			__( 'Imported/created', 'review-captain' ) => $r['created_at'] . ' UTC',
 		);
 		if ( $r['fetched_at'] ) {
@@ -197,7 +202,7 @@ final class ReviewsPage {
 
 	public static function handle_moderate(): void {
 		$id = isset( $_REQUEST['id'] ) ? absint( $_REQUEST['id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- checked below.
-		Capabilities::check( 'rc_moderate_reviews', 'rc_moderate_' . $id );
+		review_captain_check_request( 'rc_moderate_reviews', 'rc_moderate_' . $id );
 		$to     = isset( $_REQUEST['to'] ) ? sanitize_key( wp_unslash( $_REQUEST['to'] ) ) : '';
 		$reason = isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( $_POST['reason'] ) ) : null;
 		$result = ReviewService::moderate( $id, $to, $reason ? $reason : null );
@@ -221,7 +226,7 @@ final class ReviewsPage {
 		if ( '' === $action ) {
 			return;
 		}
-		Capabilities::check( 'rc_moderate_reviews', 'bulk-reviews' );
+		review_captain_check_request( 'rc_moderate_reviews', 'bulk-reviews' );
 		$ids    = array_map( 'absint', (array) wp_unslash( $_POST['ids'] ) );
 		$errors = 0;
 		foreach ( $ids as $id ) {
@@ -239,19 +244,35 @@ final class ReviewsPage {
 	}
 
 	public static function handle_save_external(): void {
-		Capabilities::check( 'rc_manage_reviews', 'rc_save_external' );
+		review_captain_check_request( 'rc_manage_reviews', 'rc_save_external' );
 		$input = wp_unslash( $_POST );
 		$id    = absint( $input['id'] ?? 0 );
 		$res   = $id ? ReviewService::update_manual_external( $id, $input ) : ReviewService::create_manual_external( $input );
 		if ( is_wp_error( $res ) ) {
-			Menu::back( self::PAGE, '', implode( ' ', $res->get_error_messages() ), array( 'action' => $id ? 'edit' : 'add', 'id' => (string) $id ) );
+			Menu::back(
+				self::PAGE,
+				'',
+				implode( ' ', $res->get_error_messages() ),
+				array(
+					'action' => $id ? 'edit' : 'add',
+					'id'     => (string) $id,
+				)
+			);
 		}
-		Menu::back( self::PAGE, 'saved', '', array( 'action' => 'view', 'id' => (string) ( $id ? $id : $res ) ) );
+		Menu::back(
+			self::PAGE,
+			'saved',
+			'',
+			array(
+				'action' => 'view',
+				'id'     => (string) ( $id ? $id : $res ),
+			)
+		);
 	}
 
 	public static function handle_delete(): void {
 		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_reviews', 'rc_delete_review_' . $id );
+		review_captain_check_request( 'rc_manage_reviews', 'rc_delete_review_' . $id );
 		ReviewService::delete( $id );
 		Menu::back( self::PAGE, 'deleted' );
 	}

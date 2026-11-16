@@ -20,10 +20,39 @@ final class ReviewRepository {
 
 	/** Columns that may be written through insert/update. */
 	private const WRITABLE = array(
-		'origin', 'provider', 'profile_id', 'external_id', 'external_key', 'source_entry_key', 'type', 'rating_value', 'rating_min', 'rating_max',
-		'title', 'content', 'language', 'author_name', 'author_avatar_url', 'author_user_id', 'author_email_hash', 'context_type', 'context_id',
-		'source_url', 'attribution', 'reply_text', 'reply_at', 'status', 'verification', 'verification_ref', 'reported_count', 'published_at',
-		'source_updated_at', 'fetched_at', 'tombstoned_at', 'import_batch_id', 'meta',
+		'origin',
+		'provider',
+		'profile_id',
+		'external_id',
+		'external_key',
+		'source_entry_key',
+		'type',
+		'rating_value',
+		'rating_min',
+		'rating_max',
+		'title',
+		'content',
+		'language',
+		'author_name',
+		'author_avatar_url',
+		'author_user_id',
+		'author_email_hash',
+		'context_type',
+		'context_id',
+		'source_url',
+		'attribution',
+		'reply_text',
+		'reply_at',
+		'status',
+		'verification',
+		'verification_ref',
+		'reported_count',
+		'published_at',
+		'source_updated_at',
+		'fetched_at',
+		'tombstoned_at',
+		'import_batch_id',
+		'meta',
 	);
 
 	private static function table(): string {
@@ -41,6 +70,9 @@ final class ReviewRepository {
 		$row['uuid']       = wp_generate_uuid4();
 		$row['created_at'] = $now;
 		$row['updated_at'] = $now;
+		if ( empty( $row['published_at'] ) ) {
+			$row['published_at'] = $now; // Always set so ordering/filtering can use the (status, published_at) index.
+		}
 		if ( isset( $row['meta'] ) && is_array( $row['meta'] ) ) {
 			$row['meta'] = wp_json_encode( $row['meta'] );
 		}
@@ -124,11 +156,11 @@ final class ReviewRepository {
 			$args[]  = max( 0, min( 1, ( (float) $f['rating_min'] - 1 ) / 4 ) );
 		}
 		if ( ! empty( $f['date_from'] ) ) {
-			$where[] = 'COALESCE(published_at, created_at) >= %s';
+			$where[] = 'published_at >= %s';
 			$args[]  = gmdate( 'Y-m-d 00:00:00', strtotime( (string) $f['date_from'] ) );
 		}
 		if ( ! empty( $f['date_to'] ) ) {
-			$where[] = 'COALESCE(published_at, created_at) <= %s';
+			$where[] = 'published_at <= %s';
 			$args[]  = gmdate( 'Y-m-d 23:59:59', strtotime( (string) $f['date_to'] ) );
 		}
 		if ( ! empty( $f['search'] ) ) {
@@ -140,6 +172,10 @@ final class ReviewRepository {
 		if ( ! empty( $f['batch'] ) ) {
 			$where[] = 'import_batch_id = %d';
 			$args[]  = (int) $f['batch'];
+		}
+		if ( ! empty( $f['id_after'] ) ) {
+			$where[] = 'id > %d';
+			$args[]  = (int) $f['id_after'];
 		}
 		if ( ! empty( $f['ids'] ) && is_array( $f['ids'] ) ) {
 			$ids     = array_map( 'intval', $f['ids'] );
@@ -162,7 +198,7 @@ final class ReviewRepository {
 		global $wpdb;
 		list( $where, $args ) = self::where( $filters );
 		$columns              = array(
-			'date'   => 'COALESCE(published_at, created_at)',
+			'date'   => 'published_at',
 			'rating' => 'rating_value',
 			'id'     => 'id',
 		);

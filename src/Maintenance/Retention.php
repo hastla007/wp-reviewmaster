@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Retention {
 
-	public const HOOK  = 'review_captain_daily_maintenance';
+	public const HOOK   = 'review_captain_daily_maintenance';
 	private const BATCH = 500;
 
 	public static function register(): void {
@@ -33,7 +33,14 @@ final class Retention {
 	}
 
 	public static function enqueue(): void {
-		Queue::enqueue( 'maintenance.retention', array(), array( 'unique_key' => 'daily', 'priority' => 1 ) );
+		Queue::enqueue(
+			'maintenance.retention',
+			array(),
+			array(
+				'unique_key' => 'daily',
+				'priority'   => 1,
+			)
+		);
 		Reconcile::detect_restore();
 	}
 
@@ -56,15 +63,15 @@ final class Retention {
 		};
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
-		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$reviews} WHERE status IN ('rejected','spam') AND updated_at < %s LIMIT %d", $cut( (int) Settings::get( 'retention_rejected_reviews_days' ) ), self::BATCH ) );
+		$ids                        = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$reviews} WHERE status IN ('rejected','spam') AND updated_at < %s LIMIT %d", $cut( (int) Settings::get( 'retention_rejected_reviews_days' ) ), self::BATCH ) );
 		$result['rejected_reviews'] = self::delete_reviews( array_map( 'intval', $ids ) );
 
-		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$reviews} WHERE tombstoned_at IS NOT NULL AND tombstoned_at < %s LIMIT %d", $cut( 7 ), self::BATCH ) );
+		$ids                          = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$reviews} WHERE tombstoned_at IS NOT NULL AND tombstoned_at < %s LIMIT %d", $cut( 7 ), self::BATCH ) );
 		$result['tombstoned_reviews'] = self::delete_reviews( array_map( 'intval', $ids ) );
 
-		$result['audit_log'] = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$audit} WHERE created_at < %s LIMIT %d", $cut( (int) Settings::get( 'retention_logs_days' ) ), self::BATCH ) );
+		$result['audit_log']      = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$audit} WHERE created_at < %s LIMIT %d", $cut( (int) Settings::get( 'retention_logs_days' ) ), self::BATCH ) );
 		$result['import_batches'] = (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$batches} WHERE created_at < %s LIMIT %d", $cut( 90 ), self::BATCH ) );
-		$result['orphan_log'] = (int) $wpdb->query( "DELETE l FROM {$log} l LEFT JOIN {$reviews} r ON r.id = l.review_id WHERE r.id IS NULL" );
+		$result['orphan_log']     = (int) $wpdb->query( "DELETE l FROM {$log} l LEFT JOIN {$reviews} r ON r.id = l.review_id WHERE r.id IS NULL" );
 
 		// Testimonials: revoked → media cleanup after configured days is done by Pro (media); core hides immediately.
 		$result['revoked_testimonials'] = (int) $wpdb->query( $wpdb->prepare( "UPDATE {$tests} SET status='archived' WHERE revoked_at IS NOT NULL AND status <> 'archived' AND revoked_at < %s", $cut( 0 ) ) );
@@ -88,10 +95,12 @@ final class Retention {
 		if ( ! $ids ) {
 			return 0;
 		}
-		$in = implode( ',', array_map( 'intval', $ids ) );
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
-		$wpdb->query( 'DELETE FROM ' . Schema::table( 'rc_review_log' ) . " WHERE review_id IN ({$in})" );
-		return (int) $wpdb->query( 'DELETE FROM ' . Schema::table( 'rc_reviews' ) . " WHERE id IN ({$in})" );
+		$in      = implode( ',', array_map( 'intval', $ids ) );
+		$log     = Schema::table( 'rc_review_log' );
+		$reviews = Schema::table( 'rc_reviews' );
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- IDs are cast to int above.
+		$wpdb->query( "DELETE FROM {$log} WHERE review_id IN ({$in})" );
+		return (int) $wpdb->query( "DELETE FROM {$reviews} WHERE id IN ({$in})" );
 		// phpcs:enable
 	}
 }

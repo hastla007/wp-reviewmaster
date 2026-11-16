@@ -17,14 +17,46 @@ defined( 'ABSPATH' ) || exit;
 final class Csv {
 
 	public const COLUMNS = array(
-		'uuid', 'origin', 'provider', 'external_id', 'type', 'rating_value', 'rating_min', 'rating_max', 'title', 'content', 'language',
-		'author_name', 'context_type', 'context_id', 'source_url', 'attribution', 'status', 'verification', 'published_at', 'created_at',
+		'uuid',
+		'origin',
+		'provider',
+		'external_id',
+		'type',
+		'rating_value',
+		'rating_min',
+		'rating_max',
+		'title',
+		'content',
+		'language',
+		'author_name',
+		'context_type',
+		'context_id',
+		'source_url',
+		'attribution',
+		'status',
+		'verification',
+		'published_at',
+		'created_at',
 	);
 
 	/** Columns accepted on import. */
 	public const IMPORT_COLUMNS = array(
-		'provider', 'external_id', 'type', 'rating_value', 'rating_min', 'rating_max', 'title', 'content', 'language', 'author_name',
-		'context_type', 'context_id', 'source_url', 'attribution', 'status', 'published_at',
+		'provider',
+		'external_id',
+		'type',
+		'rating_value',
+		'rating_min',
+		'rating_max',
+		'title',
+		'content',
+		'language',
+		'author_name',
+		'context_type',
+		'context_id',
+		'source_url',
+		'attribution',
+		'status',
+		'published_at',
 	);
 
 	public const MAX_IMPORT_ROWS = 5000;
@@ -52,10 +84,11 @@ final class Csv {
 	public static function export( $handle, array $filters = array() ): int {
 		fwrite( $handle, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- UTF-8 BOM for spreadsheet apps.
 		fputcsv( $handle, self::COLUMNS );
-		$offset = 0;
-		$total  = 0;
+		$total   = 0;
+		$last_id = 0;
 		do {
-			$rows = ReviewRepository::query( $filters, 500, $offset, 'id', 'ASC' );
+			// Keyset pagination keeps every batch equally fast on large tables (TEC-014).
+			$rows = ReviewRepository::query( array_merge( $filters, array( 'id_after' => $last_id ) ), 500, 0, 'id', 'ASC' );
 			foreach ( $rows as $row ) {
 				$line = array();
 				foreach ( self::COLUMNS as $col ) {
@@ -64,10 +97,19 @@ final class Csv {
 				}
 				fputcsv( $handle, $line );
 				++$total;
+				$last_id = (int) $row['id'];
 			}
-			$offset += 500;
-		} while ( count( $rows ) === 500 );
-		AuditLog::log( 'reviews_exported', null, null, array( 'count' => $total, 'format' => 'csv' ) );
+			$fetched = count( $rows );
+		} while ( 500 === $fetched );
+		AuditLog::log(
+			'reviews_exported',
+			null,
+			null,
+			array(
+				'count'  => $total,
+				'format' => 'csv',
+			)
+		);
 		return $total;
 	}
 
@@ -92,10 +134,10 @@ final class Csv {
 			$out['errors'][0] = __( 'The file is empty.', 'review-captain' );
 			return $out;
 		}
-		$first     = preg_replace( '/^\xEF\xBB\xBF/', '', $first );
-		$delimiter = substr_count( $first, ';' ) > substr_count( $first, ',' ) ? ';' : ',';
-		$header    = array_map( 'trim', str_getcsv( $first, $delimiter ) );
-		$header    = array_map( 'sanitize_key', $header );
+		$first         = preg_replace( '/^\xEF\xBB\xBF/', '', $first );
+		$delimiter     = substr_count( $first, ';' ) > substr_count( $first, ',' ) ? ';' : ',';
+		$header        = array_map( 'trim', str_getcsv( $first, $delimiter ) );
+		$header        = array_map( 'sanitize_key', $header );
 		$out['header'] = $header;
 		$line          = 1;
 		while ( false !== ( $data = fgetcsv( $fh, 0, $delimiter ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
@@ -243,7 +285,7 @@ final class Csv {
 				'published_at'    => ! empty( $row['published_at'] ) ? gmdate( 'Y-m-d H:i:s', strtotime( (string) $row['published_at'] ) ) : null,
 				'import_batch_id' => $batch_id,
 			);
-			$id = ReviewRepository::insert( $data );
+			$id       = ReviewRepository::insert( $data );
 			if ( is_int( $id ) ) {
 				ReviewRepository::log( $id, 'created', 'import' );
 				++$imported;

@@ -74,8 +74,8 @@ final class Menu {
 	 */
 	public static function notices(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$msg  = isset( $_GET['rc_msg'] ) ? sanitize_key( wp_unslash( $_GET['rc_msg'] ) ) : '';
-		$err  = isset( $_GET['rc_err'] ) ? sanitize_text_field( wp_unslash( $_GET['rc_err'] ) ) : '';
+		$msg = isset( $_GET['rc_msg'] ) ? sanitize_key( wp_unslash( $_GET['rc_msg'] ) ) : '';
+		$err = isset( $_GET['rc_err'] ) ? sanitize_text_field( wp_unslash( $_GET['rc_err'] ) ) : '';
 		// phpcs:enable
 		$messages = array(
 			'saved'       => __( 'Saved.', 'review-captain' ),

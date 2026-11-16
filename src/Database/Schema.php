@@ -109,14 +109,14 @@ final class Schema {
   KEY email_hash (author_email_hash),
   KEY tombstone (tombstoned_at)",
 
-			'rc_review_log'     => "id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			'rc_review_log'     => 'id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   review_id bigint(20) unsigned NOT NULL,
   action varchar(20) NOT NULL,
   reason varchar(255) NULL,
   user_id bigint(20) unsigned NULL,
   created_at datetime NOT NULL,
   PRIMARY KEY  (id),
-  KEY review_time (review_id,created_at)",
+  KEY review_time (review_id,created_at)',
 
 			'rc_profiles'       => "id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   provider varchar(32) NOT NULL,
@@ -202,7 +202,7 @@ final class Schema {
   PRIMARY KEY  (id),
   UNIQUE KEY uuid (uuid)",
 
-			'rc_audit_log'      => "id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			'rc_audit_log'      => 'id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   event varchar(64) NOT NULL,
   object_type varchar(32) NULL,
   object_id varchar(64) NULL,
@@ -211,7 +211,7 @@ final class Schema {
   created_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY created (created_at),
-  KEY object (object_type,object_id)",
+  KEY object (object_type,object_id)',
 		);
 	}
 }

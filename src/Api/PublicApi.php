@@ -19,13 +19,12 @@ defined( 'ABSPATH' ) || exit;
 
 final class PublicApi {
 
-	public const EVENT_TYPES = array( 'experience_completed', 'experience_cancelled', 'experience_refunded', 'experience_no_show', 'recipient_opted_out' );
+	public const EVENT_TYPES  = array( 'experience_completed', 'experience_cancelled', 'experience_refunded', 'experience_no_show', 'recipient_opted_out' );
 	public const OBJECT_TYPES = array( 'product', 'voucher_product', 'event', 'appointment', 'course', 'booking' );
 	public const BASES        = array( 'consent', 'existing_customer', 'unknown', 'denied' );
 
 	public static function register(): void {
 		add_action( 'wp_review_captain_experience_event_v1', array( self::class, 'submit_event' ) );
-		require_once __DIR__ . '/functions.php';
 	}
 
 	/**
@@ -45,7 +44,7 @@ final class PublicApi {
 	public static function submit_event( $event ): array {
 		$event = is_array( $event ) ? $event : array();
 		$code  = self::validate_event( $event );
-		$key   = $code === 'ok' ? hash( 'sha256', $event['source'] . '|' . $event['event_id'] ) : '';
+		$key   = 'ok' === $code ? hash( 'sha256', $event['source'] . '|' . $event['event_id'] ) : '';
 		if ( 'ok' !== $code ) {
 			self::count( $code );
 			return array(

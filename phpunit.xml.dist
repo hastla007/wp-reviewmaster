@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <phpunit
 	bootstrap="tests/bootstrap.php"
+	defaultTestSuite="review-captain"
 	backupGlobals="false"
 	colors="true"
 	convertErrorsToExceptions="true"
@@ -10,6 +11,9 @@
 	<testsuites>
 		<testsuite name="review-captain">
 			<directory suffix="Test.php">./tests/integration</directory>
+		</testsuite>
+		<testsuite name="perf">
+			<directory suffix="Test.php">./tests/perf</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>

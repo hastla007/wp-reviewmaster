@@ -19,7 +19,26 @@ final class Assets {
 
 	public static function register_assets(): void {
 		wp_register_style( 'review-captain', REVIEW_CAPTAIN_URL . 'assets/css/frontend.css', array(), REVIEW_CAPTAIN_VERSION );
-		wp_register_script( 'review-captain-form', REVIEW_CAPTAIN_URL . 'assets/js/form.js', array(), REVIEW_CAPTAIN_VERSION, array( 'in_footer' => true, 'strategy' => 'defer' ) );
+		wp_register_script(
+			'review-captain-form',
+			REVIEW_CAPTAIN_URL . 'assets/js/form.js',
+			array(),
+			REVIEW_CAPTAIN_VERSION,
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
+		);
+		wp_register_script(
+			'review-captain-embed',
+			REVIEW_CAPTAIN_URL . 'assets/js/embed.js',
+			array(),
+			REVIEW_CAPTAIN_VERSION,
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
+		);
 		wp_register_script(
 			'review-captain-blocks',
 			REVIEW_CAPTAIN_URL . 'assets/js/blocks.js',

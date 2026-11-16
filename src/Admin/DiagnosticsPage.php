@@ -12,7 +12,6 @@ use ReviewCaptain\Connectors\Registry;
 use ReviewCaptain\Database\Schema;
 use ReviewCaptain\Jobs\Queue;
 use ReviewCaptain\Jobs\Runner;
-use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Security\Crypto;
 use ReviewCaptain\Seo\SchemaOutput;
 
@@ -36,7 +35,7 @@ final class DiagnosticsPage {
 		$jobs = Queue::stats();
 		$seo  = SchemaOutput::environment();
 		$data = array(
-			'environment' => array(
+			'environment'  => array(
 				'review_captain' => REVIEW_CAPTAIN_VERSION,
 				'db_version'     => Schema::installed_version(),
 				'wordpress'      => get_bloginfo( 'version' ),
@@ -46,7 +45,7 @@ final class DiagnosticsPage {
 				'woocommerce'    => defined( 'WC_VERSION' ) ? WC_VERSION : null,
 				'locale'         => get_locale(),
 			),
-			'jobs'        => array(
+			'jobs'         => array(
 				'runner'          => Runner::mode(),
 				'wp_cron_off'     => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON,
 				'last_worker_run' => (int) get_option( Runner::LAST_RUN, 0 ) ? gmdate( 'c', (int) get_option( Runner::LAST_RUN ) ) : null,
@@ -55,17 +54,17 @@ final class DiagnosticsPage {
 				'overdue_minutes' => $jobs['overdue_minutes'],
 				'delayed'         => $jobs['delayed'],
 			),
-			'security'    => array(
+			'security'     => array(
 				'sodium'             => Crypto::is_available(),
 				'explicit_crypt_key' => Crypto::has_explicit_key(),
 			),
-			'seo'         => array(
+			'seo'          => array(
 				'yoast'           => $seo['yoast'],
 				'yoast_supported' => SchemaOutput::yoast_supported(),
 				'competing'       => $seo['competing'],
 				'schema_mode'     => null !== $seo['yoast'] ? 'yoast_graph' : ( $seo['competing'] ? 'disabled_competing_plugin' : 'own_json_ld' ),
 			),
-			'connectors'  => array_map(
+			'connectors'   => array_map(
 				static function ( $e ) {
 					return array(
 						'version'      => $e['metadata']['version'],
@@ -77,8 +76,8 @@ final class DiagnosticsPage {
 				},
 				Registry::instance()->all()
 			),
-			'events'      => (array) get_option( 'review_captain_event_stats', array() ),
-			'spam_blocked'=> (int) get_option( 'review_captain_spam_blocked', 0 ),
+			'events'       => (array) get_option( 'review_captain_event_stats', array() ),
+			'spam_blocked' => (int) get_option( 'review_captain_spam_blocked', 0 ),
 		);
 		if ( $include_milestones ) {
 			$data['milestones'] = (array) get_option( 'review_captain_milestones', array() );
@@ -150,7 +149,7 @@ final class DiagnosticsPage {
 	}
 
 	public static function handle_report(): void {
-		Capabilities::check( 'rc_view_reports', 'rc_diagnostics_report' );
+		review_captain_check_request( 'rc_view_reports', 'rc_diagnostics_report' );
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename=review-captain-diagnostics-' . gmdate( 'Y-m-d' ) . '.json' );
@@ -159,14 +158,14 @@ final class DiagnosticsPage {
 	}
 
 	public static function handle_run_queue(): void {
-		Capabilities::check( 'rc_manage_settings', 'rc_run_queue' );
+		review_captain_check_request( 'rc_manage_settings', 'rc_run_queue' );
 		Runner::run( 20 );
 		Menu::back( 'review-captain-diagnostics', 'queued' );
 	}
 
 	public static function handle_retry_job(): void {
 		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_settings', 'rc_retry_job_' . $id );
+		review_captain_check_request( 'rc_manage_settings', 'rc_retry_job_' . $id );
 		Queue::retry( $id );
 		Menu::back( 'review-captain-diagnostics', 'queued' );
 	}

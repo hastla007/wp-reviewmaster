@@ -10,7 +10,6 @@ namespace ReviewCaptain\Admin;
 use ReviewCaptain\Frontend\Renderer;
 use ReviewCaptain\Reviews\ReviewRepository;
 use ReviewCaptain\Reviews\ReviewService;
-use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Widgets\WidgetRepository;
 
 defined( 'ABSPATH' ) || exit;
@@ -93,6 +92,7 @@ final class WidgetsPage {
 			submit_button( __( 'Delete widget', 'review-captain' ), 'delete', 'submit', false );
 			echo '</form>';
 		}
+		echo '<div class="notice notice-info inline"><p>' . esc_html__( 'Structured data (SEO): only approved reviews collected on this website for a product, course, event or app are marked up – and only on the page of that item. Reviews from other platforms, reviews about your company and testimonials never get review markup. Rich results are not guaranteed.', 'review-captain' ) . '</p></div>';
 		echo '</div><div class="rc-side"><h2>' . esc_html__( 'Preview', 'review-captain' ) . '</h2><div class="rc-preview">';
 		wp_enqueue_style( 'review-captain' );
 		$preview = Renderer::widget( $config, $layout );
@@ -101,7 +101,7 @@ final class WidgetsPage {
 	}
 
 	public static function handle_save(): void {
-		Capabilities::check( 'rc_manage_widgets', 'rc_save_widget' );
+		review_captain_check_request( 'rc_manage_widgets', 'rc_save_widget' );
 		$in     = wp_unslash( $_POST );
 		$config = array(
 			'providers'            => (array) ( $in['providers'] ?? array() ),
@@ -115,13 +115,21 @@ final class WidgetsPage {
 			'include_testimonials' => ! empty( $in['include_testimonials'] ),
 			'show_summary'         => ! empty( $in['show_summary'] ),
 		);
-		$id = WidgetRepository::save( absint( $in['id'] ?? 0 ), (string) ( $in['title'] ?? '' ), (string) ( $in['layout'] ?? 'grid' ), $config );
-		Menu::back( self::PAGE, 'saved', '', array( 'action' => 'edit', 'id' => (string) $id ) );
+		$id     = WidgetRepository::save( absint( $in['id'] ?? 0 ), (string) ( $in['title'] ?? '' ), (string) ( $in['layout'] ?? 'grid' ), $config );
+		Menu::back(
+			self::PAGE,
+			'saved',
+			'',
+			array(
+				'action' => 'edit',
+				'id'     => (string) $id,
+			)
+		);
 	}
 
 	public static function handle_delete(): void {
 		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_widgets', 'rc_delete_widget_' . $id );
+		review_captain_check_request( 'rc_manage_widgets', 'rc_delete_widget_' . $id );
 		WidgetRepository::delete( $id );
 		Menu::back( self::PAGE, 'deleted' );
 	}

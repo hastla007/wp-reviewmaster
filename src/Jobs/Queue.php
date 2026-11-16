@@ -41,9 +41,9 @@ final class Queue {
 	 */
 	public static function enqueue( string $type, array $payload = array(), array $opts = array() ): int {
 		global $wpdb;
-		$unique = isset( $opts['unique_key'] ) ? hash( 'sha256', $type . '|' . $opts['unique_key'] ) : null;
-		$now    = self::now();
-		$data   = array(
+		$unique   = isset( $opts['unique_key'] ) ? hash( 'sha256', $type . '|' . $opts['unique_key'] ) : null;
+		$now      = self::now();
+		$data     = array(
 			'type'         => substr( $type, 0, 64 ),
 			'unique_key'   => $unique,
 			'payload'      => wp_json_encode( $payload ),

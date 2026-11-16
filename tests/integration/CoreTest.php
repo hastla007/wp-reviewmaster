@@ -151,4 +151,21 @@ class CoreTest extends WP_UnitTestCase {
 		$this->assertSame( REVIEW_CAPTAIN_DB_VERSION, Schema::installed_version() );
 		Activator::install_site();
 	}
+
+	public function test_multisite_data_is_isolated_per_site(): void {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite only (WP_MULTISITE=1).' );
+		}
+		$blog = self::factory()->blog->create();
+		\ReviewCaptain\Reviews\ReviewService::create_manual_external(
+			array( 'provider' => 'google', 'rating_value' => 5, 'content' => 'Main site', 'published_at' => '2026-01-01', 'source_url' => 'https://g.example/1', 'attribution' => 'Google' )
+		);
+		$main_count = \ReviewCaptain\Reviews\ReviewRepository::count();
+		switch_to_blog( $blog );
+		Activator::install_site();
+		$this->assertSame( 0, \ReviewCaptain\Reviews\ReviewRepository::count() );
+		$this->assertStringContainsString( '_' . $blog . '_rc_reviews', Schema::table( 'rc_reviews' ) );
+		restore_current_blog();
+		$this->assertSame( $main_count, \ReviewCaptain\Reviews\ReviewRepository::count() );
+	}
 }

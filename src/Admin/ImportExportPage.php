@@ -8,7 +8,6 @@
 namespace ReviewCaptain\Admin;
 
 use ReviewCaptain\ImportExport\Csv;
-use ReviewCaptain\Security\Capabilities;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -100,7 +99,7 @@ final class ImportExportPage {
 	}
 
 	public static function handle_export(): void {
-		Capabilities::check( 'rc_manage_reviews', 'rc_export' );
+		review_captain_check_request( 'rc_manage_reviews', 'rc_export' );
 		$filters = array();
 		$status  = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '';
 		if ( $status ) {
@@ -121,7 +120,7 @@ final class ImportExportPage {
 	}
 
 	public static function handle_preview(): void {
-		Capabilities::check( 'rc_manage_reviews', 'rc_import_preview' );
+		review_captain_check_request( 'rc_manage_reviews', 'rc_import_preview' );
 		if ( empty( $_FILES['csv']['tmp_name'] ) || ! is_uploaded_file( $_FILES['csv']['tmp_name'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			Menu::back( self::PAGE, '', __( 'Please choose a CSV file.', 'review-captain' ) );
 		}
@@ -130,8 +129,8 @@ final class ImportExportPage {
 		if ( 'csv' !== $check['ext'] || (int) $_FILES['csv']['size'] > 10 * MB_IN_BYTES ) {
 			Menu::back( self::PAGE, '', __( 'Only CSV files up to 10 MB can be imported.', 'review-captain' ) );
 		}
-		$parsed = Csv::parse( $_FILES['csv']['tmp_name'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		$result = Csv::dry_run( $parsed['rows'] );
+		$parsed             = Csv::parse( $_FILES['csv']['tmp_name'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$result             = Csv::dry_run( $parsed['rows'] );
 		$result['errors']  += $parsed['errors'];
 		$result['filename'] = $name;
 		set_transient( self::preview_key(), $result, HOUR_IN_SECONDS );
@@ -139,7 +138,7 @@ final class ImportExportPage {
 	}
 
 	public static function handle_import(): void {
-		Capabilities::check( 'rc_manage_reviews', 'rc_import_run' );
+		review_captain_check_request( 'rc_manage_reviews', 'rc_import_run' );
 		$preview = get_transient( self::preview_key() );
 		delete_transient( self::preview_key() );
 		if ( ! is_array( $preview ) || empty( $preview['valid'] ) ) {
@@ -153,7 +152,7 @@ final class ImportExportPage {
 
 	public static function handle_rollback(): void {
 		$batch = isset( $_POST['batch'] ) ? absint( $_POST['batch'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_reviews', 'rc_import_rollback_' . $batch );
+		review_captain_check_request( 'rc_manage_reviews', 'rc_import_rollback_' . $batch );
 		Csv::rollback( $batch );
 		Menu::back( self::PAGE, 'rolled_back' );
 	}

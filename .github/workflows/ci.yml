@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer
+      - run: composer install --no-interaction --no-progress
+      - name: PHP syntax
+        run: composer lint
+      - name: Coding standards
+        run: vendor/bin/phpcs
+      - name: Plugin metadata and package
+        run: bash bin/build-zip.sh
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ '8.1', '8.3' ]
+        multisite: [ '0', '1' ]
+    services:
+      mysql:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wp_tests
+          MARIADB_USER: wp
+          MARIADB_PASSWORD: wp
+        ports: [ '3306:3306' ]
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=5
+    env:
+      WP_TESTS_DB_HOST: 127.0.0.1:3306
+      WP_TESTS_DB_NAME: wp_tests
+      WP_TESTS_DB_USER: wp
+      WP_TESTS_DB_PASSWORD: wp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mysqli, sodium
+          tools: composer
+      - run: composer install --no-interaction --no-progress
+      - run: vendor/bin/phpunit
+        env:
+          WP_MULTISITE: ${{ matrix.multisite }}

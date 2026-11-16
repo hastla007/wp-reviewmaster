@@ -20,7 +20,12 @@ require_once REVIEW_CAPTAIN_DIR . 'src/Autoloader.php';
 \ReviewCaptain\Autoloader::register();
 
 if ( is_multisite() ) {
-	foreach ( get_sites( array( 'fields' => 'ids', 'number' => 0 ) ) as $review_captain_site_id ) {
+	foreach ( get_sites(
+		array(
+			'fields' => 'ids',
+			'number' => 0,
+		)
+	) as $review_captain_site_id ) {
 		switch_to_blog( (int) $review_captain_site_id );
 		\ReviewCaptain\Install\Uninstaller::uninstall_site();
 		restore_current_blog();

@@ -291,15 +291,15 @@ final class SettingsPage {
 
 	public static function handle_save(): void {
 		$group = isset( $_POST['group'] ) ? sanitize_key( wp_unslash( $_POST['group'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
-		Capabilities::check( 'rc_manage_settings', 'rc_save_settings_' . $group );
+		review_captain_check_request( 'rc_manage_settings', 'rc_save_settings_' . $group );
 		if ( ! in_array( $group, Schema::GROUPS, true ) || 'access' === $group ) {
 			Menu::back( self::PAGE );
 		}
 		if ( 'privacy' === $group && ! current_user_can( 'rc_manage_privacy' ) ) {
 			wp_die( esc_html__( 'You are not allowed to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
-		$input  = isset( $_POST['settings'] ) && is_array( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field.
-		$result = Settings::sanitize_group( $group, $input );
+		$input       = isset( $_POST['settings'] ) && is_array( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized per field.
+		$result      = Settings::sanitize_group( $group, $input );
 		$entitlement = Schema::GROUP_ENTITLEMENTS[ $group ] ?? null;
 		if ( null !== $entitlement && ! apply_filters( 'review_captain_has_entitlement', false, $entitlement ) ) {
 			Menu::back( self::PAGE, '', '', array( 'tab' => $group ) ); // Disabled fields: never overwrite stored values.
@@ -311,13 +311,21 @@ final class SettingsPage {
 		}
 		$audited = array_values( array_intersect( $changed, self::AUDITED ) );
 		if ( $audited ) {
-			AuditLog::log( 'settings_changed', 'settings', $group, array( 'changed_keys' => $audited, 'group' => $group ) );
+			AuditLog::log(
+				'settings_changed',
+				'settings',
+				$group,
+				array(
+					'changed_keys' => $audited,
+					'group'        => $group,
+				)
+			);
 		}
 		Menu::back( self::PAGE, $result['errors'] ? '' : 'saved', $result['errors'] ? implode( ' ', $result['errors'] ) : '', array( 'tab' => $group ) );
 	}
 
 	public static function handle_reset(): void {
-		Capabilities::check( 'rc_manage_settings', 'rc_reset_settings' );
+		review_captain_check_request( 'rc_manage_settings', 'rc_reset_settings' );
 		$group = isset( $_POST['group'] ) ? sanitize_key( wp_unslash( $_POST['group'] ) ) : '';
 		if ( in_array( $group, Schema::GROUPS, true ) ) {
 			Settings::reset_group( $group );
@@ -327,7 +335,7 @@ final class SettingsPage {
 	}
 
 	public static function handle_roles(): void {
-		Capabilities::check( 'manage_options', 'rc_save_roles' );
+		review_captain_check_request( 'manage_options', 'rc_save_roles' );
 		$map = array();
 		foreach ( (array) ( $_POST['roles'] ?? array() ) as $role => $caps ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$map[ sanitize_key( $role ) ] = array_map( 'sanitize_key', (array) $caps );
@@ -338,7 +346,7 @@ final class SettingsPage {
 	}
 
 	public static function handle_erase_all(): void {
-		Capabilities::check( 'rc_manage_privacy', 'rc_erase_all' );
+		review_captain_check_request( 'rc_manage_privacy', 'rc_erase_all' );
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
@@ -376,7 +384,7 @@ final class SettingsPage {
 	}
 
 	public static function handle_export_config(): void {
-		Capabilities::check( 'rc_manage_settings', 'rc_export_config' );
+		review_captain_check_request( 'rc_manage_settings', 'rc_export_config' );
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename=review-captain-config-' . gmdate( 'Y-m-d' ) . '.json' );
@@ -416,7 +424,7 @@ final class SettingsPage {
 	}
 
 	public static function handle_import_config(): void {
-		Capabilities::check( 'rc_manage_settings', 'rc_import_config' );
+		review_captain_check_request( 'rc_manage_settings', 'rc_import_config' );
 		$tmp = isset( $_FILES['config']['tmp_name'] ) ? (string) $_FILES['config']['tmp_name'] : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		if ( '' === $tmp || ! is_uploaded_file( $tmp ) || filesize( $tmp ) > 256 * KB_IN_BYTES ) {
 			Menu::back( self::PAGE, '', __( 'Please choose a configuration file.', 'review-captain' ), array( 'tab' => 'advanced' ) );

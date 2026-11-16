@@ -31,3 +31,15 @@ if ( ! function_exists( 'wp_review_captain_submit_experience_event_v1' ) ) {
 		return \ReviewCaptain\Api\PublicApi::submit_event( $event );
 	}
 }
+
+if ( ! function_exists( 'review_captain_check_request' ) ) {
+	/**
+	 * Verify capability and nonce for an admin action; dies with 403 otherwise (RC-037).
+	 *
+	 * @param string $capability   Required capability.
+	 * @param string $nonce_action Nonce action.
+	 */
+	function review_captain_check_request( string $capability, string $nonce_action ): void {
+		\ReviewCaptain\Security\Capabilities::check( $capability, $nonce_action );
+	}
+}
