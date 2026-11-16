@@ -20,7 +20,7 @@ Details zu den Verträgen: [contracts/suite-abgleich-2026-11-16.md](contracts/su
 
 ## Fortschritt Core (TODO.md)
 
-- 210 von 251 Punkten erledigt, 41 offen (≈ 84 %, Stand 16.11.2026 abends; 3 neue Punkte aus Entscheidungen: RC-026A, RC-119A, RC-125A). Offen sind überwiegend Freigaben/Entscheidungen der Inhaberin bzw. von Shop/Support (M0-Entwürfe RC-001…RC-016, ADR 0008–0010 „Vorgeschlagen“), Suite-Abhängigkeiten (RC-095…RC-104) und die Release-Phase (RC-131…RC-143, SEO-016/017).
+- 214 von 251 Punkten erledigt, 37 offen (≈ 85 %, Stand 16.11.2026 abends; 3 neue Punkte aus Entscheidungen: RC-026A, RC-119A, RC-125A). Offen sind überwiegend Freigaben/Entscheidungen der Inhaberin bzw. von Shop/Support (M0-Entwürfe RC-001…RC-016, ADR 0008–0010 „Vorgeschlagen“), Suite-Abhängigkeiten (RC-095…RC-104) und die Release-Phase (RC-131…RC-143, SEO-016/017).
 
 ## Diese Sitzung (16.11.2026)
 
