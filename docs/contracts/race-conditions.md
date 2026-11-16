@@ -169,9 +169,37 @@
 | TC-R12-a | Zwei Moderatoren ändern denselben Review gleichzeitig | zweiter Speichervorgang erkennt geänderten `updated_at` (Optimistic Lock) und zeigt Konfliktmeldung |
 | TC-R12-b | Sync aktualisiert Inhalt während Moderator freigibt | Status-CAS und Inhalts-Upsert unabhängig; beide Änderungen bleiben erhalten, `review_events` enthält beide |
 
+## Umsetzung und Testzuordnung (Stand 2026-11-16)
+
+Core-Tests laufen mit dem SQLite-Mini-WP (`vendor/bin/phpunit`). Statt zweier DB-Verbindungen schiebt `tests/Support/InterleavingWpdb.php` (der „Interleaver“ der Testtechnik) den konkurrierenden Vorgang **unmittelbar vor ein bestimmtes SQL-Statement** des geprüften Codes – genau die Stelle zwischen Lesen und Schreiben, an der ein zweiter Worker dazwischenkommen kann. Die Integrationsvariante mit zwei echten `mysqli`-Verbindungen auf MySQL 8/MariaDB bleibt offen (siehe Abnahme).
+
+| Szenario | Zuständig | Tests |
+|---|---|---|
+| R-01 Doppelzustellung/paralleler Eingang | Core: UNIQUE `dedupe_key`, `jobs.idempotency_key`, Workflow-Entwurf; Pro: `inbound_events`, `experiences`, `invitation_key` | Core `tests/Unit/Races/R01ConcurrentIntakeTest.php` (zwei gleichzeitige `upsert_external`, paralleles `enqueue`, 10× derselbe Workflow-Entwurf); Pro `captain-pro tests/Addons/ReviewSuiteIntegrationsTest.php`, `ReviewRequestsTest.php` |
+| R-02 Refund vs. Versand | Pro | `captain-pro tests/Addons/ReviewRequestSendTest.php`, `ReviewRequestsTest.php`, `ReviewWooAdapterTest.php` |
+| R-03 Opt-out/Widerruf vs. Versand | Pro | `captain-pro tests/Addons/ReviewRequestSendTest.php`, `ReviewRequestsTest.php` |
+| R-04 Token-Refresh parallel | Pro (Core stellt nur `profiles.credentials_rev`) | `captain-pro tests/Addons/ReviewPlatformAuthTest.php`, `ReviewPlatformConnectionsTest.php` |
+| R-05 zwei Sync-Läufe | Core: idempotentes Anwenden von Seiten (`SyncService`); Pro: Laufsperre, Cursor-CAS | Core `tests/Unit/Races/R05SyncRunsTest.php` (TC-R05-b/-d, gleichzeitiges Anwenden derselben Seite); Pro `captain-pro tests/Addons/ReviewPlatformConnectionsTest.php`, `ReviewPlatformProviderTest.php` |
+| R-06 Lease-Ablauf | Core: `JobQueue` (Claim-CAS, `lease_owner`-CAS); Pro: `send_key` | Core `tests/Unit/Races/R06JobLeaseTest.php` (doppelter Claim, TC-R06-b, Handler über Lease-Ende); Pro TC-R06-a `captain-pro tests/Addons/ReviewRequestSendTest.php` |
+| R-07 Kampagnen/Workflow + native Queue | Pro (`suite_lock_key`); Core: Workflow-Entwürfe | Pro `captain-pro tests/Addons/ReviewSuiteIntegrationsTest.php`, `ReviewRequestsTest.php`; Core `tests/Unit/Races/WorkflowDraftRaceTest.php` (Entwurf abbrechen vs. Freigabe) |
+| R-08 mehrere Versandjobs/Cooldown | Pro | `captain-pro tests/Addons/ReviewRequestSendTest.php`, `ReviewRequestsTest.php` |
+| R-09 Out-of-Order | Pro | `captain-pro tests/Addons/ReviewRequestsTest.php`, `ReviewSuiteIntegrationsTest.php` |
+| R-10 Backup-Restore | Core: Erkennung, Sperre, Reconciliation; Pro: Anfragen auf `hold` | Core `tests/Unit/Races/R10RestoreReconcileTest.php` (TC-R10-a/-b Core-Teil, Klon-Sperre); Pro `captain-pro tests/Addons/ReviewRequestSendTest.php` |
+| R-11 Quell-Plugin deaktiviert | Core: Connector-Gate im Runner; Pro: `expires_at` | Core `tests/Unit/Races/R11SourceDeactivatedTest.php`; Pro `captain-pro tests/Addons/ReviewConnectorManagerTest.php` |
+| R-12 parallele Moderation | Core | `tests/Unit/Races/R12ParallelModerationTest.php` (Status-CAS, TC-R12-a Optimistic Lock über `reviews.revision`, TC-R12-b Sync-Inhalt vs. Freigabe, Restore per Status-CAS) |
+| Zusatz: Import-Rollback vs. Moderation | Core | `tests/Unit/Races/ImportRollbackVsModerationTest.php` (Rollback gewinnt, keine Waisen; nachlaufender Verlaufseintrag wird von der Reconciliation entfernt) |
+| Zusatz: Eraser vs. Moderation | Core | `tests/Unit/Races/EraserVsModerationTest.php` (veralteter Editor kann anonymisierte Daten nicht zurückschreiben, Löschmodus, Foto) |
+
+Bei der Umsetzung gefundene und behobene Fehler (Core):
+
+1. **R-12b:** `ReviewRepository::upsert_external()` schrieb den zuvor gelesenen Status zurück und konnte eine gleichzeitige Moderationsentscheidung überschreiben. Jetzt schreibt das Upsert nur Inhalt; ein Restore (`removed` → Anfangsstatus) läuft als Status-CAS über `change_status()` mit Verlaufseintrag `remote_restored`.
+2. **R-12a:** Der Review-Editor hatte keinen Optimistic Lock; zwei Moderierende überschrieben sich still. Neu: `reviews.revision` (Schema v2), CAS beim Speichern, Hinweis `review_conflict`. Schützt zugleich davor, dass ein veralteter Editor-Stand anonymisierte Daten zurückschreibt.
+3. **R-10:** Der Runner-Heartbeat aktualisierte `last_seen_at` beim ersten Tick nach einem Restore und löschte damit den Restore-Nachweis, bevor die tägliche Reconciliation ihn sehen konnte; Jobs mit Außenwirkung liefen weiter. Neu: `Runner::heartbeat()` setzt bei Restore-/Klon-Verdacht sofort `review_captain_reconcile_required` und reiht genau eine Reconciliation ein; ein durch die Sperre verschobener Job behält seine ursprüngliche Fälligkeit (`payload._rc_due_at`), damit er als überfällig pausiert wird; die Reconciliation setzt ihren eigenen laufenden Job nicht mehr zurück (sonst Endlosschleife).
+4. **Waisen:** Ein Moderations-Verlaufseintrag, der nach dem Löschen eines Reviews geschrieben wird, blieb dauerhaft liegen. Die Reconciliation meldet jetzt `orphan_rows` und entfernt sie mit `--fix`.
+
 ## Abnahme
 
 - [ ] Gleichzeitig eintreffende Einlösung/Check-in (R-01), Refund vs. Einladungsversand (R-02), Tokenrefresh (R-04) und zwei Sync-Läufe derselben Quelle (R-05) sind als automatisierte Integrationstests mit zwei DB-Verbindungen umgesetzt und grün.
-- [ ] Alle übrigen Szenarien (R-03, R-06–R-12) haben mindestens die aufgeführten Testfälle.
+- [ ] Alle übrigen Szenarien (R-03, R-06–R-12) haben mindestens die aufgeführten Testfälle. (Core-Anteil R-06, R-10, R-11, R-12 und Core-Teil R-01/R-05: erledigt, siehe Tabelle; Pro-Anteil: Pro-Repository.)
 - [ ] Testlauf auf MySQL 8 und MariaDB (unterstützte Mindestversionen gemäß RC-006).
 - [ ] Kein Testfall erzeugt einen doppelten Transport-Aufruf (Transport-Fake zählt).

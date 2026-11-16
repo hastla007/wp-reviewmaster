@@ -395,3 +395,19 @@
 		stroke: CanvasText;
 	}
 }
+
+/* M7 (post-MVP, off by default): photo, report, Q&A, report notice. */
+.rc-card__photo { margin: 0.75em 0 0; }
+.rc-card__photo img { display: block; max-width: 100%; height: auto; border-radius: 4px; }
+.rc-report { margin-top: 0.5em; font-size: 0.85em; }
+.rc-report__toggle { cursor: pointer; text-decoration: underline; }
+.rc-report__form { display: flex; flex-wrap: wrap; gap: 0.5em; align-items: center; margin-top: 0.5em; }
+.rc-report__form label { flex-basis: 100%; }
+.rc-notice { padding: 0.5em 0.75em; border-left: 4px solid currentColor; }
+.rc-qa__list { list-style: none; margin: 0 0 1.5em; padding: 0; }
+.rc-qa__item { padding: 0.75em 0; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+.rc-qa__label { font-weight: 600; }
+.rc-qa__author { margin: 0.25em 0; font-size: 0.85em; opacity: 0.8; }
+.rc-qa__answer--open { font-style: italic; }
+.rc-form__field--item { border: 1px solid rgba(0, 0, 0, 0.15); padding: 0.75em; margin-bottom: 1em; }
+.rc-form__field--item textarea { width: 100%; }

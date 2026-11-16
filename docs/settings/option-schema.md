@@ -102,11 +102,27 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `max_text_length` | int | `5000` | 50–20 000 | site | P0 | — |
 | `allow_title` | bool | `true` | bool | site | P0 | — |
 | `notify_admin` | bool | `true` | bool | site | P1 | — |
+| `tags_enabled` | bool | `false` | bool | site | P0 | — |
+| `reports_enabled` | bool | `false` | bool | site | P1 | — |
+| `report_threshold` | int (erweitert) | `1` | 1–20 | site | P0 | — |
+| `report_rate_limit_per_hour` | int (erweitert) | `5` | 1–100, je IP-Hash | site | P0 | — |
+| `photos_enabled` | bool | `false` | bool | site | P2 | — |
+| `photo_max_kb` | int | `2048` | 100–10 240 | site | P0 | — |
+| `multi_product_enabled` | bool | `false` | bool | site | P1 | — |
+| `qa_enabled` | bool | `false` | bool | site | P2 | — |
+| `feedback_campaigns_enabled` | bool | `false` | bool | site | P0 | — |
 
 - `enabled = false`: Formular-Block/-Shortcode rendert einen neutralen Hinweis statt des Formulars; `admin-post.php`-Handler lehnt ab.
 - `require_consent = true`: Pflicht-Checkbox „Veröffentlichung erlauben“, setzt `consent_publish`/`consent_at`. Bei `false` wird `consent_publish = 0` gespeichert und **das Review kann trotzdem nur nach Moderation veröffentlicht werden**; der Tab zeigt eine Warnung.
 - `honeypot = false` zeigt eine Warnung; Nonce und Rate-Limit bleiben immer aktiv.
 - `notify_admin`: E-Mail an `admin_email` ohne Reviewtext und ohne Autor-E-Mail, nur Link zur Moderation.
+- **M7 / Post-MVP (Schema v2), alle standardmäßig aus** – sie verändern den 1.0-Umfang nicht:
+  - `tags_enabled` (RC-124): interne Tags im Review-Editor und Tag-Filter in der Liste; nie öffentlich.
+  - `reports_enabled` (RC-124): Link „Melden“ (`<details>`-Formular, ohne JavaScript) unter freigegebenen Reviews; admin-post `review_captain_report` mit Nonce, Grund aus fester Liste, Rate-Limit `report_rate_limit_per_hour` (und eine Meldung je Adresse/Review/Stunde). Ab `report_threshold` offenen Meldungen wird das Review `flagged` (ausgeblendet). Filter „Nur mit offenen Meldungen“ in der Liste.
+  - `photos_enabled`/`photo_max_kb` (RC-121): optionales Foto (JPG/PNG/WebP, Inhaltsprüfung per finfo, max. 40 MP), Neukodierung mit GD (entfernt Exif/GPS, längste Kante 1600 px); ohne GD werden Fotos abgelehnt. Nur im Einzelformular.
+  - `multi_product_enabled` (RC-123): `[review_captain_form v="1" context_type="product" context_ids="11,12"]` – signierte Liste, je bewertetem Kontext ein Review; je Person (E-Mail) und Kontext höchstens ein Review (`reviews.submission_key`, UNIQUE) – gilt bei aktivem Schalter auch für das Einzelformular mit Kontext.
+  - `qa_enabled` (RC-122): Shortcode `[review_captain_qa]` und Admin-Seite „Fragen & Antworten“.
+  - `feedback_campaigns_enabled` (RC-126): Admin-Seite „Feedback-Links“ (QR-SVG, wa.me-Link), Capability `review_captain_manage_settings`.
 - Ausblick (nicht in v1): Inkonsistente Längen (min ≥ max) zurückweisen. In v1 werden beide Werte unabhängig begrenzt.
 
 ### 4.5 `display` – Darstellung (Voreinstellung neuer Widgets)
@@ -122,11 +138,13 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `reduced_motion` | bool | `true` | bool | site | P0 | — |
 | `schema_enabled` | bool | `true` | bool; `false` schaltet die gesamte Schema-Ausgabe des SEO-Moduls ab | site | P0 | — |
 | `load_css` | bool (erweitert) | `true` | bool | site | P0 | — |
+| `show_photos` | bool | `false` | bool | site | P2 | — |
 
 - Quellenlabel/-link externer Reviews ist **nicht abschaltbar** und hat daher keinen Schalter.
 - `show_avatar = true` nutzt für lokale Reviews `get_avatar()`; ob dabei Gravatar kontaktiert wird, folgt der WP-Einstellung „Avatare anzeigen“. Der Tab weist darauf hin. Externe Avatar-URLs werden in 1.0 nicht geladen (OFFEN für Pro).
 - `reduced_motion = true`: keine automatischen Animationen/Auto-Rotation; zusätzlich gilt immer `@media (prefers-reduced-motion: reduce)`.
 - `load_css = false`: `assets/css/frontend.css` wird nicht eingereiht; Markup und Klassen bleiben gleich (Theme stylt selbst).
+- `show_photos` (RC-121, Schema v2): Fotos nur bei `status = approved` und diesem Schalter; Moderierende sehen sie immer im Editor.
 
 ### 4.6 `privacy` – Datenschutz & Aufbewahrung
 

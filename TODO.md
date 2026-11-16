@@ -89,7 +89,7 @@ Diese Infrastrukturentscheidungen müssen vor den davon abhängigen Core-/Pro-Im
 - [x] **TEC-002 – Produktions-Cron und Verzögerung dokumentieren.** Ergebnis: zeitkritische Syncs/Review-Einladungen funktionieren mit empfohlenem System-Cron; Admin zeigt fällige/überfällige Jobs und keine angeblich präzisen Zeiten bei unzuverlässigem WP-Cron.
 - [x] **TEC-003 – Job-Claiming und Lease implementieren.** Ergebnis: ein Job hat atomaren Besitzer, Ablaufzeit und Recovery nach Prozessabbruch; zwei Worker können denselben Job nicht gleichzeitig ausführen.
 - [x] **TEC-004 – Idempotenz in der Datenbank erzwingen.** Ergebnis: Unique Constraints für externe Review-IDs, Experience-/Recipient-/Campaign-Schlüssel und Provider-Event-IDs verhindern Duplikate auch bei parallelen Hooks und Retry.
-- [ ] **TEC-005 – Race-Conditions spezifizieren und abnehmen.** Ergebnis: Tests decken gleichzeitig eintreffende Einlösung/Check-in, Refund vs. Einladungsversand, Tokenrefresh und zwei Sync-Läufe derselben Quelle ab.
+- [ ] **TEC-005 – Race-Conditions spezifizieren und abnehmen.** _(Core-Tests `tests/Unit/Races/` für R-01/R-05 (Core-Teil), R-06, R-10, R-11, R-12, Import-Rollback, Eraser; Zuordnung und behobene Fehler in `docs/contracts/race-conditions.md`. Offen: Zwei-Verbindungs-Integrationstests auf MySQL 8/MariaDB, Pro-Anteil R-02–R-04/R-07–R-09 im Pro-Repository.)_ Ergebnis: Tests decken gleichzeitig eintreffende Einlösung/Check-in, Refund vs. Einladungsversand, Tokenrefresh und zwei Sync-Läufe derselben Quelle ab.
 - [x] **TEC-006 – Retry- und Dead-letter-Politik pro Fehlerklasse festlegen.** Ergebnis: temporär, permanent, Rate-Limit, Authentifizierungsfehler und Datenfehler haben getrennte Retry-/Pause-/Adminaktionsregeln; Retry-After wird beachtet.
 - [x] **TEC-007 – API-Budgets und Parallelitätslimits implementieren.** Ergebnis: pro Quelle/Profile sind Seitenlimit, tägliches/zeitliches Budget, Backoff und Admin-Warnschwelle einstellbar; ein Sync kann Website oder Anbieterquote nicht ungebremst belasten.
 - [x] **TEC-008 – Tokenverschlüsselung und Schlüsselrotation festlegen.** Ergebnis: Schlüsselquelle, Algorithmus/Nonce-Handling, Rotation, Backup/Wiederherstellung und Verhalten bei fehlendem/ungültigem Schlüssel sind dokumentiert und implementiert; Tokens erscheinen nie in Logs/Exporten.
@@ -247,15 +247,15 @@ Jeder Provider durchläuft dieselbe Reihenfolge: Verbindung → Test → Profilw
 
 Diese Aufgaben starten erst, wenn MVP-Funktionen und API-Rechte stabil sind. Sie blockieren Pro 1.0 nur, wenn sie im Scope-Freeze ausdrücklich als Launchanforderung ausgewählt wurden.
 
-- [ ] **RC-121 – Foto-Reviews mit Moderation ergänzen.** Abnahme: Upload wird vor Veröffentlichung geprüft, datensparsam gespeichert und löschbar.
-- [ ] **RC-122 – Produkt-Q&A ergänzen.** Abnahme: Fragen und Antworten sind von Bewertungen getrennt, moderierbar und einem Woo-Produkt zugeordnet.
-- [ ] **RC-123 – Review-Formular für mehrere Produkte erweitern.** Abnahme: eine Order-Session kann mehrere Positionen bewerten; keine Doppelreviews.
-- [ ] **RC-124 – Review-Tags und Meldungen ergänzen.** Abnahme: interne Tags, öffentliches Melden und Adminprüfung sind verfügbar.
-- [ ] **RC-125 – Review-Autorenkorrektur definieren.** Abnahme: Identitätsprüfung, Audit und Versionierung verhindern unbemerkte Änderung freigegebener Reviews.
-- [ ] **RC-126 – WhatsApp-Link/QR-Campaign ergänzen.** Abnahme: nur offiziell erlaubter Click-to-Chat oder Anbieter; Feedback-QR wird nie mit Ticket-Einlasscode verwechselt.
-- [ ] **RC-127 – Google-Shopping-Review-Feed evaluieren.** Abnahme: Merchant-Center-Freigabe, Herkunftsanforderungen und Feedvalidierung liegen vor; sonst wird das Feature nicht beworben.
-- [ ] **RC-128 – Weitere Plattformen priorisieren.** Abnahme: jede neue Plattform hat Nachfragebeleg, offizielle Zugriffsmethode, Nutzungsrecht und Kostenentscheidung.
-- [ ] **RC-129 – Sentiment-/KI-Funktionen neu bewerten.** Abnahme: nur als separates Produktdecision-Dokument mit Datenfluss, Einwilligung und menschlicher Kontrolle; kein automatisches Veröffentlichen.
+- [x] **RC-121 – Foto-Reviews mit Moderation ergänzen.** _(Core, Schema v2, Schalter `submissions.photos_enabled`/`display.show_photos`, Standard aus; `src/Media/PhotoStore.php`.)_ Abnahme: Upload wird vor Veröffentlichung geprüft, datensparsam gespeichert und löschbar.
+- [x] **RC-122 – Produkt-Q&A ergänzen.** _(Core, Tabelle `questions`, `[review_captain_qa]`, Schalter `submissions.qa_enabled`, Standard aus.)_ Abnahme: Fragen und Antworten sind von Bewertungen getrennt, moderierbar und einem Woo-Produkt zugeordnet.
+- [x] **RC-123 – Review-Formular für mehrere Produkte erweitern.** _(Core: `context_ids` + UNIQUE `submission_key`, Schalter `submissions.multi_product_enabled`, Standard aus; Kaufverifizierung je Bestellung bleibt Pro.)_ Abnahme: eine Order-Session kann mehrere Positionen bewerten; keine Doppelreviews.
+- [x] **RC-124 – Review-Tags und Meldungen ergänzen.** _(Core: `review_tags`, `review_reports`, Schalter `tags_enabled`/`reports_enabled`, Standard aus.)_ Abnahme: interne Tags, öffentliches Melden und Adminprüfung sind verfügbar.
+- [ ] **RC-125 – Review-Autorenkorrektur definieren.** _(Spezifikation: `docs/decisions/author-correction.md` – Entscheidung des Inhabers offen.)_ Abnahme: Identitätsprüfung, Audit und Versionierung verhindern unbemerkte Änderung freigegebener Reviews.
+- [x] **RC-126 – WhatsApp-Link/QR-Campaign ergänzen.** _(Core: eigener QR-Encoder (SVG, „Feedback geben – Kein Ticket“), wa.me-Generator, Schalter `submissions.feedback_campaigns_enabled`, Standard aus.)_ Abnahme: nur offiziell erlaubter Click-to-Chat oder Anbieter; Feedback-QR wird nie mit Ticket-Einlasscode verwechselt.
+- [ ] **RC-127 – Google-Shopping-Review-Feed evaluieren.** _(Vorlage `docs/decisions/google-shopping-feed.md`; Merchant-Center-Freigabe offen, Feature wird nicht beworben.)_ Abnahme: Merchant-Center-Freigabe, Herkunftsanforderungen und Feedvalidierung liegen vor; sonst wird das Feature nicht beworben.
+- [ ] **RC-128 – Weitere Plattformen priorisieren.** _(Kriterienkatalog + Kandidaten: `docs/decisions/weitere-plattformen.md`; Nachfragebelege/Kostenentscheidung offen.)_ Abnahme: jede neue Plattform hat Nachfragebeleg, offizielle Zugriffsmethode, Nutzungsrecht und Kostenentscheidung.
+- [ ] **RC-129 – Sentiment-/KI-Funktionen neu bewerten.** _(Vorlage `docs/decisions/ki-funktionen.md`, Empfehlung: kein Auto-Publish, kein KI-Feature in Core 1.x.)_ Abnahme: nur als separates Produktdecision-Dokument mit Datenfluss, Einwilligung und menschlicher Kontrolle; kein automatisches Veröffentlichen.
 
 ## M8 – Qualität, Sicherheit und Release
 
@@ -314,6 +314,7 @@ Diese Aufgaben liegen nach dem Release Candidate und vor bzw. unmittelbar nach �
 ## Änderungsverlauf
 
 - 2026-11-15: Erste ausführbare Aufgabenliste aus dem Review-Captain-Konzept erstellt.
+- 2026-11-16: Schema v2: RC-WF-03-Core-Services, TEC-005-Core-Tests (4 Race-Fehler behoben), M7-Funktionen RC-121–124/126 (standardmäßig aus), Entscheidungsvorlagen RC-125/127/128/129.
 - 2026-11-16: Free Core implementiert (src/, 296 Tests), Spezifikationen unter docs/, Sicherheitsprüfung (docs/security/review-2026-11.md). Erledigte Punkte abgehakt; offen sind Produktentscheidungen, externe Zugänge/Prüfungen und alle Pro-/Suite-Aufgaben (anderes Repository).
 
 
@@ -355,7 +356,7 @@ Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile E
 
 - [x] RC-WF-01 – Öffentlichen Providervertrag v1 mit Schema-Version, stabiler Event-ID, Capability, Entitlement, Payload-Allowlist, Idempotency-Key und Deprecation-Regel dokumentieren.
 - [x] RC-WF-02 – Post-Commit-Events für Anfrage geplant/übersprungen/gesendet/fehlgeschlagen, Erinnerung, Antwort, Review erstellt/moderiert/veröffentlicht/zurückgezogen und Opt-out bereitstellen; keine Reviewtexte, E-Mail oder Tokens in Logs.
-- [ ] RC-WF-03 – Services zum Planen/Abbrechen zulässiger Anfragen, Erstellen genehmigter Entwürfe und Lesen datensparsamer Aggregate anbieten. Workflow darf Einladungsberechtigung, Consent, Opt-out, Suppression, Frequenzlimits, Plattformziel oder Moderation nicht umgehen.
+- [x] RC-WF-03 – Services zum Planen/Abbrechen zulässiger Anfragen, Erstellen genehmigter Entwürfe und Lesen datensparsamer Aggregate anbieten. Workflow darf Einladungsberechtigung, Consent, Opt-out, Suppression, Frequenzlimits, Plattformziel oder Moderation nicht umgehen. _(Core: `ReviewCaptain\Workflow\WorkflowService` (Service `workflow`): `create_draft`, `cancel_draft`, `aggregates`, `request_capabilities`; Planen/Abbrechen delegiert an den Pro-Planer über `review_captain_request_planner_v1`.)_
 - [x] RC-WF-04 – Suite-Trigger und erweiterte Actions an Review-Pro-Recht binden, native Queue als Standard behalten und explizite Ownership-Übergabe unterstützen; parallele Woo/Pass/Voucher/Workflow-Einladungen deduplizieren.
 - [x] RC-WF-05 – Review-Admin um Workflow-Verbindung, Contract-Version, aktive Übergabe, Eventannahme, Ablehnungsgrund und Retrystatus ergänzen; fehlendes/inkompatibles Workflow lässt Review Core normal laufen.
 - [x] RC-WF-06 – Pass-Check-in und qualifizierte Voucher-Leistung dürfen Anfrage planen; Refund, Absage, No-show, Consent fehlt, Opt-out und Duplikat blockieren. Form-Entry darf nur explizit gemappten pending/unverified Entwurf übergeben.

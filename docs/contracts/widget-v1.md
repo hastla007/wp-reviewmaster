@@ -15,7 +15,7 @@ Alle drei Shortcodes und beide Blöcke werden auf **eine** normalisierte Struktu
 ### Attribute (vollständig für v1)
 
 ```
-[review_captain v="1" type="reviews" layout="grid|list" columns="3" platform="" kind="all|review|testimonial" min_rating="" limit="6" context_type="" context_id="" show_source="1" show_date="" show_author="" show_summary="1" paginate="0" profile="" new_tab="0"]
+[review_captain v="1" type="reviews" layout="grid|list" columns="3" platform="" kind="all|review|testimonial" min_rating="" limit="6" context_type="" context_id="" show_source="1" show_date="" show_author="" show_summary="1" paginate="0" profile="" new_tab="0" heading_level="3"]
 ```
 
 Defaults exakt nach `WidgetDefinition`. Ungültige Werte fallen auf den Default zurück und werden in `WidgetDefinition::$notices` (nur für Admins/Debug) vermerkt.
@@ -41,6 +41,8 @@ Defaults exakt nach `WidgetDefinition`. Ungültige Werte fallen auf den Default 
 | `new_tab` | wie `show_source` | `0` | Default | nur für den CTA-Typ ausgewertet (`target="_blank"` + Hinweis „öffnet in neuem Tab“) |
 
 Attributnamen werden kleingeschrieben, Werte getrimmt. Unbekannte Attribute bleiben (als String) in `WidgetDefinition::$raw` für Pro-Widget-Typen erhalten und werden vom Core ignoriert.
+
+Ergänzung (Stand 2026-11-16, QA F-07): `heading_level` – Ganzzahl 2–6, Standard `3`; Überschriftenebene der Kartentitel (`<h3 class="rc-card__title">`), damit die Gliederung unter der Seitenüberschrift stimmt. Ungültige Werte → Standard + Hinweis. Block-Attribut `headingLevel` (integer, Standard 3).
 
 ### Normalisierte Struktur (`WidgetDefinition::to_array()`)
 
@@ -166,7 +168,7 @@ Zeigt einen Button „Bewerte uns auf {Plattform}“ mit dem Link des Profils (`
 ### Attribute (vollständig)
 
 ```
-[review_captain_form v="1" context_type="" context_id=""]
+[review_captain_form v="1" context_type="" context_id="" context_ids=""]
 ```
 
 | Attribut | Werte | Default | Validierung |
@@ -179,6 +181,16 @@ Block `review-captain/form` mit Attributen `v` (Default `"1"`), `contextType`, `
 
 > **Implementierter Stand (maßgeblich, `src/Frontend/FormHandler.php`, `templates/review-form.php`):** Aktion `review_captain_submit` (`FormHandler::ACTION`, Nonce-Aktion ebenso, Nonce-Feld `_rc_nonce`). Felder: `rc_rating` (1–5, keine Vorauswahl), `rc_title` (≤ 150 Zeichen, nur bei `submissions.allow_title`), `rc_body` (Länge `submissions.min_text_length`…`max_text_length`, Default 20…5000), `rc_name` (≤ 100, öffentlich), `rc_email` (Pflicht, nie öffentlich), `rc_consent` (Pflicht bei `submissions.require_consent`), Honeypot `rc_website` (bei `submissions.honeypot`), signierter Zeitstempel `rc_ts` (mind. 3 s, max. 24 h), Kontext `rc_context_type`/`rc_context_id` mit Signatur `rc_context_sig`, Rücksprung `rc_return`, Formularinstanz `rc_form`. Rate-Limit `submissions.rate_limit_per_hour` (Default 5) je IP-Hash (IPv6: /64-Präfix; Transient, IP wird nicht gespeichert); Fehlversuche bis zum Dreifachen. Status neuer Einreichungen nach `general.new_review_status` (Default `pending`). Ergebnis per Redirect (303) mit `rc_submitted=1|2` bzw. `rc_error=<codes>` und optional `rc_draft=<token>` (Entwurf ohne E-Mail, 10 min Transient). Template: `templates/review-form.php`. Die folgende Tabelle beschreibt den ursprünglichen Entwurf; abweichende Feld- und Parameternamen gelten als überholt.
 
+
+Ergänzungen Schema v2 (M7, standardmäßig aus):
+
+- `context_ids` (nur mit `submissions.multi_product_enabled` und `context_type`): kommagetrennte Liste (≤ 20, je `[A-Za-z0-9_.:-]{1,64}`). Das Formular zeigt je Kontext Sterne + Text (`rc_items[<id>][rating|body]`) statt `rc_rating`/`rc_body`; die Liste wird als `rc_context_ids` mit Signatur `rc_context_ids_sig` übertragen. Je bewertetem Kontext entsteht ein Review; nicht bewertete Positionen werden übersprungen; Kontexte außerhalb der signierten Liste werden ignoriert. Doppelte Bewertung derselben Person (E-Mail, Groß-/Kleinschreibung egal) für denselben Kontext → Fehler `duplicate` (UNIQUE `submission_key`). Fehler: `items_empty`, `item_rating`, `item_body_short`, `item_body_long`.
+- Foto (`submissions.photos_enabled`, nur Einzelformular): Feld `rc_photo` (`enctype="multipart/form-data"`), Fehler `photo_upload`, `photo_size`, `photo_type`, `photo_invalid`, `photo_unsupported`.
+- Nach einem Fehler zeigt der Redirect auf `#rc-form-<n>-errors`; die Fehlerbox hat `role="alert" tabindex="-1" autofocus` (QA F-06).
+
+### Produkt-Q&A `[review_captain_qa]` (Schema v2, `submissions.qa_enabled`)
+
+`[review_captain_qa v="1" context_type="product" context_id="123|current" limit="10"]` – listet freigegebene Fragen mit Antwort des Anbieters und ein Frageformular (admin-post `review_captain_question`, Nonce-Feld `_rc_q_nonce`, Honeypot, signierter Zeitstempel und Kontext, Rate-Limit `submissions.rate_limit_per_hour`). Felder `rc_question` (10–1000), `rc_name` (öffentlich), `rc_email` (optional, nie öffentlich), `rc_consent`. Fragen sind keine Reviews: kein Rating, keine Zählung in Übersichten, **kein Schema-Markup**, keine Review-Events. Template `templates/questions.php`.
 
 ### Felder
 

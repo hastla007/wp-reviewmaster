@@ -14,9 +14,9 @@ Wo dieses Dokument und der Code abweichen, gilt `src/Install/Schema.php`. Nicht 
 
 ## 2. Tabellen
 
-Maßgeblich ist `src/Install/Schema.php` (`Schema::VERSION = 1`, Option `review_captain_db_version`). Die Tabellen unten geben das dbDelta-SQL von Schema v1 **exakt** wieder (Typen in der Schreibweise des Codes). Spalten, die frühere Fassungen dieses Dokuments vorgesehen hatten, die aber nicht in Schema v1 enthalten sind, stehen jeweils unter „Ausblick (nicht in Schema v1)“; sie dürfen nur über einen neuen Migrationsschritt (`Schema::VERSION` erhöhen, Schritt in `Migrator::steps()`) eingeführt werden.
+Maßgeblich ist `src/Install/Schema.php` (`Schema::VERSION = 2`, Option `review_captain_db_version`; Änderungen von v2 siehe 2.8). Die Tabellen unten geben das dbDelta-SQL von Schema v1 **exakt** wieder (Typen in der Schreibweise des Codes). Spalten, die frühere Fassungen dieses Dokuments vorgesehen hatten, die aber nicht in Schema v1 enthalten sind, stehen jeweils unter „Ausblick (nicht in Schema v1)“; sie dürfen nur über einen neuen Migrationsschritt (`Schema::VERSION` erhöhen, Schritt in `Migrator::steps()`) eingeführt werden.
 
-Logische Tabellenschlüssel (`Schema::TABLES`): `reviews`, `review_events`, `profiles`, `jobs`, `import_batches`, `audit_log`. Der volle Name ergibt sich aus `Schema::table( $key )` = `$wpdb->prefix . 'review_captain_' . $key`.
+Logische Tabellenschlüssel (`Schema::TABLES`): `reviews`, `review_events`, `profiles`, `jobs`, `import_batches`, `audit_log`, ab v2 zusätzlich `review_tags`, `review_reports`, `review_media`, `questions` (2.8). Der volle Name ergibt sich aus `Schema::table( $key )` = `$wpdb->prefix . 'review_captain_' . $key`.
 
 ### 2.1 `reviews`
 
@@ -62,6 +62,7 @@ Indizes (exakt Schema v1):
 PRIMARY KEY  (id)
 UNIQUE KEY uuid (uuid)
 UNIQUE KEY dedupe_key (dedupe_key)
+UNIQUE KEY submission_key (submission_key)   -- ab v2
 KEY status_kind_platform (status,kind,platform)
 KEY rating_value (rating_value)
 KEY created_at (created_at)
@@ -187,6 +188,27 @@ Indizes: `PRIMARY KEY (id)`, `KEY event (event)`, `KEY created_at (created_at)`,
 
 **Ausblick (nicht in Schema v1):** `actor_type` (wie geplant für `review_events`), `result` (`success` \| `failure`), `error_code` VARCHAR(64) und ein Index `action_occurred`. Die früher vorgesehenen Namen `occurred_at`/`actor_user_id`/`action`/`object_ref` heißen in v1 `created_at`/`user_id`/`event`/`object_id`.
 
+### 2.8 Schema v2 (Migrationsschritt 2, Stand 2026-11-16)
+
+Strukturänderungen per dbDelta, Datenschritt `Migrator::steps()[2]` (idempotent: `revision = 0` für Zeilen ohne Wert; `submission_key` wird **nicht** nachgetragen). Alle neuen Funktionen sind standardmäßig aus (Einstellungen siehe [option-schema.md](../settings/option-schema.md) §4.4/4.5); ohne sie bleiben die neuen Tabellen leer.
+
+**`reviews` – neue Spalten**
+
+| Spalte | Typ | Anmerkung |
+|---|---|---|
+| `submission_key` | `char(40) NULL`, `UNIQUE KEY submission_key` | HMAC-SHA1(`lower(email)|context_type|context_id`, `wp_salt('auth')`) – „eine Bewertung je Person und Kontext“, nur gesetzt bei `submissions.multi_product_enabled` (RC-123); der Eraser setzt sie auf `NULL` |
+| `revision` | `int(10) unsigned NOT NULL DEFAULT 0` | Inhaltsrevision; jedes `ReviewRepository::update()` setzt `revision = revision + 1` in SQL. Optimistic Lock des Editors (`update( $r, false, true )` → `WHERE revision = <gelesen>`), TEC-005 R-12a. Statuswechsel ändern sie nicht (Status-CAS ist unabhängig, R-12b). |
+
+**`review_tags`** (RC-124, interne Tags): `id` PK, `review_id` BIGINT, `tag` VARCHAR(40), `created_at`; `UNIQUE KEY review_tag (review_id,tag)`, `KEY tag (tag)`. Eigene Tabelle, damit ein Provider-Sync (der `reviews.meta` neu schreibt) Tags nie verliert. Nie öffentlich, nicht im CSV-Export, nicht in Events.
+
+**`review_reports`** (RC-124, öffentliche Meldungen): `id` PK, `review_id`, `reason` VARCHAR(30) (`spam`\|`offensive`\|`personal_data`\|`fake`\|`other`), `created_at`, `resolved_at` NULL; Indizes `review_id`, `resolved_at`. **Keine Daten zur meldenden Person.** Eine Statusentscheidung auf einem `flagged`-Review setzt `resolved_at`.
+
+**`review_media`** (RC-121, Foto-Reviews): `id` PK, `review_id`, `file` VARCHAR(100) UNIQUE (Zufallsname `photo-<32 hex>.<jpg|png|webp>` im geschützten Verzeichnis `uploads/review-captain-photos/`), `mime`, `bytes`, `width`, `height`, `created_at`; `KEY review_id`. Auslieferung nur über `admin-post.php?action=review_captain_photo`.
+
+**`questions`** (RC-122, Produkt-Q&A – bewusst **nicht** `reviews`): `id` PK, `uuid` CHAR(36) UNIQUE, `context_type` VARCHAR(40), `context_id` VARCHAR(64), `question` TEXT, `answer` TEXT NULL, `author_name`, `author_email` NULL (optional), `status` (`pending`\|`approved`\|`rejected`), `answered_by`, `answered_at`, `created_at`, `updated_at`; Indizes `context_status (context_type,context_id,status)`, `author_email`, `status`. Abgelehnte Fragen löscht die Retention nach `privacy.retention_rejected_days`.
+
+Referentielle Integrität: `ReviewRepository::delete()`/`delete_if_status()` löschen über `purge_related()` Verlauf, Tags, Meldungen und Fotos (inkl. Datei). Verwaiste Zeilen (z. B. ein Moderationsschreibvorgang, der nach einem Löschen ankommt) meldet und entfernt die Reconciliation (`orphan_rows`, `fixed.orphans_removed`).
+
 ### 2.7 Kandidaten für weitere Indizes (nicht Teil von v1)
 
 Nur nach Messung ([scaling.md](scaling.md)) und per ADR: `reviews (profile_id, status)`, `reviews (status, created_at)` für sortierte Adminlisten, FULLTEXT `(title, body)` für Suche. (`reviews (refresh_due_at)` und `reviews (profile_id)` sind bereits in Schema v1 enthalten.)
@@ -207,6 +229,7 @@ Nur nach Messung ([scaling.md](scaling.md)) und per ADR: `reviews (profile_id, s
 | `review_captain_key_check` | nein | Schlüssel-Fingerprint + Testchiffrat ([secrets.md](secrets.md)) |
 | `review_captain_budget_*` | nein | Budgetzähler je Profil/Fenster (`Jobs\Budget`, [jobs.md](jobs.md) §8) |
 | `review_captain_connectors_state` / `review_captain_connectors_known` | nein | Connector-Status und bekannte Connectoren ([contract-v1.md](../connectors/contract-v1.md)) |
+| `review_captain_feedback_campaigns` | nein | ab v2: Feedback-Links (RC-126) `{id, label, target, profile_id, target_url, whatsapp_number, whatsapp_text, created_at}`, höchstens 50, keine personenbezogenen Daten |
 
 **Ausblick (nicht in v1 umgesetzt):** `review_captain_migration_error` (letzter Migrationsfehler) und `review_captain_oauth_state_{sha256}` (kurzlebige OAuth-States, [rest-oauth.md](rest-oauth.md), Pro).
 

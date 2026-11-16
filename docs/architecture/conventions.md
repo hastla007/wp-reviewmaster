@@ -29,10 +29,11 @@ Multisite: jede Site hat eigene Tabellen über `$wpdb->prefix`. Schema-Version i
 | `jobs` | Hintergrundjobs mit Lease/Idempotenz |
 | `import_batches` | CSV-Importläufe inkl. Rollback |
 | `audit_log` | datensparsames Audit |
+| `review_tags`, `review_reports`, `review_media`, `questions` | ab Schema v2 (M7, standardmäßig ungenutzt): interne Tags, öffentliche Meldungen ohne Meldenden-Daten, Foto-Reviews, Produkt-Q&A ([database.md](database.md) §2.8) |
 
 ### `reviews` – Spalten
 
-`id` BIGINT PK, `uuid` CHAR(36) UNIQUE, `kind` (`review`|`testimonial`), `origin` VARCHAR(30) (`local_submission`|`manual`|`csv_import`|`provider_sync`|`connector`), `platform` VARCHAR(30) (`local`|`google`|`trustpilot`|`trusted_shops`|`app_store`|`google_play`|`other`), `profile_id` BIGINT NULL, `external_id` VARCHAR(191) NULL, `rating_value` DECIMAL(6,2) NULL, `rating_scale_min` DECIMAL(6,2) DEFAULT 1, `rating_scale_max` DECIMAL(6,2) DEFAULT 5, `title` VARCHAR(255), `body` LONGTEXT, `language` VARCHAR(20), `author_name` VARCHAR(191), `author_email` VARCHAR(191) NULL (nur lokale Einreichungen), `author_user_id` BIGINT NULL, `verification` (`unverified`|`purchase_verified`|`attendance_confirmed`|`external_platform`), `status` (`pending`|`approved`|`rejected`|`archived`|`flagged`|`removed`), `context_type` VARCHAR(40) NULL (`post`|`product`|`event`|`voucher`|`app`|`form`), `context_id` VARCHAR(64) NULL, `source_url` TEXT NULL, `published_at` DATETIME NULL (Originaldatum), `fetched_at` DATETIME NULL, `refresh_due_at` DATETIME NULL, `consent_publish` TINYINT, `consent_at` DATETIME NULL, `import_batch_id` BIGINT NULL, `experience_id` VARCHAR(191) NULL, `meta` LONGTEXT (JSON, keine Secrets), `created_at`, `updated_at` DATETIME (UTC), `removed_at` DATETIME NULL (Tombstone).
+`id` BIGINT PK, `uuid` CHAR(36) UNIQUE, `kind` (`review`|`testimonial`), `origin` VARCHAR(30) (`local_submission`|`manual`|`csv_import`|`provider_sync`|`connector`), `platform` VARCHAR(30) (`local`|`google`|`trustpilot`|`trusted_shops`|`app_store`|`google_play`|`other`), `profile_id` BIGINT NULL, `external_id` VARCHAR(191) NULL, `rating_value` DECIMAL(6,2) NULL, `rating_scale_min` DECIMAL(6,2) DEFAULT 1, `rating_scale_max` DECIMAL(6,2) DEFAULT 5, `title` VARCHAR(255), `body` LONGTEXT, `language` VARCHAR(20), `author_name` VARCHAR(191), `author_email` VARCHAR(191) NULL (nur lokale Einreichungen), `author_user_id` BIGINT NULL, `verification` (`unverified`|`purchase_verified`|`attendance_confirmed`|`external_platform`), `status` (`pending`|`approved`|`rejected`|`archived`|`flagged`|`removed`), `context_type` VARCHAR(40) NULL (`post`|`product`|`event`|`voucher`|`app`|`form`), `context_id` VARCHAR(64) NULL, `source_url` TEXT NULL, `published_at` DATETIME NULL (Originaldatum), `fetched_at` DATETIME NULL, `refresh_due_at` DATETIME NULL, `consent_publish` TINYINT, `consent_at` DATETIME NULL, `import_batch_id` BIGINT NULL, `experience_id` VARCHAR(191) NULL, `submission_key` CHAR(40) NULL UNIQUE (v2, RC-123), `revision` INT UNSIGNED DEFAULT 0 (v2, Optimistic Lock), `meta` LONGTEXT (JSON, keine Secrets), `created_at`, `updated_at` DATETIME (UTC), `removed_at` DATETIME NULL (Tombstone).
 
 Unique: `uuid`; `(platform, profile_id, external_id)` über die gewöhnliche Spalte `dedupe_key` CHAR(40) UNIQUE NULL = `sha1(platform|profile_id|external_id)` wenn `external_id` gesetzt, befüllt in PHP durch `Review::dedupe_key()` (TEC-004; keine generierte Spalte). Indizes: `(status, kind, platform)`, `(rating_value)`, `(created_at)`, `(context_type, context_id)`, `(author_email)`, `(import_batch_id)`, `(profile_id)`, `(refresh_due_at)`. Exakte Typen und Defaults: [database.md](database.md) (maßgeblich `src/Install/Schema.php`).
 
@@ -71,6 +72,7 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 | `review_captain_review_created_v1` | action | V | nach Commit, Payload ohne Text/E-Mail |
 | `review_captain_review_status_changed_v1` | action | V | nach Commit |
 | `review_captain_review_removed_v1` | action | V | nach Commit |
+| `review_captain_request_planner_v1` | filter | V | Pro registriert den Anfrage-Planer für `WorkflowService` (`RequestPlannerInterface`, Vertrag 1.x); ohne → `rc.contract.unavailable` (RC-WF-03) |
 | `review_captain_settings_schema` | filter | S | Pro ergänzt Einstellungsfelder (Core-Felder nicht entfern-/änderbar) |
 | `review_captain_pro_settings_writable` | filter | S | Pro erlaubt das Schreiben von Pro-Feldern (Default `false`) |
 | `review_captain_show_pro_info` | filter | S | Pro-Hinweis im Dashboard ausblenden (Default `true`) |
@@ -104,7 +106,7 @@ Aus [`docs/contracts/README.md`](../contracts/README.md) („Ergänzungen gegen�
 | action | `review_captain_experience_event_v1` | [experience-event-v1.md](../contracts/experience-event-v1.md) |
 | action | `review_captain_request_status_changed_v1`, `review_captain_request_reminder_sent_v1`, `review_captain_request_responded_v1`, `review_captain_recipient_opted_out_v1` | [request-lifecycle.md](../contracts/request-lifecycle.md), [workflow-provider-v1.md](../contracts/workflow-provider-v1.md) |
 | Funktion | `review_captain_submit_experience_event_v1()` | experience-event-v1.md |
-| Funktion | `review_captain_plan_request_v1()`, `review_captain_cancel_request_v1()`, `review_captain_create_local_review_v1()`, `review_captain_delete_local_review_draft_v1()`, `review_captain_get_review_summary_v1()` | workflow-provider-v1.md |
+| Funktion | `review_captain_plan_request_v1()`, `review_captain_cancel_request_v1()`, `review_captain_create_local_review_v1()`, `review_captain_delete_local_review_draft_v1()`, `review_captain_get_review_summary_v1()` (die Logik ist als Container-Service `workflow` = `ReviewCaptain\Workflow\WorkflowService` implementiert; die Funktions-Wrapper bleiben reserviert) | workflow-provider-v1.md |
 | Klasse/API | `ReviewCaptain\Contracts\Connector\RecipientResolverInterface` (Connector-Fassung implementiert als `ReviewCaptain\Connectors\Contract\RecipientResolverInterface`), `ReviewCaptain\Api::register_request_service()`, `::workflow_descriptor_v1()` | [recipient-resolver-v1.md](../contracts/recipient-resolver-v1.md), workflow-provider-v1.md |
 | Payload-Schema | `review_captain.request.v1`, `review_captain.recipient.v1`, `review_captain.workflow_provider.v1`, `review_captain.review_record.v1` | jeweilige Dokumente |
 | Option | `review_captain_requests_cooldown_days`, `review_captain_data_version`, `review_captain_instance_marker` | [invitation-rule.md](../contracts/invitation-rule.md), widget-v1.md, [race-conditions.md](../contracts/race-conditions.md) |
@@ -114,7 +116,8 @@ Bereits implementiert und damit verbindlich (aus derselben Liste): Payload-Schem
 
 ## Öffentliche Ausgabe
 
-- Shortcode: `[review_captain v="1" ...]` (Attribute siehe [widget-v1.md](../contracts/widget-v1.md)), Formular: `[review_captain_form v="1"]`, Bewertungs-CTA: `[review_captain_cta v="1" profile="…"]`.
+- Shortcode: `[review_captain v="1" ...]` (Attribute siehe [widget-v1.md](../contracts/widget-v1.md)), Formular: `[review_captain_form v="1"]`, Bewertungs-CTA: `[review_captain_cta v="1" profile="…"]`, ab v2 (nur mit `submissions.qa_enabled`) Produkt-Q&A: `[review_captain_qa v="1" context_type="product" context_id="…|current"]` (ohne Schema-Markup).
+- Öffentliche admin-post-Aktionen ab v2 (jeweils nur mit eigenem Schalter): `review_captain_report` (Nonce `review_captain_report`), `review_captain_question` (Nonce `review_captain_question`), `review_captain_photo` (GET, nur lesend, Zugriffsprüfung).
 - Block: `review-captain/reviews` (dynamisch, serverseitig gerendert), `review-captain/form`.
 - REST-Namespace: `review-captain/v1` (Admin-Zwecke, Editor-Vorschau). Keine öffentlichen Schreib-Endpunkte; Einreichung per `admin-post.php` (Action `review_captain_submit`) mit Nonce + Honeypot + Mindestzeit + Rate-Limit.
 - Kein Frontend-JavaScript nötig; CSS-Klassenpräfix `rc-`.

@@ -10,7 +10,7 @@ use ReviewCaptain\Providers\SyncService;
 
 /**
  * R-05 (core part): applying sync pages is idempotent. Run locking (`sync_runs`, rc.lock.busy)
- * and cursor CAS live in Pro (captain-pro tests/Addons/ReviewSync*Test.php).
+ * and cursor CAS live in Pro (captain-pro tests/Addons/ReviewPlatformConnectionsTest.php, ReviewPlatformProviderTest.php).
  */
 final class R05SyncRunsTest extends RaceTestCase {
 

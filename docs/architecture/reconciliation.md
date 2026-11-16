@@ -12,7 +12,7 @@ Status: Spezifikation, Stand 2026-11-16. Grundlage: `konzept.md` 7.9 („Backup/
 | Klon/Umzug (Staging, neue Domain) | `sha256( home_url() )` ≠ `review_captain_instance.home_url_hash` | `clone` – **mit Sperre** |
 | Manuell | `wp review-captain reconcile` oder Diagnose-Button (`review_captain_manage_settings`) | wählbar |
 
-`review_captain_instance.last_seen_at` wird vom Runner höchstens alle 5 min aktualisiert.
+`review_captain_instance.last_seen_at` wird vom Runner höchstens alle 5 min aktualisiert. **Implementiert (2026-11-16):** Stellt `Runner::heartbeat()` fest, dass `last_seen_at` älter als 24 h ist (Restore) oder `home_url_hash` abweicht (Klon), aktualisiert er `last_seen_at` **nicht**, setzt sofort `review_captain_reconcile_required` (`restore`/`clone`) und reiht genau einen Job `reconcile` (Idempotenzschlüssel `reconcile:<modus>:<nachweis>`) ein. Durch die Sperre verschobene Jobs behalten ihre Fälligkeit in `payload._rc_due_at` und werden von der Reconciliation als überfällig pausiert (`rc.source.unavailable`). Konservativ: auch ein Runner-Ausfall > 24 h wird wie ein Restore behandelt (überfällige Jobs mit Außenwirkung müssen freigegeben werden). Zusätzlich meldet die Reconciliation verwaiste Zeilen in `review_events`, `review_tags`, `review_reports`, `review_media` (`orphan_rows`) und entfernt sie bei `--fix` (`fixed.orphans_removed`).
 
 ## 2. Sperre für Außenwirkung
 

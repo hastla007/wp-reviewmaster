@@ -48,6 +48,7 @@ Exakt die Konstanten aus `src/Support/ErrorCode.php`; Retry-Klasse laut `ErrorCo
 | `TEMP_UNAVAILABLE` | `rc.temp.unavailable` | vorübergehend nicht verfügbar (HTTP ≥ 500, Wartung, Deadlock); Fallback für unbekannte Codes in `ConnectorException` und Jobs | transient |
 | `CONTRACT_INCOMPATIBLE` | `rc.contract.incompatible` | Vertragsversion/Fähigkeit inkompatibel, kein Job-Handler | config |
 | `CONTRACT_INVALID` | `rc.contract.invalid` | Metadaten/Registrierung ungültig, ungültiges Handler-Ergebnis | permanent |
+| `CONTRACT_UNAVAILABLE` | `rc.contract.unavailable` | Vertragsdienst nicht vorhanden, z. B. `WorkflowService::plan_request()` ohne registrierten Pro-Planer (RC-WF-03) | config |
 | `DATA_INVALID_PAYLOAD` | `rc.data.invalid_payload` | Payload verletzt Schema/Validierung (auch ungültiger Connector-Schlüssel) | data |
 | `DATA_DUPLICATE` | `rc.data.duplicate` | Duplikat (z. B. doppelter Registrierungsschlüssel) | data |
 | `REMOTE_REMOVED` | `rc.remote.removed` | Review/Objekt in der Quelle gelöscht (HTTP 404/410) | permanent |
@@ -80,7 +81,7 @@ Die folgenden Codes stammen aus früheren Fassungen bzw. aus Verträgen für Pro
 | Verträge | `rc.contract.invalid_capabilities` | Capability-Deklaration ungültig (z. B. `write_features` in v1) | permanent | Add-on aktualisieren | in v1: `rc.contract.incompatible` bzw. `rc.contract.invalid` |
 | Verträge | `rc.contract.duplicate_key` | Schlüssel bereits registriert | permanent | doppeltes Add-on deaktivieren | in v1: `rc.data.duplicate` |
 | Verträge | `rc.contract.missing_capability` | aufgerufene Fähigkeit nicht deklariert | permanent | Add-on/Konfiguration prüfen | – |
-| Verträge | `rc.contract.unavailable` | Vertragsdienst nicht vorhanden (z. B. Workflow-Service ohne Pro) | permanent | Pro installieren/aktivieren | – |
+| Verträge | `rc.contract.unavailable` | Vertragsdienst nicht vorhanden (z. B. Workflow-Service ohne Pro) | config | Pro installieren/aktivieren | **implementiert** (`ErrorCode::CONTRACT_UNAVAILABLE`, Klasse `config`) |
 | Daten | `rc.data.pii_forbidden` | Kontaktdaten/Text in Feld ohne entsprechende Fähigkeit | data | Quell-Add-on korrigieren | – |
 | Daten | `rc.data.too_large` | Größenlimit überschritten | data | Quell-Add-on korrigieren | – |
 | Quellen / Ereignisse | `rc.source.disabled` | Adapter in Review Captain ausgeschaltet | permanent | Adapter unter „Integrationen“ aktivieren | – |
