@@ -198,7 +198,7 @@ Das Core-Plugin kennt das Pro-Add-on nicht und enthält keinen Lizenzclient. Pro
 - **Produktschlüssel:** `review-captain-pro`; Rechtepräfix `review.`. Beide müssen im Lizenzserver-Katalog ergänzt und mit `wp-license`/Captain Pro abgestimmt werden.
 - Lizenzclient und Updateprozess aus `wp-license` exportieren; Add-on-Kernel und Namespaces in Captain Pro gemäß Architektur verwenden.
 - Plugin-Version, Core-Mindestversion, Textdomain und Update-URI nach dem bestehenden Captain-Pro-Buildstandard.
-- Planschlüssel: solo (1 Live-Website), studio (5), agency (25); Support-Level standard bzw. priority. Dieselben Site-Limits und Plan-IDs wie Form Captain, Pass Captain Pro und Voucher Captain Pro verwenden. Produktpreise bleiben je Produkt separat.
+- Planschlüssel (laut Lizenz-Sitzung vom Inhaber am 16.11.2026 suiteweit festgelegt, hier noch zu bestätigen): single (1 Live-Website), business (5), agency (25), gleicher Funktionsumfang; Support-Level standard bzw. priority. Dieselben Site-Limits und Plan-IDs wie Form Captain, Pass Captain Pro und Voucher Captain Pro verwenden. Produktpreise bleiben je Produkt separat.
 - **Alle Pro-Funktionen in jedem bezahlten Plan.** Die Pläne differieren primär nach Live-Website-Limit und Support, nicht nach künstlich abgeschnittenen Funktionen.
 - Preise aus dem bestehenden Shopkatalog ableiten und mit den übrigen Captain-Pro-Produkten abstimmen. Die Produktstruktur und Site-Limits sind vereinheitlicht; Review-Preise bleiben eine eigene kommerzielle Entscheidung.
 - Staging-/Development-Aktivierungen entsprechend WP License Captain nicht als zusätzliche Live-Website werten.
@@ -293,14 +293,14 @@ Die bestehenden Suite-Verträge sind der Ausgangspunkt:
 - Pass Captain stellt versionierte Connector-, Voucher-Provider- und Check-in-Provider-Verträge bereit sowie Ereignisse für Zahlung, Absage, Refund und Check-in.
 - Voucher Captain und Pass Captain haben bzw. planen eine direkte Provider-Bridge für Gutschein-/Ticketabläufe; Review Captain soll über dieselben öffentlichen Ereignisse abonnieren und keine parallele Gutschein-Ticketlogik bauen.
 
-Für neue Review-Ereignisse wird eine versionierte, dokumentierte Schnittstelle pro Produzent ergänzt. Vorgeschlagene Ereignisnamen:
+Für neue Review-Ereignisse wird eine versionierte, dokumentierte Schnittstelle pro Produzent ergänzt. Vorgeschlagene Ereignisnamen (Präfix `review_captain_` ohne `wp_` gemäß ADR-0002, `docs/adr/0002-hook-praefix-review-captain.md`):
 
-- `wp_review_captain_experience_event_v1` – ein besitzendes Plugin meldet `experience_created`, `experience_completed`, `experience_cancelled` oder `experience_refunded`.
-- `wp_review_captain_request_v1` – Integrationsadapter übermittelt eine zulässige Anfrage oder bittet Review Captain, eine geplante Anfrage anzulegen.
-- `wp_review_captain_widget_context_v1` – ein Suite-Plugin liefert den Darstellungsort/Objektkontext für eine Widget-Auswahl.
-- `wp_review_captain_review_summary_v1` – Review Captain stellt eine aggregierte, berechtigte Kennzahl für einen Suite-Bericht bereit.
+- `review_captain_experience_event_v1` – ein besitzendes Plugin meldet `experience_created`, `experience_completed`, `experience_cancelled` oder `experience_refunded`.
+- `review_captain_request_v1` – Integrationsadapter übermittelt eine zulässige Anfrage oder bittet Review Captain, eine geplante Anfrage anzulegen.
+- `review_captain_widget_context_v1` – ein Suite-Plugin liefert den Darstellungsort/Objektkontext für eine Widget-Auswahl.
+- `review_captain_review_summary_v1` – Review Captain stellt eine aggregierte, berechtigte Kennzahl für einen Suite-Bericht bereit.
 - Form Captain Core stellt form_captain_register_action_v1($key, $definition, $callback) als versionskompatiblen Erweiterungspunkt bereit. Review Captain Pro registriert dort die Action und eine eigene Feld-/Form-Mapping-Oberfläche.
-- Review Captain veröffentlicht wp_review_captain_create_local_review_v1($payload) als interne PHP-API. Zulässige Nutzdaten: rating (Ganzzahl 1–5), review_text, optional title/display_name, review_type/profile_id, source_plugin, source_entry_id, idempotency_key und verified=false. Der Aufruf wird serverseitig validiert und gibt success/code/review_id zurück.
+- Review Captain veröffentlicht review_captain_create_local_review_v1($payload) als interne PHP-API. Zulässige Nutzdaten: rating (Ganzzahl 1–5), review_text, optional title/display_name, review_type/profile_id, source_plugin, source_entry_id, idempotency_key und verified=false. Der Aufruf wird serverseitig validiert und gibt success/code/review_id zurück.
 - Das Form-Captain-Entry-Ereignis ist erst nach dem Commit verfügbar. Review Captain liest ausschließlich die erlaubten Feld-IDs; rohe IP, ungemappte Antworten und Zahlungs-/Bestelldaten werden nicht übernommen.
 - Die Formularaktion ist eine Pro-Funktion von Review Captain (review.suite_integrations); Form Captain Core/API bleibt ohne Lizenzprüfung und Form Captain Pro ist hierfür nicht nötig.
 - Die Integration ist für dieselbe WordPress-Installation konzipiert. Site-übergreifende Weitergabe benötigt später einen eigenen signierten Connector und ist kein Teil dieser Brücke.
@@ -463,13 +463,13 @@ Custom Connectoren starten keine Einladung allein durch beliebige Formular- oder
 
 #### Öffentlicher technischer Vertrag
 
-Der vorgeschlagene öffentliche Vertrag folgt dem Pass-Captain-Muster (versionierte Connector-Registry, getrennte Provider-Services, Job-Verarbeitung und Connector-Fehler-Hook), wird aber auf Reviews und Erlebnisse zugeschnitten:
+Der vorgeschlagene öffentliche Vertrag folgt dem Pass-Captain-Muster (versionierte Connector-Registry, getrennte Provider-Services, Job-Verarbeitung und Connector-Fehler-Hook), wird aber auf Reviews und Erlebnisse zugeschnitten (Hook-Präfix `review_captain_` gemäß ADR-0002):
 
-- wp_review_captain_connectors_v1 registriert Connector-Instanzen. Der Core validiert Schlüssel, Contract-Major-Version, eindeutige IDs und deklarierte Fähigkeiten.
+- review_captain_connectors_v1 registriert Connector-Instanzen. Der Core validiert Schlüssel, Contract-Major-Version, eindeutige IDs und deklarierte Fähigkeiten.
 - ReviewCaptain\Contracts\ConnectorInterface stellt stabile Metadaten bereit: key(), label(), version(), contract_version() und capabilities(). Optionale Verträge wie ExperienceSourceInterface, RecipientResolverInterface, ReviewSourceInterface und RequestTransportInterface trennen Fähigkeiten, statt eine große Pflichtschnittstelle zu erzwingen.
-- wp_review_captain_process_job_v1 erlaubt dem Connector, eigene typisierte Hintergrundjob-Arten im Review-Captain-Jobrunner zu verarbeiten; Payloads sind versioniert, begrenzt und idempotent.
-- wp_review_captain_connector_error_v1 meldet Connector-Key, Ereignis-/Jobtyp und sanitisierten Fehlercode. Keine Secrets, Reviewtexte oder vollständigen Empfängerdaten in Logs.
-- wp_review_captain_experience_event_v1 bleibt der fachliche Ereigniseingang. Ein Connector meldet experience_completed, experience_cancelled oder experience_refunded mit Event-ID, Experience-ID, Quellobjekt, Empfängerreferenz, Zeit, Locale und nachweisbarer Versandberechtigung.
+- review_captain_process_job_v1 erlaubt dem Connector, eigene typisierte Hintergrundjob-Arten im Review-Captain-Jobrunner zu verarbeiten; Payloads sind versioniert, begrenzt und idempotent.
+- review_captain_connector_error_v1 meldet Connector-Key, Ereignis-/Jobtyp und sanitisierten Fehlercode. Keine Secrets, Reviewtexte oder vollständigen Empfängerdaten in Logs.
+- review_captain_experience_event_v1 bleibt der fachliche Ereigniseingang. Ein Connector meldet experience_completed, experience_cancelled oder experience_refunded mit Event-ID, Experience-ID, Quellobjekt, Empfängerreferenz, Zeit, Locale und nachweisbarer Versandberechtigung.
 - Öffentliche Verträge erhalten Contract-Tests, semantische Versionierung, Kompatibilitätsprüfung und Deprecation-Frist. Inkompatible Major-Versionen werden als incompatible_contract ausgewiesen und nicht ausgeführt.
 
 Konkrete PHP-Klassennamen und Signaturen werden in Vertragsaufgaben festgelegt. Die Hook-Namen oben sind Konzeptvorschläge und müssen vor Implementierung gegen vorhandene Namensräume geprüft werden.
@@ -547,7 +547,7 @@ Menü-Hauptpunkt **Review Captain** mit verständlichen Seiten. Die Pro-Lizenzse
 - Widget-Liste mit Titel, Typ, Quellen, Auswahlregel, Layout, Vorschau und verwendeten Seiten.
 - Wizard: Quelle(n) → Reviews wählen/Filter → Layout → Anzeigeoptionen → Vorschau → Block/Shortcode kopieren.
 - Free: Grid/Listen-Grundlayout. Pro: Carousel, Badge, Trustbar, Produkt-/App-Widget, erweiterte Filter.
-- Gutenberg-Block mit Sidebar-Optionen; Shortcode stabil/versioniert, z. B. `[review_captain_widget id="123"]`.
+- Gutenberg-Block mit Sidebar-Optionen; Shortcode stabil/versioniert, z. B. `[review_captain v="1" …]` (Attribute siehe `docs/contracts/widget-v1.md`).
 - HTML serverseitig rendern (SSR) und minimale CSS/JS-Dateien laden; keine Remote-Widgets oder unnötigen Frontend-Requests.
 
 ### 8.7 Analytics (Pro)

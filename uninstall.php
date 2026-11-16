@@ -1,0 +1,20 @@
+<?php
+/**
+ * Uninstall Review Captain (RC-048).
+ *
+ * Data is kept unless "Daten beim Löschen des Plugins entfernen" (privacy.delete_data_on_uninstall)
+ * is enabled. Runs without the plugin bootstrap: only the autoloader is loaded.
+ *
+ * @package ReviewCaptain
+ */
+
+defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
+
+if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
+	return; // The plugin never ran on this PHP version, so it stored no data.
+}
+
+require_once __DIR__ . '/src/Autoloader.php';
+\ReviewCaptain\Autoloader::register( __DIR__ . '/src/' );
+
+\ReviewCaptain\Privacy\Uninstaller::run();

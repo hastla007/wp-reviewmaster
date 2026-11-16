@@ -1,0 +1,5 @@
+{
+  "object_type": "course",
+  "consent_source": "checkout_optin",
+  "poll_limit": 50
+}

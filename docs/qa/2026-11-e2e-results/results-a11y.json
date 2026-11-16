@@ -1,0 +1,507 @@
+{
+  "axe": [
+    {
+      "vp": "desktop",
+      "page": "rc-shortcodes",
+      "violations": [
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "help": "Heading levels should only increase by one",
+          "nodes": [
+            {
+              "target": "article:nth-child(1) > .rc-card__header > h3",
+              "summary": "Fix any of the following:   Heading order invalid",
+              "html": "<h3 class=\"rc-card__title\">E2E Produkt mwj2pomc</h3>"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+          "nodes": [
+            {
+              "target": ".wp-container-core-navigation-is-layout-fc306653",
+              "summary": "Fix any of the following:   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "html": "<nav class=\"is-responsive items-...\" data-wp-interactive=\"core/navigation\" data-wp-context=\"{\"overlayOpenedBy\":{...\">"
+            }
+          ]
+        },
+        {
+          "id": "list",
+          "impact": "serious",
+          "help": "<ul> and <ol> must only directly contain <li>, <script> or <template> elements",
+          "nodes": [
+            {
+              "target": ".is-responsive.items-justified-right.wp-block-navigation__container",
+              "summary": "Fix all of the following:   List element has direct children that are not allowed: ul",
+              "html": "<ul class=\"wp-block-navigation__container is-responsive items-justified-right wp-block-navigation\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vp": "desktop",
+      "page": "rc-blocks",
+      "violations": [
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "help": "Heading levels should only increase by one",
+          "nodes": [
+            {
+              "target": "article:nth-child(1) > .rc-card__header > h3",
+              "summary": "Fix any of the following:   Heading order invalid",
+              "html": "<h3 class=\"rc-card__title\">E2E Produkt mwj2pomc</h3>"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+          "nodes": [
+            {
+              "target": ".wp-container-core-navigation-is-layout-fc306653",
+              "summary": "Fix any of the following:   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "html": "<nav class=\"is-responsive items-...\" data-wp-interactive=\"core/navigation\" data-wp-context=\"{\"overlayOpenedBy\":{...\">"
+            }
+          ]
+        },
+        {
+          "id": "list",
+          "impact": "serious",
+          "help": "<ul> and <ol> must only directly contain <li>, <script> or <template> elements",
+          "nodes": [
+            {
+              "target": ".is-responsive.items-justified-right.wp-block-navigation__container",
+              "summary": "Fix all of the following:   List element has direct children that are not allowed: ul",
+              "html": "<ul class=\"wp-block-navigation__container is-responsive items-justified-right wp-block-navigation\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vp": "desktop",
+      "page": "rc-produkt",
+      "violations": [
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "help": "Heading levels should only increase by one",
+          "nodes": [
+            {
+              "target": "article:nth-child(1) > .rc-card__header > .rc-card__title",
+              "summary": "Fix any of the following:   Heading order invalid",
+              "html": "<h3 class=\"rc-card__title\">E2E Produkt mwj2pomc</h3>"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+          "nodes": [
+            {
+              "target": ".wp-container-core-navigation-is-layout-fc306653",
+              "summary": "Fix any of the following:   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "html": "<nav class=\"is-responsive items-...\" data-wp-interactive=\"core/navigation\" data-wp-context=\"{\"overlayOpenedBy\":{...\">"
+            }
+          ]
+        },
+        {
+          "id": "list",
+          "impact": "serious",
+          "help": "<ul> and <ol> must only directly contain <li>, <script> or <template> elements",
+          "nodes": [
+            {
+              "target": ".is-responsive.items-justified-right.wp-block-navigation__container",
+              "summary": "Fix all of the following:   List element has direct children that are not allowed: ul",
+              "html": "<ul class=\"wp-block-navigation__container is-responsive items-justified-right wp-block-navigation\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vp": "desktop",
+      "page": "rc-pro",
+      "violations": [
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "help": "Heading levels should only increase by one",
+          "nodes": [
+            {
+              "target": "li[aria-label=\"Item 1 of 4\"] > article > .rc-card__header > h3",
+              "summary": "Fix any of the following:   Heading order invalid",
+              "html": "<h3 class=\"rc-card__title\">E2E Produkt mwj2pomc</h3>"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+          "nodes": [
+            {
+              "target": ".wp-container-core-navigation-is-layout-fc306653",
+              "summary": "Fix any of the following:   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "html": "<nav class=\"is-responsive items-...\" data-wp-interactive=\"core/navigation\" data-wp-context=\"{\"overlayOpenedBy\":{...\">"
+            }
+          ]
+        },
+        {
+          "id": "list",
+          "impact": "serious",
+          "help": "<ul> and <ol> must only directly contain <li>, <script> or <template> elements",
+          "nodes": [
+            {
+              "target": ".is-responsive.items-justified-right.wp-block-navigation__container",
+              "summary": "Fix all of the following:   List element has direct children that are not allowed: ul",
+              "html": "<ul class=\"wp-block-navigation__container is-responsive items-justified-right wp-block-navigation\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vp": "iphone13",
+      "page": "rc-shortcodes",
+      "violations": [
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "help": "Heading levels should only increase by one",
+          "nodes": [
+            {
+              "target": "article:nth-child(1) > .rc-card__header > h3",
+              "summary": "Fix any of the following:   Heading order invalid",
+              "html": "<h3 class=\"rc-card__title\">E2E Produkt mwj2pomc</h3>"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+          "nodes": [
+            {
+              "target": ".wp-container-core-navigation-is-layout-fc306653",
+              "summary": "Fix any of the following:   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "html": "<nav class=\"is-responsive items-...\" data-wp-interactive=\"core/navigation\" data-wp-context=\"{\"overlayOpenedBy\":{...\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vp": "iphone13",
+      "page": "rc-pro",
+      "violations": [
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "help": "Heading levels should only increase by one",
+          "nodes": [
+            {
+              "target": "li[aria-label=\"Item 1 of 4\"] > article > .rc-card__header > h3",
+              "summary": "Fix any of the following:   Heading order invalid",
+              "html": "<h3 class=\"rc-card__title\">E2E Produkt mwj2pomc</h3>"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+          "nodes": [
+            {
+              "target": ".wp-container-core-navigation-is-layout-fc306653",
+              "summary": "Fix any of the following:   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "html": "<nav class=\"is-responsive items-...\" data-wp-interactive=\"core/navigation\" data-wp-context=\"{\"overlayOpenedBy\":{...\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vp": "pixel7",
+      "page": "rc-shortcodes",
+      "violations": [
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "help": "Heading levels should only increase by one",
+          "nodes": [
+            {
+              "target": "article:nth-child(1) > .rc-card__header > h3",
+              "summary": "Fix any of the following:   Heading order invalid",
+              "html": "<h3 class=\"rc-card__title\">E2E Produkt mwj2pomc</h3>"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+          "nodes": [
+            {
+              "target": ".wp-container-core-navigation-is-layout-fc306653",
+              "summary": "Fix any of the following:   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "html": "<nav class=\"is-responsive items-...\" data-wp-interactive=\"core/navigation\" data-wp-context=\"{\"overlayOpenedBy\":{...\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "vp": "pixel7",
+      "page": "rc-pro",
+      "violations": [
+        {
+          "id": "heading-order",
+          "impact": "moderate",
+          "help": "Heading levels should only increase by one",
+          "nodes": [
+            {
+              "target": "li[aria-label=\"Item 1 of 4\"] > article > .rc-card__header > h3",
+              "summary": "Fix any of the following:   Heading order invalid",
+              "html": "<h3 class=\"rc-card__title\">E2E Produkt mwj2pomc</h3>"
+            }
+          ]
+        },
+        {
+          "id": "landmark-unique",
+          "impact": "moderate",
+          "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+          "nodes": [
+            {
+              "target": ".wp-container-core-navigation-is-layout-fc306653",
+              "summary": "Fix any of the following:   The landmark must have a unique aria-label, aria-labelledby, or title to make landmarks distinguishable",
+              "html": "<nav class=\"is-responsive items-...\" data-wp-interactive=\"core/navigation\" data-wp-context=\"{\"overlayOpenedBy\":{...\">"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "keyboard": {
+    "tabOrder": [
+      "input:radio[rc_rating]",
+      "input:text[rc_title]",
+      "textarea:textarea[rc_body]",
+      "input:text[rc_name]",
+      "input:email[rc_email]",
+      "input:checkbox[rc_consent]",
+      "button:submit"
+    ],
+    "focusVisible": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "honeypotFocusable": false,
+    "keyboardSubmit": {
+      "radioAfterArrow": "4/true",
+      "focusBeforeEnter": "rc-form__submit",
+      "url": "/rc-shortcodes/?rc_submitted=1&rc_form=1#rc-form-1"
+    },
+    "afterError": {
+      "active": "BODY",
+      "hasAlertRegion": true,
+      "alertTag": "<div class=\"rc-form__error rc-form__errors\" role=\"alert\" tabindex=\"-1\">\n\t\t\t<p>Bitte prüfen Sie Ihre Angaben:</p>\n\t\t\t<ul>\n\t\t\t\t\t\t\t\t\t<li>Sie haben bereits mehrere ",
+      "invalidMarked": 0
+    },
+    "reducedMotion": {
+      "scrollBehavior": "auto",
+      "transition": "0s",
+      "autoplayAttr": null
+    },
+    "carouselKeyboard": {
+      "before": 0,
+      "after": 220,
+      "status": "Item 2 of 4"
+    }
+  },
+  "layout": [
+    {
+      "vp": "desktop",
+      "page": "rc-shortcodes",
+      "overflowX": false,
+      "scrollWidth": 1280,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "smallTargets": []
+    },
+    {
+      "vp": "desktop",
+      "page": "rc-blocks",
+      "overflowX": false,
+      "scrollWidth": 1280,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "smallTargets": []
+    },
+    {
+      "vp": "desktop",
+      "page": "rc-produkt",
+      "overflowX": false,
+      "scrollWidth": 1280,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "smallTargets": []
+    },
+    {
+      "vp": "desktop",
+      "page": "rc-pro",
+      "overflowX": false,
+      "scrollWidth": 1280,
+      "innerWidth": 1280,
+      "overlaps": [],
+      "smallTargets": []
+    },
+    {
+      "vp": "iphone13",
+      "page": "rc-shortcodes",
+      "overflowX": false,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overlaps": [
+        {
+          "fixed": "rc-pro.rc-pro-floating.rc-pro-floating--bottom-right",
+          "target": "rc_body",
+          "area": 22545
+        }
+      ],
+      "smallTargets": []
+    },
+    {
+      "vp": "iphone13",
+      "page": "rc-blocks",
+      "overflowX": false,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overlaps": [
+        {
+          "fixed": "rc-pro.rc-pro-floating.rc-pro-floating--bottom-right",
+          "target": "rc_body",
+          "area": 22537
+        }
+      ],
+      "smallTargets": []
+    },
+    {
+      "vp": "iphone13",
+      "page": "rc-produkt",
+      "overflowX": false,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overlaps": [
+        {
+          "fixed": "rc-pro.rc-pro-floating.rc-pro-floating--bottom-right",
+          "target": "rc_body",
+          "area": 22340
+        }
+      ],
+      "smallTargets": []
+    },
+    {
+      "vp": "iphone13",
+      "page": "rc-pro",
+      "overflowX": false,
+      "scrollWidth": 390,
+      "innerWidth": 390,
+      "overlaps": [
+        {
+          "fixed": "rc-pro.rc-pro-floating.rc-pro-floating--bottom-right",
+          "target": "rc_body",
+          "area": 22412
+        }
+      ],
+      "smallTargets": []
+    },
+    {
+      "vp": "pixel7",
+      "page": "rc-shortcodes",
+      "overflowX": false,
+      "scrollWidth": 412,
+      "innerWidth": 412,
+      "overlaps": [
+        {
+          "fixed": "rc-pro.rc-pro-floating.rc-pro-floating--bottom-right",
+          "target": "rc_body",
+          "area": 22571
+        }
+      ],
+      "smallTargets": []
+    },
+    {
+      "vp": "pixel7",
+      "page": "rc-blocks",
+      "overflowX": false,
+      "scrollWidth": 412,
+      "innerWidth": 412,
+      "overlaps": [
+        {
+          "fixed": "rc-pro.rc-pro-floating.rc-pro-floating--bottom-right",
+          "target": "rc_body",
+          "area": 22592
+        }
+      ],
+      "smallTargets": []
+    },
+    {
+      "vp": "pixel7",
+      "page": "rc-produkt",
+      "overflowX": false,
+      "scrollWidth": 412,
+      "innerWidth": 412,
+      "overlaps": [
+        {
+          "fixed": "rc-pro.rc-pro-floating.rc-pro-floating--bottom-right",
+          "target": "rc_body",
+          "area": 22365
+        }
+      ],
+      "smallTargets": []
+    },
+    {
+      "vp": "pixel7",
+      "page": "rc-pro",
+      "overflowX": false,
+      "scrollWidth": 412,
+      "innerWidth": 412,
+      "overlaps": [
+        {
+          "fixed": "rc-pro.rc-pro-floating.rc-pro-floating--bottom-right",
+          "target": "rc_body",
+          "area": 22562
+        }
+      ],
+      "smallTargets": []
+    }
+  ],
+  "shots": [
+    "rc-shortcodes-desktop.png",
+    "rc-blocks-desktop.png",
+    "rc-produkt-desktop.png",
+    "rc-pro-desktop.png",
+    "rc-shortcodes-iphone13.png",
+    "rc-blocks-iphone13.png",
+    "rc-produkt-iphone13.png",
+    "rc-pro-iphone13.png",
+    "rc-shortcodes-pixel7.png",
+    "rc-blocks-pixel7.png",
+    "rc-produkt-pixel7.png",
+    "rc-pro-pixel7.png",
+    "form-errors-desktop.png"
+  ]
+}

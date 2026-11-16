@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://review-captain.invalid/schema/review.v1.json",
+  "title": "Review Captain – normalisierter Review-Datensatz v1",
+  "description": "Datensatz der Tabelle {prefix}review_captain_reviews sowie Ausgabe von normalize(). Feldnamen = Spaltennamen aus docs/architecture/conventions.md. Semantische Regeln, die JSON Schema nicht ausdrücken kann (rating_value innerhalb der Skala, Sichtbarkeit), siehe review-schema-v1.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "uuid", "kind", "origin", "platform",
+    "rating_scale_min", "rating_scale_max",
+    "title", "body", "language", "author_name",
+    "verification", "status", "consent_publish", "meta"
+  ],
+  "properties": {
+    "id": { "type": "integer", "minimum": 1, "readOnly": true },
+    "uuid": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" },
+    "kind": { "enum": ["review", "testimonial"] },
+    "origin": { "enum": ["local_submission", "manual", "csv_import", "provider_sync", "connector"] },
+    "platform": { "enum": ["local", "google", "trustpilot", "trusted_shops", "app_store", "google_play", "other"] },
+    "profile_id": { "type": ["integer", "null"], "minimum": 1 },
+    "external_id": { "type": ["string", "null"], "minLength": 1, "maxLength": 191 },
+    "rating_value": { "type": ["number", "null"] },
+    "rating_scale_min": { "type": "number", "default": 1 },
+    "rating_scale_max": { "type": "number", "default": 5 },
+    "title": { "type": "string", "maxLength": 255 },
+    "body": { "type": "string" },
+    "language": { "type": "string", "maxLength": 20, "pattern": "^(und|[a-z]{2,3}(-[A-Za-z0-9]{2,8})*)$" },
+    "author_name": { "type": "string", "maxLength": 191 },
+    "author_email": { "type": ["string", "null"], "maxLength": 191, "format": "email" },
+    "author_user_id": { "type": ["integer", "null"], "minimum": 1 },
+    "verification": { "enum": ["unverified", "purchase_verified", "attendance_confirmed", "external_platform"] },
+    "status": { "enum": ["pending", "approved", "rejected", "archived", "flagged", "removed"] },
+    "context_type": { "enum": ["post", "product", "event", "voucher", "app", "form", null] },
+    "context_id": { "type": ["string", "null"], "minLength": 1, "maxLength": 64 },
+    "source_url": { "type": ["string", "null"], "pattern": "^https://" },
+    "published_at": { "$ref": "#/$defs/datetime_or_null" },
+    "fetched_at": { "$ref": "#/$defs/datetime_or_null" },
+    "refresh_due_at": { "$ref": "#/$defs/datetime_or_null" },
+    "consent_publish": { "enum": [0, 1] },
+    "consent_at": { "$ref": "#/$defs/datetime_or_null" },
+    "import_batch_id": { "type": ["integer", "null"], "minimum": 1 },
+    "experience_id": { "type": ["string", "null"], "minLength": 1, "maxLength": 191 },
+    "meta": { "$ref": "#/$defs/meta" },
+    "created_at": { "$ref": "#/$defs/datetime" },
+    "updated_at": { "$ref": "#/$defs/datetime" },
+    "removed_at": { "$ref": "#/$defs/datetime_or_null" },
+    "dedupe_key": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$", "readOnly": true }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "origin": { "const": "provider_sync" } }, "required": ["origin"] },
+      "then": {
+        "required": ["profile_id", "external_id", "fetched_at", "refresh_due_at"],
+        "properties": {
+          "profile_id": { "type": "integer" },
+          "external_id": { "type": "string" },
+          "verification": { "const": "external_platform" },
+          "platform": { "not": { "const": "local" } },
+          "author_email": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "origin": { "not": { "const": "local_submission" } } }, "required": ["origin"] },
+      "then": { "properties": { "author_email": { "type": "null" }, "author_user_id": { "type": "null" } } }
+    },
+    {
+      "if": { "properties": { "origin": { "const": "csv_import" } }, "required": ["origin"] },
+      "then": { "required": ["import_batch_id"], "properties": { "import_batch_id": { "type": "integer" } } }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "testimonial" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "platform": { "const": "local" },
+          "origin": { "enum": ["manual", "local_submission", "connector"] },
+          "meta": { "required": ["testimonial"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "context_id": { "type": "string" } }, "required": ["context_id"] },
+      "then": { "required": ["context_type"], "properties": { "context_type": { "type": "string" } } }
+    },
+    {
+      "if": { "properties": { "verification": { "const": "external_platform" } }, "required": ["verification"] },
+      "then": { "properties": { "origin": { "const": "provider_sync" } } }
+    },
+    {
+      "if": { "properties": { "status": { "const": "removed" } }, "required": ["status"] },
+      "then": { "required": ["removed_at"], "properties": { "removed_at": { "type": "string" } } }
+    }
+  ],
+  "$defs": {
+    "datetime": { "type": "string", "format": "date-time" },
+    "datetime_or_null": { "type": ["string", "null"], "format": "date-time" },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider_key": { "type": "string", "maxLength": 64 },
+        "review_type": { "enum": ["service", "product", "app", "local"] },
+        "attribution": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "maxLength": 191 },
+            "url": { "type": ["string", "null"], "pattern": "^https://" },
+            "notice": { "type": ["string", "null"], "maxLength": 500 }
+          }
+        },
+        "avatar_url": { "type": "string", "pattern": "^https://" },
+        "reply": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "body": { "type": "string" },
+            "published_at": { "$ref": "#/$defs/datetime_or_null" }
+          }
+        },
+        "remote_updated_at": { "$ref": "#/$defs/datetime" },
+        "last_verified_at": { "$ref": "#/$defs/datetime" },
+        "product_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "type": "string", "maxLength": 40 },
+            "id": { "type": "string", "maxLength": 191 },
+            "label": { "type": "string", "maxLength": 255 }
+          }
+        },
+        "app_version": { "type": "string", "maxLength": 64 },
+        "territory": { "type": "string", "maxLength": 16 },
+        "original_language": { "type": "string", "maxLength": 20 },
+        "translated": { "type": "boolean" },
+        "source_plugin": { "type": "string", "maxLength": 64 },
+        "source_entry_id": { "type": "string", "maxLength": 191 },
+        "idempotency_key": { "type": "string", "maxLength": 191 },
+        "tombstone": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reason", "at"],
+          "properties": {
+            "reason": { "enum": ["remote_removed", "remote_not_found", "erasure", "disconnect_retention", "admin"] },
+            "at": { "$ref": "#/$defs/datetime" }
+          }
+        },
+        "testimonial": { "type": "object", "description": "siehe testimonial-schema-v1.md" },
+        "moderation_note": { "type": "string", "maxLength": 2000 }
+      }
+    }
+  }
+}

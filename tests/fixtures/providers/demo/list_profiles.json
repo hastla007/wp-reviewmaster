@@ -1,0 +1,7 @@
+{
+  "profiles": [
+    { "external_ref": "loc-100", "label": "Filiale Wien", "public_url": "https://reviews.example.test/p/loc-100", "language": "de-AT", "kind": "location", "selectable": true, "reason": null },
+    { "external_ref": "loc-200", "label": "Filiale Graz (nicht verifiziert)", "public_url": null, "language": "de-AT", "kind": "location", "selectable": false, "reason": "rc.auth.permission_denied" }
+  ],
+  "next_cursor": null
+}

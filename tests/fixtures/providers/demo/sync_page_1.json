@@ -1,0 +1,15 @@
+{
+  "request": { "profile_external_ref": "loc-100", "cursor": null, "options": { "mode": "full", "page_size": 2, "since": null, "run_uuid": "5d0a7e3b-2c1f-4e8a-9b6d-7f0e1a2b3c4d" } },
+  "response": {
+    "items": [
+      { "id": "demo-rev-1001", "stars": 4, "headline": "Schnelle Lieferung", "text": "Alles wie beschrieben, gerne wieder.", "lang": "de_DE", "reviewer": { "display": "M. K." }, "created": "2026-11-10T09:12:00Z", "updated": "2026-11-10T09:12:00Z", "link": "https://reviews.example.test/r/demo-rev-1001" },
+      { "id": "demo-rev-1002", "stars": 2, "headline": "", "text": "Wartezeit am Telefon war lang.", "lang": "de", "reviewer": { "display": "" }, "created": "2026-11-11T17:40:00Z", "updated": "2026-11-12T08:00:00Z", "link": "https://reviews.example.test/r/demo-rev-1002", "reply": { "text": "Danke für den Hinweis.", "date": "2026-11-12T08:00:00Z" } }
+    ],
+    "removed": [],
+    "next_cursor": "eyJwIjoyfQ",
+    "has_more": true,
+    "summary": null,
+    "quota": { "state": "ok", "remaining": 59, "reset_at": "2026-11-16T06:01:00Z", "retry_after_seconds": null, "source": "provider_header" },
+    "credentials_update": null
+  }
+}

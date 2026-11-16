@@ -1,0 +1,256 @@
+
+== Building voucher-captain-pro
+voucher-captain-pro 0.1.0: /tmp/claude-0/cp-e2e/build/current/voucher-captain-pro-0.1.0.zip (28 files, 110045 bytes, 142 strings)
+  sha256 d38e165d82096d2d36edac2a62c521599a55e03cb985794e64fa60f7c74ee0f3
+  catalog voucher-captain-pro-catalog.json: 0 available, 4 planned entitlements
+  de_DE: 142 of 142 strings translated
+  de_DE_formal: 142 of 142 strings translated
+Development build: placeholders of the license configuration were not checked. Use --release for a ZIP that goes to customers.
+voucher-captain-pro 0.2.0: /tmp/claude-0/cp-e2e/build/update/voucher-captain-pro-0.2.0.zip (24 files, 79113 bytes, 142 strings)
+  sha256 fa61ef93117c620990c801de8112543b02dc906d8e201aa6c925a51fe2663a06
+  catalog voucher-captain-pro-catalog.json: 0 available, 4 planned entitlements
+Development build: placeholders of the license configuration were not checked. Use --release for a ZIP that goes to customers.
+
+== Setting up server and client sites in /tmp/claude-0/cp-e2e
+Success: Generated 'wp-config.php' file.
+Success: Generated 'wp-config.php' file.
+
+== Versions
+PHP 8.3.6 / WordPress 7.1.4 / WooCommerce 11.3.0 / 10.11.14-MariaDB-0ubuntu0.24.04.1
+wp-license c269e07 (0.2.0) / Voucher Captain 2d84943 (1.1.0) / voucher-captain-pro 0.1.0 -> 0.2.0
+
+== Server: product, plan, license, signing key
+seeded voucher-captain-pro: mapping saved, license 1
+
+== Client: install the built ZIP
+Unpacking the package...
+Installing the plugin...
+Plugin installed successfully.
+Warning: Undefined array key "themes" in /tmp/claude-0/cp-e2e/client/wp-includes/update.php on line 784
+Activating 'voucher-captain-pro'...
+Plugin 'voucher-captain-pro' activated.
+Success: Installed 1 of 1 plugins.
+PASS  [driver] wp plugin install <built ZIP> --activate
+
+== Client: misconfigured
+PASS  [misconfigured] the add-on from the built ZIP is loaded
+PASS  [misconfigured] loading the site sent no request to the license server
+PASS  [misconfigured] plugin is active after "wp plugin install --activate"
+PASS  [misconfigured] Voucher Captain 1.1.0 meets the minimum version
+PASS  [misconfigured] placeholder configuration of the repository: state misconfigured
+Notice: Function get_current_page was called <strong>incorrectly</strong>. Current page retrieval should be called on or after the `current_screen` hook. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 0.16.0.) in /tmp/claude-0/cp-e2e/client/wp-includes/functions.php on line 6260
+Warning: Attempt to read property "id" on null in /tmp/claude-0/cp-e2e/client/wp-content/plugins/woocommerce/src/Internal/Features/FeaturesController.php on line 1812
+Warning: Attempt to read property "id" on null in /tmp/claude-0/cp-e2e/client/wp-content/plugins/woocommerce/src/Admin/PluginsHelper.php on line 797
+Notice: Function get_current_page was called <strong>incorrectly</strong>. Current page retrieval should be called on or after the `current_screen` hook. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 0.16.0.) in /tmp/claude-0/cp-e2e/client/wp-includes/functions.php on line 6260
+PASS  [misconfigured] misconfigured: admin notice instead of a fatal error
+PASS  [misconfigured] misconfigured: activation is refused locally
+PASS  [misconfigured] misconfigured: nothing was sent
+
+== Client: unlicensed
+PASS  [unlicensed] the add-on from the built ZIP is loaded
+PASS  [unlicensed] loading the site sent no request to the license server
+PASS  [unlicensed] server address and public key set in wp-config.php: state unlicensed
+PASS  [unlicensed] no license: example feature not granted
+PASS  [unlicensed] no license: example feature added no hook
+PASS  [unlicensed] no license: order box of Voucher Captain is unchanged
+PASS  [unlicensed] no license: the add-on stored nothing
+
+== Client: activate
+PASS  [activate] the add-on from the built ZIP is loaded
+PASS  [activate] loading the site sent no request to the license server
+PASS  [activate] license form action "activate" succeeds
+PASS  [activate] state active
+PASS  [activate] signed entitlements contain voucher.example_feature
+PASS  [activate] is_entitled( voucher.example_feature ) is true
+PASS  [activate] a key the plan does not contain is not granted
+PASS  [activate] site slot 1 of 1 in use
+PASS  [activate] the feature is switched on in the request of the activation
+PASS  [activate] exactly one request: POST /activations
+PASS  [activate] credentials are not autoloaded
+PASS  [activate] the license key is not stored
+server activations: [{"id":"1","site_url":"https:\/\/customer.test","environment":"production","status":"active"}]
+PASS  [driver] server lists one active activation for https://customer.test
+
+== Client: feature-on
+PASS  [feature-on] the add-on from the built ZIP is loaded
+PASS  [feature-on] loading the site sent no request to the license server
+PASS  [feature-on] next request: state active from the stored snapshot
+PASS  [feature-on] next request: example feature booted on plugins_loaded
+PASS  [feature-on] VCAP\Admin\OrderAdmin::render() prints the line of the example feature (hook vcap_order_metabox_after)
+PASS  [feature-on] license screen lists the feature as active
+PASS  [feature-on] license screen does not print the key
+PASS  [feature-on] daily check is scheduled
+PASS  [feature-on] rendering sent no request
+
+== Server: publish release 0.2.0 with wp wplc release create
+Success: Release 1 published.
+PASS  [driver] wp wplc release create --publish accepted the built ZIP
+
+== Client: update
+PASS  [update] the add-on from the built ZIP is loaded
+PASS  [update] loading the site sent no request to the license server
+PASS  [update] installed version before the update: 0.1.0
+PASS  [update] wp_update_plugins() without a logged-in user: WordPress offers version 0.2.0
+PASS  [update] update entry carries the slug of the add-on
+PASS  [update] "View details" is answered from the release (version, changelog)
+Warning: Undefined array key "themes" in /tmp/claude-0/cp-e2e/client/wp-includes/update.php on line 784
+PASS  [update] Plugin_Upgrader::bulk_upgrade() installs the package
+PASS  [update] version on disk is 0.2.0
+PASS  [update] the add-on is still active after the update
+PASS  [update] update feed was asked at /updates/check
+PASS  [update] package was downloaded from the license server
+
+== Client: updated
+PASS  [updated] the add-on from the built ZIP is loaded
+PASS  [updated] loading the site sent no request to the license server
+PASS  [updated] next request runs version 0.2.0
+PASS  [updated] license and feature survive the update
+PASS  [updated] no further update is offered; the add-on is listed under no_update
+
+== Server: the license expires
+license 1 -> expired (1)
+
+== Client: lapse
+PASS  [lapse] the add-on from the built ZIP is loaded
+PASS  [lapse] loading the site sent no request to the license server
+PASS  [lapse] before the daily check the feature is still on
+PASS  [lapse] daily check: signed answer "expired" is taken over
+PASS  [lapse] feature gate is closed in the same request
+PASS  [lapse] no entitlements left
+
+== Client: feature-off
+PASS  [feature-off] the add-on from the built ZIP is loaded
+PASS  [feature-off] loading the site sent no request to the license server
+PASS  [feature-off] next request: state expired
+PASS  [feature-off] expired: example feature is not booted
+PASS  [feature-off] expired: order box of Voucher Captain is back to the core output
+PASS  [feature-off] expired: Voucher Captain itself works as before
+Notice: Function get_current_page was called <strong>incorrectly</strong>. Current page retrieval should be called on or after the `current_screen` hook. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 0.16.0.) in /tmp/claude-0/cp-e2e/client/wp-includes/functions.php on line 6260
+Warning: Attempt to read property "id" on null in /tmp/claude-0/cp-e2e/client/wp-content/plugins/woocommerce/src/Internal/Features/FeaturesController.php on line 1812
+Warning: Attempt to read property "id" on null in /tmp/claude-0/cp-e2e/client/wp-content/plugins/woocommerce/src/Admin/PluginsHelper.php on line 797
+Notice: Function get_current_page was called <strong>incorrectly</strong>. Current page retrieval should be called on or after the `current_screen` hook. Please see <a href="https://developer.wordpress.org/advanced-administration/debug/debug-wordpress/">Debugging in WordPress</a> for more information. (This message was added in version 0.16.0.) in /tmp/claude-0/cp-e2e/client/wp-includes/functions.php on line 6260
+PASS  [feature-off] expired: admin notice is shown
+PASS  [feature-off] expired: the activation is kept, a renewal is picked up by the next check
+
+== Server: the license is renewed
+license 1 -> active (1)
+
+== Client: renewed
+PASS  [renewed] the add-on from the built ZIP is loaded
+PASS  [renewed] loading the site sent no request to the license server
+PASS  [renewed] "Check now" after the renewal: state active
+PASS  [renewed] feature is back in the same request
+
+== Client: deactivate
+PASS  [deactivate] the add-on from the built ZIP is loaded
+PASS  [deactivate] loading the site sent no request to the license server
+PASS  [deactivate] license form action "deactivate" succeeds
+PASS  [deactivate] state without license, feature gate closed
+PASS  [deactivate] credentials are removed from the site
+PASS  [deactivate] the release was sent to the server
+server activations: [{"id":"1","site_url":"https:\/\/customer.test","environment":"production","status":"deactivated"}]
+PASS  [driver] server: the activation is no longer active
+
+== Client: reactivate
+PASS  [reactivate] the add-on from the built ZIP is loaded
+PASS  [reactivate] loading the site sent no request to the license server
+PASS  [reactivate] the freed site slot can be used again
+PASS  [reactivate] the add-on has options before uninstall
+
+== Client: wp plugin uninstall --deactivate (runs uninstall.php)
+Deactivating 'voucher-captain-pro'...
+Plugin 'voucher-captain-pro' deactivated.
+Uninstalled and deleted 'voucher-captain-pro' plugin.
+Success: Uninstalled 1 of 1 plugins.
+
+== Client: uninstalled
+PASS  [uninstalled] after "wp plugin uninstall" the add-on is not loaded
+PASS  [uninstalled] plugin folder is deleted
+PASS  [uninstalled] all options of the add-on are removed
+PASS  [uninstalled] daily check is unscheduled
+PASS  [uninstalled] data of Voucher Captain is untouched
+server activations: [{"id":"1","site_url":"https:\/\/customer.test","environment":"production","status":"deactivated"},{"id":"2","site_url":"https:\/\/customer.test","environment":"production","status":"deactivated"}]
+PASS  [driver] server: uninstall released the activation
+
+== Smoke: voucher-captain-pro next to voucher-captain (HEAD = 2d84943)
+PASS  [driver] core plugin voucher-captain is active
+PASS  [driver] wp plugin install voucher-captain-pro-0.1.0.zip --activate
+seeded voucher-captain-pro: mapping saved, license 2
+PASS  [smoke voucher-captain-pro] active, core plugin Voucher Captain 1.1.0 meets the minimum 1.1.0
+PASS  [smoke voucher-captain-pro] state unlicensed
+PASS  [smoke voucher-captain-pro] no license: the extension point of the core plugin shows no premium feature
+PASS  [smoke voucher-captain-pro] activation at the license server
+PASS  [smoke voucher-captain-pro] signed entitlements contain voucher.example_feature
+PASS  [smoke voucher-captain-pro] voucher.example_feature granted and booted
+PASS  [smoke voucher-captain-pro] the feature reaches the extension point of the core plugin
+PASS  [smoke voucher-captain-pro] license screen is registered below the core menu "vcap-vouchers" (vouchers_page_voucher-captain-pro-license)
+PASS  [smoke voucher-captain-pro] address of the license screen
+PASS  [smoke voucher-captain-pro] the screen prints the license form and the state of the feature
+PASS  [driver] server lists an active activation of voucher-captain-pro before the uninstall
+PASS  [driver] wp plugin uninstall voucher-captain-pro
+server activations of voucher-captain-pro: [{"id":"3","site_url":"https:\/\/customer.test","environment":"production","status":"deactivated"}]
+PASS  [driver] uninstall.php of voucher-captain-pro released the activation at the server
+
+== Smoke: pass-captain-pro next to pass-captain (HEAD = b2b88ea)
+PASS  [driver] core plugin pass-captain is active
+PASS  [driver] wp plugin install pass-captain-pro-0.1.0.zip --activate
+seeded pass-captain-pro: mapping saved, license 3
+PASS  [smoke pass-captain-pro] active, core plugin Pass Captain 1.4.0 meets the minimum 1.4.0
+PASS  [smoke pass-captain-pro] state unlicensed
+PASS  [smoke pass-captain-pro] no license: the extension point of the core plugin shows no premium feature
+PASS  [smoke pass-captain-pro] activation at the license server
+PASS  [smoke pass-captain-pro] signed entitlements contain pass.white_label
+KNOWN [smoke pass-captain-pro] pass-captain-pro: Pass Captain 1.4.0 lacks wp_pass_captain_brand_name_v1, wp_pass_captain_brand_logo_v1, wp_pass_captain_admin_menu_title_v1, wp_pass_captain_admin_menu_icon_v1, wp_pass_captain_admin_menu_built_v1; pass.white_label is off although the license grants it
+PASS  [smoke pass-captain-pro] pass.white_label is not active and not booted on a core without its extension points
+PASS  [smoke pass-captain-pro] the feature added nothing to the core plugin
+PASS  [smoke pass-captain-pro] an admin notice names what the core plugin lacks
+PASS  [smoke pass-captain-pro] license screen is registered below the core menu "wp-pass-captain" (pass-captain_page_pass-captain-pro-license)
+PASS  [smoke pass-captain-pro] address of the license screen
+PASS  [smoke pass-captain-pro] the screen prints the license form and the state of the feature
+PASS  [driver] server lists an active activation of pass-captain-pro before the uninstall
+PASS  [driver] wp plugin uninstall pass-captain-pro
+server activations of pass-captain-pro: [{"id":"4","site_url":"https:\/\/customer.test","environment":"production","status":"deactivated"}]
+PASS  [driver] uninstall.php of pass-captain-pro released the activation at the server
+
+== Smoke: affiliate-captain-pro next to affiliate-captain (HEAD = 2a77ed3)
+PASS  [driver] core plugin affiliate-captain is active
+PASS  [driver] wp plugin install affiliate-captain-pro-0.1.0.zip --activate
+seeded affiliate-captain-pro: mapping saved, license 4
+PASS  [smoke affiliate-captain-pro] active, core plugin Affiliate Captain 0.15.0 meets the minimum 0.13.0
+PASS  [smoke affiliate-captain-pro] state unlicensed
+PASS  [smoke affiliate-captain-pro] no license: the extension point of the core plugin shows no premium feature
+PASS  [smoke affiliate-captain-pro] activation at the license server
+PASS  [smoke affiliate-captain-pro] signed entitlements contain affiliate.webhooks
+PASS  [smoke affiliate-captain-pro] affiliate.webhooks granted and booted
+PASS  [smoke affiliate-captain-pro] the feature reaches the extension point of the core plugin
+PASS  [smoke affiliate-captain-pro] license screen is registered below the core menu "wpac" (affiliate-captain_page_affiliate-captain-pro-license)
+PASS  [smoke affiliate-captain-pro] address of the license screen
+PASS  [smoke affiliate-captain-pro] the screen prints the license form and the state of the feature
+PASS  [driver] server lists an active activation of affiliate-captain-pro before the uninstall
+PASS  [driver] wp plugin uninstall affiliate-captain-pro
+server activations of affiliate-captain-pro: [{"id":"5","site_url":"https:\/\/customer.test","environment":"production","status":"deactivated"}]
+PASS  [driver] uninstall.php of affiliate-captain-pro released the activation at the server
+
+== Smoke: review-captain-pro next to review-captain (HEAD = 9c82400)
+PASS  [driver] core plugin review-captain is active
+PASS  [driver] wp plugin install review-captain-pro-0.1.0.zip --activate
+seeded review-captain-pro: mapping saved, license 5
+PASS  [smoke review-captain-pro] active, core plugin Review Captain 0.1.0-dev meets the minimum 0.1.0-dev
+PASS  [smoke review-captain-pro] state unlicensed
+PASS  [smoke review-captain-pro] no license: the extension point of the core plugin shows no premium feature
+PASS  [smoke review-captain-pro] activation at the license server
+PASS  [smoke review-captain-pro] signed entitlements contain review.platform_sync
+PASS  [smoke review-captain-pro] review.platform_sync granted and booted
+PASS  [smoke review-captain-pro] the feature reaches the extension point of the core plugin
+PASS  [smoke review-captain-pro] license screen is registered below the core menu "review-captain" (review-captain_page_review-captain-pro-license)
+PASS  [smoke review-captain-pro] address of the license screen
+PASS  [smoke review-captain-pro] the screen prints the license form and the state of the feature
+PASS  [driver] server lists an active activation of review-captain-pro before the uninstall
+PASS  [driver] wp plugin uninstall review-captain-pro
+server activations of review-captain-pro: [{"id":"6","site_url":"https:\/\/customer.test","environment":"production","status":"deactivated"}]
+PASS  [driver] uninstall.php of review-captain-pro released the activation at the server
+PASS  [driver] debug.log of the customer site has no message from an add-on
+
+== Summary
+152 passed, 0 failed
+KNOWN: pass-captain-pro: Pass Captain 1.4.0 lacks wp_pass_captain_brand_name_v1, wp_pass_captain_brand_logo_v1, wp_pass_captain_admin_menu_title_v1, wp_pass_captain_admin_menu_icon_v1, wp_pass_captain_admin_menu_built_v1; pass.white_label is off although the license grants it

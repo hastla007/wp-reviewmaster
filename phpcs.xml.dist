@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<ruleset name="Review Captain">
+	<description>WordPress Coding Standards for Review Captain (RC-033).</description>
+	<file>review-captain.php</file>
+	<file>uninstall.php</file>
+	<file>src</file>
+	<file>templates</file>
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<exclude-pattern>tests/*</exclude-pattern>
+	<arg name="extensions" value="php"/>
+	<arg value="sp"/>
+	<config name="testVersion" value="8.5-"/>
+	<config name="minimum_wp_version" value="6.5"/>
+	<rule ref="WordPress">
+		<!-- PSR-4 file names instead of class-*.php. -->
+		<exclude name="WordPress.Files.FileName"/>
+		<!-- Typed properties are documented by their type. -->
+		<exclude name="Squiz.Commenting.VariableComment.Missing"/>
+	</rule>
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array"><element value="review-captain"/></property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="review_captain"/>
+				<element value="ReviewCaptain"/>
+				<element value="REVIEW_CAPTAIN"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="PHPCompatibilityWP"/>
+</ruleset>
