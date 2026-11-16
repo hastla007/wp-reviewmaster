@@ -148,6 +148,7 @@ final class ImportExportModule implements Module {
 		if ( null !== $error ) {
 			$this->redirect( array( 'rc_notice' => 'upload_' . $error ) );
 		}
+		UploadStore::purge_older_than( HOUR_IN_SECONDS );
 		$path = UploadStore::store( $file );
 		if ( null === $path ) {
 			$this->redirect( array( 'rc_notice' => 'upload_upload_failed' ) );

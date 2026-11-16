@@ -34,6 +34,7 @@ class Maintenance {
 	public function run( float $time_budget = 20.0 ): array {
 		$retention = ( new Retention( $this->plugin, $this->queue ) )->run( $time_budget );
 		$reconcile = ( new Reconciler( $this->plugin, $this->queue ) )->run( true, 'manual' );
+		$retention['import_uploads'] = \ReviewCaptain\ImportExport\UploadStore::purge_older_than( HOUR_IN_SECONDS );
 		update_option( 'review_captain_last_maintenance', time(), false );
 		return array(
 			'retention' => $retention,

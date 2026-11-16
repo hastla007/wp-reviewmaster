@@ -228,6 +228,41 @@ class Runner {
 		}
 		set_transient( 'review_captain_resume_unhandled', 1, HOUR_IN_SECONDS );
 		$this->queue->resume_paused_with_code( ErrorCode::CONTRACT_INCOMPATIBLE );
+		$this->queue->resume_paused_with_code( ErrorCode::SOURCE_UNAVAILABLE );
+	}
+
+	/**
+	 * For job types named {connector_key}.{name} that belong to a known connector, return a reason
+	 * string when that connector is not executable (inactive, paused, removed); null otherwise.
+	 *
+	 * @param string $type Job type.
+	 */
+	private function connector_gate( string $type ): ?string {
+		if ( ! preg_match( '/^([a-z0-9][a-z0-9_-]{2,63})\./', $type, $m ) ) {
+			return null;
+		}
+		$plugin = \ReviewCaptain\Plugin::instance();
+		if ( ! $plugin->has( 'connectors' ) ) {
+			return null;
+		}
+		$registry = $plugin->get( 'connectors' );
+		if ( ! $registry instanceof \ReviewCaptain\Connectors\Registry ) {
+			return null;
+		}
+		$key   = $m[1];
+		$known = get_option( \ReviewCaptain\Connectors\Registry::OPTION_KNOWN, array() );
+		if ( ! $registry->has( $key ) && ! ( is_array( $known ) && isset( $known[ $key ] ) ) ) {
+			return null; // Not a connector job type (e.g. Pro).
+		}
+		if ( $registry->is_executable( $key ) ) {
+			return null;
+		}
+		return sprintf(
+			/* translators: 1: connector key, 2: connector state */
+			__( 'Connector „%1$s“ ist nicht aktiv (%2$s); Job wartet.', 'review-captain' ),
+			$key,
+			$registry->status( $key )['state']
+		);
 	}
 
 	/**
@@ -243,6 +278,12 @@ class Runner {
 			if ( isset( $this->handlers[ $type ] ) ) {
 				$outcome = ( $this->handlers[ $type ] )( $payload, $job );
 			} else {
+				$blocked = $this->connector_gate( $type );
+				if ( null !== $blocked ) {
+					// CON-014 / CT-J-09: connector job types only run while their connector is active.
+					$this->queue->pause( (int) $job['id'], $worker_id, ErrorCode::SOURCE_UNAVAILABLE, $blocked );
+					return false;
+				}
 				/**
 				 * Handle a job type not built into the core (connectors, Pro).
 				 *

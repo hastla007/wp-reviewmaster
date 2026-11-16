@@ -120,6 +120,29 @@ class UploadStore {
 	}
 
 	/**
+	 * Delete stored import files older than the given age. `.htaccess` does not protect files on
+	 * nginx, so uploads must not linger (security review / TODO RC-045).
+	 *
+	 * @param int $max_age_seconds Maximum age.
+	 * @return int Number of deleted files.
+	 */
+	public static function purge_older_than( int $max_age_seconds = HOUR_IN_SECONDS ): int {
+		$dir = self::dir();
+		if ( ! is_dir( $dir ) ) {
+			return 0;
+		}
+		$deleted = 0;
+		$cutoff  = time() - $max_age_seconds;
+		foreach ( (array) glob( $dir . '/import-*.csv' ) as $path ) {
+			if ( is_string( $path ) && is_file( $path ) && filemtime( $path ) < $cutoff && self::owns( $path ) ) {
+				self::delete( $path );
+				++$deleted;
+			}
+		}
+		return $deleted;
+	}
+
+	/**
 	 * Translated message for an upload error code.
 	 *
 	 * @param string $code Code.
