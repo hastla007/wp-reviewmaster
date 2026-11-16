@@ -21,9 +21,9 @@ final class SeoEnvironment {
 	 * Minimum supported Yoast SEO version for the graph integration.
 	 *
 	 * Entscheidung der Inhaberin 16.11.2026 (SEO-001/SEO-OPEN-1): aktuelle Yoast-Major minus 2.
-	 * Stand 16.11.2026: aktuell 27.x → Minimum 25.0. Beim Release-Freeze neu setzen (RC-141).
+	 * Stand 16.11.2026: aktuell 28.x (28.8) → Minimum 26.0. Beim Release-Freeze neu setzen (RC-141).
 	 */
-	public const YOAST_MIN_VERSION = '25.0';
+	public const YOAST_MIN_VERSION = '26.0';
 
 	/**
 	 * Detected state.

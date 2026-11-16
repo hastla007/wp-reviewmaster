@@ -65,3 +65,17 @@ register_activation_hook( __FILE__, array( \ReviewCaptain\Install\Installer::cla
 register_deactivation_hook( __FILE__, array( \ReviewCaptain\Install\Installer::class, 'deactivate' ) );
 
 add_action( 'plugins_loaded', array( \ReviewCaptain\Plugin::class, 'boot' ), 5 );
+
+/*
+ * WooCommerce compatibility (RC-006): the Core only reads products (schema ownership, review separation)
+ * and never touches orders or the checkout, so it is compatible with HPOS and the block checkout.
+ */
+add_action(
+	'before_woocommerce_init',
+	static function () {
+		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', REVIEW_CAPTAIN_FILE, true );
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', REVIEW_CAPTAIN_FILE, true );
+		}
+	}
+);

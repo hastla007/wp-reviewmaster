@@ -115,7 +115,7 @@ final class WidgetDefinition {
 	/**
 	 * Heading level of card titles (2–6, default 3; QA F-07 heading-order).
 	 */
-	public int $heading_level = 3;
+	public int $heading_level = 2; // F-07/RC-137: cards usually sit directly below the page title (h1).
 
 	/**
 	 * Raw (unvalidated, but string-cast) attributes for Pro widget types.
@@ -229,7 +229,7 @@ final class WidgetDefinition {
 		$d->paginate     = self::bool_or_null( $raw['paginate'] ?? '' ) ?? false;
 		$d->new_tab      = self::bool_or_null( $raw['new_tab'] ?? '' ) ?? false;
 
-		$d->heading_level = self::int_in_range( $raw['heading_level'] ?? '', 2, 6, 3, 'heading_level', $d );
+		$d->heading_level = self::int_in_range( $raw['heading_level'] ?? '', 2, 6, 2, 'heading_level', $d );
 
 		if ( isset( $raw['profile'] ) && '' !== $raw['profile'] ) {
 			if ( ctype_digit( $raw['profile'] ) && (int) $raw['profile'] > 0 ) {

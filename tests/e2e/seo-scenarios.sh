@@ -45,7 +45,7 @@ for c in RANK_MATH_VERSION AIOSEO_VERSION SEOPRESS_VERSION BSF_SP_VER; do
 	check "S10 $c aktiv: kein Review-Captain-Markup" s01 'rc_script==0 and len(reviews)==0'
 done
 switch '{"define":{"WPSEO_VERSION":"13.0"}}'
-check "S4 Yoast zu alt (13.0 < 14.0): kein Markup, Reviews sichtbar" s01 'rc_script==0 and len(reviews)==0 and "S01 lokale Bewertung eins" in html'
+check "S4 Yoast zu alt (13.0 < Minimum): kein Markup, Reviews sichtbar" s01 'rc_script==0 and len(reviews)==0 and "S01 lokale Bewertung eins" in html'
 switch '{}'
 check "Index: ?rc_page=2 -> noindex, follow" "$(url s01)?rc_page=2" '"noindex" in robots and "follow" in robots and "nofollow" not in robots'
 check "Index: ohne rc_page kein noindex" s01 '"noindex" not in robots'
@@ -64,6 +64,14 @@ else
 	echo "== Yoast nicht installiert: S2/S15 übersprungen"
 fi
 switch '{}'
+for plug in seo-by-rank-math all-in-one-seo-pack wp-seopress; do
+	[ -d "$E2E_WP/wp-content/plugins/$plug" ] || continue
+	if wp plugin activate "$plug" >/dev/null 2>&1; then
+		echo "== echtes Plugin $plug $(wp plugin get "$plug" --field=version 2>/dev/null)"
+		check "S10 $plug aktiv: kein Review-Captain-Markup, Reviews sichtbar" s01 'rc_script==0 and len([n for n in nodes if n.get("@type")=="Review" and "review-captain" in str(n.get("@id",""))])==0 and "S01 lokale Bewertung eins" in html'
+		wp plugin deactivate "$plug" >/dev/null 2>&1
+	fi
+done
 if wp plugin activate woocommerce >/dev/null 2>&1 && wp eval 'exit(defined("WC_VERSION")?0:1);' >/dev/null 2>&1; then
 	WOO="$(wp eval-file "$(dirname "$0")/php/seo-woo.php" 2>/dev/null | tail -1)"
 	echo "== WooCommerce $(wp plugin get woocommerce --field=version 2>/dev/null)"
