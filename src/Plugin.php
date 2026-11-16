@@ -14,6 +14,7 @@ use ReviewCaptain\Events\Events;
 use ReviewCaptain\Install\Installer;
 use ReviewCaptain\Repository\ReviewRepository;
 use ReviewCaptain\Settings\Settings;
+use ReviewCaptain\Workflow\WorkflowService;
 
 /**
  * Central plugin object.
@@ -101,6 +102,7 @@ final class Plugin {
 		$this->factory( 'reviews', static fn() => new ReviewRepository() );
 		$this->factory( 'audit', static fn() => new AuditLog() );
 		$this->factory( 'events', static fn() => new Events() );
+		$this->factory( 'workflow', static fn( Plugin $p ) => new WorkflowService( $p ) );
 	}
 
 	/**
@@ -202,6 +204,14 @@ final class Plugin {
 	public function events(): Events {
 		/** @var Events */
 		return $this->get( 'events' );
+	}
+
+	/**
+	 * Workflow services (RC-WF-03).
+	 */
+	public function workflow(): WorkflowService {
+		/** @var WorkflowService */
+		return $this->get( 'workflow' );
 	}
 
 	/**

@@ -18,7 +18,7 @@ final class TemplateLoader {
 	/**
 	 * Known templates (no arbitrary paths).
 	 */
-	public const TEMPLATES = array( 'review-card.php', 'reviews-grid.php', 'review-form.php', 'cta.php' );
+	public const TEMPLATES = array( 'review-card.php', 'reviews-grid.php', 'review-form.php', 'cta.php', 'questions.php' );
 
 	/**
 	 * Resolve a template path.

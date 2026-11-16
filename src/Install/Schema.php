@@ -17,14 +17,14 @@ final class Schema {
 	/**
 	 * Bump on every schema change and add a migration step in Migrator.
 	 */
-	public const VERSION = 1;
+	public const VERSION = 2;
 
 	public const OPTION_VERSION = 'review_captain_db_version';
 
 	/**
 	 * Logical table keys.
 	 */
-	public const TABLES = array( 'reviews', 'review_events', 'profiles', 'jobs', 'import_batches', 'audit_log' );
+	public const TABLES = array( 'reviews', 'review_events', 'profiles', 'jobs', 'import_batches', 'audit_log', 'review_tags', 'review_reports', 'review_media', 'questions' );
 
 	/**
 	 * Fully qualified table name for the current site.
@@ -51,6 +51,10 @@ final class Schema {
 		$jobs           = self::table( 'jobs' );
 		$import_batches = self::table( 'import_batches' );
 		$audit_log      = self::table( 'audit_log' );
+		$review_tags    = self::table( 'review_tags' );
+		$review_reports = self::table( 'review_reports' );
+		$review_media   = self::table( 'review_media' );
+		$questions      = self::table( 'questions' );
 
 		return array(
 			'reviews'        => "CREATE TABLE {$reviews} (
@@ -83,6 +87,8 @@ final class Schema {
   consent_at datetime NULL,
   import_batch_id bigint(20) unsigned NULL,
   experience_id varchar(191) NULL,
+  submission_key char(40) NULL,
+  revision int(10) unsigned NOT NULL DEFAULT 0,
   meta longtext NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
@@ -90,6 +96,7 @@ final class Schema {
   PRIMARY KEY  (id),
   UNIQUE KEY uuid (uuid),
   UNIQUE KEY dedupe_key (dedupe_key),
+  UNIQUE KEY submission_key (submission_key),
   KEY status_kind_platform (status,kind,platform),
   KEY rating_value (rating_value),
   KEY created_at (created_at),
@@ -179,6 +186,58 @@ final class Schema {
   KEY event (event),
   KEY created_at (created_at),
   KEY object (object_type,object_id)
+) {$c};",
+			'review_tags'    => "CREATE TABLE {$review_tags} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  review_id bigint(20) unsigned NOT NULL,
+  tag varchar(40) NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY review_tag (review_id,tag),
+  KEY tag (tag)
+) {$c};",
+			'review_reports' => "CREATE TABLE {$review_reports} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  review_id bigint(20) unsigned NOT NULL,
+  reason varchar(30) NOT NULL DEFAULT 'other',
+  created_at datetime NOT NULL,
+  resolved_at datetime NULL,
+  PRIMARY KEY  (id),
+  KEY review_id (review_id),
+  KEY resolved_at (resolved_at)
+) {$c};",
+			'review_media'   => "CREATE TABLE {$review_media} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  review_id bigint(20) unsigned NOT NULL,
+  file varchar(100) NOT NULL,
+  mime varchar(30) NOT NULL,
+  bytes int(10) unsigned NOT NULL DEFAULT 0,
+  width int(10) unsigned NOT NULL DEFAULT 0,
+  height int(10) unsigned NOT NULL DEFAULT 0,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY file (file),
+  KEY review_id (review_id)
+) {$c};",
+			'questions'      => "CREATE TABLE {$questions} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  uuid char(36) NOT NULL,
+  context_type varchar(40) NOT NULL,
+  context_id varchar(64) NOT NULL,
+  question text NOT NULL,
+  answer text NULL,
+  author_name varchar(191) NOT NULL DEFAULT '',
+  author_email varchar(191) NULL,
+  status varchar(20) NOT NULL DEFAULT 'pending',
+  answered_by bigint(20) unsigned NULL,
+  answered_at datetime NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY uuid (uuid),
+  KEY context_status (context_type,context_id,status),
+  KEY author_email (author_email),
+  KEY status (status)
 ) {$c};",
 		);
 	}

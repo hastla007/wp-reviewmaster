@@ -80,6 +80,13 @@ class ReviewsListTable extends \WP_List_Table {
 		if ( in_array( $period, array( 7, 30, 90, 365 ), true ) ) {
 			$args['date_from'] = gmdate( 'Y-m-d', time() - $period * DAY_IN_SECONDS );
 		}
+		$tag = sanitize_key( View::req( $request, 'tag' ) );
+		if ( '' !== $tag ) {
+			$args['tag'] = $tag;
+		}
+		if ( '1' === View::req( $request, 'reported' ) ) {
+			$args['reported'] = true;
+		}
 		$search = View::req( $request, 's' );
 		if ( '' !== $search ) {
 			$args['search'] = mb_substr( $search, 0, 100 );
@@ -206,7 +213,7 @@ class ReviewsListTable extends \WP_List_Table {
 	 */
 	public function no_items(): void {
 		$filtered = false;
-		foreach ( array( 'kind', 'platform', 'rating', 'period', 's', 'status' ) as $key ) {
+		foreach ( array( 'kind', 'platform', 'rating', 'period', 's', 'status', 'tag', 'reported' ) as $key ) {
 			if ( '' !== View::req( $_GET, $key ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$filtered = true;
 			}

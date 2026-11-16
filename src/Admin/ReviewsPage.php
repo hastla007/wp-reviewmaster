@@ -14,6 +14,9 @@ use ReviewCaptain\Domain\Origin;
 use ReviewCaptain\Domain\Platform;
 use ReviewCaptain\Domain\Review;
 use ReviewCaptain\Domain\ReviewStatus;
+use ReviewCaptain\Media\PhotoStore;
+use ReviewCaptain\Moderation\ReportStore;
+use ReviewCaptain\Moderation\TagStore;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 
@@ -124,6 +127,17 @@ final class ReviewsPage {
 			),
 			View::req( $get, 'period' )
 		);
+		$settings = $this->plugin->settings();
+		if ( $settings->get( 'submissions', 'tags_enabled', false ) ) {
+			$tags = array( '' => __( 'Alle Tags', 'review-captain' ) );
+			foreach ( ( new TagStore() )->all() as $tag => $count ) {
+				$tags[ $tag ] = $tag . ' (' . number_format_i18n( $count ) . ')';
+			}
+			$this->select( 'tag', __( 'Tag', 'review-captain' ), $tags, View::req( $get, 'tag' ) );
+		}
+		if ( $settings->get( 'submissions', 'reports_enabled', false ) ) {
+			echo '<label class="rc-admin-filter-check"><input type="checkbox" name="reported" value="1"' . checked( View::req( $get, 'reported' ), '1', false ) . ' /> ' . esc_html__( 'Nur mit offenen Meldungen', 'review-captain' ) . '</label> ';
+		}
 		echo '<button type="submit" class="button">' . esc_html__( 'Filtern', 'review-captain' ) . '</button>';
 		echo '</div></div></form>';
 	}
@@ -296,6 +310,8 @@ final class ReviewsPage {
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'save_review' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<input type="hidden" name="id" value="' . esc_attr( (string) $review->id ) . '" />';
+		// Optimistic lock (TEC-005 R-12a): saving fails if someone else changed the content meanwhile.
+		echo '<input type="hidden" name="revision" value="' . esc_attr( (string) $review->revision ) . '" />';
 
 		if ( Kind::TESTIMONIAL === $review->kind ) {
 			echo View::notice( 'info', __( 'Erfahrungsbericht der Website (Text-Testimonial) – wird nicht als Plattformbewertung ausgegeben.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -353,8 +369,66 @@ final class ReviewsPage {
 		$this->render_history( $review );
 		echo '</div><div class="rc-admin-side">';
 		$this->render_moderation_box( $review );
+		$this->render_reports_box( $review );
+		$this->render_tags_box( $review );
+		$this->render_photo_box( $review );
 		$this->render_origin_box( $review );
 		echo '</div></div>';
+	}
+
+	/**
+	 * Open public reports (RC-124).
+	 *
+	 * @param Review $review Review.
+	 */
+	private function render_reports_box( Review $review ): void {
+		$reasons = ( new ReportStore() )->open_reasons( (int) $review->id );
+		if ( ! $reasons ) {
+			return;
+		}
+		$labels = ReportStore::reason_labels();
+		echo '<div class="postbox" id="rc-reports"><div class="postbox-header"><h2>' . esc_html__( 'Offene Meldungen', 'review-captain' ) . '</h2></div><div class="inside"><ul>';
+		foreach ( $reasons as $reason => $count ) {
+			echo '<li>' . esc_html( ( $labels[ $reason ] ?? $reason ) . ': ' . number_format_i18n( $count ) ) . '</li>';
+		}
+		echo '</ul><p class="description">' . esc_html__( 'Mit einer Statusentscheidung (z. B. wieder freigeben oder ablehnen) werden die Meldungen geschlossen. Über Meldende wird nichts gespeichert.', 'review-captain' ) . '</p></div></div>';
+	}
+
+	/**
+	 * Internal tags (RC-124).
+	 *
+	 * @param Review $review Review.
+	 */
+	private function render_tags_box( Review $review ): void {
+		if ( ! $this->plugin->settings()->get( 'submissions', 'tags_enabled', false ) ) {
+			return;
+		}
+		$tags = ( new TagStore() )->for_review( (int) $review->id );
+		echo '<div class="postbox" id="rc-tags"><div class="postbox-header"><h2>' . esc_html__( 'Interne Tags', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo View::form_fields( 'save_tags' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<input type="hidden" name="id" value="' . esc_attr( (string) $review->id ) . '" />';
+		echo '<p><label for="rc-tags-input">' . esc_html__( 'Tags (durch Komma getrennt)', 'review-captain' ) . '</label><br /><input type="text" id="rc-tags-input" name="tags" class="widefat" maxlength="500" value="' . esc_attr( implode( ', ', $tags ) ) . '" aria-describedby="rc-tags-desc" />';
+		echo '<span class="description" id="rc-tags-desc">' . esc_html__( 'Nur intern sichtbar. Keine personenbezogenen Daten eintragen.', 'review-captain' ) . '</span></p>';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Tags speichern', 'review-captain' ) . '</button></p></form></div></div>';
+	}
+
+	/**
+	 * Photo preview for moderators (RC-121).
+	 *
+	 * @param Review $review Review.
+	 */
+	private function render_photo_box( Review $review ): void {
+		if ( null === $review->id || null === PhotoStore::for_review( $review->id ) ) {
+			return;
+		}
+		echo '<div class="postbox" id="rc-photo"><div class="postbox-header"><h2>' . esc_html__( 'Foto', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<p><img src="' . esc_url( PhotoStore::url( $review->uuid ) ) . '" alt="' . esc_attr__( 'Foto zur Bewertung (Moderationsvorschau)', 'review-captain' ) . '" style="max-width:100%;height:auto" /></p>';
+		echo '<p class="description">' . esc_html__( 'Öffentlich sichtbar erst nach Freigabe und wenn „Fotos anzeigen“ aktiv ist. Wird mit dem Review bzw. bei einer Datenschutz-Löschung entfernt.', 'review-captain' ) . '</p>';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo View::form_fields( 'delete_photo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<input type="hidden" name="id" value="' . esc_attr( (string) $review->id ) . '" />';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Foto löschen', 'review-captain' ) . '</button></p></form></div></div>';
 	}
 
 	/**

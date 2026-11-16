@@ -9,7 +9,10 @@ declare(strict_types=1);
 
 namespace ReviewCaptain\Frontend;
 
+use ReviewCaptain\Media\PhotoStore;
+use ReviewCaptain\Moderation\ReportHandler;
 use ReviewCaptain\Module;
+use ReviewCaptain\Questions\QuestionHandler;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\EmbedPolicy;
 use ReviewCaptain\Seo\VisibleReviews;
@@ -43,11 +46,54 @@ final class FrontendModule implements Module {
 		$plugin->factory( 'widget_registry', static fn(): WidgetRegistry => new WidgetRegistry() );
 		$plugin->factory( 'renderer', static fn( Plugin $p ): Renderer => new Renderer( $p, VisibleReviews::from_plugin( $p ) ) );
 		$plugin->factory( 'form_handler', static fn( Plugin $p ): FormHandler => new FormHandler( $p ) );
+		$plugin->factory( 'report_handler', static fn( Plugin $p ): ReportHandler => new ReportHandler( $p ) );
+		$plugin->factory( 'question_handler', static fn( Plugin $p ): QuestionHandler => new QuestionHandler( $p ) );
 
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_early' ) );
 		add_action( 'admin_post_' . FormHandler::ACTION, array( $this, 'handle_submit' ) );
 		add_action( 'admin_post_nopriv_' . FormHandler::ACTION, array( $this, 'handle_submit' ) );
+		// M7 endpoints: each checks its own setting (all off by default) before doing anything.
+		foreach ( array( ReportHandler::ACTION => 'handle_report', QuestionHandler::ACTION => 'handle_question', PhotoStore::ACTION => 'handle_photo' ) as $action => $method ) {
+			add_action( 'admin_post_' . $action, array( $this, $method ) );
+			add_action( 'admin_post_nopriv_' . $action, array( $this, $method ) );
+		}
+	}
+
+	/**
+	 * admin-post: public report (RC-124).
+	 */
+	public function handle_report(): void {
+		/** @var ReportHandler $handler */
+		$handler = $this->plugin->get( 'report_handler' );
+		$handler->handle();
+	}
+
+	/**
+	 * admin-post: product question (RC-122).
+	 */
+	public function handle_question(): void {
+		/** @var QuestionHandler $handler */
+		$handler = $this->plugin->get( 'question_handler' );
+		$handler->handle();
+	}
+
+	/**
+	 * admin-post: deliver a review photo (RC-121).
+	 */
+	public function handle_photo(): void {
+		PhotoStore::serve();
+	}
+
+	/**
+	 * [review_captain_qa v="1" context_type="product" context_id=""].
+	 *
+	 * @param array<string, mixed>|string $atts Attributes.
+	 */
+	public function shortcode_qa( $atts ): string {
+		/** @var QuestionHandler $handler */
+		$handler = $this->plugin->get( 'question_handler' );
+		return $handler->shortcode( $atts );
 	}
 
 	/**
@@ -77,6 +123,7 @@ final class FrontendModule implements Module {
 		add_shortcode( self::SHORTCODE_REVIEWS, array( $this, 'shortcode_reviews' ) );
 		add_shortcode( self::SHORTCODE_FORM, array( $this, 'shortcode_form' ) );
 		add_shortcode( self::SHORTCODE_CTA, array( $this, 'shortcode_cta' ) );
+		add_shortcode( QuestionHandler::SHORTCODE, array( $this, 'shortcode_qa' ) );
 		self::register_assets();
 		$this->register_blocks();
 		$this->registry()->boot();

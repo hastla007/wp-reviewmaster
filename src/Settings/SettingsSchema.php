@@ -97,6 +97,16 @@ final class SettingsSchema {
 				'max_text_length'     => array( 'type' => 'int', 'default' => 5000, 'min' => 50, 'max' => 20000 ),
 				'allow_title'         => array( 'type' => 'bool', 'default' => true ),
 				'notify_admin'        => array( 'type' => 'bool', 'default' => true ),
+				// M7 (post-MVP) – all off by default so the 1.0 scope is unchanged.
+				'tags_enabled'               => array( 'type' => 'bool', 'default' => false ),
+				'reports_enabled'            => array( 'type' => 'bool', 'default' => false ),
+				'report_threshold'           => array( 'type' => 'int', 'default' => 1, 'min' => 1, 'max' => 20, 'advanced' => true ),
+				'report_rate_limit_per_hour' => array( 'type' => 'int', 'default' => 5, 'min' => 1, 'max' => 100, 'advanced' => true ),
+				'photos_enabled'             => array( 'type' => 'bool', 'default' => false ),
+				'photo_max_kb'               => array( 'type' => 'int', 'default' => 2048, 'min' => 100, 'max' => 10240 ),
+				'multi_product_enabled'      => array( 'type' => 'bool', 'default' => false ),
+				'qa_enabled'                 => array( 'type' => 'bool', 'default' => false ),
+				'feedback_campaigns_enabled' => array( 'type' => 'bool', 'default' => false ),
 			),
 			'display'     => array(
 				'show_stars'     => array( 'type' => 'bool', 'default' => true ),
@@ -112,6 +122,7 @@ final class SettingsSchema {
 				'reduced_motion' => array( 'type' => 'bool', 'default' => true ),
 				'schema_enabled' => array( 'type' => 'bool', 'default' => true ),
 				'load_css'       => array( 'type' => 'bool', 'default' => true, 'advanced' => true ),
+				'show_photos'    => array( 'type' => 'bool', 'default' => false ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),

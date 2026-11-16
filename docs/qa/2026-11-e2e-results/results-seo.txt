@@ -1,0 +1,39 @@
+== ohne SEO-Plugin
+ /rc-produkt/
+  script: <script type="application/ld+json" data-rc-schema>
+     Product http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/item/product-11  
+     Review http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/review/1bab91e0-8250-4b10-ab76-e224d90fc5ff itemReviewed={"@id": "http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/item/product-11"} 
+     Review http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/review/d396f4e5-c2be-4416-b9b3-6c6f43f2df97 itemReviewed={"@id": "http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/item/product-11"} 
+  ld+json-Blöcke: 1
+ /rc-shortcodes/
+  script: <script type="application/ld+json" data-rc-schema>
+     Product http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/item/product-11  
+     Review http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/review/1bab91e0-8250-4b10-ab76-e224d90fc5ff itemReviewed={"@id": "http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/item/product-11"} 
+     Review http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/review/d396f4e5-c2be-4416-b9b3-6c6f43f2df97 itemReviewed={"@id": "http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/item/product-11"} 
+  ld+json-Blöcke: 1
+ /rc-blocks/
+  script: <script type="application/ld+json" data-rc-schema>
+     Product http://127.0.0.1:8899/rc-blocks/#/schema/review-captain/item/product-11  
+     Review http://127.0.0.1:8899/rc-blocks/#/schema/review-captain/review/1bab91e0-8250-4b10-ab76-e224d90fc5ff itemReviewed={"@id": "http://127.0.0.1:8899/rc-blocks/#/schema/review-captain/item/product-11"} 
+     Review http://127.0.0.1:8899/rc-blocks/#/schema/review-captain/review/d396f4e5-c2be-4416-b9b3-6c6f43f2df97 itemReviewed={"@id": "http://127.0.0.1:8899/rc-blocks/#/schema/review-captain/item/product-11"} 
+  ld+json-Blöcke: 1
+== mit Yoast 27.0
+ /rc-produkt/
+  script: <script type="application/ld+json" class="yoast-schema-graph">
+     Article http://127.0.0.1:8899/rc-produkt/#article  
+     WebPage http://127.0.0.1:8899/rc-produkt/  
+     BreadcrumbList http://127.0.0.1:8899/rc-produkt/#breadcrumb  
+     WebSite http://127.0.0.1:8899/#website  
+     Product http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/item/product-11  
+     Review http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/review/1bab91e0-8250-4b10-ab76-e224d90fc5ff itemReviewed={"@id": "http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/item/product-11"} 
+     Review http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/review/d396f4e5-c2be-4416-b9b3-6c6f43f2df97 itemReviewed={"@id": "http://127.0.0.1:8899/rc-produkt/#/schema/review-captain/item/product-11"} 
+  ld+json-Blöcke: 1
+ /rc-shortcodes/
+  script: <script type="application/ld+json" class="yoast-schema-graph">
+     WebPage http://127.0.0.1:8899/rc-shortcodes/  
+     BreadcrumbList http://127.0.0.1:8899/rc-shortcodes/#breadcrumb  
+     WebSite http://127.0.0.1:8899/#website  
+     Product http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/item/product-11  
+     Review http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/review/1bab91e0-8250-4b10-ab76-e224d90fc5ff itemReviewed={"@id": "http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/item/product-11"} 
+     Review http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/review/d396f4e5-c2be-4416-b9b3-6c6f43f2df97 itemReviewed={"@id": "http://127.0.0.1:8899/rc-shortcodes/#/schema/review-captain/item/product-11"} 
+  ld+json-Blöcke: 1

@@ -1,0 +1,98 @@
+[
+  {
+    "label": "Frontend Startseite (Referenz)",
+    "url": "/",
+    "status": 200,
+    "bytes": 79629,
+    "ms_min": 78,
+    "ms_median": 89,
+    "ms_max": 342
+  },
+  {
+    "label": "Shortcode-Seite (12 Reviews, Grid+CTA+Formular)",
+    "url": "/rc-shortcodes/",
+    "status": 200,
+    "bytes": 100411,
+    "ms_min": 84,
+    "ms_median": 89,
+    "ms_max": 91
+  },
+  {
+    "label": "Shortcode-Seite paginiert (24/Seite)",
+    "url": "/rc-perf/",
+    "status": 200,
+    "bytes": 127182,
+    "ms_min": 83,
+    "ms_median": 85,
+    "ms_max": 90
+  },
+  {
+    "label": "Produktseite (Kontextfilter)",
+    "url": "/rc-produkt/",
+    "status": 200,
+    "bytes": 96870,
+    "ms_min": 83,
+    "ms_median": 83,
+    "ms_max": 100
+  },
+  {
+    "label": "Admin-Liste Reviews (Seite 1)",
+    "url": "/wp-admin/admin.php?page=review-captain-reviews",
+    "status": 200,
+    "bytes": 130477,
+    "ms_min": 76,
+    "ms_median": 79,
+    "ms_max": 88
+  },
+  {
+    "label": "Admin-Liste Seite 500",
+    "url": "/wp-admin/admin.php?page=review-captain-reviews&paged=500",
+    "status": 200,
+    "bytes": 130962,
+    "ms_min": 134,
+    "ms_median": 143,
+    "ms_max": 151
+  },
+  {
+    "label": "Admin-Liste Suche \"Kaffee\"",
+    "url": "/wp-admin/admin.php?page=review-captain-reviews&s=Kaffee",
+    "status": 200,
+    "bytes": 95396,
+    "ms_min": 87,
+    "ms_median": 91,
+    "ms_max": 95
+  },
+  {
+    "label": "Admin-Liste Status ausstehend",
+    "url": "/wp-admin/admin.php?page=review-captain-reviews&status=pending",
+    "status": 200,
+    "bytes": 134836,
+    "ms_min": 72,
+    "ms_median": 82,
+    "ms_max": 96
+  },
+  {
+    "label": "Dashboard",
+    "url": "/wp-admin/admin.php?page=review-captain",
+    "status": 200,
+    "bytes": 89183,
+    "ms_min": 64,
+    "ms_median": 67,
+    "ms_max": 73
+  },
+  {
+    "label": "Diagnose",
+    "url": "/wp-admin/admin.php?page=review-captain-diagnostics",
+    "status": 200,
+    "bytes": 91073,
+    "ms_min": 69,
+    "ms_median": 70,
+    "ms_max": 72
+  },
+  {
+    "label": "CSV-Export alle Reviews",
+    "ms_median": 429,
+    "rows": 20006,
+    "bytes": 4538149
+  }
+]

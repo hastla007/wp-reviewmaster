@@ -38,6 +38,16 @@ final class Migrator {
 			1 => static function (): void {
 				// Initial schema: nothing to migrate.
 			},
+			2 => static function (): void {
+				// Schema v2 (M7, RC-WF-03, TEC-005): dbDelta adds reviews.revision/submission_key and
+				// the tables review_tags, review_reports, review_media and questions. Data step: rows
+				// written by hosts whose ALTER did not apply the default get revision 0. submission_key
+				// is NOT backfilled – it only applies to new multi-product submissions (RC-123).
+				global $wpdb;
+				$reviews = Schema::table( 'reviews' );
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "UPDATE {$reviews} SET revision = 0 WHERE revision IS NULL" );
+			},
 		);
 	}
 }

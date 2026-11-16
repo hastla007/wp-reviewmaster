@@ -15,6 +15,7 @@ use ReviewCaptain\Domain\Platform;
 use ReviewCaptain\Domain\Review;
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Domain\Verification;
+use ReviewCaptain\Media\PhotoStore;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Widgets\WidgetDefinition;
 
@@ -41,9 +42,19 @@ class FormHandler {
 	public const DRAFT_TTL = 10 * MINUTE_IN_SECONDS;
 
 	/**
+	 * Maximum number of contexts in a multi-product form (RC-123).
+	 */
+	public const MAX_ITEMS = 20;
+
+	/**
 	 * Plugin.
 	 */
 	private Plugin $plugin;
+
+	/**
+	 * Require is_uploaded_file() for photos (false only in tests/CLI).
+	 */
+	private bool $require_upload = true;
 
 	/**
 	 * Constructor.
@@ -58,17 +69,29 @@ class FormHandler {
 	 * admin-post handler: process and redirect.
 	 */
 	public function handle(): void {
-		$result = $this->process( wp_unslash( $_POST ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in process().
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in process().
+		$files  = isset( $_FILES['rc_photo'] ) && is_array( $_FILES['rc_photo'] ) ? array( 'rc_photo' => $_FILES['rc_photo'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated by PhotoStore.
+		$result = $this->process( wp_unslash( $_POST ), $files ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified in process().
 		$this->redirect( $result['redirect'] );
+	}
+
+	/**
+	 * Allow photo files that were not uploaded via HTTP (tests/CLI only).
+	 *
+	 * @param bool $require Require is_uploaded_file().
+	 */
+	public function set_require_upload( bool $require ): void {
+		$this->require_upload = $require;
 	}
 
 	/**
 	 * Process a submission. Returns the outcome and redirect target (no output, no exit).
 	 *
-	 * @param array<string, mixed> $post Unslashed POST data.
-	 * @return array{ok: bool, errors: list<string>, review: ?Review, redirect: string}
+	 * @param array<string, mixed> $post  Unslashed POST data.
+	 * @param array<string, mixed> $files Upload entries (key rc_photo, RC-121).
+	 * @return array{ok: bool, errors: list<string>, review: ?Review, redirect: string, reviews?: list<Review>}
 	 */
-	public function process( array $post ): array {
+	public function process( array $post, array $files = array() ): array {
 		$settings = $this->plugin->settings();
 		$return   = $this->return_url( $post );
 		$form     = isset( $post['rc_form'] ) && ctype_digit( (string) $post['rc_form'] ) ? (string) $post['rc_form'] : '1';
@@ -138,6 +161,18 @@ class FormHandler {
 			return $fail( array( 'rate_limited' ) );
 		}
 
+		// Multi-product form (RC-123): signed list of context IDs, one review per rated context.
+		$multi = null;
+		if ( '' !== (string) ( $post['rc_context_ids'] ?? '' ) ) {
+			if ( ! $settings->get( 'submissions', 'multi_product_enabled', false ) ) {
+				return $fail( array( 'context' ) );
+			}
+			$multi = self::verify_context_list( $type, (string) $post['rc_context_ids'], (string) ( $post['rc_context_ids_sig'] ?? '' ) );
+			if ( null === $multi ) {
+				return $fail( array( 'context' ) );
+			}
+		}
+
 		// Field validation.
 		$errors  = array();
 		$rating  = (string) ( $post['rc_rating'] ?? '' );
@@ -149,17 +184,46 @@ class FormHandler {
 		$min     = (int) $settings->get( 'submissions', 'min_text_length', 20 );
 		$max     = (int) $settings->get( 'submissions', 'max_text_length', 5000 );
 		$len     = mb_strlen( $body );
+		$items   = array();
 
-		if ( ! in_array( $rating, array( '1', '2', '3', '4', '5' ), true ) ) {
-			$errors[] = 'rating';
+		if ( null === $multi ) {
+			if ( ! in_array( $rating, array( '1', '2', '3', '4', '5' ), true ) ) {
+				$errors[] = 'rating';
+			}
+			if ( $len < max( 1, $min ) ) {
+				$errors[] = 'body_short';
+			} elseif ( $len > $max ) {
+				$errors[] = 'body_long';
+			}
+		} else {
+			$raw_items = isset( $post['rc_items'] ) && is_array( $post['rc_items'] ) ? $post['rc_items'] : array();
+			foreach ( $multi as $item_id ) {
+				$raw         = isset( $raw_items[ $item_id ] ) && is_array( $raw_items[ $item_id ] ) ? $raw_items[ $item_id ] : array();
+				$item_rating = (string) ( $raw['rating'] ?? '' );
+				$item_body   = sanitize_textarea_field( (string) ( $raw['body'] ?? '' ) );
+				if ( '' === $item_rating && '' === trim( $item_body ) ) {
+					continue; // Not rated: customers may rate only some positions.
+				}
+				if ( ! in_array( $item_rating, array( '1', '2', '3', '4', '5' ), true ) ) {
+					$errors[] = 'item_rating';
+				}
+				$item_len = mb_strlen( $item_body );
+				if ( $item_len < max( 1, $min ) ) {
+					$errors[] = 'item_body_short';
+				} elseif ( $item_len > $max ) {
+					$errors[] = 'item_body_long';
+				}
+				$items[ $item_id ] = array(
+					'rating' => $item_rating,
+					'body'   => $item_body,
+				);
+			}
+			if ( ! $items && ! $errors ) {
+				$errors[] = 'items_empty';
+			}
 		}
 		if ( mb_strlen( $title ) > 150 ) {
 			$errors[] = 'title_long';
-		}
-		if ( $len < max( 1, $min ) ) {
-			$errors[] = 'body_short';
-		} elseif ( $len > $max ) {
-			$errors[] = 'body_long';
 		}
 		if ( '' === $name || mb_strlen( $name ) > 100 ) {
 			$errors[] = 'name';
@@ -170,6 +234,23 @@ class FormHandler {
 		if ( $settings->get( 'submissions', 'require_consent', true ) && ! $consent ) {
 			$errors[] = 'consent';
 		}
+
+		// Optional photo (RC-121): validated before anything is stored; single-context form only.
+		$photo = null;
+		$file  = isset( $files['rc_photo'] ) && is_array( $files['rc_photo'] ) ? $files['rc_photo'] : null;
+		if ( null !== $file && UPLOAD_ERR_NO_FILE !== (int) ( $file['error'] ?? UPLOAD_ERR_NO_FILE ) && null === $multi && $settings->get( 'submissions', 'photos_enabled', false ) ) {
+			$photo_error = PhotoStore::validate( $file, 1024 * (int) $settings->get( 'submissions', 'photo_max_kb', 2048 ), $this->require_upload );
+			if ( null !== $photo_error ) {
+				$errors[] = $photo_error;
+			} elseif ( ! $errors ) {
+				$photo = PhotoStore::process( (string) $file['tmp_name'] );
+				if ( null === $photo ) {
+					$errors[] = 'photo_invalid';
+				}
+			}
+		}
+
+		$errors = array_values( array_unique( $errors ) );
 		if ( $errors ) {
 			return $fail(
 				$errors,
@@ -182,36 +263,142 @@ class FormHandler {
 			);
 		}
 
-		$now                  = gmdate( 'Y-m-d H:i:s' );
-		$review               = new Review();
-		$review->kind         = Kind::REVIEW;
-		$review->origin       = Origin::LOCAL_SUBMISSION;
-		$review->platform     = Platform::LOCAL;
-		$review->verification = Verification::UNVERIFIED;
-		$review->status       = 'approved' === $settings->get( 'general', 'new_review_status', 'pending' ) ? ReviewStatus::APPROVED : ReviewStatus::PENDING;
-		$review->rating_value = (float) $rating;
-		$review->title        = $title;
-		$review->body         = $body;
-		$review->author_name  = $name;
-		$review->author_email = $email;
-		$review->language     = substr( (string) determine_locale(), 0, 20 );
+		$unique  = (bool) $settings->get( 'submissions', 'multi_product_enabled', false ) && '' !== $type;
+		$targets = null === $multi
+			? array(
+				( '' !== $cid ? $cid : '' ) => array(
+					'rating' => $rating,
+					'body'   => $body,
+				),
+			)
+			: $items;
+		$saved      = array();
+		$duplicates = 0;
+		foreach ( $targets as $target_id => $item ) {
+			$target_id = (string) $target_id;
+			$review    = $this->build_review( $settings, $item['rating'], $title, $item['body'], $name, $email, $consent, $type, $target_id );
+			if ( $unique && '' !== $target_id ) {
+				$review->submission_key = self::submission_key( $email, $type, $target_id );
+			}
+			try {
+				$saved[] = $this->plugin->reviews()->insert( $review );
+			} catch ( \Throwable $e ) {
+				if ( null !== $review->submission_key && null !== $this->plugin->reviews()->find_by_submission_key( $review->submission_key ) ) {
+					++$duplicates; // UNIQUE submission_key: this person already rated this context.
+					continue;
+				}
+				if ( ! $saved ) {
+					return $fail( array( 'save' ) );
+				}
+			}
+		}
+		if ( ! $saved ) {
+			return $fail( array( $duplicates > 0 ? 'duplicate' : 'save' ) );
+		}
+		$first = $saved[0];
+		if ( null !== $photo && null !== $first->id ) {
+			PhotoStore::store( $first->id, $photo );
+		}
+
+		$this->rate_hit();
+		if ( $settings->get( 'submissions', 'notify_admin', true ) ) {
+			$this->notify_admin( $first );
+		}
+		$out            = $success( $first, ReviewStatus::APPROVED === $first->status );
+		$out['reviews'] = $saved;
+		return $out;
+	}
+
+	/**
+	 * Build a local submission record.
+	 *
+	 * @param \ReviewCaptain\Settings\Settings $settings Settings.
+	 * @param string                          $rating   Rating 1–5.
+	 * @param string                          $title    Title.
+	 * @param string                          $body     Body.
+	 * @param string                          $name     Name.
+	 * @param string                          $email    E-mail.
+	 * @param bool                            $consent  Consent.
+	 * @param string                          $type     Context type.
+	 * @param string                          $cid      Context ID.
+	 */
+	private function build_review( $settings, string $rating, string $title, string $body, string $name, string $email, bool $consent, string $type, string $cid ): Review {
+		$now                     = gmdate( 'Y-m-d H:i:s' );
+		$review                  = new Review();
+		$review->kind            = Kind::REVIEW;
+		$review->origin          = Origin::LOCAL_SUBMISSION;
+		$review->platform        = Platform::LOCAL;
+		$review->verification    = Verification::UNVERIFIED;
+		$review->status          = 'approved' === $settings->get( 'general', 'new_review_status', 'pending' ) ? ReviewStatus::APPROVED : ReviewStatus::PENDING;
+		$review->rating_value    = (float) $rating;
+		$review->title           = $title;
+		$review->body            = $body;
+		$review->author_name     = $name;
+		$review->author_email    = $email;
+		$review->language        = substr( (string) determine_locale(), 0, 20 );
 		$review->consent_publish = $consent;
 		$review->consent_at      = $consent ? $now : null;
 		$review->author_user_id  = is_user_logged_in() ? (int) get_current_user_id() : null;
 		$review->context_type    = '' !== $type ? $type : null;
 		$review->context_id      = '' !== $type && '' !== $cid ? $cid : null;
+		return $review;
+	}
 
-		try {
-			$review = $this->plugin->reviews()->insert( $review );
-		} catch ( \Throwable $e ) {
-			return $fail( array( 'save' ) );
-		}
+	/**
+	 * Uniqueness key author + context (HMAC; the e-mail itself is not derivable from it).
+	 *
+	 * @param string $email E-mail.
+	 * @param string $type  Context type.
+	 * @param string $cid   Context ID.
+	 */
+	public static function submission_key( string $email, string $type, string $cid ): string {
+		return hash_hmac( 'sha1', strtolower( trim( $email ) ) . '|' . $type . '|' . $cid, wp_salt( 'auth' ) );
+	}
 
-		$this->rate_hit();
-		if ( $settings->get( 'submissions', 'notify_admin', true ) ) {
-			$this->notify_admin( $review );
+	/**
+	 * Signature of a context list (multi-product form).
+	 *
+	 * @param string       $type Context type.
+	 * @param list<string> $ids  Context IDs.
+	 */
+	public static function sign_context_list( string $type, array $ids ): string {
+		return wp_hash( 'rc_ctxl|' . $type . '|' . implode( ',', $ids ), 'nonce' );
+	}
+
+	/**
+	 * Normalise a context ID list (comma separated). Invalid IDs are dropped.
+	 *
+	 * @param string $raw Raw list.
+	 * @return list<string>
+	 */
+	public static function parse_context_list( string $raw ): array {
+		$ids = array();
+		foreach ( explode( ',', $raw ) as $id ) {
+			$id = trim( $id );
+			if ( '' !== $id && preg_match( '/^[A-Za-z0-9_.:-]{1,64}$/', $id ) ) {
+				$ids[ $id ] = $id;
+			}
 		}
-		return $success( $review, ReviewStatus::APPROVED === $review->status );
+		return array_slice( array_values( $ids ), 0, self::MAX_ITEMS );
+	}
+
+	/**
+	 * Verify a signed context list. Returns the IDs or null.
+	 *
+	 * @param string $type Context type (required).
+	 * @param string $raw  Comma separated IDs.
+	 * @param string $sig  Signature.
+	 * @return list<string>|null
+	 */
+	public static function verify_context_list( string $type, string $raw, string $sig ): ?array {
+		if ( '' === $type || ! in_array( $type, WidgetDefinition::CONTEXT_TYPES, true ) ) {
+			return null;
+		}
+		$ids = self::parse_context_list( $raw );
+		if ( ! $ids || implode( ',', $ids ) !== $raw || '' === $sig || ! hash_equals( self::sign_context_list( $type, $ids ), $sig ) ) {
+			return null;
+		}
+		return $ids;
 	}
 
 	/**
@@ -272,6 +459,16 @@ class FormHandler {
 			'email'        => __( 'Bitte geben Sie eine gültige E-Mail-Adresse an.', 'review-captain' ),
 			'consent'      => __( 'Bitte bestätigen Sie die Einwilligung zur Veröffentlichung.', 'review-captain' ),
 			'save'         => __( 'Ihre Bewertung konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'review-captain' ),
+			'duplicate'       => __( 'Sie haben dieses Produkt bereits bewertet.', 'review-captain' ),
+			'items_empty'     => __( 'Bitte bewerten Sie mindestens ein Produkt.', 'review-captain' ),
+			'item_rating'     => __( 'Bitte wählen Sie für jedes bewertete Produkt 1 bis 5 Sterne.', 'review-captain' ),
+			'item_body_short' => __( 'Der Text zu einem bewerteten Produkt ist zu kurz.', 'review-captain' ),
+			'item_body_long'  => __( 'Der Text zu einem bewerteten Produkt ist zu lang.', 'review-captain' ),
+			'photo_upload'      => PhotoStore::message( 'photo_upload' ),
+			'photo_size'        => PhotoStore::message( 'photo_size' ),
+			'photo_type'        => PhotoStore::message( 'photo_type' ),
+			'photo_invalid'     => PhotoStore::message( 'photo_invalid' ),
+			'photo_unsupported' => PhotoStore::message( 'photo_unsupported' ),
 		);
 	}
 

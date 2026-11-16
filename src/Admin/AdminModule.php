@@ -47,6 +47,8 @@ final class AdminModule implements Module {
 		$settings  = new SettingsPage( $plugin );
 		$diag      = new DiagnosticsPage( $plugin );
 		$checklist = new SetupChecklist( $plugin );
+		$questions = new QuestionsPage( $plugin );
+		$feedback  = new FeedbackPage( $plugin );
 
 		$handlers = array(
 			'save_review'        => array( $reviews, 'handle_save' ),
@@ -61,6 +63,13 @@ final class AdminModule implements Module {
 			'rollback_settings'  => array( $settings, 'handle_rollback' ),
 			'diagnostics_export' => array( $diag, 'handle_export' ),
 			'checklist'          => array( $checklist, 'handle' ),
+			// M7 (each handler re-checks capability + nonce; pages are only shown when enabled).
+			'save_tags'          => array( $reviews, 'handle_save_tags' ),
+			'delete_photo'       => array( $reviews, 'handle_delete_photo' ),
+			'moderate_question'  => array( $questions, 'handle' ),
+			'save_campaign'      => array( $feedback, 'handle_save' ),
+			'delete_campaign'    => array( $feedback, 'handle_delete' ),
+			'feedback_qr'        => array( $feedback, 'handle_qr' ),
 		);
 		foreach ( $handlers as $action => $callback ) {
 			add_action( 'admin_post_review_captain_' . $action, $callback );
@@ -96,6 +105,13 @@ final class AdminModule implements Module {
 			array( SettingsPage::SLUG, __( 'Einstellungen', 'review-captain' ), Capabilities::MANAGE_SETTINGS, array( $settings, 'render' ) ),
 			array( DiagnosticsPage::SLUG, __( 'Diagnose', 'review-captain' ), Capabilities::VIEW_REPORTS, array( $diagnostics, 'render' ) ),
 		);
+		$settings_store = $plugin->settings();
+		if ( $settings_store->get( 'submissions', 'qa_enabled', false ) ) {
+			array_splice( $pages, 2, 0, array( array( QuestionsPage::SLUG, __( 'Fragen & Antworten', 'review-captain' ), Capabilities::MODERATE, array( new QuestionsPage( $plugin ), 'render' ) ) ) );
+		}
+		if ( $settings_store->get( 'submissions', 'feedback_campaigns_enabled', false ) ) {
+			array_splice( $pages, -2, 0, array( array( FeedbackPage::SLUG, __( 'Feedback-Links', 'review-captain' ), Capabilities::MANAGE_SETTINGS, array( new FeedbackPage( $plugin ), 'render' ) ) ) );
+		}
 		foreach ( $pages as [ $slug, $title, $cap, $callback ] ) {
 			$hook = add_submenu_page( self::MENU_SLUG, $title . ' ‹ Review Captain', $title, $cap, $slug, $callback );
 			if ( is_string( $hook ) && '' !== $hook ) {

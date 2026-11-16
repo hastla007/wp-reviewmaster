@@ -26,6 +26,7 @@ final class ErrorCode {
 	public const TEMP_UNAVAILABLE      = 'rc.temp.unavailable';
 	public const CONTRACT_INCOMPATIBLE = 'rc.contract.incompatible';
 	public const CONTRACT_INVALID      = 'rc.contract.invalid';
+	public const CONTRACT_UNAVAILABLE  = 'rc.contract.unavailable';
 	public const DATA_INVALID_PAYLOAD  = 'rc.data.invalid_payload';
 	public const DATA_DUPLICATE        = 'rc.data.duplicate';
 	public const REMOTE_REMOVED        = 'rc.remote.removed';
@@ -53,7 +54,7 @@ final class ErrorCode {
 			self::AUTH_INVALID, self::AUTH_EXPIRED, self::AUTH_REVOKED, self::PERMISSION_DENIED, self::CRYPTO_KEY_MISSING, self::CRYPTO_DECRYPT_FAILED => self::CLASS_AUTH,
 			self::QUOTA_EXCEEDED, self::RATE_LIMITED, self::BUDGET_EXHAUSTED => self::CLASS_RATE_LIMIT,
 			self::DATA_INVALID_PAYLOAD, self::DATA_DUPLICATE, self::CONSENT_MISSING => self::CLASS_DATA,
-			self::CONTRACT_INCOMPATIBLE, self::SOURCE_UNAVAILABLE => self::CLASS_CONFIG,
+			self::CONTRACT_INCOMPATIBLE, self::CONTRACT_UNAVAILABLE, self::SOURCE_UNAVAILABLE => self::CLASS_CONFIG,
 			self::CONTRACT_INVALID, self::REMOTE_REMOVED, self::PERMANENT_FAILURE => self::CLASS_PERMANENT,
 			default => self::CLASS_TRANSIENT,
 		};

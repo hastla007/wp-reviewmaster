@@ -22,7 +22,7 @@ final class ContentScanner {
 	 * @param string $content Post content.
 	 */
 	public static function contains_widget( string $content ): bool {
-		return str_contains( $content, '<!-- wp:review-captain/' ) || (bool) preg_match( '/\[review_captain(?:_form|_cta)?[\s\]]/', $content );
+		return str_contains( $content, '<!-- wp:review-captain/' ) || (bool) preg_match( '/\[review_captain(?:_form|_cta|_qa)?[\s\]]/', $content );
 	}
 
 	/**

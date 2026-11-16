@@ -60,12 +60,13 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 			</ul>
 		</div>
 	<?php endif; ?>
-	<form class="rc-form__form" method="post" action="<?php echo esc_url( $rc['action'] ); ?>" novalidate>
+	<form class="rc-form__form" method="post" action="<?php echo esc_url( $rc['action'] ); ?>"<?php echo ! empty( $rc['photos'] ) ? ' enctype="multipart/form-data"' : ''; ?> novalidate>
 		<?php wp_nonce_field( $rc['nonce_action'], $rc['nonce_name'], false ); ?>
 		<?php foreach ( $rc['hidden'] as $rc_name => $rc_value ) : ?>
 			<input type="hidden" name="<?php echo esc_attr( $rc_name ); ?>" value="<?php echo esc_attr( $rc_value ); ?>" />
 		<?php endforeach; ?>
 
+		<?php if ( empty( $rc['items'] ) ) : ?>
 		<fieldset class="rc-form__field rc-form__field--rating"<?php echo $rc_described( 'rating' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in closure. ?>>
 			<legend><?php esc_html_e( 'Ihre Bewertung', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></legend>
 			<?php for ( $rc_i = 5; $rc_i >= 1; $rc_i-- ) : ?>
@@ -81,6 +82,28 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 				<p class="rc-form__error" id="<?php echo esc_attr( $rc_id . '-rating-error' ); ?>"><?php echo esc_html( $rc_err_for( 'rating' ) ); ?></p>
 			<?php endif; ?>
 		</fieldset>
+		<?php else : ?>
+			<?php foreach ( $rc['items'] as $rc_item ) : ?>
+				<?php $rc_item_key = 'rc_items[' . $rc_item['id'] . ']'; ?>
+				<fieldset class="rc-form__field rc-form__field--item">
+					<legend><?php echo esc_html( $rc_item['label'] ); ?></legend>
+					<div class="rc-form__field--rating" role="radiogroup" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: product name */ __( 'Bewertung für %s', 'review-captain' ), $rc_item['label'] ) ); ?>">
+						<?php for ( $rc_i = 5; $rc_i >= 1; $rc_i-- ) : ?>
+							<label class="rc-form__radio">
+								<input type="radio" name="<?php echo esc_attr( $rc_item_key . '[rating]' ); ?>" value="<?php echo esc_attr( (string) $rc_i ); ?>" />
+								<?php
+								/* translators: %d: number of stars */
+								echo esc_html( sprintf( _n( '%d Stern', '%d Sterne', $rc_i, 'review-captain' ), $rc_i ) );
+								?>
+							</label>
+						<?php endfor; ?>
+					</div>
+					<label for="<?php echo esc_attr( $rc_id . '-item-' . $rc_item['id'] ); ?>"><?php esc_html_e( 'Ihre Erfahrung mit diesem Produkt', 'review-captain' ); ?></label>
+					<textarea id="<?php echo esc_attr( $rc_id . '-item-' . $rc_item['id'] ); ?>" name="<?php echo esc_attr( $rc_item_key . '[body]' ); ?>" rows="4" maxlength="<?php echo esc_attr( (string) $rc['max_length'] ); ?>"></textarea>
+				</fieldset>
+			<?php endforeach; ?>
+			<p class="rc-form__hint"><?php esc_html_e( 'Sie können auch nur einzelne Produkte bewerten. Je Produkt ist eine Bewertung möglich.', 'review-captain' ); ?></p>
+		<?php endif; ?>
 
 		<?php if ( $rc['allow_title'] ) : ?>
 			<p class="rc-form__field">
@@ -92,6 +115,7 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 			</p>
 		<?php endif; ?>
 
+		<?php if ( empty( $rc['items'] ) ) : ?>
 		<p class="rc-form__field">
 			<label for="<?php echo esc_attr( $rc_id . '-body' ); ?>"><?php esc_html_e( 'Ihre Erfahrung', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></label>
 			<textarea id="<?php echo esc_attr( $rc_id . '-body' ); ?>" name="rc_body" rows="6" required minlength="<?php echo esc_attr( (string) $rc['min_length'] ); ?>" maxlength="<?php echo esc_attr( (string) $rc['max_length'] ); ?>"<?php echo $rc_described( 'body', $rc_id . '-body-hint' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_textarea( $rc_values['body'] ); ?></textarea>
@@ -105,6 +129,20 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 				<span class="rc-form__error" id="<?php echo esc_attr( $rc_id . '-body-error' ); ?>"><?php echo esc_html( $rc_err_for( 'body' ) ); ?></span>
 			<?php endif; ?>
 		</p>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $rc['photos'] ) ) : ?>
+			<p class="rc-form__field rc-form__field--photo">
+				<label for="<?php echo esc_attr( $rc_id . '-photo' ); ?>"><?php esc_html_e( 'Foto (optional)', 'review-captain' ); ?></label>
+				<input type="file" id="<?php echo esc_attr( $rc_id . '-photo' ); ?>" name="rc_photo" accept="image/jpeg,image/png,image/webp" aria-describedby="<?php echo esc_attr( $rc_id . '-photo-hint' ); ?>" />
+				<span class="rc-form__hint" id="<?php echo esc_attr( $rc_id . '-photo-hint' ); ?>">
+					<?php
+					/* translators: %d: maximum size in KB */
+					echo esc_html( sprintf( __( 'JPG, PNG oder WebP, höchstens %d KB. Das Foto wird erst nach Prüfung angezeigt; Bildmetadaten (z. B. Standort) werden entfernt.', 'review-captain' ), (int) $rc['photo_max_kb'] ) );
+					?>
+				</span>
+			</p>
+		<?php endif; ?>
 
 		<p class="rc-form__field">
 			<label for="<?php echo esc_attr( $rc_id . '-name' ); ?>"><?php esc_html_e( 'Name (wird veröffentlicht)', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></label>

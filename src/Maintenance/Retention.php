@@ -33,17 +33,18 @@ class Retention {
 	 * Run all purges.
 	 *
 	 * @param float $time_budget Seconds.
-	 * @return array{rejected_deleted:int, external_deleted:int, logs_deleted:int, jobs_deleted:int, complete:bool}
+	 * @return array{rejected_deleted:int, external_deleted:int, logs_deleted:int, jobs_deleted:int, questions_deleted:int, complete:bool}
 	 */
 	public function run( float $time_budget = 20.0 ): array {
 		$deadline = microtime( true ) + max( 1.0, $time_budget );
 		$settings = $this->plugin->settings();
 		$out      = array(
-			'rejected_deleted' => 0,
-			'external_deleted' => 0,
-			'logs_deleted'     => 0,
-			'jobs_deleted'     => 0,
-			'complete'         => true,
+			'rejected_deleted'  => 0,
+			'external_deleted'  => 0,
+			'logs_deleted'      => 0,
+			'jobs_deleted'      => 0,
+			'questions_deleted' => 0,
+			'complete'          => true,
 		);
 
 		$rejected_days = (int) $settings->get( 'privacy', 'retention_rejected_days', 90 );
@@ -58,6 +59,11 @@ class Retention {
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 		$ids                     = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE platform = 'local' AND status = 'rejected' AND updated_at < %s ORDER BY id ASC LIMIT %d", self::cutoff( $rejected_days ), self::BATCH ) );
 		$out['rejected_deleted'] = $this->delete_reviews( $ids, $deadline, $out['complete'] );
+
+		// 1b. Rejected product questions (RC-122) – same retention as rejected reviews.
+		$questions = Schema::table( 'questions' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$out['questions_deleted'] = max( 0, (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$questions} WHERE status = 'rejected' AND updated_at < %s", self::cutoff( $rejected_days ) ) ) );
 
 		// 2. Removed external snapshots (tombstones) past their retention.
 		if ( microtime( true ) < $deadline ) {
@@ -82,7 +88,7 @@ class Retention {
 			$out['complete'] = false;
 		}
 
-		$total = $out['rejected_deleted'] + $out['external_deleted'] + $out['logs_deleted'] + $out['jobs_deleted'];
+		$total = $out['rejected_deleted'] + $out['external_deleted'] + $out['logs_deleted'] + $out['jobs_deleted'] + $out['questions_deleted'];
 		if ( $total > 0 ) {
 			$this->plugin->audit()->record(
 				'retention.purged',

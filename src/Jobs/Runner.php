@@ -24,6 +24,11 @@ class Runner {
 	public const OPTION_LOCK      = 'review_captain_reconcile_required';
 
 	/**
+	 * Payload key holding the original due time of a job deferred by the reconcile lock.
+	 */
+	public const LOCK_DUE_KEY = '_rc_due_at';
+
+	/**
 	 * Job type prefixes without external side effects (allowed while the reconcile lock is active).
 	 */
 	public const SIDE_EFFECT_FREE_PREFIXES = array( 'retention.', 'maintenance.', 'reconcile', 'import.', 'dev.' );
@@ -123,10 +128,36 @@ class Runner {
 
 		$instance = get_option( self::OPTION_INSTANCE, array() );
 		$instance = is_array( $instance ) ? $instance : array();
+		$suspect  = self::instance_suspicion( $instance );
+		if ( '' !== $suspect ) {
+			// Restore/clone suspected (TEC-005 R-10, reconciliation.md): lock side effects at once and
+			// queue the reconciliation. last_seen_at is NOT refreshed here – it is the evidence the
+			// reconciler needs; a successful run refreshes it.
+			if ( ! get_option( self::OPTION_LOCK, false ) ) {
+				update_option( self::OPTION_LOCK, $suspect, false );
+			}
+			$evidence = 'clone' === $suspect ? substr( (string) ( $instance['home_url_hash'] ?? '' ), 0, 16 ) : (string) (int) ( $instance['last_seen_at'] ?? 0 );
+			( new JobQueue() )->enqueue( 'reconcile', array( 'v' => 1, 'mode' => $suspect ), 'reconcile:' . $suspect . ':' . $evidence );
+			return;
+		}
 		if ( (int) ( $instance['last_seen_at'] ?? 0 ) < time() - 300 ) {
 			$instance['last_seen_at'] = time();
 			update_option( self::OPTION_INSTANCE, $instance, false );
 		}
+	}
+
+	/**
+	 * 'clone' when the stored home URL hash differs, 'restore' when the last runner heartbeat is
+	 * older than 24 h (database restored from a backup or long outage), otherwise ''.
+	 *
+	 * @param array<string, mixed> $instance Stored instance fingerprint.
+	 */
+	public static function instance_suspicion( array $instance ): string {
+		if ( isset( $instance['home_url_hash'] ) && ! hash_equals( (string) $instance['home_url_hash'], hash( 'sha256', (string) home_url() ) ) ) {
+			return 'clone';
+		}
+		$last = (int) ( $instance['last_seen_at'] ?? 0 );
+		return $last > 0 && $last < time() - DAY_IN_SECONDS ? 'restore' : '';
 	}
 
 	/**
@@ -180,8 +211,9 @@ class Runner {
 			}
 			$job = $jobs[0];
 			if ( $locked && ! self::is_side_effect_free( $job['type'] ) ) {
-				// Reconcile lock: release without consuming an attempt, retry in 5 minutes.
-				$this->queue->continue_later( $job['id'], $worker_id, array(), 300 );
+				// Reconcile lock: release without consuming an attempt, retry in 5 minutes. The original due
+				// time is kept in the payload so the reconciler still sees the job as overdue.
+				$this->queue->continue_later( $job['id'], $worker_id, isset( $job['payload'][ self::LOCK_DUE_KEY ] ) ? array() : array( self::LOCK_DUE_KEY => $job['available_at'] ), 300 );
 				continue;
 			}
 			++$result['processed'];

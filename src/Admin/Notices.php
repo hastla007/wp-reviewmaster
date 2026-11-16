@@ -64,6 +64,14 @@ final class Notices {
 			'review_unchanged'     => array( 'info', __( 'Keine Änderungen.', 'review-captain' ) ),
 			'review_invalid'       => array( 'error', __( 'Der Eintrag wurde nicht gespeichert. Bitte prüfe:', 'review-captain' ) ),
 			'review_missing'       => array( 'error', __( 'Der Eintrag wurde nicht gefunden.', 'review-captain' ) ),
+			'review_conflict'      => array( 'error', __( 'Der Eintrag wurde inzwischen von jemand anderem geändert. Deine Änderungen wurden nicht gespeichert – bitte prüfe den aktuellen Stand und speichere erneut.', 'review-captain' ) ),
+			'tags_saved'           => array( 'success', __( 'Tags gespeichert.', 'review-captain' ) ),
+			'photo_deleted'        => array( 'success', __( 'Foto gelöscht.', 'review-captain' ) ),
+			'question_saved'       => array( 'success', __( 'Frage aktualisiert.', 'review-captain' ) ),
+			'question_failed'      => array( 'error', __( 'Die Frage wurde nicht geändert (nicht gefunden oder zwischenzeitlich geändert).', 'review-captain' ) ),
+			'campaign_saved'       => array( 'success', __( 'Feedback-Link angelegt.', 'review-captain' ) ),
+			'campaign_invalid'     => array( 'error', __( 'Der Feedback-Link wurde nicht angelegt. Bitte prüfe:', 'review-captain' ) ),
+			'campaign_deleted'     => array( 'success', __( 'Feedback-Link gelöscht.', 'review-captain' ) ),
 			'status_changed'       => array( 'success', __( 'Status geändert.', 'review-captain' ) ),
 			'status_failed'        => array( 'error', __( 'Dieser Statuswechsel ist nicht erlaubt oder der Eintrag wurde zwischenzeitlich geändert.', 'review-captain' ) ),
 			'reason_required'      => array( 'error', __( 'Bitte gib für Ablehnen oder Archivieren einen Grund an.', 'review-captain' ) ),
@@ -104,6 +112,12 @@ final class Notices {
 			'missing_url'                  => __( 'Mindestens eine URL angeben', 'review-captain' ),
 			'save_failed'                  => __( 'Speichern fehlgeschlagen', 'review-captain' ),
 			'reason_required'              => __( 'Grund fehlt', 'review-captain' ),
+			'label'                        => __( 'Bezeichnung fehlt oder ist zu lang (höchstens 80 Zeichen)', 'review-captain' ),
+			'profile'                      => __( 'Profil nicht gefunden oder ohne https-Bewertungslink', 'review-captain' ),
+			'target_url'                   => __( 'Zielseite muss eine https-Adresse dieser Website sein', 'review-captain' ),
+			'whatsapp_number'              => __( 'WhatsApp-Nummer: 8–15 Ziffern im internationalen Format ohne führende 0', 'review-captain' ),
+			'whatsapp_text'                => __( 'WhatsApp-Text ist zu lang (höchstens 300 Zeichen)', 'review-captain' ),
+			'limit'                        => __( 'Höchstzahl an Feedback-Links erreicht', 'review-captain' ),
 		);
 		if ( isset( $map[ $code ] ) ) {
 			return $map[ $code ];

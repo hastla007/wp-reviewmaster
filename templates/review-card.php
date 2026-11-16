@@ -38,6 +38,11 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 	<?php if ( '' !== $rc['body_html'] ) : ?>
 		<div class="rc-card__body"><?php echo wp_kses( $rc['body_html'], $rc['allowed'] ); ?></div>
 	<?php endif; ?>
+	<?php if ( ! empty( $rc['photo'] ) ) : ?>
+		<figure class="rc-card__photo">
+			<img src="<?php echo esc_url( $rc['photo']['url'] ); ?>" alt="<?php echo esc_attr( $rc['photo']['alt'] ); ?>" loading="lazy" decoding="async"<?php echo $rc['photo']['width'] > 0 ? ' width="' . esc_attr( (string) $rc['photo']['width'] ) . '" height="' . esc_attr( (string) $rc['photo']['height'] ) . '"' : ''; ?> />
+		</figure>
+	<?php endif; ?>
 	<footer class="rc-card__footer rc-card__meta">
 		<?php if ( '' !== $rc['author'] ) : ?>
 			<?php if ( '' !== $rc['avatar'] ) : ?>
@@ -55,4 +60,22 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 			<?php endif; ?>
 		<?php endif; ?>
 	</footer>
+	<?php if ( ! empty( $rc['report'] ) ) : ?>
+		<details class="rc-report">
+			<summary class="rc-report__toggle"><?php esc_html_e( 'Melden', 'review-captain' ); ?></summary>
+			<form class="rc-report__form" method="post" action="<?php echo esc_url( $rc['report']['action'] ); ?>">
+				<?php wp_nonce_field( $rc['report']['nonce_action'], $rc['report']['nonce_name'], false ); ?>
+				<?php foreach ( $rc['report']['hidden'] as $rc_name => $rc_value ) : ?>
+					<input type="hidden" name="<?php echo esc_attr( $rc_name ); ?>" value="<?php echo esc_attr( $rc_value ); ?>" />
+				<?php endforeach; ?>
+				<label for="<?php echo esc_attr( 'rc-report-' . $rc['uuid'] ); ?>"><?php esc_html_e( 'Warum soll diese Bewertung geprüft werden?', 'review-captain' ); ?></label>
+				<select id="<?php echo esc_attr( 'rc-report-' . $rc['uuid'] ); ?>" name="rc_reason" required>
+					<?php foreach ( $rc['report']['reasons'] as $rc_key => $rc_label ) : ?>
+						<option value="<?php echo esc_attr( $rc_key ); ?>"><?php echo esc_html( $rc_label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+				<button type="submit" class="rc-report__submit"><?php esc_html_e( 'Meldung senden', 'review-captain' ); ?></button>
+			</form>
+		</details>
+	<?php endif; ?>
 </article>

@@ -14,6 +14,9 @@ use ReviewCaptain\Domain\Platform;
 use ReviewCaptain\Domain\Review;
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Domain\Verification;
+use ReviewCaptain\Media\PhotoStore;
+use ReviewCaptain\Moderation\ReportHandler;
+use ReviewCaptain\Moderation\ReportStore;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Security\EmbedPolicy;
@@ -145,6 +148,9 @@ class Renderer {
 		$reviews  = $this->select_reviews( $d, $page );
 		$preview  = $this->is_preview();
 
+		if ( $settings->get( 'display', 'show_photos', false ) ) {
+			PhotoStore::prime( array_map( static fn( Review $r ): int => (int) $r->id, $reviews ) );
+		}
 		$cards = array();
 		foreach ( $reviews as $review ) {
 			$cards[] = TemplateLoader::render( 'review-card.php', $this->card_data( $review, $d ) );
@@ -176,6 +182,7 @@ class Renderer {
 				'summary'    => $summary,
 				'empty_text' => '' !== $empty_text ? $empty_text : __( 'Es sind noch keine Bewertungen vorhanden.', 'review-captain' ),
 				'pagination' => $d->paginate ? $this->pagination( $d, $page, count( $reviews ) ) : array(),
+				'notice'     => 1 === $this->instances['widget'] ? self::report_notice() : '',
 			)
 		);
 	}
@@ -244,8 +251,39 @@ class Renderer {
 			$author = trim( $r->author_name );
 		}
 
+		$photo = null;
+		if ( null !== $r->id && $settings->get( 'display', 'show_photos', false ) && ReviewStatus::APPROVED === $r->status && null !== PhotoStore::for_review( $r->id ) ) {
+			$media = (array) PhotoStore::for_review( $r->id );
+			$photo = array(
+				'url'    => PhotoStore::url( $r->uuid ),
+				'width'  => (int) ( $media['width'] ?? 0 ),
+				'height' => (int) ( $media['height'] ?? 0 ),
+				'alt'    => '' !== $author
+					/* translators: %s: author name */
+					? sprintf( __( 'Foto zur Bewertung von %s', 'review-captain' ), $author )
+					: __( 'Foto zur Bewertung', 'review-captain' ),
+			);
+		}
+
+		$report = null;
+		if ( $settings->get( 'submissions', 'reports_enabled', false ) && ReviewStatus::APPROVED === $r->status ) {
+			$report = array(
+				'action'       => admin_url( 'admin-post.php' ),
+				'hidden'       => array(
+					'action'    => ReportHandler::ACTION,
+					'rc_review' => $r->uuid,
+					'rc_return' => self::current_url(),
+				),
+				'nonce_action' => ReportHandler::NONCE_ACTION,
+				'nonce_name'   => ReportHandler::NONCE_FIELD,
+				'reasons'      => ReportStore::reason_labels(),
+			);
+		}
+
 		return array(
 			'uuid'      => $r->uuid,
+			'photo'     => $photo,
+			'report'    => $report,
 			'classes'   => implode( ' ', $classes ),
 			'kind'      => $r->kind->value,
 			'external'  => $external,
@@ -363,6 +401,27 @@ class Renderer {
 			$errors[ $code ] = FormHandler::error_message( $code );
 		}
 
+		// Multi-product form (RC-123): context_ids="12,13" with context_type, signed list.
+		$items  = array();
+		$hidden = array();
+		if ( '' !== $type && $settings->get( 'submissions', 'multi_product_enabled', false ) && '' !== (string) ( $d->raw['context_ids'] ?? '' ) ) {
+			$ids = FormHandler::parse_context_list( (string) $d->raw['context_ids'] );
+			foreach ( $ids as $item_id ) {
+				$items[] = array(
+					'id'    => $item_id,
+					'label' => self::context_label( $type, $item_id ),
+				);
+			}
+			if ( $ids ) {
+				$cid    = '';
+				$hidden = array(
+					'rc_context_ids'     => implode( ',', $ids ),
+					'rc_context_ids_sig' => FormHandler::sign_context_list( $type, $ids ),
+				);
+			}
+		}
+		$photos = ! $items && (bool) $settings->get( 'submissions', 'photos_enabled', false );
+
 		return TemplateLoader::render(
 			'review-form.php',
 			array(
@@ -378,7 +437,10 @@ class Renderer {
 					'rc_context_id'   => $cid,
 					'rc_context_sig'  => FormHandler::sign_context( $type, $cid ),
 					'rc_return'       => self::current_url(),
-				),
+				) + $hidden,
+				'items'           => $items,
+				'photos'          => $photos,
+				'photo_max_kb'    => (int) $settings->get( 'submissions', 'photo_max_kb', 2048 ),
 				'nonce_action'    => FormHandler::NONCE_ACTION,
 				'nonce_name'      => FormHandler::NONCE_FIELD,
 				'honeypot'        => (bool) $settings->get( 'submissions', 'honeypot', true ),
@@ -400,6 +462,38 @@ class Renderer {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Human readable label of a context item in a multi-product form.
+	 *
+	 * @param string $type Context type.
+	 * @param string $id   Context ID.
+	 */
+	public static function context_label( string $type, string $id ): string {
+		if ( in_array( $type, array( 'post', 'product', 'event', 'voucher', 'course' ), true ) && ctype_digit( $id ) ) {
+			$title = trim( wp_strip_all_tags( (string) get_the_title( (int) $id ) ) );
+			if ( '' !== $title ) {
+				return $title;
+			}
+		}
+		/* translators: %s: context ID */
+		return sprintf( __( 'Produkt %s', 'review-captain' ), $id );
+	}
+
+	/**
+	 * Status message after a public report (redirect parameter rc_reported).
+	 */
+	public static function report_notice(): string {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
+		$flag = isset( $_GET['rc_reported'] ) ? sanitize_key( wp_unslash( (string) $_GET['rc_reported'] ) ) : '';
+		if ( '1' === $flag ) {
+			return __( 'Danke für Ihre Meldung. Wir prüfen die Bewertung.', 'review-captain' );
+		}
+		if ( 'error' === $flag ) {
+			return __( 'Die Meldung konnte nicht übermittelt werden. Bitte versuchen Sie es später erneut.', 'review-captain' );
+		}
+		return '';
 	}
 
 	/**

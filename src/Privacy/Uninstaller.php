@@ -11,6 +11,7 @@ namespace ReviewCaptain\Privacy;
 
 use ReviewCaptain\ImportExport\UploadStore;
 use ReviewCaptain\Install\Schema;
+use ReviewCaptain\Media\PhotoStore;
 use ReviewCaptain\Security\Capabilities;
 
 /**
@@ -36,6 +37,7 @@ final class Uninstaller {
 		'review_captain_upgrade_lock',
 		'review_captain_connectors_state',
 		'review_captain_connectors_known',
+		'review_captain_feedback_campaigns',
 	);
 
 	/**
@@ -86,6 +88,7 @@ final class Uninstaller {
 			return false;
 		}
 		Capabilities::uninstall();
+		PhotoStore::purge_all(); // Review photos are review data (RC-121): only with data deletion.
 		Schema::drop();
 		self::delete_options();
 		return true;

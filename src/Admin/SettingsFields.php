@@ -53,6 +53,15 @@ final class SettingsFields {
 				'notify_admin'        => array( __( 'Admin benachrichtigen', 'review-captain' ), __( 'E-Mail mit Link zur Moderation – ohne Reviewtext und ohne Kontaktdaten.', 'review-captain' ) ),
 				'honeypot'            => array( __( 'Spam-Falle', 'review-captain' ), __( 'Unsichtbares Feld, das automatisierte Einsendungen erkennt. Nonce-Prüfung und Rate-Limit bleiben immer aktiv.', 'review-captain' ) ),
 				'rate_limit_per_hour' => array( __( 'Einreichungen pro Stunde', 'review-captain' ), __( 'Je Absender. Zur Zählung wird kurzzeitig ein gehashter Wert gespeichert, keine Klar-IP.', 'review-captain' ) ),
+				'tags_enabled'               => array( __( 'Interne Tags', 'review-captain' ), __( 'Moderierende können Reviews mit internen Schlagwörtern versehen und danach filtern. Tags werden nie öffentlich angezeigt oder exportiert.', 'review-captain' ) ),
+				'reports_enabled'            => array( __( 'Öffentliches Melden', 'review-captain' ), __( 'Zeigt unter jeder Bewertung einen Link „Melden“. Gemeldete Reviews werden bis zur Prüfung ausgeblendet. Über Meldende wird nichts gespeichert.', 'review-captain' ) ),
+				'report_threshold'           => array( __( 'Meldungen bis zum Ausblenden', 'review-captain' ), __( 'Ab so vielen offenen Meldungen wird ein Review auf „Gemeldet“ gesetzt.', 'review-captain' ) ),
+				'report_rate_limit_per_hour' => array( __( 'Meldungen pro Stunde', 'review-captain' ), __( 'Je Absender (gehashter Wert, keine Klar-IP).', 'review-captain' ) ),
+				'photos_enabled'             => array( __( 'Foto-Upload im Formular', 'review-captain' ), __( 'Optional ein Foto (JPG, PNG, WebP) je Bewertung. Bilder werden neu kodiert (Metadaten wie GPS werden entfernt) und erst nach Freigabe angezeigt.', 'review-captain' ) ),
+				'photo_max_kb'               => array( __( 'Maximale Fotogröße (KB)', 'review-captain' ), __( 'Größere Dateien werden abgelehnt. Das Limit des Servers (upload_max_filesize) gilt zusätzlich.', 'review-captain' ) ),
+				'multi_product_enabled'      => array( __( 'Formular für mehrere Produkte', 'review-captain' ), __( 'Ein Formular mit context_ids bewertet mehrere Produkte auf einmal. Je Person und Produkt ist dann nur eine Bewertung möglich.', 'review-captain' ) ),
+				'qa_enabled'                 => array( __( 'Produktfragen (Q&A)', 'review-captain' ), __( 'Fragen und Antworten über [review_captain_qa]. Getrennt von Bewertungen, moderiert, ohne Schema-Markup.', 'review-captain' ) ),
+				'feedback_campaigns_enabled' => array( __( 'Feedback-Links und QR-Codes', 'review-captain' ), __( 'Erzeugt Feedback-Links mit QR-Code (SVG) und optionalem WhatsApp-Click-to-Chat-Link.', 'review-captain' ) ),
 			),
 			'display'     => array(
 				'show_stars'     => array( __( 'Sterne anzeigen', 'review-captain' ), __( 'Sterne werden immer zusätzlich als Text für Screenreader ausgegeben.', 'review-captain' ) ),
@@ -63,6 +72,7 @@ final class SettingsFields {
 				'empty_text'     => array( __( 'Text bei leerer Liste', 'review-captain' ), __( 'Leer = „Noch keine Bewertungen vorhanden.“', 'review-captain' ) ),
 				'reduced_motion' => array( __( 'Bewegung reduzieren', 'review-captain' ), __( 'Keine automatischen Animationen oder Karussell-Rotation. Die Systemeinstellung der Besucher wird immer beachtet.', 'review-captain' ) ),
 				'load_css'       => array( __( 'Plugin-CSS laden', 'review-captain' ), __( 'Aus = dein Theme muss die Ausgabe selbst gestalten (Klassen rc-…).', 'review-captain' ) ),
+				'show_photos'    => array( __( 'Fotos anzeigen', 'review-captain' ), __( 'Zeigt Fotos freigegebener Bewertungen in den Karten. Personenbezogen möglich.', 'review-captain' ) ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( __( 'Externe Reviews ohne Bestätigung (Tage)', 'review-captain' ), __( 'Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde.', 'review-captain' ) ),
@@ -112,11 +122,13 @@ final class SettingsFields {
 				__( 'Formular', 'review-captain' )          => array( 'enabled', 'allow_title', 'min_text_length', 'max_text_length' ),
 				__( 'Einwilligung', 'review-captain' )      => array( 'require_consent' ),
 				__( 'Benachrichtigung', 'review-captain' )  => array( 'notify_admin' ),
+				__( 'Erweiterte Funktionen (nach 1.0)', 'review-captain' ) => array( 'tags_enabled', 'reports_enabled', 'report_threshold', 'report_rate_limit_per_hour', 'photos_enabled', 'photo_max_kb', 'multi_product_enabled', 'qa_enabled', 'feedback_campaigns_enabled' ),
 			),
 			'display'     => array(
 				__( 'Inhalte', 'review-captain' )          => array( 'show_stars', 'show_date', 'date_style', 'show_author', 'show_avatar' ),
 				__( 'Leerer Zustand', 'review-captain' )   => array( 'empty_text' ),
 				__( 'Barrierefreiheit', 'review-captain' ) => array( 'reduced_motion' ),
+				__( 'Fotos', 'review-captain' )            => array( 'show_photos' ),
 			),
 			'privacy'     => array(
 				__( 'Aufbewahrung', 'review-captain' )       => array( 'retention_external_days', 'retention_rejected_days' ),

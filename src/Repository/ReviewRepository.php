@@ -12,6 +12,8 @@ namespace ReviewCaptain\Repository;
 use ReviewCaptain\Domain\Review;
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Install\Schema;
+use ReviewCaptain\Media\PhotoStore;
+use ReviewCaptain\Moderation\ReportStore;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Support\Uuid;
 
@@ -62,6 +64,18 @@ class ReviewRepository {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->table()} WHERE dedupe_key = %s", $dedupe_key ), ARRAY_A );
+		return is_array( $row ) ? Review::from_row( $row ) : null;
+	}
+
+	/**
+	 * Find by submission key (author + context, RC-123).
+	 *
+	 * @param string $key Key.
+	 */
+	public function find_by_submission_key( string $key ): ?Review {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$this->table()} WHERE submission_key = %s", $key ), ARRAY_A );
 		return is_array( $row ) ? Review::from_row( $row ) : null;
 	}
 
@@ -125,9 +139,24 @@ class ReviewRepository {
 		}
 		$review->id         = $existing->id;
 		$review->uuid       = $existing->uuid;
-		$review->status     = ReviewStatus::REMOVED === $existing->status ? $review->status : $existing->status;
 		$review->created_at = $existing->created_at;
-		$this->update( $review, true );
+		// Never carry identity/uniqueness of the incoming object over the stored one.
+		$review->submission_key = $existing->submission_key;
+		// Content and moderation status are written independently (TEC-005 R-12b): the content
+		// update never touches status, so a moderation decision taken concurrently survives.
+		$incoming_status = $review->status;
+		$review->status  = $existing->status;
+		$this->update( $review );
+		if ( ReviewStatus::REMOVED === $existing->status ) {
+			// Reappeared at the source: restore via status CAS (removed → initial status).
+			if ( $this->change_status( (int) $existing->id, $incoming_status, 'remote_restored', true ) ) {
+				$review->status     = $incoming_status;
+				$review->removed_at = null;
+			} else {
+				$current        = $this->find( (int) $existing->id );
+				$review->status = null !== $current ? $current->status : $existing->status;
+			}
+		}
 		return array(
 			'review'  => $review,
 			'created' => false,
@@ -136,14 +165,19 @@ class ReviewRepository {
 
 	/**
 	 * Update an existing review (content fields). Status changes must use change_status(); the
-	 * status/removed_at columns are only written when $include_status is true (sync restore),
-	 * so a concurrent moderation change is never overwritten (security review SR-06).
+	 * status/removed_at columns are only written when $include_status is true, so a concurrent
+	 * moderation change is never overwritten (security review SR-06).
+	 *
+	 * Every update increments `revision` in SQL. With $check_revision the write is a CAS on the
+	 * revision the caller read (optimistic lock, TEC-005 R-12a): false = someone else changed the
+	 * content in the meantime, nothing was written.
 	 *
 	 * @param Review $review         Review with id.
 	 * @param bool   $include_status Also write status/removed_at.
+	 * @param bool   $check_revision Only write if the stored revision still equals $review->revision.
 	 * @throws \InvalidArgumentException On validation error.
 	 */
-	public function update( Review $review, bool $include_status = false ): void {
+	public function update( Review $review, bool $include_status = false, bool $check_revision = false ): bool {
 		global $wpdb;
 		if ( null === $review->id ) {
 			throw new \InvalidArgumentException( 'missing_id' );
@@ -153,12 +187,37 @@ class ReviewRepository {
 			throw new \InvalidArgumentException( implode( ',', $errors ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
 		$review->updated_at = gmdate( 'Y-m-d H:i:s' );
-		$row                = $review->to_row(); // wpdb writes PHP null as SQL NULL.
-		unset( $row['uuid'], $row['created_at'] );
+		$row                = $review->to_row();
+		unset( $row['uuid'], $row['created_at'], $row['revision'] );
 		if ( ! $include_status ) {
 			unset( $row['status'], $row['removed_at'] );
 		}
-		$wpdb->update( $this->table(), $row, array( 'id' => $review->id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$set    = array();
+		$params = array();
+		foreach ( $row as $column => $value ) {
+			if ( null === $value ) {
+				$set[] = "{$column} = NULL";
+				continue;
+			}
+			$set[]    = is_int( $value ) ? "{$column} = %d" : "{$column} = %s";
+			$params[] = $value;
+		}
+		$set[]    = 'revision = revision + 1';
+		$where    = 'id = %d';
+		$params[] = $review->id;
+		if ( $check_revision ) {
+			$where   .= ' AND revision = %d';
+			$params[] = $review->revision;
+		}
+		$sql = "UPDATE {$this->table()} SET " . implode( ', ', $set ) . " WHERE {$where}";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery
+		$affected = $wpdb->query( $wpdb->prepare( $sql, $params ) );
+		if ( 1 !== (int) $affected ) {
+			return false;
+		}
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$review->revision = (int) $wpdb->get_var( $wpdb->prepare( "SELECT revision FROM {$this->table()} WHERE id = %d", $review->id ) );
+		return true;
 	}
 
 	/**
@@ -188,6 +247,8 @@ class ReviewRepository {
 		);
 		if ( ReviewStatus::REMOVED === $to ) {
 			$data['removed_at'] = gmdate( 'Y-m-d H:i:s' );
+		} elseif ( ReviewStatus::REMOVED === $from ) {
+			$data['removed_at'] = null;
 		}
 		// Optimistic concurrency: only update if status is still the one we read.
 		$updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -202,6 +263,10 @@ class ReviewRepository {
 			return false;
 		}
 		$review->status = $to;
+		if ( ReviewStatus::FLAGGED === $from ) {
+			// A moderator (or the system) decided on a flagged review: close its public reports.
+			ReportStore::resolve( $id );
+		}
 		$this->log_event( $id, 'status_changed', $from->value, $to->value, $reason );
 		Plugin::instance()->audit()->record(
 			'review.status_changed',
@@ -221,7 +286,7 @@ class ReviewRepository {
 	}
 
 	/**
-	 * Hard delete (eraser/rollback/retention). Also deletes history.
+	 * Hard delete (eraser/rollback/retention). Also deletes history, tags, reports and photos.
 	 *
 	 * @param int $id ID.
 	 */
@@ -231,8 +296,8 @@ class ReviewRepository {
 		if ( null === $review ) {
 			return false;
 		}
-		$wpdb->delete( Schema::table( 'review_events' ), array( 'review_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$deleted = (bool) $wpdb->delete( $this->table(), array( 'id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		self::purge_related( $id );
 		if ( $deleted ) {
 			Plugin::instance()->events()->review_removed( $review );
 		}
@@ -240,11 +305,53 @@ class ReviewRepository {
 	}
 
 	/**
+	 * Delete a review only while it still has the expected status (CAS delete, e.g. cancelling a
+	 * pending workflow draft that a moderator might approve at the same time).
+	 *
+	 * @param int          $id       ID.
+	 * @param ReviewStatus $expected Expected status.
+	 */
+	public function delete_if_status( int $id, ReviewStatus $expected ): bool {
+		global $wpdb;
+		$review = $this->find( $id );
+		if ( null === $review || $expected !== $review->status ) {
+			return false;
+		}
+		$deleted = 1 === (int) $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$this->table(),
+			array(
+				'id'     => $id,
+				'status' => $expected->value,
+			)
+		);
+		if ( ! $deleted ) {
+			return false;
+		}
+		self::purge_related( $id );
+		Plugin::instance()->events()->review_removed( $review );
+		return true;
+	}
+
+	/**
+	 * Remove rows and files that belong to a (deleted) review. Safe to call repeatedly.
+	 *
+	 * @param int $id Review ID.
+	 */
+	public static function purge_related( int $id ): void {
+		global $wpdb;
+		foreach ( array( 'review_events', 'review_tags', 'review_reports' ) as $key ) {
+			$wpdb->delete( Schema::table( $key ), array( 'review_id' => $id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
+		PhotoStore::delete_for_review( $id );
+	}
+
+	/**
 	 * Query reviews.
 	 *
 	 * Supported args: kind, platform, status (string|list), origin, verification, profile_id,
 	 * context_type, context_id, min_normalized (0..1), search, date_from, date_to (Y-m-d),
-	 * import_batch_id, author_email, ids (list<int>), orderby (created_at|published_at|rating|id),
+	 * import_batch_id, author_email, ids (list<int>), tag (internal tag, RC-124), reported (open public
+	 * reports, RC-124), orderby (created_at|published_at|rating|id),
 	 * order (ASC|DESC), limit, offset.
 	 *
 	 * @param array<string, mixed> $args Args.
@@ -353,6 +460,13 @@ class ReviewRepository {
 				$where[]  = "{$col} = %d";
 				$params[] = (int) $args[ $col ];
 			}
+		}
+		if ( isset( $args['tag'] ) && is_string( $args['tag'] ) && '' !== $args['tag'] ) {
+			$where[]  = 'id IN (SELECT review_id FROM ' . Schema::table( 'review_tags' ) . ' WHERE tag = %s)';
+			$params[] = sanitize_key( $args['tag'] );
+		}
+		if ( ! empty( $args['reported'] ) ) {
+			$where[] = 'id IN (SELECT review_id FROM ' . Schema::table( 'review_reports' ) . ' WHERE resolved_at IS NULL)';
 		}
 		if ( ! empty( $args['ids'] ) && is_array( $args['ids'] ) ) {
 			$ids     = array_values( array_filter( array_map( 'intval', $args['ids'] ) ) );

@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace ReviewCaptain\Admin;
 
 use ReviewCaptain\Domain\ReviewStatus;
+use ReviewCaptain\Media\PhotoStore;
+use ReviewCaptain\Moderation\TagStore;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 
@@ -86,11 +88,21 @@ final class ReviewActions {
 				View::redirect( Notices::url( $edit_url, 'review_unchanged' ) );
 				return;
 			}
+			// Optimistic lock (TEC-005 R-12a): the form carries the revision it was rendered with.
+			$check = isset( $_POST['revision'] ) && '' !== $_POST['revision']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( $check ) {
+				$review->revision = absint( $_POST['revision'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			}
 			try {
-				$repo->update( $review );
+				$saved = $repo->update( $review, false, $check );
 			} catch ( \InvalidArgumentException $e ) {
 				$this->store_draft( $input );
 				View::redirect( Notices::url( $edit_url, 'review_invalid', explode( ',', $e->getMessage() ) ) );
+				return;
+			}
+			if ( ! $saved ) {
+				$this->store_draft( $input );
+				View::redirect( Notices::url( $edit_url, 'review_conflict' ) );
 				return;
 			}
 			// History + audit: only field names, never content.
@@ -135,6 +147,36 @@ final class ReviewActions {
 			)
 		);
 		View::redirect( Notices::url( View::page_url( ReviewsPage::SLUG, array( 'action' => 'edit', 'id' => $review->id ) ), 'review_created' ) );
+	}
+
+	/**
+	 * Handler: save internal tags (admin-post: review_captain_save_tags, RC-124).
+	 */
+	public function handle_save_tags(): void {
+		Capabilities::verify_request( Capabilities::MODERATE, 'save_tags' );
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verified above.
+		$id   = absint( $_POST['id'] ?? 0 );
+		$tags = sanitize_text_field( wp_unslash( (string) ( $_POST['tags'] ?? '' ) ) );
+		// phpcs:enable
+		$url = View::page_url( ReviewsPage::SLUG, array( 'action' => 'edit', 'id' => $id ) );
+		if ( ! $this->plugin->settings()->get( 'submissions', 'tags_enabled', false ) || null === $this->plugin->reviews()->find( $id ) ) {
+			View::redirect( Notices::url( $url, 'review_missing' ) );
+			return;
+		}
+		$stored = ( new TagStore() )->set( $id, $tags );
+		$this->plugin->audit()->record( 'review.tags_changed', 'review', $id, array( 'count' => count( $stored ) ) );
+		View::redirect( Notices::url( $url, 'tags_saved' ) );
+	}
+
+	/**
+	 * Handler: delete the photo of a review (admin-post: review_captain_delete_photo, RC-121).
+	 */
+	public function handle_delete_photo(): void {
+		Capabilities::verify_request( Capabilities::MODERATE, 'delete_photo' );
+		$id = absint( $_POST['id'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
+		PhotoStore::delete_for_review( $id );
+		$this->plugin->audit()->record( 'review.photo_deleted', 'review', $id, array() );
+		View::redirect( Notices::url( View::page_url( ReviewsPage::SLUG, array( 'action' => 'edit', 'id' => $id ) ), 'photo_deleted' ) );
 	}
 
 	/**

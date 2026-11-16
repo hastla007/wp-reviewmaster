@@ -13,6 +13,7 @@ use ReviewCaptain\Install\Schema;
 use ReviewCaptain\Jobs\JobQueue;
 use ReviewCaptain\Jobs\Runner;
 use ReviewCaptain\Plugin;
+use ReviewCaptain\Repository\ReviewRepository;
 
 /**
  * Core part of the reconciliation: schema, leases, overdue side-effect jobs, integrity counters,
@@ -56,6 +57,7 @@ class Reconciler {
 			'refresh_overdue'           => 0,
 			'missing_dedupe_keys'       => 0,
 			'stale_imports'             => 0,
+			'orphan_rows'               => 0,
 			'clone_suspected'           => false,
 			'restore_suspected'         => false,
 			'lock'                      => (string) get_option( Runner::OPTION_LOCK, '' ),
@@ -98,7 +100,7 @@ class Reconciler {
 		$report['running_without_lease'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$jobs} WHERE status = 'running' AND (lease_expires_at IS NULL OR lease_owner IS NULL)" );
 		if ( $fix ) {
 			$where = in_array( $mode, array( 'restore', 'clone' ), true )
-				? "status = 'running'" // All leases predate the restore.
+				? "status = 'running' AND type <> 'reconcile'" // All leases predate the restore – except this very reconciliation.
 				: $wpdb->prepare( "status = 'running' AND (lease_expires_at IS NULL OR lease_owner IS NULL OR lease_expires_at < %s)", $now );
 			$reset = (int) $wpdb->query( $wpdb->prepare( "UPDATE {$jobs} SET status = 'queued', lease_owner = NULL, lease_expires_at = NULL, available_at = %s, updated_at = %s WHERE {$where}", $now, $now ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$report['fixed']['leases_reset'] = max( 0, $reset );
@@ -106,9 +108,16 @@ class Reconciler {
 
 		// 3. Overdue queued jobs with external side effects (> 24 h).
 		$overdue_ids = array();
-		$rows        = $wpdb->get_results( $wpdb->prepare( "SELECT id, type FROM {$jobs} WHERE status = 'queued' AND available_at < %s ORDER BY id ASC LIMIT 1000", gmdate( 'Y-m-d H:i:s', $this->queue->time() - DAY_IN_SECONDS ) ), ARRAY_A );
+		// A job deferred by the reconcile lock keeps its original due time in the payload.
+		$cutoff = gmdate( 'Y-m-d H:i:s', $this->queue->time() - DAY_IN_SECONDS );
+		$rows   = $wpdb->get_results( $wpdb->prepare( "SELECT id, type, available_at, payload FROM {$jobs} WHERE status = 'queued' AND (available_at < %s OR payload LIKE %s) ORDER BY id ASC LIMIT 1000", $cutoff, '%' . $wpdb->esc_like( '"' . Runner::LOCK_DUE_KEY . '"' ) . '%' ), ARRAY_A );
 		foreach ( (array) $rows as $row ) {
-			if ( ! Runner::is_side_effect_free( (string) $row['type'] ) ) {
+			if ( Runner::is_side_effect_free( (string) $row['type'] ) ) {
+				continue;
+			}
+			$payload = json_decode( (string) $row['payload'], true );
+			$due     = is_array( $payload ) && is_string( $payload[ Runner::LOCK_DUE_KEY ] ?? null ) ? $payload[ Runner::LOCK_DUE_KEY ] : (string) $row['available_at'];
+			if ( $due < $cutoff ) {
 				$overdue_ids[] = (int) $row['id'];
 			}
 		}
@@ -127,6 +136,22 @@ class Reconciler {
 
 		// 8. Integrity.
 		$report['missing_dedupe_keys'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$reviews} WHERE external_id IS NOT NULL AND external_id <> '' AND dedupe_key IS NULL" );
+		// Rows of deleted reviews (a moderation write racing a delete, TEC-005): history, tags,
+		// reports and photos without their review.
+		$orphans = array();
+		foreach ( array( 'review_events', 'review_tags', 'review_reports', 'review_media' ) as $key ) {
+			$child = Schema::table( $key );
+			foreach ( (array) $wpdb->get_col( "SELECT DISTINCT c.review_id FROM {$child} c LEFT JOIN {$reviews} r ON r.id = c.review_id WHERE r.id IS NULL LIMIT 500" ) as $orphan_id ) {
+				$orphans[ (int) $orphan_id ] = true;
+			}
+		}
+		$report['orphan_rows'] = count( $orphans );
+		if ( $fix && $orphans ) {
+			foreach ( array_keys( $orphans ) as $orphan_id ) {
+				ReviewRepository::purge_related( $orphan_id );
+			}
+			$report['fixed']['orphans_removed'] = count( $orphans );
+		}
 		$imports                       = Schema::table( 'import_batches' );
 		$report['stale_imports']       = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$imports} WHERE status = 'importing'" );
 		if ( $fix && $report['stale_imports'] > 0 ) {

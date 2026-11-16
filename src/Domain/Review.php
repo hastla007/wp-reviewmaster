@@ -44,6 +44,16 @@ final class Review {
 	public ?string $experience_id    = null;
 
 	/**
+	 * Uniqueness key author+context for multi-product submissions (RC-123), HMAC, never the e-mail.
+	 */
+	public ?string $submission_key = null;
+
+	/**
+	 * Content revision for optimistic concurrency (TEC-005 R-12). Incremented by every content update.
+	 */
+	public int $revision = 0;
+
+	/**
 	 * Free-form JSON metadata (never secrets).
 	 *
 	 * @var array<string, mixed>
@@ -94,6 +104,8 @@ final class Review {
 		$r->consent_at       = self::nullable_string( $row['consent_at'] ?? null );
 		$r->import_batch_id  = self::nullable_int( $row['import_batch_id'] ?? null );
 		$r->experience_id    = self::nullable_string( $row['experience_id'] ?? null );
+		$r->submission_key   = self::nullable_string( $row['submission_key'] ?? null );
+		$r->revision         = isset( $row['revision'] ) ? (int) $row['revision'] : 0;
 		$meta                = isset( $row['meta'] ) && is_string( $row['meta'] ) ? json_decode( $row['meta'], true ) : array();
 		$r->meta             = is_array( $meta ) ? $meta : array();
 		$r->created_at       = (string) ( $row['created_at'] ?? '' );
@@ -137,6 +149,8 @@ final class Review {
 			'consent_at'       => $this->consent_at,
 			'import_batch_id'  => $this->import_batch_id,
 			'experience_id'    => $this->experience_id,
+			'submission_key'   => $this->submission_key,
+			'revision'         => $this->revision,
 			'meta'             => wp_json_encode( (object) $this->meta ),
 			'created_at'       => $this->created_at,
 			'updated_at'       => $this->updated_at,

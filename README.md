@@ -7,6 +7,7 @@ Projekt- und Implementierungsgrundlage für das Review- und Social-Proof-Plugin 
 
 - [Ablauf und Mockup-Screenshots](konzept.md#17-abläufe-und-screenshot-mockups): Suite-Diagramme und UI-Beispiele.
 - [Technische Konventionen](docs/architecture/conventions.md) und [Spezifikationen](docs/): Verträge, Architektur, Einstellungen, SEO, Connectoren.
+- Release: [Änderungsprotokoll](CHANGELOG.md), [Release-Checkliste](docs/release/RELEASE-CHECKLIST.md), [Bekannte Einschränkungen](docs/release/KNOWN-LIMITATIONS.md).
 
 Die Aufgabenliste ist nach Abhängigkeiten geordnet. Nicht bestätigte Anbieterzugänge und Folgefunktionen sind als Entscheidung bzw. gesonderter Release-Schritt gekennzeichnet.
 

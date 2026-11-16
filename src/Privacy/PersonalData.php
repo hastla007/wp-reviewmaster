@@ -10,7 +10,9 @@ declare(strict_types=1);
 namespace ReviewCaptain\Privacy;
 
 use ReviewCaptain\Domain\Review;
+use ReviewCaptain\Media\PhotoStore;
 use ReviewCaptain\Plugin;
+use ReviewCaptain\Questions\QuestionRepository;
 use ReviewCaptain\Repository\ReviewRepository;
 use ReviewCaptain\Settings\Settings;
 
@@ -18,7 +20,10 @@ use ReviewCaptain\Settings\Settings;
  * Finds reviews of a person by author_email or by the WordPress user with that e-mail
  * (author_user_id) and exports or erases them.
  *
- * Limits (documented): only the reviews table is covered. Review texts of external platforms are
+ * Also covered: review photos (deleted on anonymisation/deletion, RC-121) and product questions
+ * (table questions, RC-122: exported; anonymised or deleted according to the erase mode).
+ *
+ * Limits (documented): beyond that only the reviews table is covered. Review texts of external platforms are
  * not linked to an e-mail and therefore not found; moderation history (review_events) holds no
  * personal data; audit entries reference user IDs only and are pruned by retention; Pro data
  * (requests, suppression lists) is handled by Review Captain Pro's own exporter/eraser.
@@ -62,6 +67,47 @@ class PersonalData {
 				'data'              => self::export_fields( $r ),
 			);
 		}
+		if ( 1 === $page ) {
+			foreach ( ( new QuestionRepository() )->by_email( $email ) as $q ) {
+				$items[] = array(
+					'group_id'          => self::GROUP_ID . '-questions',
+					'group_label'       => __( 'Review Captain – Produktfragen', 'review-captain' ),
+					'group_description' => __( 'Fragen, die mit dieser E-Mail-Adresse gestellt wurden.', 'review-captain' ),
+					'item_id'           => 'review-captain-question-' . (string) $q['uuid'],
+					'data'              => array_values(
+						array_filter(
+							array(
+								array(
+									'name'  => __( 'Frage', 'review-captain' ),
+									'value' => (string) $q['question'],
+								),
+								array(
+									'name'  => __( 'Name', 'review-captain' ),
+									'value' => (string) $q['author_name'],
+								),
+								array(
+									'name'  => __( 'E-Mail-Adresse', 'review-captain' ),
+									'value' => (string) $q['author_email'],
+								),
+								array(
+									'name'  => __( 'Kontext', 'review-captain' ),
+									'value' => (string) $q['context_type'] . ':' . (string) $q['context_id'],
+								),
+								array(
+									'name'  => __( 'Status', 'review-captain' ),
+									'value' => (string) $q['status'],
+								),
+								array(
+									'name'  => __( 'Erstellt am (UTC)', 'review-captain' ),
+									'value' => (string) $q['created_at'],
+								),
+							),
+							static fn( array $f ): bool => '' !== $f['value']
+						)
+					),
+				);
+			}
+		}
 		return array(
 			'data' => $items,
 			'done' => count( $reviews ) < self::PAGE_SIZE,
@@ -95,6 +141,15 @@ class PersonalData {
 				continue;
 			}
 			if ( $this->anonymize( $r ) ) {
+				++$removed;
+			} else {
+				++$retained;
+			}
+		}
+		$questions = new QuestionRepository();
+		foreach ( $questions->by_email( $email ) as $q ) {
+			$ok = 'delete' === $mode ? $questions->delete( (int) $q['id'] ) : $questions->anonymize( (int) $q['id'] );
+			if ( $ok ) {
 				++$removed;
 			} else {
 				++$retained;
@@ -139,8 +194,12 @@ class PersonalData {
 			$r->body  = (string) wp_privacy_anonymize_data( 'text', $r->body );
 		}
 		$r->meta['anonymized_at'] = gmdate( 'c' );
+		if ( null !== $r->id ) {
+			PhotoStore::delete_for_review( $r->id ); // A photo may show the person (RC-121).
+		}
+		$r->submission_key        = null; // Derived from the e-mail (HMAC) – personal.
 		try {
-			$this->reviews->update( $r );
+			return $this->reviews->update( $r );
 		} catch ( \InvalidArgumentException $e ) {
 			return $this->force_anonymize( $r );
 		}
@@ -160,6 +219,7 @@ class PersonalData {
 				'author_name'    => $r->author_name,
 				'author_email'   => null,
 				'author_user_id' => null,
+				'submission_key' => null,
 				'title'          => $r->title,
 				'body'           => $r->body,
 				'meta'           => wp_json_encode( (object) $r->meta ),
@@ -234,6 +294,7 @@ class PersonalData {
 			__( 'Einwilligung zur Veröffentlichung', 'review-captain' ) => $r->consent_publish ? __( 'ja', 'review-captain' ) . ( $r->consent_at ? ' (' . $r->consent_at . ' UTC)' : '' ) : __( 'nein', 'review-captain' ),
 			__( 'Veröffentlicht am', 'review-captain' )           => (string) $r->published_at,
 			__( 'Erstellt am (UTC)', 'review-captain' )           => $r->created_at,
+			__( 'Foto', 'review-captain' )                        => null !== $r->id && null !== PhotoStore::for_review( $r->id ) ? __( 'ja (wird bei Löschung oder Anonymisierung entfernt)', 'review-captain' ) : '',
 		);
 		$out = array();
 		foreach ( $fields as $name => $value ) {

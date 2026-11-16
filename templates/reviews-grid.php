@@ -7,12 +7,16 @@
  * @package ReviewCaptain
  *
  * @var array<string, mixed> $rc Widget data: id, classes, layout, columns, cards (rendered card HTML),
- *                               summary (list of {platform, text}), empty_text, pagination {prev, next}.
+ *                               summary (list of {platform, text}), empty_text, pagination {prev, next},
+ *                               notice (status text after a public report, may be empty).
  */
 
 defined( 'ABSPATH' ) || exit;
 ?>
 <div id="<?php echo esc_attr( $rc['id'] ); ?>" class="<?php echo esc_attr( $rc['classes'] ); ?>" style="<?php echo esc_attr( '--rc-columns: ' . (int) $rc['columns'] ); ?>">
+	<?php if ( ! empty( $rc['notice'] ) ) : ?>
+		<p class="rc-notice" role="status"><?php echo esc_html( $rc['notice'] ); ?></p>
+	<?php endif; ?>
 	<?php if ( ! empty( $rc['summary'] ) ) : ?>
 		<ul class="rc-summary" aria-label="<?php esc_attr_e( 'Zusammenfassung je Plattform', 'review-captain' ); ?>">
 			<?php foreach ( $rc['summary'] as $rc_row ) : ?>
