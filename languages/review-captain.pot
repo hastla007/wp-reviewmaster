@@ -93,7 +93,7 @@ msgstr ""
 msgid "Plattform"
 msgstr ""
 
-#: blocks/reviews/editor.js:89 src/Admin/DiagnosticsPage.php:360 src/Admin/ReviewsListTable.php:112 src/Admin/ReviewsPage.php:110 src/Admin/ReviewsPage.php:476 src/ImportExport/ImportExportModule.php:286 src/Privacy/PersonalData.php:283
+#: blocks/reviews/editor.js:89 src/Admin/DiagnosticsPage.php:366 src/Admin/ReviewsListTable.php:112 src/Admin/ReviewsPage.php:110 src/Admin/ReviewsPage.php:476 src/ImportExport/ImportExportModule.php:286 src/Privacy/PersonalData.php:283
 msgid "Typ"
 msgstr ""
 
@@ -202,7 +202,7 @@ msgstr ""
 msgid "Review Captain benötigt mindestens PHP %1$s und WordPress %2$s. Das Plugin ist deshalb inaktiv."
 msgstr ""
 
-#: src/Admin/AdminModule.php:92 src/Admin/AdminModule.php:93 src/Admin/DiagnosticsPage.php:307 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
+#: src/Admin/AdminModule.php:92 src/Admin/AdminModule.php:93 src/Admin/DiagnosticsPage.php:313 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
 msgid "Review Captain"
 msgstr ""
 
@@ -226,7 +226,7 @@ msgstr ""
 msgid "Einstellungen"
 msgstr ""
 
-#: src/Admin/AdminModule.php:106 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:274
+#: src/Admin/AdminModule.php:106 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:280
 msgid "Diagnose"
 msgstr ""
 
@@ -298,7 +298,7 @@ msgstr ""
 msgid "Captain-Suite-Integrationen und Connectoren"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:57 src/Admin/DiagnosticsPage.php:271 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:467 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144 src/ImportExport/ImportExportModule.php:178
+#: src/Admin/DashboardPage.php:57 src/Admin/DiagnosticsPage.php:277 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:467 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144 src/ImportExport/ImportExportModule.php:178
 msgid "Dafür fehlt dir die Berechtigung."
 msgstr ""
 
@@ -338,7 +338,7 @@ msgstr ""
 msgid "Zuletzt eingegangen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:134 src/Admin/DiagnosticsPage.php:400 src/Admin/ReviewsPage.php:506
+#: src/Admin/DashboardPage.php:134 src/Admin/DiagnosticsPage.php:406 src/Admin/ReviewsPage.php:506
 msgid "Noch keine Einträge."
 msgstr ""
 
@@ -370,131 +370,131 @@ msgstr ""
 msgid "Alle Kernfunktionen bleiben ohne Pro vollständig nutzbar."
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:304 src/Admin/ReviewsPage.php:483 src/Privacy/PersonalData.php:294
+#: src/Admin/DiagnosticsPage.php:310 src/Admin/ReviewsPage.php:483 src/Privacy/PersonalData.php:294
 msgid "ja"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:305 src/Admin/ReviewsPage.php:483 src/Privacy/PersonalData.php:294
+#: src/Admin/DiagnosticsPage.php:311 src/Admin/ReviewsPage.php:483 src/Privacy/PersonalData.php:294
 msgid "nein"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:308
+#: src/Admin/DiagnosticsPage.php:314
 msgid "PHP"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:309
+#: src/Admin/DiagnosticsPage.php:315
 msgid "WordPress"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:310
+#: src/Admin/DiagnosticsPage.php:316
 msgid "Datenbank-Schema"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:310
+#: src/Admin/DiagnosticsPage.php:316
 msgid "nicht installiert"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:310 src/Admin/DiagnosticsPage.php:311
+#: src/Admin/DiagnosticsPage.php:316 src/Admin/DiagnosticsPage.php:317
 msgid "erwartet"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:311
+#: src/Admin/DiagnosticsPage.php:317
 msgid "Einstellungen-Version"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:312
+#: src/Admin/DiagnosticsPage.php:318
 msgid "Multisite"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:313
+#: src/Admin/DiagnosticsPage.php:319
 msgid "WP-Cron deaktiviert"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:314
+#: src/Admin/DiagnosticsPage.php:320
 msgid "Action Scheduler verfügbar"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:315
+#: src/Admin/DiagnosticsPage.php:321
 msgid "Sprache / Zeitzone"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:319
+#: src/Admin/DiagnosticsPage.php:325
 msgid "Das Datenbank-Schema entspricht nicht der erwarteten Version. Es wird beim nächsten Aufruf im Admin automatisch aktualisiert; bleibt die Meldung, deaktiviere und aktiviere das Plugin erneut."
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:332
+#: src/Admin/DiagnosticsPage.php:338
 msgid "Profile"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:360
+#: src/Admin/DiagnosticsPage.php:366
 msgid "ID"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:360 src/Admin/QuestionsPage.php:89 src/Admin/ReviewsListTable.php:114 src/Admin/ReviewsPage.php:284 src/Admin/ReviewsPage.php:440 src/Admin/SourcesPage.php:67 src/Connectors/ConnectorsModule.php:91 src/ImportExport/ImportExportModule.php:288 src/ImportExport/ImportExportModule.php:317 src/Privacy/PersonalData.php:97
+#: src/Admin/DiagnosticsPage.php:366 src/Admin/QuestionsPage.php:89 src/Admin/ReviewsListTable.php:114 src/Admin/ReviewsPage.php:284 src/Admin/ReviewsPage.php:440 src/Admin/SourcesPage.php:67 src/Connectors/ConnectorsModule.php:91 src/ImportExport/ImportExportModule.php:288 src/ImportExport/ImportExportModule.php:317 src/Privacy/PersonalData.php:97
 msgid "Status"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:360
+#: src/Admin/DiagnosticsPage.php:366
 msgid "Versuche"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:360
+#: src/Admin/DiagnosticsPage.php:366
 msgid "Fehlercode"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:360 src/Admin/DiagnosticsPage.php:403 src/Admin/ReviewsPage.php:509
+#: src/Admin/DiagnosticsPage.php:366 src/Admin/DiagnosticsPage.php:409 src/Admin/ReviewsPage.php:509
 msgid "Zeit"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:275
+#: src/Admin/DiagnosticsPage.php:281
 msgid "Nur lesend. Hier wird nichts verändert. Der Diagnosebericht enthält keine Zugangsdaten, E-Mail-Adressen oder Reviewtexte."
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:278
+#: src/Admin/DiagnosticsPage.php:284
 msgid "Diagnosebericht herunterladen (JSON)"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:291
+#: src/Admin/DiagnosticsPage.php:297
 msgid "Dieser Abschnitt konnte nicht geladen werden."
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:317
+#: src/Admin/DiagnosticsPage.php:323
 msgid "Umgebung"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:341 src/Admin/SettingsFields.php:144
+#: src/Admin/DiagnosticsPage.php:347 src/Admin/SettingsFields.php:144
 msgid "Hintergrundaufgaben"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:343
+#: src/Admin/DiagnosticsPage.php:349
 msgid "Die Aufgabenverwaltung ist nicht geladen."
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:356
+#: src/Admin/DiagnosticsPage.php:362
 msgid "Noch keine Hintergrundaufgaben gelaufen."
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:375
+#: src/Admin/DiagnosticsPage.php:381
 msgid "SEO & strukturierte Daten"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:377
+#: src/Admin/DiagnosticsPage.php:383
 msgid "Der SEO-Status ist nicht verfügbar."
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:398
+#: src/Admin/DiagnosticsPage.php:404
 msgid "Letzte Protokolleinträge"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:403
+#: src/Admin/DiagnosticsPage.php:409
 msgid "Ereignis"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:403
+#: src/Admin/DiagnosticsPage.php:409
 msgid "Objekt"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:403
+#: src/Admin/DiagnosticsPage.php:409
 msgid "Angaben"
 msgstr ""
 
@@ -2383,83 +2383,92 @@ msgid "Datenbankschema installieren/aktualisieren."
 msgstr ""
 
 #. translators: 1: processed, 2: succeeded, 3: failed
-#: src/Cli/Commands.php:61
+#: src/Cli/Commands.php:62
 msgid "%1$d Jobs verarbeitet, %2$d erfolgreich, %3$d fehlgeschlagen."
 msgstr ""
 
-#: src/Cli/Commands.php:79
+#: src/Cli/Commands.php:80
 msgid "Unbekannter Status."
 msgstr ""
 
-#: src/Cli/Commands.php:106
+#: src/Cli/Commands.php:107
 msgid "Job nicht gefunden oder nicht wiederholbar."
 msgstr ""
 
-#: src/Cli/Commands.php:109
+#: src/Cli/Commands.php:110
 msgid "Job erneut eingereiht."
 msgstr ""
 
 #. translators: 1: rejected, 2: external, 3: logs, 4: jobs
-#: src/Cli/Commands.php:145
+#: src/Cli/Commands.php:146
 msgid "Aufbewahrung: %1$d abgelehnte Reviews, %2$d externe Snapshots, %3$d Logeinträge, %4$d Jobs gelöscht."
 msgstr ""
 
-#: src/Cli/Commands.php:153
+#: src/Cli/Commands.php:154
 msgid "Nicht alle fälligen Daten wurden in diesem Lauf bereinigt; der nächste Lauf setzt fort."
 msgstr ""
 
-#: src/Cli/Commands.php:178
+#: src/Cli/Commands.php:179
 msgid "Schema veraltet oder unvollständig: zuerst „wp review-captain schema upgrade“ ausführen."
 msgstr ""
 
 #. translators: 1: installed, 2: expected
-#: src/Cli/Commands.php:198
+#: src/Cli/Commands.php:199
 msgid "Schema-Version %1$d (erwartet %2$d)."
 msgstr ""
 
-#: src/Cli/Commands.php:209
+#: src/Cli/Commands.php:210
 msgid "Job-Takt ist eingeplant."
 msgstr ""
 
-#: src/Cli/Commands.php:209
+#: src/Cli/Commands.php:210
 msgid "Job-Takt ist nicht eingeplant (Adminbereich einmal aufrufen oder Plugin reaktivieren)."
 msgstr ""
 
-#: src/Cli/Commands.php:216
+#: src/Cli/Commands.php:217
 msgid "DISABLE_WP_CRON gesetzt – System-Cron muss „wp review-captain jobs run“ ausführen."
 msgstr ""
 
-#: src/Cli/Commands.php:217
+#: src/Cli/Commands.php:218
 msgid "WP-Cron aktiv: Ausführung nur bei Seitenaufrufen, Zeiten ungenau. System-Cron empfohlen."
 msgstr ""
 
-#: src/Cli/Commands.php:226
+#: src/Cli/Commands.php:227
 msgid "Eigener Schlüssel REVIEW_CAPTAIN_ENCRYPTION_KEY ist gesetzt."
 msgstr ""
 
-#: src/Cli/Commands.php:227
+#: src/Cli/Commands.php:228
 msgid "Zugangsdaten werden mit einem aus den WordPress-Salts abgeleiteten Schlüssel verschlüsselt. Empfehlung: REVIEW_CAPTAIN_ENCRYPTION_KEY setzen."
 msgstr ""
 
-#: src/Cli/Commands.php:228
+#: src/Cli/Commands.php:229
 msgid "REVIEW_CAPTAIN_ENCRYPTION_KEY ist ungültig (Base64 von genau 32 Byte erwartet)."
 msgstr ""
 
-#: src/Cli/Commands.php:229
+#: src/Cli/Commands.php:230
 msgid "libsodium ist nicht verfügbar."
 msgstr ""
 
-#: src/Cli/Commands.php:247
+#: src/Cli/Commands.php:240
+msgid "Datenbankversion nicht ermittelbar."
+msgstr ""
+
+#. translators: 1: vendor, 2: installed version, 3: minimum version
+#: src/Cli/Commands.php:243
+msgid "Datenbank %1$s %2$s (empfohlen mindestens %3$s)."
+msgstr ""
+
+#: src/Cli/Commands.php:264
 msgid "Testdaten nur mit WP_DEBUG oder --yes erzeugen."
 msgstr ""
 
 #. translators: 1: reviews, 2: jobs
-#: src/Cli/Commands.php:263
+#: src/Cli/Commands.php:280
 msgid "%1$d Test-Reviews und %2$d Test-Jobs angelegt."
 msgstr ""
 
 #. translators: %d: schema version
-#: src/Cli/Commands.php:282
+#: src/Cli/Commands.php:299
 msgid "Schema ist auf Version %d."
 msgstr ""
 
@@ -3211,11 +3220,11 @@ msgstr ""
 msgid "Geplante Zeiten sind frühestmögliche Zeitpunkte, keine Zusagen."
 msgstr ""
 
-#: src/Jobs/JobQueue.php:252
+#: src/Jobs/JobQueue.php:280
 msgid "Lease abgelaufen, Prozessabbruch vermutet."
 msgstr ""
 
-#: src/Jobs/JobQueue.php:527
+#: src/Jobs/JobQueue.php:555
 msgid "Abgebrochen."
 msgstr ""
 

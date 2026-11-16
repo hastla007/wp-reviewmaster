@@ -37,6 +37,8 @@ jobs:
         run: php bin/check-plugin-meta.php
       - name: Hook reference up to date
         run: php bin/list-hooks.php --check
+      - name: Translations complete, placeholders consistent, .mo/.json up to date
+        run: php bin/compile-translations.php --check
       - name: Unit tests
         run: vendor/bin/phpunit
 
