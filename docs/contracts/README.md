@@ -57,7 +57,7 @@ Offen für das ADR: Pro-Tabellen nutzen dasselbe Präfix `{$wpdb->prefix}review_
 | P2 | Globale Frequenzgrenze (Cooldown) je Kontakt | 30 Tage, `0` = aus | invitation-rule.md |
 | P3 | Klickerfassung (`clicked`) überhaupt anbieten? | Default aus, je Kampagne aktivierbar nach Datenschutzprüfung | request-lifecycle.md |
 | P4 | Zulässige Versandgrundlagen (`send_permission.basis`) je Markt | Kampagne akzeptiert nur konfigurierte Grundlagen; Entscheidung RC-014 | experience-event-v1.md |
-| P5 | Teil-Einlösungen von Wertgutscheinen: jedes Mal ein Erlebnis, nur erste, oder gar nicht? | offen | experience-ownership.md |
+| P5 | Teil-Einlösungen von Wertgutscheinen: jedes Mal ein Erlebnis, nur erste, oder gar nicht? | entschieden laut Voucher-Sitzung (Inhaber, 16.11.2026): nur die erste bestätigte Einlösung je Gutschein; nach Widerruf darf die nächste zählen (Filter `vcap_review_first_redemption_only`) | experience-ownership.md |
 | P6 | Pass: Empfängerstrategie (nur Teilnehmer / Teilnehmer, sonst Käufer / nur Käufer) als Default | Teilnehmer bevorzugt (konzept 7.9) | experience-ownership.md |
 | P7 | Ablauf von Testimonial-Rechten: unbefristet zulässig? Default-Laufzeit? | `expires_at` nullable; Entscheidung RC-015 | testimonial-schema-v1.md |
 | P8 | Speicherort für Rechtebelege/Medien unveröffentlichter Testimonials (nicht öffentlich) | geschützter Pfad, RC-109 | testimonial-schema-v1.md |
