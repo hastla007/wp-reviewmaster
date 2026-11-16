@@ -38,7 +38,7 @@ $rc_id = (string) $rc['id'];
 	<?php endif; ?>
 
 	<?php if ( ! empty( $rc['errors'] ) ) : ?>
-		<div class="rc-form__error rc-form__errors" role="alert">
+		<div class="rc-form__error rc-form__errors" id="<?php echo esc_attr( $rc_id . '-errors' ); ?>" role="alert" tabindex="-1" autofocus>
 			<ul>
 				<?php foreach ( $rc['errors'] as $rc_message ) : ?>
 					<li><?php echo esc_html( $rc_message ); ?></li>

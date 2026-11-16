@@ -51,7 +51,8 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 		<p class="rc-form__notice rc-form__notice--success" role="status"><?php echo esc_html( $rc['success'] ); ?></p>
 	<?php endif; ?>
 	<?php if ( $rc_errors ) : ?>
-		<div class="rc-form__error rc-form__errors" role="alert" tabindex="-1">
+		<?php // QA F-06: the redirect targets this box (#…-errors) and autofocus moves keyboard/screen-reader focus here. ?>
+		<div class="rc-form__error rc-form__errors" id="<?php echo esc_attr( $rc_id . '-errors' ); ?>" role="alert" tabindex="-1" autofocus>
 			<p><?php esc_html_e( 'Bitte prüfen Sie Ihre Angaben:', 'review-captain' ); ?></p>
 			<ul>
 				<?php foreach ( $rc_errors as $rc_message ) : ?>

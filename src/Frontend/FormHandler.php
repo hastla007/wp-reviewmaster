@@ -112,7 +112,8 @@ class FormHandler {
 				'ok'       => false,
 				'errors'   => $errors,
 				'review'   => null,
-				'redirect' => add_query_arg( $args, $return ) . '#rc-form-' . $form,
+				// Anchor on the error box, which takes focus on load (QA F-06).
+				'redirect' => add_query_arg( $args, $return ) . '#rc-form-' . $form . '-errors',
 			);
 		};
 

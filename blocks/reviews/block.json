@@ -88,6 +88,10 @@
 			"type": "boolean",
 			"default": true
 		},
+		"headingLevel": {
+			"type": "integer",
+			"default": 3
+		},
 		"paginate": {
 			"type": "boolean",
 			"default": false

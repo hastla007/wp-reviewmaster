@@ -110,7 +110,7 @@ class Reconciler {
 		$overdue_ids = array();
 		// A job deferred by the reconcile lock keeps its original due time in the payload.
 		$cutoff = gmdate( 'Y-m-d H:i:s', $this->queue->time() - DAY_IN_SECONDS );
-		$rows   = $wpdb->get_results( $wpdb->prepare( "SELECT id, type, available_at, payload FROM {$jobs} WHERE status = 'queued' AND (available_at < %s OR payload LIKE %s) ORDER BY id ASC LIMIT 1000", $cutoff, '%' . $wpdb->esc_like( '"' . Runner::LOCK_DUE_KEY . '"' ) . '%' ), ARRAY_A );
+		$rows   = $wpdb->get_results( "SELECT id, type, available_at, payload FROM {$jobs} WHERE status = 'queued' ORDER BY id ASC LIMIT 1000", ARRAY_A );
 		foreach ( (array) $rows as $row ) {
 			if ( Runner::is_side_effect_free( (string) $row['type'] ) ) {
 				continue;

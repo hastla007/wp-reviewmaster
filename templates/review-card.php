@@ -32,7 +32,8 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 			<span class="<?php echo esc_attr( $rc_badge['class'] ); ?>"><?php echo esc_html( $rc_badge['text'] ); ?></span>
 		<?php endforeach; ?>
 		<?php if ( '' !== $rc['title'] ) : ?>
-			<h3 class="rc-card__title"><?php echo esc_html( $rc['title'] ); ?></h3>
+			<?php $rc_heading = in_array( $rc['heading'] ?? 'h3', array( 'h2', 'h3', 'h4', 'h5', 'h6' ), true ) ? $rc['heading'] : 'h3'; ?>
+			<<?php echo esc_attr( $rc_heading ); ?> class="rc-card__title"><?php echo esc_html( $rc['title'] ); ?></<?php echo esc_attr( $rc_heading ); ?>>
 		<?php endif; ?>
 	</header>
 	<?php if ( '' !== $rc['body_html'] ) : ?>

@@ -54,6 +54,7 @@ final class WidgetDefinition {
 		'paginate'    => 'paginate',
 		'profile'     => 'profile',
 		'newTab'      => 'new_tab',
+		'headingLevel' => 'heading_level',
 	);
 
 	/**
@@ -110,6 +111,11 @@ final class WidgetDefinition {
 	public bool $paginate     = false;
 	public ?int $profile_id   = null;
 	public bool $new_tab      = false;
+
+	/**
+	 * Heading level of card titles (2–6, default 3; QA F-07 heading-order).
+	 */
+	public int $heading_level = 3;
 
 	/**
 	 * Raw (unvalidated, but string-cast) attributes for Pro widget types.
@@ -223,6 +229,8 @@ final class WidgetDefinition {
 		$d->paginate     = self::bool_or_null( $raw['paginate'] ?? '' ) ?? false;
 		$d->new_tab      = self::bool_or_null( $raw['new_tab'] ?? '' ) ?? false;
 
+		$d->heading_level = self::int_in_range( $raw['heading_level'] ?? '', 2, 6, 3, 'heading_level', $d );
+
 		if ( isset( $raw['profile'] ) && '' !== $raw['profile'] ) {
 			if ( ctype_digit( $raw['profile'] ) && (int) $raw['profile'] > 0 ) {
 				$d->profile_id = (int) $raw['profile'];
@@ -332,6 +340,7 @@ final class WidgetDefinition {
 			'paginate'     => $this->paginate,
 			'profile_id'   => $this->profile_id,
 			'new_tab'      => $this->new_tab,
+			'heading_level' => $this->heading_level,
 		);
 	}
 

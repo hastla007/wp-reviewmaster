@@ -81,7 +81,7 @@ class QuestionHandler {
 				'ok'       => $ok,
 				'errors'   => $errors,
 				'question' => $question,
-				'redirect' => ( $ok ? add_query_arg( 'rc_question', '1', $return ) : add_query_arg( 'rc_question_error', implode( ',', $errors ), $return ) ) . '#rc-qa',
+				'redirect' => $ok ? add_query_arg( 'rc_question', '1', $return ) . '#rc-qa' : add_query_arg( 'rc_question_error', implode( ',', $errors ), $return ) . '#rc-qa-errors',
 			);
 		};
 

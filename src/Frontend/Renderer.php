@@ -283,6 +283,7 @@ class Renderer {
 		return array(
 			'uuid'      => $r->uuid,
 			'photo'     => $photo,
+			'heading'   => 'h' . max( 2, min( 6, $d->heading_level ) ),
 			'report'    => $report,
 			'classes'   => implode( ' ', $classes ),
 			'kind'      => $r->kind->value,

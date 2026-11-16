@@ -70,6 +70,7 @@ final class PhotoStore {
 		if ( $require_upload && ! is_uploaded_file( $tmp ) ) {
 			return 'photo_upload';
 		}
+		clearstatcache( true, $tmp );
 		$size = is_file( $tmp ) ? (int) filesize( $tmp ) : 0;
 		if ( $size <= 0 ) {
 			return 'photo_upload';
