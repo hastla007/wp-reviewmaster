@@ -41,6 +41,8 @@ Kein ADR nötig: Bugfixes, interne Refactorings ohne Vertragsänderung, Texte, S
 | [0005](0005-tokenverschluesselung-libsodium.md) | Tokenverschlüsselung mit libsodium secretbox | Angenommen | 2026-11-16 |
 | [0006](0006-quellsprache-der-oberflaechentexte.md) | Deutsch als Quellsprache der Oberflächentexte (Arbeitsannahme) | Vorgeschlagen | 2026-11-16 |
 | [0007](0007-oeffentliche-hooks-v1.md) | Öffentliche Hooks von Core v1 und ihre Stabilitätsstufen | Angenommen | 2026-11-16 |
+| [0008](0008-auth-modell-betreiber-credential.md) | Plattformzugänge im MVP über Betreiber-Credentials | Vorgeschlagen | 2026-11-16 |
+| [0009](0009-connector-lizenzgrenze.md) | Lizenzgrenze für kundenspezifische Connectoren | Vorgeschlagen | 2026-11-16 |
 
 Vorgemerkte ADR-Kandidaten (noch nicht angelegt, siehe offene Entscheidungen in `docs/architecture/`):
 

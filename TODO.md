@@ -59,7 +59,7 @@ Diese Aufgaben werden nach dem MVP-Scope-Freeze und vor dem Bau der Admin-Seiten
 - [x] **UX-010 – Einstellungen-Informationsarchitektur abstimmen.** Ergebnis: Seitennavigation, Tabnamen, Reihenfolge, Gruppierungen und Abgrenzung zu Quellen, Kampagnen, Widgets, Integrationen und Diagnose sind als WP-Admin-Wireframe freigegeben.
 - [x] **UX-011 – Einfach-/Erweitert-Modus definieren.** Ergebnis: häufige Einstellungen sind sofort sichtbar; seltene technische Optionen liegen in aufklappbaren Erweitert-Bereichen; erforderliche Felder werden abhängig von Quelle, Versandweg und Lizenzstatus eingeblendet.
 - [x] **UX-012 – Erstkonfiguration und Leerzustände entwerfen.** Ergebnis: Admin wird von Basisdaten und Absender über Quelle/Test bis zu erster Kampagne geführt; Setup-Schritte sind wiederaufnehmbar und lassen sich ohne Datenverlust überspringen.
-- [ ] **UX-013 – Begriffe und Hilfetexte testen.** Ergebnis: Betreiber verstehen Geltungsbereich, Wirkung und Risiko jeder Option; verständliche Beispiele und Statushinweise ersetzen interne Begriffe wie TTL, Backoff oder Entitlement.
+- [ ] **UX-013 – Begriffe und Hilfetexte testen.** Ergebnis: Betreiber verstehen Geltungsbereich, Wirkung und Risiko jeder Option; verständliche Beispiele und Statushinweise ersetzen interne Begriffe wie TTL, Backoff oder Entitlement. **Glossar-Entwurf:** [docs/ux/glossary.md](docs/ux/glossary.md); Verständnistest offen
 
 ## M1 – Verträge, Datenmodell und Architektur
 
@@ -72,7 +72,7 @@ Diese Aufgaben werden nach dem MVP-Scope-Freeze und vor dem Bau der Admin-Seiten
 - [x] **RC-023 – Kontaktresolver-Vertrag definieren.** Ergebnis: Empfängerreferenzen können nur zur Versandzeit und mit gültiger Berechtigung in Kontaktangaben aufgelöst werden; unbekannt/widerrufen blockiert Versand.
 - [x] **RC-024 – Anfrage-Lifecycle und Zustände festlegen.** Ergebnis: planned, eligible, sent, delivered/unknown, clicked (nur falls erlaubt), skipped, cancelled, failed, unsubscribed und expired mit Übergängen dokumentiert.
 - [x] **RC-025 – Einladungsregel technisch spezifizieren.** Ergebnis: Unique-Key experience_id + recipient_ref + campaign_id, maximal eine Einladung je Erfahrung/Empfänger und kein zweiter Versand über konkurrierende Suite-Ereignisse.
-- [ ] **RC-026 – Authentifizierungsmodell je Provider festlegen.** Ergebnis: Captain OAuth-App vs. Betreibercredential, Scope, Rotation, Token-Widerruf und Verschlüsselungsweg pro Anbieter entschieden.
+- [ ] **RC-026 – Authentifizierungsmodell je Provider festlegen.** Ergebnis: Captain OAuth-App vs. Betreibercredential, Scope, Rotation, Token-Widerruf und Verschlüsselungsweg pro Anbieter entschieden. **Vorschlag zur Entscheidung:** [ADR-0008](docs/adr/0008-auth-modell-betreiber-credential.md)
 - [x] **RC-027 – Datenaufbewahrungs- und Löschmatrix festlegen.** Ergebnis: je Quelle Speicherfrist, Refreshintervall, Lösch-/Widerrufspfad, Export, Backup und Entfernung beim Disconnect dokumentiert.
 - [x] **RC-028 – Datenbank- und Migrationsplan abnehmen.** Ergebnis: Tabellen/Optionen, Indizes, Versionsnummer, Upgrade-/Rollback-Verhalten und Multisite-Scope sind spezifiziert.
 - [x] **RC-029 – Rollen- und Capability-Modell festlegen.** Ergebnis: getrennte Rechte für Reviews moderieren, Quellen verbinden, Anfragen verwalten, Reports sehen und Trustmarks verwalten.
@@ -329,7 +329,7 @@ Diese Aufgaben ergänzen die offiziellen Captain-Suite-Adapter um eine stabile E
 - [x] **CON-003 – Capability-Verträge einzeln definieren.** Ergebnis: ExperienceSource, RecipientResolver, ReviewSource, RequestTransport und ContextProvider haben minimale typisierte Methoden und Fixture-Payloads; ein Connector muss nur seine Fähigkeiten implementieren.
 - [x] **CON-004 – Fachliche Event-Payloads vertraglich festlegen.** Ergebnis: Experience-ID, Event-ID, Source-Key, Objekt-Referenz, Recipient-Referenz, Locale, occurred_at, erlaubter Consent-/Versandstatus und Idempotency-Key sind Pflicht; Kontakt- und Reviewtexte werden nur über ausdrücklich erforderliche Fähigkeiten übertragen.
 - [x] **CON-005 – Connector-Sicherheits- und Datenmatrix erstellen.** Ergebnis: jede Fähigkeit hat minimale Datenfelder, Capabilities, Consent-/Berechtigungsprüfung, Retention/Erase, Logging-Allowlist, Retry-Klassifikation und Disconnect-Verhalten. Das Framework ist als PHP-Code ausdrücklich keine Sandbox.
-- [ ] **CON-006 – Lizenzgrenze finalisieren.** Ergebnis: öffentlicher Contract und Basis-Registry bleiben im kostenlosen Core; generischer Pro-Manager und automatisierte Connector-Runtime nutzen review.custom_connectors; offizielle Captain-Adapter nutzen review.suite_integrations.
+- [ ] **CON-006 – Lizenzgrenze finalisieren.** Ergebnis: öffentlicher Contract und Basis-Registry bleiben im kostenlosen Core; generischer Pro-Manager und automatisierte Connector-Runtime nutzen review.custom_connectors; offizielle Captain-Adapter nutzen review.suite_integrations. **Vorschlag zur Entscheidung:** [ADR-0009](docs/adr/0009-connector-lizenzgrenze.md)
 - [x] **CON-007 – Vertrags- und Kompatibilitätstests vorbereiten.** Ergebnis: Contract-Tests prüfen Pflichtmetadaten, unbekannte Major-Versionen, fehlende Capabilities, ungültige Payloads, Fehlercodes, Idempotenz und wiederholte Events.
 
 ### Phase B – Core Registry und Pro-Verwaltung
