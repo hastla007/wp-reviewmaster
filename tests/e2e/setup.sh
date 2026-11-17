@@ -5,7 +5,7 @@
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 SQLITE_TAG="${SQLITE_TAG:-v3.1.3}"
-WP_CONSTRAINT="${WP_CONSTRAINT:-^6.7}"
+WP_CONSTRAINT="${WP_CONSTRAINT:-^7.0}"
 
 mkdir -p "$E2E_DIR/composer" "$E2E_DIR/dl"
 if [ ! -f "$E2E_WPCLI_BIN" ]; then
