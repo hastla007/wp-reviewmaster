@@ -7,7 +7,7 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 ## [Unreleased]
 
 ### Changed
-- Mindestversionen ergänzt (Entscheidung 17.11.2026, einheitlich für alle Captain-Plugins): WordPress 7.0, WooCommerce 11.2 (optional); getestet bis WordPress 7.1 / WooCommerce 11.3.
+- Mindestversionen ergänzt (Entscheidung 17.11.2026, einheitlich für alle Captain-Plugins): WordPress 7.0, WooCommerce 11.2.2 (optional; 11.2.0 übernimmt Bestell-/Zahlungsdaten früherer Store-API-Checkouts im selben PHP-Prozess, behoben in 11.2.2, woocommerce#70637); getestet bis WordPress 7.1 / WooCommerce 11.3.
 - Kartenüberschriften standardmäßig `h2` statt `h3` (Barrierefreiheit, F-07); Block, Shortcode und Elementor-Widget.
 - WooCommerce: Core meldet Kompatibilität mit HPOS und Block-Checkout.
 - Yoast-Mindestversion für die Graph-Integration auf 26.0 angehoben (aktuelle Major − 2, Entscheidung SEO-001); ältere Yoast-Versionen: kein Review-Markup, Reviews bleiben sichtbar.
