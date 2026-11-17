@@ -4,8 +4,10 @@
  * Plugin URI:        https://github.com/hastla007/wp-reviewmaster
  * Description:       Authentische, sauber attribuierte Kundenbewertungen und Testimonials in WordPress verwalten und anzeigen – ohne Scraping und ohne Lizenzpflicht.
  * Version:           0.1.0-dev
- * Requires at least: 6.5
+ * Requires at least: 7.0
  * Requires PHP:      8.5
+ * WC requires at least: 11.2
+ * WC tested up to:     11.3
  * Author:            Captain Suite
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -22,7 +24,7 @@ define( 'REVIEW_CAPTAIN_FILE', __FILE__ );
 define( 'REVIEW_CAPTAIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'REVIEW_CAPTAIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'REVIEW_CAPTAIN_MIN_PHP', '8.5' );
-define( 'REVIEW_CAPTAIN_MIN_WP', '6.5' );
+define( 'REVIEW_CAPTAIN_MIN_WP', '7.0' );
 
 /*
  * Mindestversion prüfen, bevor neuere PHP-Syntax geladen wird.

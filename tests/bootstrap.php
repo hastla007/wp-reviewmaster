@@ -28,7 +28,7 @@ define( 'REVIEW_CAPTAIN_FILE', dirname( __DIR__ ) . '/review-captain.php' );
 define( 'REVIEW_CAPTAIN_DIR', dirname( __DIR__ ) . '/' );
 define( 'REVIEW_CAPTAIN_URL', 'https://example.test/wp-content/plugins/review-captain/' );
 define( 'REVIEW_CAPTAIN_MIN_PHP', '8.5' );
-define( 'REVIEW_CAPTAIN_MIN_WP', '6.5' );
+define( 'REVIEW_CAPTAIN_MIN_WP', '7.0' );
 
 /**
  * Global test state.
