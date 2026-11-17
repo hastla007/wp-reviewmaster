@@ -8,9 +8,9 @@
 
 | Komponente | Regel | Vorschlag Stand 2026-11 (vor Freeze verifizieren) |
 |---|---|---|
-| WordPress | aktuelle Major-Version und die zwei vorherigen (L-2) | Minimum = L-2 der zum Freeze aktuellen Version; „Tested up to“ = aktuelle Version |
+| WordPress | **Minimum 7.0** (Entscheidung der Inhaberin 17.11.2026, einheitlich für alle Captain-Plugins; WP 6.8 erzeugt unter PHP 8.5 Core-Deprecations) | „Tested up to“ = aktuelle Version (7.1) |
 | PHP | niedrigste PHP-Version, die von WordPress empfohlen und noch von verbreiteten Hostern ausgeliefert wird; keine EOL-Version ohne Begründung | Minimum **8.5** (Entscheidung der Inhaberin 16.11.2026, MINVER-1); CI testet 8.5 und 8.6 |
-| WooCommerce (optional) | L-2 wie WooCommerce-eigene Erweiterungsrichtlinie | Minimum = L-2 der zum Freeze aktuellen Version |
+| WooCommerce (optional) | **Minimum 11.2** (Entscheidung 17.11.2026, einheitlich) | „WC tested up to“ 11.3 |
 | MySQL / MariaDB | WordPress-Mindestanforderung | empfohlen **MySQL 9.7 LTS** bzw. **MariaDB 12.3 LTS** (MINVER-1); ältere Server: nur Warnung in Diagnose/`doctor`, keine Sperre. Unique-Indizes und `utf8mb4` erforderlich |
 | Review Captain Core für Pro | Pro deklariert `Requires Plugins: review-captain` und eine Mindest-Core-Version | Pro 1.0 verlangt Core 1.0 |
 | Yoast SEO (optional) | siehe SEO-001 | aktuelle und vorherige Major-Version |

@@ -1,8 +1,8 @@
 === Review Captain ===
 Contributors: captainsuite
 Tags: reviews, testimonials, social proof, bewertungen, schema
-Requires at least: 6.5
-Tested up to: 6.7
+Requires at least: 7.0
+Tested up to: 7.1
 Requires PHP: 8.5
 Stable tag: 0.1.0-dev
 License: GPL-2.0-or-later
