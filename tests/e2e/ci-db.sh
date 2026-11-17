@@ -4,7 +4,7 @@
 # runs the schema upgrade path and the parallel race test. Used by CI (MariaDB 12.3, MySQL 9.7).
 #
 # Env: DB_HOST (127.0.0.1:3306), DB_NAME (wp_ci), DB_USER (wp), DB_PASSWORD (wp),
-#      CI_DIR (temp dir), WP_CONSTRAINT (^6.7), RC_SEED_REVIEWS (5000), RC_RACE_WORKERS (8)
+#      CI_DIR (temp dir), WP_CONSTRAINT (^7.0), RC_SEED_REVIEWS (5000), RC_RACE_WORKERS (8)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 CI_DIR="${CI_DIR:-$(mktemp -d)}"
@@ -12,7 +12,7 @@ DB_HOST="${DB_HOST:-127.0.0.1:3306}"
 DB_NAME="${DB_NAME:-wp_ci}"
 DB_USER="${DB_USER:-wp}"
 DB_PASSWORD="${DB_PASSWORD:-wp}"
-WP_CONSTRAINT="${WP_CONSTRAINT:-^6.7}"
+WP_CONSTRAINT="${WP_CONSTRAINT:-^7.0}"
 RC_SEED_REVIEWS="${RC_SEED_REVIEWS:-5000}"
 RC_RACE_WORKERS="${RC_RACE_WORKERS:-8}"
 WP="$CI_DIR/wp"

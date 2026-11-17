@@ -6,7 +6,7 @@
  * Version:           0.1.0-dev
  * Requires at least: 7.0
  * Requires PHP:      8.5
- * WC requires at least: 11.2
+ * WC requires at least: 11.2.2
  * WC tested up to:     11.3
  * Author:            Captain Suite
  * License:           GPL-2.0-or-later
