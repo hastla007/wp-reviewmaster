@@ -80,6 +80,9 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 						<option value="<?php echo esc_attr( $rc_key ); ?>"><?php echo esc_html( $rc_label ); ?></option>
 					<?php endforeach; ?>
 				</select>
+				<?php if ( ! empty( $rc['report']['pow'] ) ) : ?>
+					<?php echo $rc['report']['pow']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in PowCaptcha::field() (SET-RC-11). ?>
+				<?php endif; ?>
 				<button type="submit" class="rc-report__submit"><?php esc_html_e( 'Meldung senden', 'review-captain' ); ?></button>
 			</form>
 		</details>

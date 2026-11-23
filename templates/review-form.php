@@ -2,8 +2,9 @@
 /**
  * Local review submission form (RC-039). Works without JavaScript.
  *
- * Override: copy to {theme}/review-captain/review-form.php. Keep the nonce, the hidden fields
- * and the honeypot unchanged – the submission handler requires them.
+ * Override: copy to {theme}/review-captain/review-form.php. Keep the nonce, the hidden fields,
+ * the honeypot and the spam-protection markup ($rc['pow'], SET-RC-11) unchanged – the submission
+ * handler requires them.
  *
  * @package ReviewCaptain
  *
@@ -195,6 +196,10 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 				<span class="rc-form__error" id="<?php echo esc_attr( $rc_id . '-consent-error' ); ?>"><?php echo esc_html( $rc_err_for( 'consent' ) ); ?></span>
 			<?php endif; ?>
 		</p>
+
+		<?php if ( ! empty( $rc['pow'] ) ) : ?>
+			<?php echo $rc['pow']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in PowCaptcha::field(). ?>
+		<?php endif; ?>
 
 		<p class="rc-form__actions">
 			<button type="submit" class="rc-form__submit"><?php echo esc_html( $rc['submit_label'] ?? __( 'Bewertung senden', 'review-captain' ) ); ?></button>

@@ -74,6 +74,7 @@ final class SettingsFields {
 				'hold_links'                 => array( __( 'Bewertungen mit Links zurückhalten', 'review-captain' ), __( 'Bewertungen mit Webadresse (http, www.) im Titel oder Text warten auf Moderation.', 'review-captain' ) ),
 				'block_email_domains'        => array( __( 'Gesperrte E-Mail-Domains', 'review-captain' ), __( 'Eine Domain je Zeile, z. B. wegwerfmail.example. Einreichungen mit Adressen dieser Domains (auch Subdomains) werden mit einem neutralen Hinweis abgelehnt und nicht gespeichert.', 'review-captain' ) ),
 				'photo_max_edge'             => array( __( 'Längste Fotokante (Pixel)', 'review-captain' ), __( 'Größere Fotos werden beim Neukodieren verkleinert. Je Bewertung bleibt es bei einem Foto.', 'review-captain' ) ),
+				'captcha_provider'           => array( __( 'Spam-Schutz (Captcha)', 'review-captain' ), __( '„Eingebaute Rechenprüfung“ lässt den Browser im Hintergrund kurz rechnen (Proof of Work), bevor Bewertungen, Meldungen und Fragen angenommen werden. Kein Rätsel, keine Cookies, keine Anfrage an Dritte, keine personenbezogenen Daten. Ohne JavaScript kann das Formular dann nicht abgeschickt werden; Besucher sehen einen Hinweis. Externe Anbieter nur per Filter und nur nach Rechtsprüfung.', 'review-captain' ) ),
 				'trusted_proxy_header'       => array( __( 'Absenderadresse hinter einem Proxy', 'review-captain' ), __( 'Nur einstellen, wenn deine Website hinter einem Reverse Proxy oder CDN liegt, der diese Kopfzeile selbst setzt. Sonst können Absender die Sendebegrenzung umgehen. Verwendet wird die letzte Adresse der Kopfzeile, gespeichert nur als Hash.', 'review-captain' ) ),
 			),
 			'display'     => array(
@@ -163,7 +164,7 @@ final class SettingsFields {
 				__( 'Einwilligung', 'review-captain' )      => array( 'require_consent', 'consent_text' ),
 				__( 'Benachrichtigung', 'review-captain' )  => array( 'notify_admin', 'notify_recipients', 'notify_subject', 'notify_body', 'notify_questions' ),
 				__( 'Moderationsregeln', 'review-captain' ) => array( 'hold_words', 'hold_links', 'block_email_domains', 'min_seconds' ),
-				__( 'Schutz vor Missbrauch', 'review-captain' ) => array( 'honeypot', 'rate_limit_per_hour', 'trusted_proxy_header' ),
+				__( 'Schutz vor Missbrauch', 'review-captain' ) => array( 'honeypot', 'captcha_provider', 'rate_limit_per_hour', 'trusted_proxy_header' ),
 				__( 'Korrekturen', 'review-captain' )       => array( 'corrections_enabled', 'correction_link_hours' ),
 				__( 'Erweiterte Funktionen (nach 1.0)', 'review-captain' ) => array( 'tags_enabled', 'reports_enabled', 'report_threshold', 'report_rate_limit_per_hour', 'photos_enabled', 'photo_max_kb', 'photo_max_edge', 'multi_product_enabled', 'qa_enabled', 'feedback_campaigns_enabled' ),
 				__( 'Meldungen', 'review-captain' )         => array( 'report_reasons', 'report_notify', 'report_confirmation' ),
@@ -216,6 +217,10 @@ final class SettingsFields {
 				'x-forwarded-for'  => 'X-Forwarded-For',
 				'x-real-ip'        => 'X-Real-IP',
 				'cf-connecting-ip' => 'CF-Connecting-IP (Cloudflare)',
+			),
+			'submissions.captcha_provider'    => array(
+				'none' => __( 'Keiner', 'review-captain' ),
+				'pow'  => __( 'Eingebaute Rechenprüfung (ohne Dritte)', 'review-captain' ),
 			),
 			'display.rating_display'          => array(
 				'both'   => __( 'Sterne und Zahl', 'review-captain' ),
