@@ -236,6 +236,7 @@ function wp_next_scheduled( $hook, $args = array() ) { return RC_Test_State::$sc
 function wp_schedule_event( $ts, $rec, $hook, $args = array() ) { RC_Test_State::$scheduled[ $hook ] = array( $ts, $args, $rec ); return true; }
 function wp_schedule_single_event( $ts, $hook, $args = array() ) { RC_Test_State::$scheduled[ $hook ] = array( $ts, $args, 'single' ); return true; }
 function wp_clear_scheduled_hook( $hook, $args = array() ) { unset( RC_Test_State::$scheduled[ $hook ] ); return 1; }
+function _get_cron_array() { $out = array(); foreach ( RC_Test_State::$scheduled as $hook => $e ) { $out[ (int) $e[0] ][ $hook ][ md5( serialize( $e[1] ) ) ] = array( 'schedule' => $e[2], 'args' => $e[1] ); } ksort( $out ); return $out; }
 function wp_unschedule_event( $ts, $hook, $args = array() ) { unset( RC_Test_State::$scheduled[ $hook ] ); return true; }
 function wp_get_schedules() { return array( 'hourly' => array( 'interval' => 3600 ), 'daily' => array( 'interval' => 86400 ) ); }
 function wp_mail( $to, $subject, $message, $headers = '', $att = array() ) { RC_Test_State::$mails[] = compact( 'to', 'subject', 'message' ); return true; }
