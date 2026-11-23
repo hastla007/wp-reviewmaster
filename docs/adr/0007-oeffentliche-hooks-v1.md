@@ -73,12 +73,13 @@ Die in `docs/contracts/README.md` als „per ADR nachzutragen“ geführten Name
 - Negativ: 18 zusätzliche Hooks binden die Core-Entwicklung; Umbenennungen brauchen Deprecation-Übergänge.
 - Migration/Kompatibilität: keine Codeänderung; bestehende Hooks werden nur klassifiziert.
 - Folgearbeiten: `php bin/list-hooks.php --check` in CI aufnehmen; neue Hooks nur mit Eintrag in `conventions.md` und Aktualisierung von `docs/hooks.md`.
+- *Ergänzung 23.11.2026 (SET-RC-P6):* 23 mit den Einstellungen (SET-RC-*) und CON-006 hinzugekommene Hooks waren ohne Stufe geblieben, darunter zwei, die Review Captain Pro nutzt (`review_captain_settings_hints`, `review_captain_connector_runtime_v1`). Sie sind jetzt in der Hook-Tabelle von `conventions.md` eingestuft (1 × V, 13 × S, 9 × B); maßgeblich für die Stufe ist ab jetzt allein diese Tabelle. `tests/Unit/Support/HookTiersTest.php` prüft, dass jeder Hook aus `docs/hooks.md` dort genau einmal mit Stufe V, S oder B steht.
 
 ## Abnahme
 
 - [x] Jeder Hook aus `php bin/list-hooks.php` steht genau einmal in der Liste oben und in der Hook-Tabelle von `conventions.md` (Stand 2026-11-16: 28 Hooks).
 - [x] `docs/hooks.md` ist mit `bin/list-hooks.php --write` erzeugt.
-- [ ] `php bin/list-hooks.php --check` läuft in CI.
+- [x] `php bin/list-hooks.php --check` läuft in CI (`.github/workflows/ci.yml`, Schritt „Hook reference up to date“).
 - [x] Betroffene Dokumente (`conventions.md`, `docs/adr/README.md`, `docs/contracts/README.md`) im selben Änderungssatz aktualisiert.
 
 ## Referenzen
