@@ -10,6 +10,9 @@
  *
  * JSON file names follow WordPress: review-captain-{locale}-{md5(relative script path)}.json.
  * Entries with msgctxt (_x(), block.json fields) are keyed "context\x04msgid" like gettext and Jed.
+ *
+ * --check also runs bin/check-i18n-language.php (SET-RC-14): English source strings, de_DE/de_AT
+ * only "du", de_DE_formal/de_CH only "Sie".
  */
 
 $root  = dirname( __DIR__ );
@@ -209,6 +212,10 @@ foreach ( glob( $root . '/languages/review-captain-*.po' ) as $po_file ) {
 		}
 	}
 	echo "$locale: " . ( count( $map ) - 1 ) . ' messages, ' . count( $js ) . " JSON file(s)\n";
+}
+if ( $check ) {
+	require_once __DIR__ . '/check-i18n-language.php';
+	$errors = array_merge( $errors, rc_i18n_language_problems( $root ) );
 }
 if ( $errors ) {
 	fwrite( STDERR, implode( PHP_EOL, array_slice( $errors, 0, 50 ) ) . PHP_EOL . count( $errors ) . " problem(s)\n" );
