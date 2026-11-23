@@ -26,6 +26,7 @@ final class NoLicenseKnowledgeTest extends TestCase {
 		'review.edited',
 		'review.photo_deleted',
 		'review.reported',
+		'review.reports_dismissed',
 		'review.status_changed',
 		'review.tags_changed',
 		'review.withdrawn_by_author',

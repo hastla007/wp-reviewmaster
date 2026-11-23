@@ -109,9 +109,9 @@ $errors = array();
 if ( $check ) {
 	// SET-RC-P5: the POT must list every string of the code, else new texts stay untranslated unnoticed.
 	$tmp = tempnam( sys_get_temp_dir(), 'rc-pot' );
-	exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __DIR__ . '/make-pot.php' ) . ' ' . escapeshellarg( $tmp ) . ' 2>&1', $unused_output, $status );
+	exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __DIR__ . '/make-pot.php' ) . ' ' . escapeshellarg( $tmp ) . ' 2>&1', $unused_output, $status ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- CLI build script, fixed arguments.
 	$fresh = 0 === $status ? rc_parse_po( $tmp ) : array();
-	unlink( $tmp );
+	unlink( $tmp ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- CLI build script, own temp file.
 	$fresh_ids = array();
 	foreach ( $fresh as $e ) {
 		if ( '' !== $e['id'] ) {
