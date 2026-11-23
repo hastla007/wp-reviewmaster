@@ -102,6 +102,7 @@ Die folgenden Codes stammen aus früheren Fassungen bzw. aus Verträgen für Pro
 | Erlebnis / Anfrage | `rc.request.not_eligible` | Planungsanfrage verletzt Regel (z. B. Workflow) | permanent | Kampagnenregeln prüfen | – |
 | Erlebnis / Anfrage | `rc.request.cancelled_by_admin` | durch Admin abgebrochen | permanent | keine | – |
 | Erlebnis / Anfrage | `rc.request.cancelled_by_workflow` | durch Workflow abgebrochen | permanent | keine | – |
+| Erlebnis / Anfrage | `rc.request.not_found` | `cancel_request`: keine offene Anfrage für Kampagne + Subjekt bzw. `request_uuid` (F-23) | permanent | keine | – |
 | Transport | `rc.transport.not_configured` | kein geprüfter Versandweg (Absender/SMTP) | auth | Versand unter „Anfragen & Zustellung“ einrichten | – |
 | Transport | `rc.transport.rejected` | Transport lehnt Nachricht endgültig ab | permanent | Absender/Domain prüfen | – |
 | Transport | `rc.transport.bounced` | Hard-Bounce | permanent | keine (Suppression gesetzt) | – |

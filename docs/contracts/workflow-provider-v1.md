@@ -158,41 +158,50 @@ Rückgabe aller Services:
 
 ### `review_captain_plan_request_v1( array $input ): array`
 
-Eingabe:
+Aufruf über `\ReviewCaptain\Plugin::instance()->workflow()->plan_request()` (WorkflowService, Vertrag 1.0); der Core delegiert an den Planer von Review Captain Pro (Filter `review_captain_request_planner_v1`). Stand F-23 (Entscheidung der Inhaberin 23.11.2026, Spezifikation Workflow Captain 1.0.0-draft.9, R-4.29/R-4.30):
 
 ```json
 {
   "contract": "1.0",
-  "experience_id": "pass-captain:1:attendance:T-7781:OCC-55",
-  "recipient_ref": "pass-captain:attendee:9f8e7d6c",
+  "idempotency_key": "wfc:417:88123:plan",
   "campaign_id": 12,
-  "idempotency_key": "workflow-captain:1:run:88123:plan",
-  "requested_by": "workflow:417"
+  "subject": { "product": "woocommerce", "type": "order", "id": "5531", "event_id": "…", "event_type": "order.completed" },
+  "requested_by": "workflow:417",
+  "workflow_id": 417, "run_id": 88123, "step_id": "plan", "authorized_by_user_id": 3
 }
 ```
 
-Erzwungene Prüfungen (identisch zu T1, nicht konfigurierbar durch Workflow):
+- Pflicht: `idempotency_key` (≤ 191 Zeichen, druckbares ASCII, ohne Leerzeichen, `|`, `@`), `campaign_id`, `subject` (`product`, `type`, `id`; `event_id`/`event_type` optional). Übrige Felder optional.
+- **Kein** `experience_id` und **kein** `recipient_ref`: Workflow kennt beide nicht und darf `experience_id` nicht weitergeben (R-4.29). Der Planer ermittelt Erlebnis und Empfänger selbst aus `subject` + Kampagne; werden die Felder trotzdem mitgeschickt, liest er sie nicht.
+- Auflösbare Subjekte (Pro, Stand 23.11.2026): WooCommerce `order`, Pass Captain `ticket`. Andere → `rc.source.unavailable`.
+- Gleicher `idempotency_key` → dasselbe Ergebnis wie beim ersten Aufruf, keine zweite Anfrage.
+
+Erzwungene Prüfungen (identisch zur nativen Queue, nicht konfigurierbar durch Workflow):
 
 | Prüfung | Fehlercode |
 |---|---|
 | Entitlements `review.suite_integrations` + `review.review_requests` | `rc.entitlement.missing` |
-| Kampagne existiert, aktiv, `trigger_owner = workflow` (Ownership-Übergabe; native Auslöser ignorieren diese Kampagne) | `rc.request.not_eligible` |
-| Erlebnis existiert in `experiences` mit `state = completed` (aus einem gültigen `experience_completed` einer Quelle) | `rc.experience.not_completed` |
-| Erlebnis nicht `revoked` (Refund, Absage, No-show, Void) | `rc.experience.revoked` |
-| `send_permission` des letzten Ereignisses für diesen Empfänger = `granted` | `rc.consent.missing` |
+| Eingabe gültig; keine Felder, die Workflow nicht setzen darf (Plattform, Vorlage, Verzögerung, Consent, Kontakt) | `rc.data.invalid_payload` |
+| Quelle des Subjekts aktiv und Subjekt auflösbar | `rc.source.unavailable` |
+| Kampagne existiert, aktiv, Quelle an Workflow übergeben (`trigger_owner = workflow`; native Auslöser ignorieren sie) | `rc.request.not_eligible` |
+| Erlebnis abgeschlossen (`completed`) | `rc.experience.not_completed` |
+| Erlebnis nicht widerrufen (Refund, Absage, No-show, Void) | `rc.experience.revoked` |
+| Versanderlaubnis des Empfängers (wie native Queue: `granted` oder bestätigte Rechtsgrundlage der Kampagne) | `rc.consent.missing` |
 | Empfänger nicht supprimiert / Opt-out | `rc.recipient.suppressed` |
-| Einladungsschlüssel + Suite-Sperre frei | `rc.request.duplicate` |
+| Dasselbe Erlebnis + Kampagne schon mit anderem Schlüssel geplant | `rc.data.duplicate` |
+| Einladungsschlüssel/Suite-Sperre durch andere Kampagne oder Quelle belegt | `rc.request.duplicate` |
 | Frequenzgrenze (Vorprüfung; endgültig beim Versand) | `rc.request.frequency_limited` |
+| Kein kompatibler Planer registriert | `rc.contract.unavailable` |
 
-Workflow kann **nicht** setzen: Zielplattform, Vorlage, Verzögerung außerhalb der Kampagne, Consent-Status, Empfängerkontakt, Moderationsstatus. Ergebnis `data`: `{ "request_uuid": "…", "status": "planned", "due_at": "…" }`.
+Workflow kann **nicht** setzen: Zielplattform, Vorlage, Verzögerung außerhalb der Kampagne, Consent-Status, Empfängerkontakt, Moderationsstatus. Ergebnis `data`: `{ "request_uuid": "…", "status": "planned", "due_at": "…" }`. Dauerhaft (keine Wiederholung durch Workflow): `rc.contract.unavailable`, `rc.entitlement.missing` (Verbindung pausiert), `rc.data.duplicate`, `rc.source.unavailable`.
 
 ### `review_captain_cancel_request_v1( array $input ): array`
 
 ```json
-{ "contract": "1.0", "request_uuid": "7a8b9c0d-1e2f-4a3b-8c4d-5e6f7a8b9c0d", "reason": "workflow_rule", "idempotency_key": "workflow-captain:1:run:88124:cancel", "requested_by": "workflow:417" }
+{ "contract": "1.0", "idempotency_key": "wfc:417:88124:cancel", "campaign_id": 12, "subject": { "product": "woocommerce", "type": "order", "id": "5531" }, "reason": "workflow_rule", "requested_by": "workflow:417" }
 ```
 
-Nur `planned`/`eligible` (T5, `rc.request.cancelled_by_workflow`). Bereits gesendete Anfragen: `rc.request.invalid_transition`. Abbrechen ist immer erlaubt, auch für native Kampagnen (Abbruch kann Regeln nicht umgehen, nur verschärfen).
+Pflicht: `idempotency_key` und entweder `campaign_id` + `subject` (Workflow) oder `request_uuid` (andere Aufrufer). Bricht alle offenen (`planned`/`eligible`) Anfragen dieser Kampagne für das Subjekt ab (T5, Statuscode `rc.request.cancelled_by_workflow`). Nichts offen → `rc.request.not_found`; bereits gesendete Anfragen → `rc.request.invalid_transition`. Abbrechen ist immer erlaubt, auch für native Kampagnen (Abbruch kann Regeln nicht umgehen, nur verschärfen).
 
 ### `review_captain_create_local_review_v1( array $payload ): array`
 
