@@ -92,7 +92,7 @@ final class SettingsCommandsTest extends TestCase {
 		$c->settings_get( array( 'access.moderate_roles' ), array( 'format' => 'json' ) );
 		$this->assertSame( array( 'log', '["administrator","editor"]' ), end( $this->out->lines ) );
 
-		$this->expect_error( fn() => $c->settings_get( array( 'nope.key' ), array() ), 'Unbekannte Einstellung' );
+		$this->expect_error( fn() => $c->settings_get( array( 'nope.key' ), array() ), 'Unknown setting' );
 		$this->expect_error( fn() => $c->settings_list( array(), array( 'tab' => 'nope' ) ) );
 	}
 
@@ -106,18 +106,18 @@ final class SettingsCommandsTest extends TestCase {
 		$this->assertSame( 'success', end( $this->out->lines )[0] );
 
 		// Booleans of the tab are untouched when another key is set.
-		$c->settings_set( array( 'submissions.allow_title', 'nein' ), array() );
+		$c->settings_set( array( 'submissions.allow_title', 'no' ), array() );
 		$c->settings_set( array( 'submissions.min_text_length', '40' ), array() );
 		$this->assertFalse( $this->settings()->get( 'submissions', 'allow_title' ) );
 		$this->assertTrue( $this->settings()->get( 'submissions', 'enabled' ) );
 		$this->assertSame( 40, $this->settings()->get( 'submissions', 'min_text_length' ) );
 
 		// Not corrected: invalid values are an error and nothing changes.
-		$this->expect_error( fn() => $c->settings_set( array( 'submissions.rate_limit_per_hour', '5000' ), array() ), '1 bis 1.000' );
+		$this->expect_error( fn() => $c->settings_set( array( 'submissions.rate_limit_per_hour', '5000' ), array() ), '1 to 1.000' );
 		$this->assertSame( 5, $this->settings()->get( 'submissions', 'rate_limit_per_hour' ) );
 		$this->expect_error( fn() => $c->settings_set( array( 'submissions.min_text_length', '6000' ), array() ) );
 		$c->settings_set( array( 'advanced.job_time_budget', '100' ), array() );
-		$this->expect_error( fn() => $c->settings_set( array( 'advanced.lease_seconds', '90' ), array() ), 'Zeitbudget' );
+		$this->expect_error( fn() => $c->settings_set( array( 'advanced.lease_seconds', '90' ), array() ), 'time budget' );
 		$this->assertSame( 300, $this->settings()->get( 'advanced', 'lease_seconds' ) );
 		$this->expect_error( fn() => $c->settings_set( array( 'display.show_date', 'vielleicht' ), array() ) );
 
@@ -125,7 +125,7 @@ final class SettingsCommandsTest extends TestCase {
 		$this->expect_error( fn() => $c->settings_set( array( 'privacy.retention_logs_days', '30' ), array() ), 'privacy' );
 		$this->expect_error( fn() => $c->settings_set( array( 'requests.daily_limit', '10' ), array() ) );
 		ProRequestsFields::register( false );
-		$this->expect_error( fn() => $c->settings_set( array( 'requests.daily_limit', '10' ), array() ), 'Erweiterung' );
+		$this->expect_error( fn() => $c->settings_set( array( 'requests.daily_limit', '10' ), array() ), 'extension' );
 		$this->expect_error( fn() => $c->settings_set( array( 'privacy.delete_data_confirmed_at', 'x' ), array() ) );
 
 		$rows = $this->db->get_results( $this->db->prepare( 'SELECT context FROM ' . Schema::table( 'audit_log' ) . ' WHERE event = %s ORDER BY id ASC', 'settings.changed' ), ARRAY_A );
@@ -141,7 +141,7 @@ final class SettingsCommandsTest extends TestCase {
 		$this->assertSame( array( 'administrator', 'editor' ), $this->settings()->get( 'access', 'reports_roles' ) );
 		$this->assertTrue( get_role( 'editor' )->has_cap( Capabilities::VIEW_REPORTS ) );
 
-		$this->expect_error( fn() => $c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array() ), 'LÖSCHEN' );
+		$this->expect_error( fn() => $c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array() ), 'DELETE' );
 		$this->assertFalse( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
 		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm-word' => 'LÖSCHEN' ) );
 		$this->assertTrue( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
@@ -150,7 +150,7 @@ final class SettingsCommandsTest extends TestCase {
 		// S10 suite standard: --confirm is the documented flag (case-insensitive word).
 		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '0' ), array() );
 		$this->assertFalse( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
-		$this->expect_error( fn() => $c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm' => 'ja' ) ), 'LÖSCHEN' );
+		$this->expect_error( fn() => $c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm' => 'ja' ) ), 'DELETE' );
 		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm' => 'löschen' ) );
 		$this->assertTrue( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
 	}
@@ -205,11 +205,11 @@ final class SettingsCommandsTest extends TestCase {
 
 		$res = $c->settings_import( array( $file ), array( 'dry-run' => true ) );
 		$keys = array_column( $res['diff'], null, 'key' );
-		$this->assertSame( 'an', $keys['display.show_avatar']['new'] );
+		$this->assertSame( 'on', $keys['display.show_avatar']['new'] );
 		$this->assertSame( '1000', $keys['submissions.rate_limit_per_hour']['new'], 'import keeps correcting like the page import' );
 		$this->assertSame( array(), $res['changed'] );
 		$this->assertFalse( $this->settings()->get( 'display', 'show_avatar' ), 'dry run changes nothing' );
-		$this->assertStringContainsString( 'Probelauf', end( $this->out->lines )[1] );
+		$this->assertStringContainsString( 'Dry run', end( $this->out->lines )[1] );
 
 		$res = $c->settings_import( array( $file ), array( 'yes' => true ) );
 		$this->assertContains( 'display.show_avatar', $res['changed'] );
@@ -217,7 +217,7 @@ final class SettingsCommandsTest extends TestCase {
 		$this->assertNotEmpty( get_option( ConfigTransfer::BACKUP_OPTION ) );
 
 		file_put_contents( $file, '{"schema":"other"}' );
-		$this->expect_error( fn() => $c->settings_import( array( $file ), array( 'dry-run' => true ) ), 'Kein gültiger' );
+		$this->expect_error( fn() => $c->settings_import( array( $file ), array( 'dry-run' => true ) ), 'Not a valid' );
 		$this->expect_error( fn() => $c->settings_import( array( '/nonexistent/file.json' ), array( 'dry-run' => true ) ) );
 	}
 

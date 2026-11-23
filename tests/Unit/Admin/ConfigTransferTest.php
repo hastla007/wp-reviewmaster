@@ -146,7 +146,7 @@ final class ConfigTransferTest extends AdminTestCase {
 		$this->assertSame( array( 'submissions.photo_max_kb' ), array_map( static fn( $row ) => $row['tab'] . '.' . $row['key'], $preview['diff'] ) );
 		$this->assertCount( 3, $preview['kept'] );
 		$this->assertSame( array( 'min_text_length', 'max_text_length' ), $preview['kept'][1]['fields'] );
-		$this->assertSame( 'Die Mindestlänge muss kleiner als die Höchstlänge sein.', $preview['kept'][1]['message'] );
+		$this->assertSame( 'The minimum length must be smaller than the maximum length.', $preview['kept'][1]['message'] );
 		( new SettingsPage( $this->plugin() ) )->apply_import( $preview['values'], $preview['tabs'] );
 		$s = new Settings();
 		$this->assertSame( 20, $s->get( 'submissions', 'min_text_length' ) );
@@ -191,7 +191,7 @@ final class ConfigTransferTest extends AdminTestCase {
 		$page->render();
 		$html = (string) ob_get_clean();
 		$this->assertStringContainsString( 'rc-admin-diff', $html );
-		$this->assertStringContainsString( 'Profilbild anzeigen', $html );
+		$this->assertStringContainsString( 'Show profile picture', $html );
 
 		$this->post( 'import_apply', array( 'decision' => 'apply' ) );
 		$this->assertStringContainsString( 'import_applied', $this->run_handler( array( $page, 'handle_import_apply' ) ) );

@@ -65,7 +65,7 @@ Legende: ✅ erledigt (in TODO.md abgehakt bzw. Nachweis vorhanden) · ⬜ offen
 | RC-135 | Datenschutzprüfung | ⬜ |
 | RC-136 | Performanceprüfung | ⬜ |
 | RC-137 | Barrierefreiheit und Mobile-QA | ⬜ |
-| RC-138 | Übersetzungen (en, de, de formal) | ⬜ (Core: deutsche Msgids, ADR-0006 offen; Pro: de_DE und de_DE_formal vollständig per Test) |
+| RC-138 | Übersetzungen (en, de, de formal) | ◐ (Core: englische Msgids, de_DE/de_DE_formal/de_AT/de_CH vollständig und per `compile-translations --check` geprüft, SET-RC-14; Pro: de_DE und de_DE_formal vollständig per Test) |
 | RC-139 | Migration/Backup/Restore | ⬜ |
 | RC-140 | Releaseunterlagen | ◐ (dieser Stand: CHANGELOG.md, readme.txt-Abschnitte, diese Checkliste, KNOWN-LIMITATIONS; Supportmatrix und Troubleshooting fehlen) |
 | RC-141 | Release Candidate bauen (getrennte ZIPs, keine Dev-Dateien/Secrets, Signaturen) | ⬜ |

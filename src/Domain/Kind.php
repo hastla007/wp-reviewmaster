@@ -20,7 +20,7 @@ enum Kind: string {
 	 * Translated label.
 	 */
 	public function label(): string {
-		return self::TESTIMONIAL === $this ? __( 'Erfahrungsbericht (Website)', 'review-captain' ) : __( 'Bewertung', 'review-captain' );
+		return self::TESTIMONIAL === $this ? __( 'Testimonial (website)', 'review-captain' ) : __( 'Rating', 'review-captain' );
 	}
 
 	/**

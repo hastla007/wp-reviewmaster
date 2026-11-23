@@ -62,7 +62,7 @@ Die Pro-Komponenten (Plattform-Clients, Anfragen, Widgets) wurden in diesem Beri
 
 ## 5. Funktionale Einschränkungen dieses Stands
 
-- Quellsprache der Core-Oberfläche ist Deutsch (ADR-0006, Arbeitsannahme); für WordPress.org müssten die Msgids auf Englisch umgestellt werden. Englische Texte (RC-138) fehlen im Core.
+- Quellsprache der Core-Oberfläche ist Englisch (ADR-0006, SET-RC-14); Deutsch gibt es als `de_DE` (du), `de_DE_formal` (Sie), `de_AT` und `de_CH`. Weitere Sprachen fehlen.
 - `readme.txt` (Core): „Tested up to: 6.7“ ist nicht gegen aktuelle WordPress-Versionen geprüft; Screenshots sind beschrieben, aber nicht erstellt.
 - Page-Builder-Unterstützung nicht festgelegt (RC-119, `docs/decisions/page-builders.md`).
 - Trustbadge (Pro) wird nur dort ausgegeben, wo Shortcode/Block steht; keine siteweite Ausgabe, Abstimmung mit dem schwebenden Badge von Hand.

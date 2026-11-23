@@ -188,11 +188,11 @@ class UploadStore {
 	 */
 	public static function message( string $code ): string {
 		return match ( $code ) {
-			'invalid_extension' => __( 'Nur Dateien mit der Endung .csv sind erlaubt.', 'review-captain' ),
-			'invalid_mime'      => __( 'Die Datei ist keine gültige CSV-Textdatei.', 'review-captain' ),
-			'file_too_large'    => __( 'Die Datei ist größer als 5 MB.', 'review-captain' ),
-			'empty_file'        => __( 'Die Datei ist leer.', 'review-captain' ),
-			default             => __( 'Der Upload ist fehlgeschlagen.', 'review-captain' ),
+			'invalid_extension' => __( 'Only files with the .csv extension are allowed.', 'review-captain' ),
+			'invalid_mime'      => __( 'The file is not a valid CSV text file.', 'review-captain' ),
+			'file_too_large'    => __( 'The file is larger than 5 MB.', 'review-captain' ),
+			'empty_file'        => __( 'The file is empty.', 'review-captain' ),
+			default             => __( 'The upload failed.', 'review-captain' ),
 		};
 	}
 }

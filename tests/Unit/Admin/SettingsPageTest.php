@@ -140,7 +140,7 @@ final class SettingsPageTest extends AdminTestCase {
 		$this->assertSame( array( 'submissions-rate_limit_per_hour' ), $result['invalid'] );
 		// SET-RC-19: not silently clamped – the stored value stays, the field reports the range.
 		$this->assertSame( 5, ( new Settings() )->get( 'submissions', 'rate_limit_per_hour' ) );
-		$this->assertStringContainsString( '1 bis 1.000', $result['errors']['submissions-rate_limit_per_hour'] );
+		$this->assertStringContainsString( '1 to 1.000', $result['errors']['submissions-rate_limit_per_hour'] );
 		$this->assertSame( '99999', $result['given']['rate_limit_per_hour'] );
 		$this->assertSame( 30, ( new Settings() )->get( 'submissions', 'min_text_length' ) );
 	}
@@ -242,9 +242,9 @@ final class SettingsPageTest extends AdminTestCase {
 		$html = $this->render_tab( 'requests' );
 		$this->assertStringNotContainsString( 'rc-admin-hints', $html );
 		$this->assertStringNotContainsString( 'dashicons-lock', $html );
-		$this->assertStringContainsString( 'Hier erscheinen Einstellungen von Erweiterungen.', $html );
+		$this->assertStringContainsString( 'Settings of extensions appear here.', $html );
 		$this->assertStringNotContainsString( '<form', $html );
-		$this->assertStringNotContainsString( 'Änderungen speichern', $html );
+		$this->assertStringNotContainsString( 'Save changes', $html );
 	}
 
 	public function test_addon_fields_replace_their_hints(): void {
@@ -256,8 +256,8 @@ final class SettingsPageTest extends AdminTestCase {
 		$this->assertStringContainsString( '<h2>Grenzen</h2>', $html, 'section heading of the add-on field' );
 		$this->assertStringContainsString( 'Tageslimit', $html );
 		$this->assertStringContainsString( 'Name im Absender von Einladungen. Leer = Markenname.', $html );
-		$this->assertStringContainsString( 'Immer gilt:', $html );
-		$this->assertStringContainsString( 'Änderungen speichern', $html );
+		$this->assertStringContainsString( 'Always applies:', $html );
+		$this->assertStringContainsString( 'Save changes', $html );
 		$this->assertStringNotContainsString( 'disabled="disabled"', $html );
 		$this->assertStringNotContainsString( 'dashicons-lock', $html );
 
@@ -270,8 +270,8 @@ final class SettingsPageTest extends AdminTestCase {
 		$this->login_with( Capabilities::MANAGE_SETTINGS );
 		$html = $this->render_tab( 'requests' );
 		$this->assertStringContainsString( 'disabled="disabled"', $html );
-		$this->assertStringContainsString( 'Von einer Erweiterung verwaltet; derzeit nicht änderbar.', $html );
-		$this->assertStringNotContainsString( 'Änderungen speichern', $html );
+		$this->assertStringContainsString( 'Managed by an extension; cannot be changed right now.', $html );
+		$this->assertStringNotContainsString( 'Save changes', $html );
 	}
 
 	public function test_hint_filter_link_and_validation(): void {
@@ -288,13 +288,13 @@ final class SettingsPageTest extends AdminTestCase {
 		);
 		$all = array_column( SettingsHints::all(), null, 'id' );
 		$this->assertSame( 'https://shop.example.test/pro', $all[ SettingsHints::REPORTS ]['link'] );
-		$this->assertSame( 'Auswertungen', $all[ SettingsHints::REPORTS ]['title'], 'first line with an id wins' );
+		$this->assertSame( 'Analytics', $all[ SettingsHints::REPORTS ]['title'], 'first line with an id wins' );
 		$this->assertSame( '', $all['workflow.extra']['link'] );
 		$this->assertArrayNotHasKey( 'Bad Id', $all );
 		$this->assertArrayNotHasKey( 'x.unknown_tab', $all );
 		foreach ( SettingsHints::defaults() as $hint ) {
 			$this->assertSame( array( 'id', 'tab', 'title', 'text', 'link' ), array_keys( $hint ) );
-			$this->assertStringEndsWith( 'Verfügbar mit Review Captain Pro.', $hint['text'] );
+			$this->assertStringEndsWith( 'Available with Review Captain Pro.', $hint['text'] );
 		}
 
 		$this->login_with( Capabilities::MANAGE_SETTINGS );
@@ -310,15 +310,15 @@ final class SettingsPageTest extends AdminTestCase {
 			$html = $this->render_tab( $tab );
 			$this->assertStringContainsString( 'nav-tab-active', $html, $tab );
 			$this->assertStringNotContainsString( 'dashicons-lock', $html, "{$tab}: no lock without add-on fields" );
-			$this->assertStringNotContainsString( 'benötigen Review Captain Pro', $html, $tab );
+			$this->assertStringNotContainsString( 'require Review Captain Pro', $html, $tab );
 			if ( 'requests' === $tab ) {
 				// Only quiet hint lines: no form, no input, no save button, no lock, no warning.
 				$this->assertStringContainsString( 'class="rc-admin-hints"', $html );
 				$this->assertStringContainsString( 'data-hint="' . SettingsHints::REQUESTS . '"', $html );
-				$this->assertStringContainsString( 'Verfügbar mit Review Captain Pro.', $html );
+				$this->assertStringContainsString( 'Available with Review Captain Pro.', $html );
 				$this->assertStringNotContainsString( '<form', $html );
 				$this->assertStringNotContainsString( '<input', $html );
-				$this->assertStringNotContainsString( 'Änderungen speichern', $html );
+				$this->assertStringNotContainsString( 'Save changes', $html );
 				$this->assertStringNotContainsString( 'notice-warning', $html );
 			}
 			if ( in_array( $tab, array( 'general', 'sources', 'display' ), true ) ) {
@@ -329,15 +329,15 @@ final class SettingsPageTest extends AdminTestCase {
 				$this->assertStringNotContainsString( 'rc-admin-hints', $html, $tab );
 			}
 			if ( 'general' === $tab ) {
-				$this->assertStringContainsString( 'Pro-Hinweise zeigen', $html );
+				$this->assertStringContainsString( 'Show Pro hints', $html );
 			}
 			if ( 'sources' === $tab ) {
 				$this->assertStringContainsString( '<details class="rc-admin-advanced">', $html );
-				$this->assertStringContainsString( 'Erweitert anzeigen', $html );
+				$this->assertStringContainsString( 'Show advanced', $html );
 			}
 			if ( 'privacy' === $tab ) {
 				$this->assertStringContainsString( 'review_captain_reset_settings', $html );
-				$this->assertStringContainsString( 'Beim Löschen des Plugins alle Daten entfernen', $html );
+				$this->assertStringContainsString( 'Remove all data when the plugin is deleted', $html );
 			}
 			if ( 'advanced' === $tab ) {
 				$this->assertStringContainsString( 'review_captain_export_settings', $html );

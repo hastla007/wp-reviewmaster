@@ -233,7 +233,7 @@ class QuestionRepository {
 		return false !== $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$this->table(),
 			array(
-				'author_name'  => __( 'Anonym', 'review-captain' ),
+				'author_name'  => __( 'Anonymous', 'review-captain' ),
 				'author_email' => null,
 				'updated_at'   => gmdate( 'Y-m-d H:i:s' ),
 			),

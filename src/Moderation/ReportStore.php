@@ -27,11 +27,11 @@ final class ReportStore {
 	 */
 	public static function reason_labels(): array {
 		return array(
-			'spam'          => __( 'Spam oder Werbung', 'review-captain' ),
-			'offensive'     => __( 'Beleidigend oder unangemessen', 'review-captain' ),
-			'personal_data' => __( 'Enthält personenbezogene Daten', 'review-captain' ),
-			'fake'          => __( 'Vermutlich keine echte Erfahrung', 'review-captain' ),
-			'other'         => __( 'Anderer Grund', 'review-captain' ),
+			'spam'          => __( 'Spam or advertising', 'review-captain' ),
+			'offensive'     => __( 'Offensive or inappropriate', 'review-captain' ),
+			'personal_data' => __( 'Contains personal data', 'review-captain' ),
+			'fake'          => __( 'Probably not a genuine experience', 'review-captain' ),
+			'other'         => __( 'Other reason', 'review-captain' ),
 		);
 	}
 

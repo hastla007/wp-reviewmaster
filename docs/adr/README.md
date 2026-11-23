@@ -39,7 +39,7 @@ Kein ADR nötig: Bugfixes, interne Refactorings ohne Vertragsänderung, Texte, S
 | [0003](0003-eigener-job-runner-mit-lease.md) | Eigener Job-Runner mit Lease, Action Scheduler optional | Angenommen | 2026-11-16 |
 | [0004](0004-repository-wurzel-ist-plugin-wurzel.md) | Repository-Wurzel = Plugin-Wurzel | Angenommen | 2026-11-16 |
 | [0005](0005-tokenverschluesselung-libsodium.md) | Tokenverschlüsselung mit libsodium secretbox | Angenommen | 2026-11-16 |
-| [0006](0006-quellsprache-der-oberflaechentexte.md) | Deutsch als Quellsprache der Oberflächentexte (Arbeitsannahme) | Vorgeschlagen | 2026-11-16 |
+| [0006](0006-quellsprache-der-oberflaechentexte.md) | Quellsprache der Oberflächentexte: Englisch, Deutsch als Übersetzung | Angenommen (SET-RC-14, 23.11.2026) | 2026-11-16 |
 | [0007](0007-oeffentliche-hooks-v1.md) | Öffentliche Hooks von Core v1 und ihre Stabilitätsstufen | Angenommen | 2026-11-16 |
 | [0008](0008-auth-modell-betreiber-credential.md) | Plattformzugänge im MVP über Betreiber-Credentials | Angenommen (eigenes Google-Projekt des Kunden; Captain-App später) | 2026-11-16 |
 | [0009](0009-connector-lizenzgrenze.md) | Lizenzgrenze für kundenspezifische Connectoren | Angenommen | 2026-11-16 |

@@ -185,7 +185,7 @@ final class RoleMatrixTest extends AdminTestCase {
 		$html = (string) ob_get_clean();
 
 		$this->assertStringContainsString( 'rc-admin-matrix', $html );
-		$this->assertStringContainsString( '<th scope="col" id="rc-access-privacy_roles-col">Datenschutz verwalten', $html );
+		$this->assertStringContainsString( '<th scope="col" id="rc-access-privacy_roles-col">Manage privacy', $html );
 		foreach ( Capabilities::ROLE_KEYS as $key => $cap ) {
 			$this->assertStringContainsString( 'name="review_captain_settings[access][' . $key . '][]"', $html );
 			$this->assertStringContainsString( '<code>' . $cap . '</code>', $html );
@@ -195,7 +195,7 @@ final class RoleMatrixTest extends AdminTestCase {
 		// Held capability: editable; unheld capability: read-only.
 		$this->assertMatchesRegularExpression( '/id="rc-access-moderate_roles-editor"[^>]*checked="checked" \/>/', $html );
 		$this->assertMatchesRegularExpression( '/id="rc-access-privacy_roles-editor"[^>]*disabled="disabled"/', $html );
-		$this->assertStringContainsString( '(nur lesen)', $html );
-		$this->assertStringContainsString( 'Editor: Reviews moderieren', $html, 'accessible name per cell' );
+		$this->assertStringContainsString( '(read only)', $html );
+		$this->assertStringContainsString( 'Editor: Moderate reviews', $html, 'accessible name per cell' );
 	}
 }

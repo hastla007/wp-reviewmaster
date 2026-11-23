@@ -103,19 +103,19 @@ final class AdminModule implements Module {
 			array( DashboardPage::SLUG, __( 'Dashboard', 'review-captain' ), Capabilities::MODERATE, array( $dashboard, 'render' ) ),
 			array( ReviewsPage::SLUG, __( 'Reviews', 'review-captain' ), Capabilities::MODERATE, array( $reviews, 'render' ) ),
 			array( WidgetsPage::SLUG, __( 'Widgets', 'review-captain' ), Capabilities::MODERATE, array( $widgets, 'render' ) ),
-			array( SourcesPage::SLUG, __( 'Quellen & Profile', 'review-captain' ), Capabilities::MANAGE_SOURCES, array( $sources, 'render' ) ),
-			array( SettingsPage::SLUG, __( 'Einstellungen', 'review-captain' ), Capabilities::MANAGE_SETTINGS, array( $settings, 'render' ) ),
-			array( DiagnosticsPage::SLUG, __( 'Diagnose', 'review-captain' ), Capabilities::VIEW_REPORTS, array( $diagnostics, 'render' ) ),
+			array( SourcesPage::SLUG, __( 'Sources & profiles', 'review-captain' ), Capabilities::MANAGE_SOURCES, array( $sources, 'render' ) ),
+			array( SettingsPage::SLUG, __( 'Settings', 'review-captain' ), Capabilities::MANAGE_SETTINGS, array( $settings, 'render' ) ),
+			array( DiagnosticsPage::SLUG, __( 'Diagnostics', 'review-captain' ), Capabilities::VIEW_REPORTS, array( $diagnostics, 'render' ) ),
 		);
 		$settings_store = $plugin->settings();
 		if ( $settings_store->get( 'submissions', 'qa_enabled', false ) ) {
-			array_splice( $pages, 2, 0, array( array( QuestionsPage::SLUG, __( 'Fragen & Antworten', 'review-captain' ), Capabilities::MODERATE, array( new QuestionsPage( $plugin ), 'render' ) ) ) );
+			array_splice( $pages, 2, 0, array( array( QuestionsPage::SLUG, __( 'Questions & answers', 'review-captain' ), Capabilities::MODERATE, array( new QuestionsPage( $plugin ), 'render' ) ) ) );
 		}
 		if ( $settings_store->get( 'submissions', 'corrections_enabled', false ) ) {
-			array_splice( $pages, 2, 0, array( array( CorrectionsPage::SLUG, __( 'Korrekturen', 'review-captain' ), Capabilities::MODERATE, array( new CorrectionsPage( $plugin ), 'render' ) ) ) );
+			array_splice( $pages, 2, 0, array( array( CorrectionsPage::SLUG, __( 'Corrections', 'review-captain' ), Capabilities::MODERATE, array( new CorrectionsPage( $plugin ), 'render' ) ) ) );
 		}
 		if ( $settings_store->get( 'submissions', 'feedback_campaigns_enabled', false ) ) {
-			array_splice( $pages, -2, 0, array( array( FeedbackPage::SLUG, __( 'Feedback-Links', 'review-captain' ), Capabilities::MANAGE_SETTINGS, array( new FeedbackPage( $plugin ), 'render' ) ) ) );
+			array_splice( $pages, -2, 0, array( array( FeedbackPage::SLUG, __( 'Feedback links', 'review-captain' ), Capabilities::MANAGE_SETTINGS, array( new FeedbackPage( $plugin ), 'render' ) ) ) );
 		}
 		foreach ( $pages as [ $slug, $title, $cap, $callback ] ) {
 			$hook = add_submenu_page( self::MENU_SLUG, $title . ' ‹ Review Captain', $title, $cap, $slug, $callback );

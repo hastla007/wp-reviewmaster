@@ -132,20 +132,20 @@ final class Notifier {
 			$reason = (string) ( ReportStore::reason_labels()[ (string) ( $context['reason'] ?? '' ) ] ?? '' );
 			return array(
 				/* translators: %s: site name */
-				'subject' => sprintf( __( '[%s] Bewertung gemeldet', 'review-captain' ), $site ),
+				'subject' => sprintf( __( '[%s] Review reported', 'review-captain' ), $site ),
 				'body'    => ! empty( $context['flagged'] )
 					/* translators: 1: report reason, 2: moderation URL */
-					? sprintf( __( "Auf Ihrer Website wurde eine Bewertung gemeldet (Grund: %1\$s). Sie ist bis zur Prüfung ausgeblendet.\n\nJetzt prüfen: %2\$s", 'review-captain' ), $reason, $url )
+					? sprintf( __( "A review on your site was reported (reason: %1\$s). It is hidden until it has been checked.\n\nCheck now: %2\$s", 'review-captain' ), $reason, $url )
 					/* translators: 1: report reason, 2: moderation URL */
-					: sprintf( __( "Auf Ihrer Website wurde eine Bewertung gemeldet (Grund: %1\$s).\n\nJetzt prüfen: %2\$s", 'review-captain' ), $reason, $url ),
+					: sprintf( __( "A review on your site was reported (reason: %1\$s).\n\nCheck now: %2\$s", 'review-captain' ), $reason, $url ),
 			);
 		}
 		if ( self::EVENT_QUESTION === $event ) {
 			return array(
 				/* translators: %s: site name */
-				'subject' => sprintf( __( '[%s] Neue Produktfrage eingegangen', 'review-captain' ), $site ),
+				'subject' => sprintf( __( '[%s] New product question received', 'review-captain' ), $site ),
 				/* translators: %s: moderation URL */
-				'body'    => sprintf( __( "Auf Ihrer Website wurde eine neue Frage gestellt. Sie wartet auf Moderation.\n\nJetzt prüfen: %s", 'review-captain' ), $url ),
+				'body'    => sprintf( __( "A new question was asked on your site. It is waiting for moderation.\n\nCheck now: %s", 'review-captain' ), $url ),
 			);
 		}
 
@@ -155,20 +155,20 @@ final class Notifier {
 		$vars     = array(
 			'{site}'           => $site,
 			'{moderation_url}' => $url,
-			'{status}'         => $approved ? __( 'freigegeben', 'review-captain' ) : __( 'wartet auf Moderation', 'review-captain' ),
+			'{status}'         => $approved ? __( 'approved', 'review-captain' ) : __( 'waiting for moderation', 'review-captain' ),
 		);
 		return array(
 			'subject' => '' !== $subject
 				? strtr( $subject, $vars )
 				/* translators: %s: site name */
-				: sprintf( __( '[%s] Neue Bewertung eingegangen', 'review-captain' ), $site ),
+				: sprintf( __( '[%s] New review received', 'review-captain' ), $site ),
 			'body'    => '' !== $body
 				? strtr( $body, $vars )
 				: ( $approved
 					/* translators: %s: moderation URL */
-					? sprintf( __( "Auf Ihrer Website wurde eine neue Bewertung abgegeben und automatisch freigegeben.\n\nZur Übersicht: %s", 'review-captain' ), $url )
+					? sprintf( __( "A new review was submitted on your website and approved automatically.\n\nView overview: %s", 'review-captain' ), $url )
 					/* translators: %s: moderation URL */
-					: sprintf( __( "Auf Ihrer Website wurde eine neue Bewertung abgegeben. Sie wartet auf Moderation.\n\nJetzt prüfen: %s", 'review-captain' ), $url ) ),
+					: sprintf( __( "A new review was submitted on your website. It is awaiting moderation.\n\nReview now: %s", 'review-captain' ), $url ) ),
 		);
 	}
 }

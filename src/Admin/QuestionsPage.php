@@ -45,9 +45,9 @@ final class QuestionsPage {
 	 */
 	public static function status_labels(): array {
 		return array(
-			'pending'  => __( 'Wartet auf Moderation', 'review-captain' ),
-			'approved' => __( 'Freigegeben', 'review-captain' ),
-			'rejected' => __( 'Abgelehnt', 'review-captain' ),
+			'pending'  => __( 'Awaiting moderation', 'review-captain' ),
+			'approved' => __( 'Approved', 'review-captain' ),
+			'rejected' => __( 'Rejected', 'review-captain' ),
 		);
 	}
 
@@ -56,15 +56,15 @@ final class QuestionsPage {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MODERATE ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		$status = View::req( $_GET, 'status', 'pending' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$labels = self::status_labels();
 		$counts = $this->repo()->counts();
 		echo '<div class="wrap rc-admin">';
-		echo View::header( __( 'Fragen & Antworten', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo View::header( __( 'Questions & answers', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<p class="description">' . esc_html__( 'Fragen sind getrennt von Bewertungen: keine Sterne, keine Zählung in Bewertungsübersichten, kein Schema-Markup. Ausgabe mit [review_captain_qa v="1" context_type="product" context_id="current"].', 'review-captain' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Questions are separate from reviews: no stars, not counted in review summaries, no schema markup. Output with [review_captain_qa v="1" context_type="product" context_id="current"].', 'review-captain' ) . '</p>';
 		echo '<ul class="subsubsub">';
 		$links = array();
 		foreach ( $labels as $key => $label ) {
@@ -73,10 +73,10 @@ final class QuestionsPage {
 		echo implode( ' | ', $links ) . '</ul>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		$rows = $this->repo()->query( isset( $labels[ $status ] ) ? $status : 'pending', 50 );
 		if ( ! $rows ) {
-			echo '<p style="clear:both">' . esc_html__( 'Keine Fragen in dieser Ansicht.', 'review-captain' ) . '</p></div>';
+			echo '<p style="clear:both">' . esc_html__( 'No questions in this view.', 'review-captain' ) . '</p></div>';
 			return;
 		}
-		echo '<table class="widefat striped" style="clear:both"><thead><tr><th scope="col">' . esc_html__( 'Frage', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Bezug', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Antwort und Moderation', 'review-captain' ) . '</th></tr></thead><tbody>';
+		echo '<table class="widefat striped" style="clear:both"><thead><tr><th scope="col">' . esc_html__( 'Question', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Reference', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Answer and moderation', 'review-captain' ) . '</th></tr></thead><tbody>';
 		foreach ( $rows as $row ) {
 			$id = (int) $row['id'];
 			echo '<tr><td><p>' . esc_html( (string) $row['question'] ) . '</p><p class="description">' . esc_html( (string) $row['author_name'] . ' · ' . View::date( (string) $row['created_at'], true ) ) . '</p></td>';
@@ -84,14 +84,14 @@ final class QuestionsPage {
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 			echo View::form_fields( 'moderate_question' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<input type="hidden" name="id" value="' . esc_attr( (string) $id ) . '" /><input type="hidden" name="from" value="' . esc_attr( (string) $row['status'] ) . '" />';
-			echo '<label class="screen-reader-text" for="rc-answer-' . esc_attr( (string) $id ) . '">' . esc_html__( 'Antwort', 'review-captain' ) . '</label>';
+			echo '<label class="screen-reader-text" for="rc-answer-' . esc_attr( (string) $id ) . '">' . esc_html__( 'Answer', 'review-captain' ) . '</label>';
 			echo '<textarea id="rc-answer-' . esc_attr( (string) $id ) . '" name="answer" rows="3" class="widefat" maxlength="2000">' . esc_textarea( (string) ( $row['answer'] ?? '' ) ) . '</textarea>';
 			echo '<p><select name="to" aria-label="' . esc_attr__( 'Status', 'review-captain' ) . '">';
 			foreach ( $labels as $key => $label ) {
 				echo '<option value="' . esc_attr( $key ) . '"' . selected( $key, (string) $row['status'], false ) . '>' . esc_html( $label ) . '</option>';
 			}
-			echo '</select> <button type="submit" class="button button-primary">' . esc_html__( 'Speichern', 'review-captain' ) . '</button> ';
-			echo '<button type="submit" name="delete" value="1" class="button button-link-delete">' . esc_html__( 'Löschen', 'review-captain' ) . '</button></p></form></td></tr>';
+			echo '</select> <button type="submit" class="button button-primary">' . esc_html__( 'Save', 'review-captain' ) . '</button> ';
+			echo '<button type="submit" name="delete" value="1" class="button button-link-delete">' . esc_html__( 'Delete', 'review-captain' ) . '</button></p></form></td></tr>';
 		}
 		echo '</tbody></table></div>';
 	}

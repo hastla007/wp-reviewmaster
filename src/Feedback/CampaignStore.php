@@ -200,13 +200,13 @@ final class CampaignStore {
 		}
 		$quiet   = 4;
 		$modules = $qr->size() + 2 * $quiet;
-		$caption = __( 'Feedback geben', 'review-captain' );
-		$note    = __( 'Kein Ticket – kein Einlasscode', 'review-captain' );
+		$caption = __( 'Give feedback', 'review-captain' );
+		$note    = __( 'No ticket – no admission code', 'review-captain' );
 		$label   = (string) ( $campaign['label'] ?? '' );
 		$height  = $modules + 10;
 		$title   = sprintf(
 			/* translators: %s: campaign label */
-			__( 'QR-Code für Feedback: %s', 'review-captain' ),
+			__( 'QR code for feedback: %s', 'review-captain' ),
 			$label
 		);
 		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $modules . ' ' . $height . '" width="' . ( $modules * 8 ) . '" height="' . ( $height * 8 ) . '" role="img" aria-label="' . esc_attr( $title ) . '">'

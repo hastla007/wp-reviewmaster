@@ -1,8 +1,8 @@
-# ADR-0006: Deutsch als Quellsprache der Oberflächentexte (Arbeitsannahme)
+# ADR-0006: Quellsprache der Oberflächentexte – Englisch, Deutsch als Übersetzung
 
-- **Status:** Vorgeschlagen
-- **Datum:** 2026-11-16
-- **Autor:in / Entscheider:** Core-Implementierung; Entscheidung durch Produktverantwortung offen
+- **Status:** Angenommen (Option 2), umgesetzt 23.11.2026 mit SET-RC-14
+- **Datum:** 2026-11-16, Entscheidung S4/E1/E2 der Inhaberin
+- **Autor:in / Entscheider:** Core-Implementierung; Entscheidung durch die Inhaberin (S4)
 - **Betrifft:** RC-034, RC-138, RC-143; `languages/`, alle `__()`-Aufrufe
 - **Ersetzt:** –
 
@@ -17,18 +17,20 @@ Der erste Core-Stand verwendet deutsche Msgids (`__( 'Freigegeben', 'review-capt
 
 ## Entscheidung
 
-Bis zur Produktentscheidung bleibt es bei **Option 1**. Alle Strings laufen trotzdem über gettext mit der Textdomain `review-captain`. Damit ist die spätere Umstellung auf Option 2 ein mechanischer Schritt: POT erzeugen, Msgids ersetzen und eine de_DE-PO aus den bisherigen Texten generieren.
+**Option 2** (Entscheidung S4 der Inhaberin, umgesetzt in SET-RC-14): alle Msgids sind englisch. Übersetzungen: `de_DE` mit „du“, `de_DE_formal` mit „Sie“ (keine Mischung in einer Datei, auch das öffentliche Formular folgt der Sprachdatei, E2); `de_AT` (du) und `de_CH` (Sie, „ss“ statt „ß“) erzeugt `bin/derive-de-variants.php`. `en_US` entfällt. `php bin/compile-translations.php --check` prüft mit `bin/check-i18n-language.php`, dass keine deutschen Quelltexte zurückkommen und jede Datei bei ihrer Anrede bleibt.
+
+Ursprüngliche Arbeitsannahme bis 23.11.2026: **Option 1**. Alle Strings laufen trotzdem über gettext mit der Textdomain `review-captain`. Damit ist die spätere Umstellung auf Option 2 ein mechanischer Schritt: POT erzeugen, Msgids ersetzen und eine de_DE-PO aus den bisherigen Texten generieren.
 
 ## Konsequenzen
 
-- Positiv: Der deutschsprachige Pilot braucht keine Übersetzungsdatei.
-- Negativ: Eine Veröffentlichung auf WordPress.org verlangt vorher Option 2.
-- Folgearbeiten: Entscheidung bei RC-007/RC-143. Bei Option 2 prüft `bin/check-plugin-meta.php` zusätzlich, dass die Msgids ASCII sind bzw. englisch.
+- Positiv: Englische Msgids wie in allen anderen Captain-Plugins; WordPress.org und translate.wordpress.org möglich; du und Sie sind echte, getrennte Übersetzungen.
+- Negativ: Deutschsprachige Websites brauchen die mitgelieferten `.mo`/`.json`-Dateien; jeder neue Text muss in `de_DE` und `de_DE_formal` übersetzt werden (`compile-translations --check` schlägt sonst fehl).
+- (Zu Option 1, bis 23.11.2026: Der Pilot brauchte keine Übersetzungsdatei, eine Veröffentlichung auf WordPress.org hätte Option 2 verlangt.)
 
 ## Abnahme
 
 - [ ] Produktentscheidung zur Distribution (WordPress.org ja/nein) dokumentiert
-- [ ] Bei Option 2: alle Msgids englisch, `languages/review-captain-de_DE.po` und `-de_AT.po` vollständig
+- [x] Bei Option 2: alle Msgids englisch, `languages/review-captain-de_DE.po` und `-de_AT.po` vollständig (SET-RC-14, 23.11.2026; dazu `de_DE_formal` und `de_CH`)
 
 ## Referenzen
 

@@ -43,7 +43,7 @@ final class PrivacyModule implements Module {
 		$tests                                       = is_array( $tests ) ? $tests : array();
 		$tests['direct']                             = isset( $tests['direct'] ) && is_array( $tests['direct'] ) ? $tests['direct'] : array();
 		$tests['direct']['review_captain_retention'] = array(
-			'label' => __( 'Review Captain: Aufbewahrung der Kontaktadressen', 'review-captain' ),
+			'label' => __( 'Review Captain: retention of contact addresses', 'review-captain' ),
 			'test'  => array( $this, 'retention_status' ),
 		);
 		return $tests;
@@ -59,14 +59,14 @@ final class PrivacyModule implements Module {
 		$plugin = $this->plugin ?? Plugin::instance();
 		$days   = (int) $plugin->settings()->get( 'privacy', 'retention_contact_days', 0 );
 		$result = array(
-			'label'       => __( 'Für die Kontaktadressen zu Bewertungen ist eine Aufbewahrungsfrist eingestellt', 'review-captain' ),
+			'label'       => __( 'A retention period is set for the contact addresses of reviews', 'review-captain' ),
 			'status'      => 'good',
 			'badge'       => array(
-				'label' => __( 'Datenschutz', 'review-captain' ),
+				'label' => __( 'Privacy', 'review-captain' ),
 				'color' => 'blue',
 			),
 			/* translators: %s: number of days */
-			'description' => '<p>' . esc_html( sprintf( __( 'Review Captain entfernt die E-Mail-Adresse zu einer Bewertung %s Tage nach Eingang. Die Bewertung bleibt.', 'review-captain' ), number_format_i18n( $days ) ) ) . '</p>',
+			'description' => '<p>' . esc_html( sprintf( __( 'Review Captain removes the email address of a review %s days after it was received. The review stays.', 'review-captain' ), number_format_i18n( $days ) ) ) . '</p>',
 			'actions'     => '',
 			'test'        => 'review_captain_retention',
 		);
@@ -74,10 +74,10 @@ final class PrivacyModule implements Module {
 			return $result;
 		}
 		$result['badge']['color'] = 'orange';
-		$result['label']          = __( 'Review Captain speichert Kontaktadressen zu Bewertungen unbegrenzt', 'review-captain' );
+		$result['label']          = __( 'Review Captain stores the contact addresses of reviews indefinitely', 'review-captain' );
 		$result['status']         = 'recommended';
-		$result['description']    = '<p>' . esc_html__( 'Für die E-Mail-Adressen zu Bewertungen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; die Bewertungen bleiben. Welche Frist für deine Website passt, lass bitte rechtlich prüfen.', 'review-captain' ) . '</p>';
-		$result['actions']        = '<p><a href="' . esc_url( \ReviewCaptain\Admin\View::page_url( \ReviewCaptain\Admin\SettingsPage::SLUG, array( 'tab' => 'privacy' ) ) ) . '">' . esc_html__( 'Aufbewahrung einstellen', 'review-captain' ) . '</a></p>';
+		$result['description']    = '<p>' . esc_html__( 'No retention period is set for the email addresses of reviews. Set in the Privacy tab after how many days they are removed; the reviews stay. Please have the period that suits your website checked legally.', 'review-captain' ) . '</p>';
+		$result['actions']        = '<p><a href="' . esc_url( \ReviewCaptain\Admin\View::page_url( \ReviewCaptain\Admin\SettingsPage::SLUG, array( 'tab' => 'privacy' ) ) ) . '">' . esc_html__( 'Set retention', 'review-captain' ) . '</a></p>';
 		return $result;
 	}
 
@@ -138,36 +138,36 @@ final class PrivacyModule implements Module {
 		$moderated = 'approved' !== $settings->get( 'general', 'new_review_status', 'pending' );
 		$consent   = false !== $settings->get( 'submissions', 'require_consent', true );
 		if ( $moderated && $consent ) {
-			$publish = __( 'Ihre Bewertung wird erst nach Prüfung und nur dann veröffentlicht, wenn Sie der Veröffentlichung zugestimmt haben. Den Zeitpunkt Ihrer Einwilligung speichern wir als Nachweis.', 'review-captain' );
+			$publish = __( 'Your review will only be published after moderation and only if you have consented to publication. We store the time of your consent as proof.', 'review-captain' );
 		} elseif ( $consent ) {
-			$publish = __( 'Ihre Bewertung wird nur veröffentlicht, wenn Sie der Veröffentlichung zugestimmt haben. Den Zeitpunkt Ihrer Einwilligung speichern wir als Nachweis.', 'review-captain' );
+			$publish = __( 'Your review is only published if you have agreed to its publication. We store the time of your consent as proof.', 'review-captain' );
 		} elseif ( $moderated ) {
-			$publish = __( 'Ihre Bewertung wird erst nach Prüfung veröffentlicht.', 'review-captain' );
+			$publish = __( 'Your review is published only after it has been checked.', 'review-captain' );
 		} else {
 			$publish = '';
 		}
 		$parts = array(
-			'<p><strong>' . __( 'Vorschlag – bitte an Ihre tatsächliche Nutzung anpassen.', 'review-captain' ) . '</strong></p>',
-			'<p>' . __( 'Wenn Sie auf dieser Website eine Bewertung oder einen Erfahrungsbericht abgeben, speichern wir Ihre Bewertung, den Text, den von Ihnen angegebenen Namen sowie Ihre E-Mail-Adresse und – falls Sie angemeldet sind – die Kennung Ihres Benutzerkontos. Die E-Mail-Adresse wird nicht veröffentlicht; sie dient der Rückfrage, der Missbrauchsabwehr und der Zuordnung bei Auskunfts- und Löschanfragen.', 'review-captain' ) . '</p>',
+			'<p><strong>' . __( 'Suggestion – please adapt to your actual usage.', 'review-captain' ) . '</strong></p>',
+			'<p>' . __( 'When you submit a review or testimonial on this website, we store your rating, the text, the name you provide, and your email address and – if you are logged in – your user account ID. The email address is not published; it is used for follow-up questions, abuse prevention, and matching data access and erasure requests.', 'review-captain' ) . '</p>',
 			'' !== $publish ? '<p>' . $publish . '</p>' : '',
-			'<p>' . __( 'Bewertungen von externen Plattformen (z. B. Google oder Trustpilot) werden nur mit dem dort sichtbaren Anzeigenamen, Datum, Text und einem Link zur Quelle angezeigt und regelmäßig mit der Quelle abgeglichen; wird eine Bewertung dort gelöscht, entfernen wir sie auch hier.', 'review-captain' ) . '</p>',
-			'<p>' . __( 'Sie können über die Datenschutz-Werkzeuge dieser Website Auskunft über Ihre gespeicherten Bewertungen verlangen sowie deren Löschung oder Anonymisierung beantragen. Bei einer Anonymisierung wird Ihr Name durch „Anonym“ ersetzt und Ihre E-Mail-Adresse entfernt; der Bewertungstext bleibt nur erhalten, wenn Sie seiner Veröffentlichung zugestimmt hatten.', 'review-captain' ) . '</p>',
+			'<p>' . __( 'Reviews from external platforms (e.g. Google or Trustpilot) are only displayed with the display name, date, text visible there, and a link to the source, and are regularly synced with the source; if a review is deleted there, we remove it here as well.', 'review-captain' ) . '</p>',
+			'<p>' . __( 'You can use this website\'s privacy tools to request information about your stored reviews and to request their deletion or anonymization. With anonymization, your name is replaced with “Anonymous” and your email address is removed; the review text is only retained if you had consented to its publication.', 'review-captain' ) . '</p>',
 			'<p>' . ( $moderated
-				? __( 'Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird erst nach Prüfung angezeigt und mit der Bewertung gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person.', 'review-captain' )
-				: __( 'Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird mit der Bewertung angezeigt und mit ihr gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person.', 'review-captain' ) ) . '</p>',
-			'<p>' . __( 'Abgelehnte Einreichungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht.', 'review-captain' ) . '</p>',
+				? __( 'If enabled: A photo uploaded with a review is re-encoded before storage, removing image metadata such as the location where it was taken; it is only displayed after moderation and is deleted along with the review. We store product questions with a name and optionally an email address; we store review reports without any information about the reporting person.', 'review-captain' )
+				: __( 'If enabled: a photo uploaded with the review is re-encoded before it is stored, which removes image metadata such as the location where it was taken; it is shown with the review and deleted with it. We store product questions with a name and, optionally, an email address; we store reports of reviews without any details about the person reporting.', 'review-captain' ) ) . '</p>',
+			'<p>' . __( 'Rejected submissions and technical logs are automatically deleted according to the configured retention periods.', 'review-captain' ) . '</p>',
 		);
 		// SET-RC-08: only when the operator set a retention period for the contact address.
 		$contact_days = (int) $settings->get( 'privacy', 'retention_contact_days', 0 );
 		if ( $contact_days > 0 ) {
 			/* translators: %s: number of days */
-			$parts[] = '<p>' . sprintf( __( 'Die E-Mail-Adresse zu einer Bewertung löschen wir %s Tage nach Eingang der Bewertung; die Bewertung selbst bleibt erhalten.', 'review-captain' ), number_format_i18n( $contact_days ) ) . '</p>';
+			$parts[] = '<p>' . sprintf( __( 'We delete the email address of a review %s days after the review was received; the review itself is kept.', 'review-captain' ), number_format_i18n( $contact_days ) ) . '</p>';
 		}
 		// P3: the period for approved own reviews (SET-RC-08) belongs into the suggestion as well.
 		$approved_days = (int) $settings->get( 'privacy', 'retention_approved_days', 0 );
 		if ( $approved_days > 0 ) {
 			/* translators: %s: number of days */
-			$parts[] = '<p>' . sprintf( __( 'Bewertungen, die Sie auf dieser Website abgegeben haben, löschen wir %s Tage nach Eingang vollständig.', 'review-captain' ), number_format_i18n( $approved_days ) ) . '</p>';
+			$parts[] = '<p>' . sprintf( __( 'We completely delete reviews you have submitted on this website %s days after they were received.', 'review-captain' ), number_format_i18n( $approved_days ) ) . '</p>';
 		}
 		return implode( "\n", array_filter( $parts ) );
 	}

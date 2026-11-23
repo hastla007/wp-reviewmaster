@@ -13,5 +13,5 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 <p class="rc-cta rc-cta--<?php echo esc_attr( $rc['platform'] ); ?>">
-	<a class="rc-cta__button" href="<?php echo esc_url( $rc['url'] ); ?>" rel="<?php echo esc_attr( $rc['rel'] ); ?>"<?php echo $rc['new_tab'] ? ' target="_blank"' : ''; ?>><?php echo esc_html( $rc['text'] ); ?><?php if ( $rc['new_tab'] ) : ?><span class="rc-visually-hidden"> <?php esc_html_e( '(öffnet in neuem Tab)', 'review-captain' ); ?></span><?php endif; ?></a>
+	<a class="rc-cta__button" href="<?php echo esc_url( $rc['url'] ); ?>" rel="<?php echo esc_attr( $rc['rel'] ); ?>"<?php echo $rc['new_tab'] ? ' target="_blank"' : ''; ?>><?php echo esc_html( $rc['text'] ); ?><?php if ( $rc['new_tab'] ) : ?><span class="rc-visually-hidden"> <?php esc_html_e( '(opens in a new tab)', 'review-captain' ); ?></span><?php endif; ?></a>
 </p>

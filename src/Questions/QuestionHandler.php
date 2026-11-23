@@ -167,18 +167,18 @@ class QuestionHandler {
 	 */
 	public static function error_messages(): array {
 		return array(
-			'disabled'     => __( 'Fragen können derzeit nicht gestellt werden.', 'review-captain' ),
-			'nonce'        => __( 'Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu.', 'review-captain' ),
-			'too_fast'     => __( 'Das Formular wurde zu schnell abgeschickt. Bitte versuchen Sie es erneut.', 'review-captain' ),
-			'expired'      => __( 'Das Formular ist abgelaufen. Bitte laden Sie die Seite neu.', 'review-captain' ),
-			'context'      => __( 'Das Formular ist ungültig. Bitte laden Sie die Seite neu.', 'review-captain' ),
-			'rate_limited' => __( 'Sie haben bereits mehrere Fragen gesendet. Bitte versuchen Sie es später erneut.', 'review-captain' ),
+			'disabled'     => __( 'Questions cannot be submitted at this time.', 'review-captain' ),
+			'nonce'        => __( 'Your session has expired. Please reload the page.', 'review-captain' ),
+			'too_fast'     => __( 'The form was submitted too quickly. Please try again.', 'review-captain' ),
+			'expired'      => __( 'The form has expired. Please reload the page.', 'review-captain' ),
+			'context'      => __( 'The form is invalid. Please reload the page.', 'review-captain' ),
+			'rate_limited' => __( 'You have already submitted several questions. Please try again later.', 'review-captain' ),
 			/* translators: 1: minimum length, 2: maximum length */
-			'question'     => sprintf( __( 'Bitte formulieren Sie Ihre Frage mit %1$d bis %2$d Zeichen.', 'review-captain' ), self::MIN_LENGTH, self::MAX_LENGTH ),
-			'name'         => __( 'Bitte geben Sie Ihren Namen an (höchstens 100 Zeichen).', 'review-captain' ),
-			'email'        => __( 'Die E-Mail-Adresse ist ungültig.', 'review-captain' ),
-			'consent'      => __( 'Bitte bestätigen Sie die Einwilligung zur Veröffentlichung.', 'review-captain' ),
-			'save'         => __( 'Ihre Frage konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'review-captain' ),
+			'question'     => sprintf( __( 'Please write your question using %1$d to %2$d characters.', 'review-captain' ), self::MIN_LENGTH, self::MAX_LENGTH ),
+			'name'         => __( 'Please enter your name (maximum 100 characters).', 'review-captain' ),
+			'email'        => __( 'The email address is invalid.', 'review-captain' ),
+			'consent'      => __( 'Please confirm your consent to publication.', 'review-captain' ),
+			'save'         => __( 'Your question could not be saved. Please try again later.', 'review-captain' ),
 		) + PowCaptcha::messages();
 	}
 
@@ -203,7 +203,7 @@ class QuestionHandler {
 			$codes  = explode( ',', sanitize_text_field( wp_unslash( (string) $_GET['rc_question_error'] ) ) );
 			$errors = array_values( array_intersect_key( self::error_messages(), array_flip( $codes ) ) );
 		}
-		$success = 1 === $this->instances && isset( $_GET['rc_question'] ) ? __( 'Danke! Ihre Frage wird nach Prüfung veröffentlicht.', 'review-captain' ) : '';
+		$success = 1 === $this->instances && isset( $_GET['rc_question'] ) ? __( 'Thank you! Your question will be published after moderation.', 'review-captain' ) : '';
 		// phpcs:enable
 		$items = array();
 		foreach ( $this->repository()->public_for_context( $d->context_type, $d->context_id, $d->limit > 0 ? max( $d->limit, 10 ) : 10 ) as $row ) {

@@ -1,7 +1,8 @@
 <?php
 /**
  * Dependency-free POT generator (RC-034). Prefer `wp i18n make-pot` (bin/make-pot.sh) when WP-CLI is
- * available; this fallback scans PHP (and block editor JS) for gettext calls with the review-captain domain.
+ * available; this fallback scans PHP (and block editor JS) for gettext calls with the review-captain domain,
+ * plus title, description and keywords of each blocks/NAME/block.json (contexts as in WordPress core).
  *
  * Usage: php bin/make-pot.php [output]
  */
@@ -71,6 +72,28 @@ foreach ( $files as $file ) {
 	}
 }
 
+// Plugin header: WordPress translates the description in the plugin list with the plugin's text domain.
+if ( preg_match( '/^\s*\*\s*Description:\s*(.+)$/m', (string) file_get_contents( $root . '/review-captain.php' ), $header ) ) {
+	$add( trim( $header[1] ), null, null, 'review-captain.php', 'Description of the plugin' );
+}
+
+// block.json fields, translated by WordPress with these contexts (register_block_type_from_metadata()).
+foreach ( glob( $root . '/blocks/*/block.json' ) as $file ) {
+	$rel  = ltrim( substr( $file, strlen( $root ) ), '/' );
+	$meta = json_decode( (string) file_get_contents( $file ), true );
+	if ( 'review-captain' !== ( $meta['textdomain'] ?? '' ) ) {
+		continue;
+	}
+	foreach ( array( 'title' => 'block title', 'description' => 'block description' ) as $field => $ctx ) {
+		if ( isset( $meta[ $field ] ) && '' !== $meta[ $field ] ) {
+			$add( $meta[ $field ], null, $ctx, $rel, null );
+		}
+	}
+	foreach ( $meta['keywords'] ?? array() as $keyword ) {
+		$add( $keyword, null, 'block keyword', $rel, null );
+	}
+}
+
 $esc = static fn( string $s ) => '"' . str_replace( array( '\\', '"', "\n", "\t" ), array( '\\\\', '\\"', '\\n', '\\t' ), $s ) . '"';
 $pot = "# Copyright (C) Captain Suite\n# This file is distributed under the GPL-2.0-or-later.\nmsgid \"\"\nmsgstr \"\"\n"
 	. "\"Project-Id-Version: Review Captain\\n\"\n\"Report-Msgid-Bugs-To: https://github.com/hastla007/wp-reviewmaster/issues\\n\"\n"
@@ -78,7 +101,7 @@ $pot = "# Copyright (C) Captain Suite\n# This file is distributed under the GPL-
 	. "\"X-Domain: review-captain\\n\"\n\n";
 foreach ( $entries as $e ) {
 	foreach ( array_keys( $e['comments'] ) as $c ) {
-		$pot .= '#. translators: ' . $c . "\n";
+		$pot .= ( 'Description of the plugin' === $c ? '#. ' : '#. translators: ' ) . $c . "\n";
 	}
 	$pot .= '#: ' . implode( ' ', array_slice( array_unique( $e['refs'] ), 0, 10 ) ) . "\n";
 	if ( null !== $e['ctx'] ) {

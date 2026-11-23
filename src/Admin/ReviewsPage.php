@@ -39,7 +39,7 @@ final class ReviewsPage {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MODERATE ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- routing only.
 		$action = View::req( $_GET, 'action' );
@@ -48,7 +48,7 @@ final class ReviewsPage {
 			$review = $this->plugin->reviews()->find( absint( View::req( $_GET, 'id' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( null === $review ) {
 				echo View::header( __( 'Review', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo View::notice( 'error', __( 'Der Eintrag wurde nicht gefunden.', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo View::notice( 'error', __( 'The entry was not found.', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			} else {
 				$this->render_edit( $review );
 			}
@@ -70,12 +70,12 @@ final class ReviewsPage {
 		$table = new ReviewsListTable( $this->plugin );
 		$table->prepare_items();
 
-		echo View::header( __( 'Reviews', 'review-captain' ), View::page_url( self::SLUG, array( 'action' => 'new' ) ), __( 'Neu hinzufügen', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo View::header( __( 'Reviews', 'review-captain' ), View::page_url( self::SLUG, array( 'action' => 'new' ) ), __( 'Add new', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$pending = $this->plugin->reviews()->count( array( 'status' => ReviewStatus::PENDING->value ) );
 		if ( 0 === $pending && $this->plugin->reviews()->count() > 0 ) {
-			echo View::notice( 'info', __( 'Alles erledigt – keine Reviews warten auf Prüfung.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo View::notice( 'info', __( 'All done – no reviews awaiting review.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$table->views();
@@ -102,43 +102,43 @@ final class ReviewsPage {
 		if ( '' !== View::req( $get, 'status' ) ) {
 			echo '<input type="hidden" name="status" value="' . esc_attr( View::req( $get, 'status' ) ) . '" />';
 		}
-		echo '<p class="search-box"><label class="screen-reader-text" for="rc-search">' . esc_html__( 'Reviews durchsuchen', 'review-captain' ) . '</label>';
+		echo '<p class="search-box"><label class="screen-reader-text" for="rc-search">' . esc_html__( 'Search reviews', 'review-captain' ) . '</label>';
 		echo '<input type="search" id="rc-search" name="s" value="' . esc_attr( View::req( $get, 's' ) ) . '" /> ';
-		echo '<button type="submit" class="button">' . esc_html__( 'Reviews durchsuchen', 'review-captain' ) . '</button></p>';
+		echo '<button type="submit" class="button">' . esc_html__( 'Search reviews', 'review-captain' ) . '</button></p>';
 
 		echo '<div class="tablenav top rc-admin-filterbar"><div class="alignleft actions">';
-		$this->select( 'kind', __( 'Typ', 'review-captain' ), array( '' => __( 'Alle Typen', 'review-captain' ) ) + self::kind_choices(), View::req( $get, 'kind' ) );
-		$this->select( 'platform', __( 'Plattform', 'review-captain' ), array( '' => __( 'Alle Plattformen', 'review-captain' ) ) + self::platform_choices(), View::req( $get, 'platform' ) );
-		$ratings = array( '' => __( 'Jede Bewertung', 'review-captain' ) );
+		$this->select( 'kind', __( 'Type', 'review-captain' ), array( '' => __( 'All types', 'review-captain' ) ) + self::kind_choices(), View::req( $get, 'kind' ) );
+		$this->select( 'platform', __( 'Platform', 'review-captain' ), array( '' => __( 'All platforms', 'review-captain' ) ) + self::platform_choices(), View::req( $get, 'platform' ) );
+		$ratings = array( '' => __( 'Any rating', 'review-captain' ) );
 		for ( $i = 5; $i >= 1; $i-- ) {
 			/* translators: %d: stars on a 5-point scale */
-			$ratings[ (string) $i ] = sprintf( __( 'ab %d von 5 (umgerechnet)', 'review-captain' ), $i );
+			$ratings[ (string) $i ] = sprintf( __( '%d out of 5 or higher (converted)', 'review-captain' ), $i );
 		}
-		$this->select( 'rating', __( 'Bewertung', 'review-captain' ), $ratings, View::req( $get, 'rating' ) );
+		$this->select( 'rating', __( 'Rating', 'review-captain' ), $ratings, View::req( $get, 'rating' ) );
 		$this->select(
 			'period',
-			__( 'Zeitraum', 'review-captain' ),
+			__( 'Period', 'review-captain' ),
 			array(
-				''    => __( 'Gesamter Zeitraum', 'review-captain' ),
-				'7'   => __( 'Letzte 7 Tage', 'review-captain' ),
-				'30'  => __( 'Letzte 30 Tage', 'review-captain' ),
-				'90'  => __( 'Letzte 90 Tage', 'review-captain' ),
-				'365' => __( 'Letzte 12 Monate', 'review-captain' ),
+				''    => __( 'All time', 'review-captain' ),
+				'7'   => __( 'Last 7 days', 'review-captain' ),
+				'30'  => __( 'Last 30 days', 'review-captain' ),
+				'90'  => __( 'Last 90 days', 'review-captain' ),
+				'365' => __( 'Last 12 months', 'review-captain' ),
 			),
 			View::req( $get, 'period' )
 		);
 		$settings = $this->plugin->settings();
 		if ( $settings->get( 'submissions', 'tags_enabled', false ) ) {
-			$tags = array( '' => __( 'Alle Tags', 'review-captain' ) );
+			$tags = array( '' => __( 'All tags', 'review-captain' ) );
 			foreach ( ( new TagStore() )->all() as $tag => $count ) {
 				$tags[ $tag ] = $tag . ' (' . number_format_i18n( $count ) . ')';
 			}
 			$this->select( 'tag', __( 'Tag', 'review-captain' ), $tags, View::req( $get, 'tag' ) );
 		}
 		if ( $settings->get( 'submissions', 'reports_enabled', false ) ) {
-			echo '<label class="rc-admin-filter-check"><input type="checkbox" name="reported" value="1"' . checked( View::req( $get, 'reported' ), '1', false ) . ' /> ' . esc_html__( 'Nur mit offenen Meldungen', 'review-captain' ) . '</label> ';
+			echo '<label class="rc-admin-filter-check"><input type="checkbox" name="reported" value="1"' . checked( View::req( $get, 'reported' ), '1', false ) . ' /> ' . esc_html__( 'Only with open reports', 'review-captain' ) . '</label> ';
 		}
-		echo '<button type="submit" class="button">' . esc_html__( 'Filtern', 'review-captain' ) . '</button>';
+		echo '<button type="submit" class="button">' . esc_html__( 'Filter', 'review-captain' ) . '</button>';
 		echo '</div></div></form>';
 	}
 
@@ -197,15 +197,15 @@ final class ReviewsPage {
 	 */
 	public static function context_choices(): array {
 		return array(
-			''             => __( 'Kein Bezug', 'review-captain' ),
-			'post'         => __( 'Beitrag/Seite', 'review-captain' ),
-			'product'      => __( 'Produkt', 'review-captain' ),
-			'event'        => __( 'Veranstaltung', 'review-captain' ),
-			'voucher'      => __( 'Gutschein', 'review-captain' ),
+			''             => __( 'No reference', 'review-captain' ),
+			'post'         => __( 'Post/page', 'review-captain' ),
+			'product'      => __( 'Product', 'review-captain' ),
+			'event'        => _x( 'Event', 'reference type', 'review-captain' ),
+			'voucher'      => __( 'Voucher', 'review-captain' ),
 			'app'          => __( 'App', 'review-captain' ),
-			'form'         => __( 'Formular', 'review-captain' ),
-			'course'       => __( 'Kurs', 'review-captain' ),
-			'organization' => __( 'Unternehmen', 'review-captain' ),
+			'form'         => __( 'Form', 'review-captain' ),
+			'course'       => __( 'Course', 'review-captain' ),
+			'organization' => __( 'Business', 'review-captain' ),
 		);
 	}
 
@@ -219,7 +219,7 @@ final class ReviewsPage {
 		$type  = array_key_exists( $type, $types ) ? $type : ReviewEditor::TYPE_LOCAL;
 		$draft = ReviewActions::take_draft();
 
-		echo View::header( __( 'Neuen Eintrag anlegen', 'review-captain' ), View::page_url( self::SLUG ), __( '← Zur Liste', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo View::header( __( 'Create new entry', 'review-captain' ), View::page_url( self::SLUG ), __( '← Back to list', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		echo '<h2 class="nav-tab-wrapper">';
@@ -230,9 +230,9 @@ final class ReviewsPage {
 		echo '</h2>';
 
 		if ( ReviewEditor::TYPE_TESTIMONIAL === $type ) {
-			echo View::notice( 'info', __( 'Ein Erfahrungsbericht wird als Website-eigener Bericht gekennzeichnet – nicht als Bewertung einer Plattform. Er erhält kein Bewertungs-Markup für Suchmaschinen.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo View::notice( 'info', __( 'A testimonial is labeled as a site-owned statement – not as a platform review. It receives no review markup for search engines.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		} elseif ( ReviewEditor::TYPE_EXTERNAL === $type ) {
-			echo View::notice( 'info', __( 'Übernimm nur Texte, deren Nutzung dir erlaubt ist, und verlinke immer das Original. Die Bewertung bleibt auf ihrer Originalskala und wird nicht mit anderen Plattformen verrechnet.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo View::notice( 'info', __( 'Only add texts you are permitted to use, and always link to the original. The rating stays on its original scale and is not combined with other platforms.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
@@ -241,43 +241,43 @@ final class ReviewsPage {
 		echo '<table class="form-table" role="presentation"><tbody>';
 
 		if ( ReviewEditor::TYPE_EXTERNAL === $type ) {
-			$this->row_select( 'platform', __( 'Plattform', 'review-captain' ), self::platform_choices( true ), (string) ( $draft['platform'] ?? '' ), true );
-			$profiles = array( '' => __( '– kein Profil –', 'review-captain' ) );
+			$this->row_select( 'platform', __( 'Platform', 'review-captain' ), self::platform_choices( true ), (string) ( $draft['platform'] ?? '' ), true );
+			$profiles = array( '' => __( '– no profile –', 'review-captain' ) );
 			foreach ( ( new Profiles() )->all() as $profile ) {
 				$profiles[ (string) $profile['id'] ] = Platform::tryFrom( (string) $profile['platform'] )?->label() . ' – ' . $profile['label'];
 			}
-			$this->row_select( 'profile_id', __( 'Profil', 'review-captain' ), $profiles, (string) ( $draft['profile_id'] ?? '' ) );
-			echo '<tr><th scope="row"><label for="rc-rating_value">' . esc_html__( 'Originalbewertung', 'review-captain' ) . ' <span class="required">*</span></label></th><td>';
+			$this->row_select( 'profile_id', __( 'Profile', 'review-captain' ), $profiles, (string) ( $draft['profile_id'] ?? '' ) );
+			echo '<tr><th scope="row"><label for="rc-rating_value">' . esc_html__( 'Original rating', 'review-captain' ) . ' <span class="required">*</span></label></th><td>';
 			echo '<input type="text" inputmode="decimal" id="rc-rating_value" name="review[rating_value]" class="small-text" required value="' . esc_attr( (string) ( $draft['rating_value'] ?? '' ) ) . '" /> ';
-			echo '<label for="rc-scale-min">' . esc_html__( 'auf der Skala von', 'review-captain' ) . '</label> <input type="number" step="1" id="rc-scale-min" name="review[rating_scale_min]" class="small-text" value="' . esc_attr( (string) ( $draft['rating_scale_min'] ?? '1' ) ) . '" /> ';
-			echo '<label for="rc-scale-max">' . esc_html__( 'bis', 'review-captain' ) . '</label> <input type="number" step="1" id="rc-scale-max" name="review[rating_scale_max]" class="small-text" value="' . esc_attr( (string) ( $draft['rating_scale_max'] ?? '5' ) ) . '" />';
-			echo '<p class="description">' . esc_html__( 'Genau so, wie sie auf der Plattform angezeigt wird (z. B. 4 von 5 oder 9 von 10).', 'review-captain' ) . '</p></td></tr>';
+			echo '<label for="rc-scale-min">' . esc_html__( 'on a scale of', 'review-captain' ) . '</label> <input type="number" step="1" id="rc-scale-min" name="review[rating_scale_min]" class="small-text" value="' . esc_attr( (string) ( $draft['rating_scale_min'] ?? '1' ) ) . '" /> ';
+			echo '<label for="rc-scale-max">' . esc_html__( 'to', 'review-captain' ) . '</label> <input type="number" step="1" id="rc-scale-max" name="review[rating_scale_max]" class="small-text" value="' . esc_attr( (string) ( $draft['rating_scale_max'] ?? '5' ) ) . '" />';
+			echo '<p class="description">' . esc_html__( 'Exactly as shown on the platform (e.g. 4 out of 5 or 9 out of 10).', 'review-captain' ) . '</p></td></tr>';
 		} else {
-			echo '<tr><th scope="row"><label for="rc-rating_value">' . esc_html__( 'Bewertung', 'review-captain' ) . '</label></th><td>';
-			echo '<select id="rc-rating_value" name="review[rating_value]"><option value="">' . esc_html__( '– ohne Sterne –', 'review-captain' ) . '</option>';
+			echo '<tr><th scope="row"><label for="rc-rating_value">' . esc_html__( 'Rating', 'review-captain' ) . '</label></th><td>';
+			echo '<select id="rc-rating_value" name="review[rating_value]"><option value="">' . esc_html__( '– no stars –', 'review-captain' ) . '</option>';
 			for ( $i = 5; $i >= 1; $i-- ) {
 				/* translators: %d: rating value */
-				echo '<option value="' . esc_attr( (string) $i ) . '"' . selected( (string) $i, (string) ( $draft['rating_value'] ?? '' ), false ) . '>' . esc_html( sprintf( __( '%d von 5', 'review-captain' ), $i ) ) . '</option>';
+				echo '<option value="' . esc_attr( (string) $i ) . '"' . selected( (string) $i, (string) ( $draft['rating_value'] ?? '' ), false ) . '>' . esc_html( sprintf( __( '%d out of 5', 'review-captain' ), $i ) ) . '</option>';
 			}
 			echo '</select></td></tr>';
 		}
 
-		$this->row_text( 'title', __( 'Titel', 'review-captain' ), (string) ( $draft['title'] ?? '' ) );
-		$body_label = ReviewEditor::TYPE_EXTERNAL === $type ? __( 'Erlaubter Text (Auszug)', 'review-captain' ) : __( 'Text', 'review-captain' );
+		$this->row_text( 'title', __( 'Title', 'review-captain' ), (string) ( $draft['title'] ?? '' ) );
+		$body_label = ReviewEditor::TYPE_EXTERNAL === $type ? __( 'Permitted text (excerpt)', 'review-captain' ) : __( 'Text', 'review-captain' );
 		$this->row_textarea( 'body', $body_label, (string) ( $draft['body'] ?? '' ), true );
-		$this->row_text( 'author_name', ReviewEditor::TYPE_TESTIMONIAL === $type ? __( 'Name der Person', 'review-captain' ) : __( 'Name', 'review-captain' ), (string) ( $draft['author_name'] ?? '' ), true );
-		$this->row_date( 'published_at', ReviewEditor::TYPE_EXTERNAL === $type ? __( 'Datum der Originalbewertung', 'review-captain' ) : __( 'Datum', 'review-captain' ), (string) ( $draft['published_at'] ?? '' ), ReviewEditor::TYPE_EXTERNAL === $type );
-		$this->row_text( 'language', __( 'Sprache', 'review-captain' ), (string) ( $draft['language'] ?? '' ), false, __( 'Sprachkürzel, z. B. de oder de_AT. Texte werden nie übersetzt.', 'review-captain' ) );
+		$this->row_text( 'author_name', ReviewEditor::TYPE_TESTIMONIAL === $type ? __( 'Person\'s name', 'review-captain' ) : __( 'Name', 'review-captain' ), (string) ( $draft['author_name'] ?? '' ), true );
+		$this->row_date( 'published_at', ReviewEditor::TYPE_EXTERNAL === $type ? __( 'Date of original review', 'review-captain' ) : __( 'Date', 'review-captain' ), (string) ( $draft['published_at'] ?? '' ), ReviewEditor::TYPE_EXTERNAL === $type );
+		$this->row_text( 'language', __( 'Language', 'review-captain' ), (string) ( $draft['language'] ?? '' ), false, __( 'Language code, e.g. de or de_AT. Texts are never translated.', 'review-captain' ) );
 
 		if ( ReviewEditor::TYPE_EXTERNAL === $type ) {
-			$this->row_text( 'source_url', __( 'Profil-/Original-Link', 'review-captain' ), (string) ( $draft['source_url'] ?? '' ), true, __( 'Nur https-Links. Wird im Frontend als Quelle verlinkt.', 'review-captain' ), 'url' );
-			$this->row_text( 'source_note', __( 'Quellenhinweis', 'review-captain' ), (string) ( $draft['source_note'] ?? '' ), true, __( 'z. B. „Auszug aus Google, übernommen am 14.11.2026“.', 'review-captain' ) );
+			$this->row_text( 'source_url', __( 'Profile/original link', 'review-captain' ), (string) ( $draft['source_url'] ?? '' ), true, __( 'https links only. Linked as the source on the frontend.', 'review-captain' ), 'url' );
+			$this->row_text( 'source_note', __( 'Source note', 'review-captain' ), (string) ( $draft['source_note'] ?? '' ), true, __( 'e.g. “Excerpt from Google, added on 11/14/2026”.', 'review-captain' ) );
 		}
 		$this->row_context( (string) ( $draft['context_type'] ?? '' ), (string) ( $draft['context_id'] ?? '' ) );
 
-		echo '<tr><th scope="row">' . esc_html__( 'Verifizierung', 'review-captain' ) . '</th><td>';
-		echo esc_html( ReviewEditor::TYPE_EXTERNAL === $type ? __( 'Externe Plattformbewertung', 'review-captain' ) : __( 'Ungeprüft', 'review-captain' ) );
-		echo '<p class="description">' . esc_html__( '„Kauf verifiziert“ oder „Teilnahme bestätigt“ kann nur eine angebundene Quelle setzen, nicht manuell.', 'review-captain' ) . '</p></td></tr>';
+		echo '<tr><th scope="row">' . esc_html__( 'Verification', 'review-captain' ) . '</th><td>';
+		echo esc_html( ReviewEditor::TYPE_EXTERNAL === $type ? __( 'External platform review', 'review-captain' ) : __( 'Unverified', 'review-captain' ) );
+		echo '<p class="description">' . esc_html__( '“Verified purchase” or “Attendance confirmed” can only be set by a connected source, not manually.', 'review-captain' ) . '</p></td></tr>';
 
 		$this->row_select(
 			'status',
@@ -289,7 +289,7 @@ final class ReviewsPage {
 			(string) ( $draft['status'] ?? ReviewStatus::PENDING->value )
 		);
 		echo '</tbody></table>';
-		echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Eintrag anlegen', 'review-captain' ) . '</button></p>';
+		echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Create entry', 'review-captain' ) . '</button></p>';
 		echo '</form>';
 	}
 
@@ -303,7 +303,7 @@ final class ReviewsPage {
 		$draft    = ReviewActions::take_draft();
 		$val      = static fn( string $key, string $current ): string => array_key_exists( $key, $draft ) ? (string) $draft[ $key ] : $current;
 
-		echo View::header( $external ? __( 'Review ansehen', 'review-captain' ) : __( 'Review bearbeiten', 'review-captain' ), View::page_url( self::SLUG ), __( '← Zur Liste', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo View::header( $external ? __( 'View review', 'review-captain' ) : __( 'Edit review', 'review-captain' ), View::page_url( self::SLUG ), __( '← Back to list', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		echo '<div class="rc-admin-columns"><div class="rc-admin-main">';
@@ -314,22 +314,22 @@ final class ReviewsPage {
 		echo '<input type="hidden" name="revision" value="' . esc_attr( (string) $review->revision ) . '" />';
 
 		if ( Kind::TESTIMONIAL === $review->kind ) {
-			echo View::notice( 'info', __( 'Erfahrungsbericht der Website (Text-Testimonial) – wird nicht als Plattformbewertung ausgegeben.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo View::notice( 'info', __( 'Site testimonial (text testimonial) – not output as a platform review.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		if ( $external ) {
 			/* translators: %s: platform name */
-			echo View::notice( 'info', sprintf( __( 'Inhalt stammt von %s und kann hier nicht geändert werden. Du kannst die Sichtbarkeit (Status), das Profil und den Bezug ändern.', 'review-captain' ), $review->platform->label() ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo View::notice( 'info', sprintf( __( 'Content comes from %s and cannot be changed here. You can change the visibility (status), the profile, and the reference.', 'review-captain' ), $review->platform->label() ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		echo '<table class="form-table" role="presentation"><tbody>';
 		if ( $external ) {
-			$this->row_static( __( 'Plattform', 'review-captain' ), $review->platform->label() );
-			$this->row_static( __( 'Originalbewertung', 'review-captain' ), View::rating( $review ) );
-			$this->row_static( __( 'Titel', 'review-captain' ), '' !== $review->title ? $review->title : '–' );
+			$this->row_static( __( 'Platform', 'review-captain' ), $review->platform->label() );
+			$this->row_static( __( 'Original rating', 'review-captain' ), View::rating( $review ) );
+			$this->row_static( __( 'Title', 'review-captain' ), '' !== $review->title ? $review->title : '–' );
 			echo '<tr><th scope="row">' . esc_html__( 'Text', 'review-captain' ) . '</th><td><blockquote class="rc-admin-quote">' . nl2br( esc_html( $review->body ) ) . '</blockquote></td></tr>';
 			$this->row_static( __( 'Name', 'review-captain' ), $review->author_name );
-			$this->row_static( __( 'Datum der Originalbewertung', 'review-captain' ), View::date( $review->published_at ) );
-			echo '<tr><th scope="row">' . esc_html__( 'Original-Link', 'review-captain' ) . '</th><td>';
+			$this->row_static( __( 'Date of original review', 'review-captain' ), View::date( $review->published_at ) );
+			echo '<tr><th scope="row">' . esc_html__( 'Original link', 'review-captain' ) . '</th><td>';
 			if ( null !== $review->source_url && Profiles::is_https( $review->source_url ) ) {
 				echo '<a href="' . esc_url( $review->source_url ) . '" target="_blank" rel="noopener noreferrer nofollow">' . esc_html( $review->source_url ) . '</a>';
 			} else {
@@ -337,33 +337,33 @@ final class ReviewsPage {
 			}
 			echo '</td></tr>';
 			if ( ! empty( $review->meta['source_note'] ) ) {
-				$this->row_static( __( 'Quellenhinweis', 'review-captain' ), (string) $review->meta['source_note'] );
+				$this->row_static( __( 'Source note', 'review-captain' ), (string) $review->meta['source_note'] );
 			}
-			$profiles = array( '' => __( '– kein Profil –', 'review-captain' ) );
+			$profiles = array( '' => __( '– no profile –', 'review-captain' ) );
 			foreach ( ( new Profiles() )->all( $review->platform->value ) as $profile ) {
 				$profiles[ (string) $profile['id'] ] = (string) $profile['label'];
 			}
 			if ( null === $review->external_id ) {
-				$this->row_select( 'profile_id', __( 'Profil', 'review-captain' ), $profiles, $val( 'profile_id', (string) $review->profile_id ) );
+				$this->row_select( 'profile_id', __( 'Profile', 'review-captain' ), $profiles, $val( 'profile_id', (string) $review->profile_id ) );
 			}
 		} else {
-			echo '<tr><th scope="row"><label for="rc-rating_value">' . esc_html__( 'Bewertung', 'review-captain' ) . '</label></th><td>';
-			echo '<select id="rc-rating_value" name="review[rating_value]"><option value="">' . esc_html__( '– ohne Sterne –', 'review-captain' ) . '</option>';
+			echo '<tr><th scope="row"><label for="rc-rating_value">' . esc_html__( 'Rating', 'review-captain' ) . '</label></th><td>';
+			echo '<select id="rc-rating_value" name="review[rating_value]"><option value="">' . esc_html__( '– no stars –', 'review-captain' ) . '</option>';
 			$current = null !== $review->rating_value ? (string) (int) round( $review->rating_value ) : '';
 			for ( $i = 5; $i >= 1; $i-- ) {
 				/* translators: %d: rating value */
-				echo '<option value="' . esc_attr( (string) $i ) . '"' . selected( (string) $i, $val( 'rating_value', $current ), false ) . '>' . esc_html( sprintf( __( '%d von 5', 'review-captain' ), $i ) ) . '</option>';
+				echo '<option value="' . esc_attr( (string) $i ) . '"' . selected( (string) $i, $val( 'rating_value', $current ), false ) . '>' . esc_html( sprintf( __( '%d out of 5', 'review-captain' ), $i ) ) . '</option>';
 			}
 			echo '</select></td></tr>';
-			$this->row_text( 'title', __( 'Titel', 'review-captain' ), $val( 'title', $review->title ) );
+			$this->row_text( 'title', __( 'Title', 'review-captain' ), $val( 'title', $review->title ) );
 			$this->row_textarea( 'body', __( 'Text', 'review-captain' ), $val( 'body', $review->body ), true );
 			$this->row_text( 'author_name', __( 'Name', 'review-captain' ), $val( 'author_name', $review->author_name ), true );
-			$this->row_date( 'published_at', __( 'Datum', 'review-captain' ), $val( 'published_at', null !== $review->published_at ? substr( $review->published_at, 0, 10 ) : '' ) );
-			$this->row_text( 'language', __( 'Sprache', 'review-captain' ), $val( 'language', $review->language ) );
+			$this->row_date( 'published_at', __( 'Date', 'review-captain' ), $val( 'published_at', null !== $review->published_at ? substr( $review->published_at, 0, 10 ) : '' ) );
+			$this->row_text( 'language', __( 'Language', 'review-captain' ), $val( 'language', $review->language ) );
 		}
 		$this->row_context( $val( 'context_type', (string) $review->context_type ), $val( 'context_id', (string) $review->context_id ) );
 		echo '</tbody></table>';
-		echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'review-captain' ) . '</button></p>';
+		echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Save changes', 'review-captain' ) . '</button></p>';
 		echo '</form>';
 
 		$this->render_history( $review );
@@ -387,11 +387,11 @@ final class ReviewsPage {
 			return;
 		}
 		$labels = ReportStore::reason_labels();
-		echo '<div class="postbox" id="rc-reports"><div class="postbox-header"><h2>' . esc_html__( 'Offene Meldungen', 'review-captain' ) . '</h2></div><div class="inside"><ul>';
+		echo '<div class="postbox" id="rc-reports"><div class="postbox-header"><h2>' . esc_html__( 'Open reports', 'review-captain' ) . '</h2></div><div class="inside"><ul>';
 		foreach ( $reasons as $reason => $count ) {
 			echo '<li>' . esc_html( ( $labels[ $reason ] ?? $reason ) . ': ' . number_format_i18n( $count ) ) . '</li>';
 		}
-		echo '</ul><p class="description">' . esc_html__( 'Mit einer Statusentscheidung (z. B. wieder freigeben oder ablehnen) werden die Meldungen geschlossen. Über Meldende wird nichts gespeichert.', 'review-captain' ) . '</p></div></div>';
+		echo '</ul><p class="description">' . esc_html__( 'A status decision (e.g. approving again or rejecting) closes the reports. Nothing is stored about the reporters.', 'review-captain' ) . '</p></div></div>';
 	}
 
 	/**
@@ -404,13 +404,13 @@ final class ReviewsPage {
 			return;
 		}
 		$tags = ( new TagStore() )->for_review( (int) $review->id );
-		echo '<div class="postbox" id="rc-tags"><div class="postbox-header"><h2>' . esc_html__( 'Interne Tags', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<div class="postbox" id="rc-tags"><div class="postbox-header"><h2>' . esc_html__( 'Internal tags', 'review-captain' ) . '</h2></div><div class="inside">';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'save_tags' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<input type="hidden" name="id" value="' . esc_attr( (string) $review->id ) . '" />';
-		echo '<p><label for="rc-tags-input">' . esc_html__( 'Tags (durch Komma getrennt)', 'review-captain' ) . '</label><br /><input type="text" id="rc-tags-input" name="tags" class="widefat" maxlength="500" value="' . esc_attr( implode( ', ', $tags ) ) . '" aria-describedby="rc-tags-desc" />';
-		echo '<span class="description" id="rc-tags-desc">' . esc_html__( 'Nur intern sichtbar. Keine personenbezogenen Daten eintragen.', 'review-captain' ) . '</span></p>';
-		echo '<p><button type="submit" class="button">' . esc_html__( 'Tags speichern', 'review-captain' ) . '</button></p></form></div></div>';
+		echo '<p><label for="rc-tags-input">' . esc_html__( 'Tags (comma-separated)', 'review-captain' ) . '</label><br /><input type="text" id="rc-tags-input" name="tags" class="widefat" maxlength="500" value="' . esc_attr( implode( ', ', $tags ) ) . '" aria-describedby="rc-tags-desc" />';
+		echo '<span class="description" id="rc-tags-desc">' . esc_html__( 'Visible internally only. Do not enter personal data.', 'review-captain' ) . '</span></p>';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Save tags', 'review-captain' ) . '</button></p></form></div></div>';
 	}
 
 	/**
@@ -422,13 +422,13 @@ final class ReviewsPage {
 		if ( null === $review->id || null === PhotoStore::for_review( $review->id ) ) {
 			return;
 		}
-		echo '<div class="postbox" id="rc-photo"><div class="postbox-header"><h2>' . esc_html__( 'Foto', 'review-captain' ) . '</h2></div><div class="inside">';
-		echo '<p><img src="' . esc_url( PhotoStore::url( $review->uuid ) ) . '" alt="' . esc_attr__( 'Foto zur Bewertung (Moderationsvorschau)', 'review-captain' ) . '" style="max-width:100%;height:auto" /></p>';
-		echo '<p class="description">' . esc_html__( 'Öffentlich sichtbar erst nach Freigabe und wenn „Fotos anzeigen“ aktiv ist. Wird mit dem Review bzw. bei einer Datenschutz-Löschung entfernt.', 'review-captain' ) . '</p>';
+		echo '<div class="postbox" id="rc-photo"><div class="postbox-header"><h2>' . esc_html__( 'Photo', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<p><img src="' . esc_url( PhotoStore::url( $review->uuid ) ) . '" alt="' . esc_attr__( 'Review photo (moderation preview)', 'review-captain' ) . '" style="max-width:100%;height:auto" /></p>';
+		echo '<p class="description">' . esc_html__( 'Publicly visible only after approval and when “Show photos” is enabled. Removed together with the review or on a privacy erasure.', 'review-captain' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'delete_photo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<input type="hidden" name="id" value="' . esc_attr( (string) $review->id ) . '" />';
-		echo '<p><button type="submit" class="button">' . esc_html__( 'Foto löschen', 'review-captain' ) . '</button></p></form></div></div>';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Delete photo', 'review-captain' ) . '</button></p></form></div></div>';
 	}
 
 	/**
@@ -438,27 +438,27 @@ final class ReviewsPage {
 	 */
 	private function render_moderation_box( Review $review ): void {
 		echo '<div class="postbox" id="rc-moderation"><div class="postbox-header"><h2>' . esc_html__( 'Status', 'review-captain' ) . '</h2></div><div class="inside">';
-		echo '<p>' . esc_html__( 'Aktuell:', 'review-captain' ) . ' ' . View::pill( $review->status->label() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<p>' . esc_html__( 'Current:', 'review-captain' ) . ' ' . View::pill( $review->status->label() ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		$targets = $review->status->allowed_transitions();
 		if ( ! $targets ) {
-			echo '<p class="description">' . esc_html__( 'Dieser Eintrag wurde von der Quelle entfernt und kann nicht mehr moderiert werden.', 'review-captain' ) . '</p></div></div>';
+			echo '<p class="description">' . esc_html__( 'This entry was removed by the source and can no longer be moderated.', 'review-captain' ) . '</p></div></div>';
 			return;
 		}
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'review_status' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<input type="hidden" name="id" value="' . esc_attr( (string) $review->id ) . '" />';
-		echo '<p><label for="rc-status-to">' . esc_html__( 'Neuer Status', 'review-captain' ) . '</label><br /><select id="rc-status-to" name="to">';
+		echo '<p><label for="rc-status-to">' . esc_html__( 'New status', 'review-captain' ) . '</label><br /><select id="rc-status-to" name="to">';
 		if ( ReviewStatus::APPROVED === $review->status && ( new ReportStore() )->open_count( (int) $review->id ) > 0 ) {
 			// Open reports below the threshold can be closed without hiding the review (review P2).
-			echo '<option value="' . esc_attr( ReviewStatus::APPROVED->value ) . '">' . esc_html__( 'Freigegeben lassen, Meldungen schließen', 'review-captain' ) . '</option>';
+			echo '<option value="' . esc_attr( ReviewStatus::APPROVED->value ) . '">' . esc_html__( 'Keep approved, close reports', 'review-captain' ) . '</option>';
 		}
 		foreach ( $targets as $target ) {
 			echo '<option value="' . esc_attr( $target->value ) . '">' . esc_html( $target->label() ) . '</option>';
 		}
 		echo '</select></p>';
-		echo '<p><label for="rc-status-reason">' . esc_html__( 'Grund', 'review-captain' ) . '</label><br /><input type="text" id="rc-status-reason" name="reason" class="widefat" maxlength="500" aria-describedby="rc-status-reason-desc" />';
-		echo '<span class="description" id="rc-status-reason-desc">' . esc_html__( 'Pflicht bei „Abgelehnt“ und „Archiviert“. Wird im Verlauf gespeichert – keine personenbezogenen Daten eintragen.', 'review-captain' ) . '</span></p>';
-		echo '<p><button type="submit" class="button button-primary">' . esc_html__( 'Status ändern', 'review-captain' ) . '</button></p>';
+		echo '<p><label for="rc-status-reason">' . esc_html__( 'Reason', 'review-captain' ) . '</label><br /><input type="text" id="rc-status-reason" name="reason" class="widefat" maxlength="500" aria-describedby="rc-status-reason-desc" />';
+		echo '<span class="description" id="rc-status-reason-desc">' . esc_html__( 'Required for “Rejected” and “Archived”. Stored in the history – do not enter personal data.', 'review-captain' ) . '</span></p>';
+		echo '<p><button type="submit" class="button button-primary">' . esc_html__( 'Change status', 'review-captain' ) . '</button></p>';
 		echo '</form></div></div>';
 	}
 
@@ -469,33 +469,33 @@ final class ReviewsPage {
 	 */
 	private function render_origin_box( Review $review ): void {
 		$origins = array(
-			Origin::LOCAL_SUBMISSION->value => __( 'Formular auf dieser Website', 'review-captain' ),
-			Origin::MANUAL->value           => __( 'Manuell angelegt', 'review-captain' ),
-			Origin::CSV_IMPORT->value       => __( 'CSV-Import', 'review-captain' ),
-			Origin::PROVIDER_SYNC->value    => __( 'Synchronisierung', 'review-captain' ),
+			Origin::LOCAL_SUBMISSION->value => __( 'Form on this site', 'review-captain' ),
+			Origin::MANUAL->value           => __( 'Created manually', 'review-captain' ),
+			Origin::CSV_IMPORT->value       => __( 'CSV import', 'review-captain' ),
+			Origin::PROVIDER_SYNC->value    => __( 'Sync', 'review-captain' ),
 			Origin::CONNECTOR->value        => __( 'Connector', 'review-captain' ),
 		);
-		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Herkunft', 'review-captain' ) . '</h2></div><div class="inside"><dl class="rc-admin-dl">';
+		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Source details', 'review-captain' ) . '</h2></div><div class="inside"><dl class="rc-admin-dl">';
 		$rows = array(
-			__( 'Typ', 'review-captain' )           => $review->kind->label(),
-			__( 'Ursprung', 'review-captain' )      => $origins[ $review->origin->value ] ?? $review->origin->value,
-			__( 'Plattform', 'review-captain' )     => $review->platform->label(),
-			__( 'Verifizierung', 'review-captain' ) => $review->verification->label(),
-			__( 'Angelegt', 'review-captain' )      => View::date( $review->created_at, true ),
+			__( 'Type', 'review-captain' )           => $review->kind->label(),
+			__( 'Origin', 'review-captain' )      => $origins[ $review->origin->value ] ?? $review->origin->value,
+			__( 'Platform', 'review-captain' )     => $review->platform->label(),
+			__( 'Verification', 'review-captain' ) => $review->verification->label(),
+			__( 'Created', 'review-captain' )      => View::date( $review->created_at, true ),
 		);
 		if ( Origin::LOCAL_SUBMISSION === $review->origin ) {
-			$rows[ __( 'Einwilligung', 'review-captain' ) ] = $review->consent_publish ? __( 'ja', 'review-captain' ) . ( null !== $review->consent_at ? ', ' . View::date( $review->consent_at ) : '' ) : __( 'nein', 'review-captain' );
+			$rows[ __( 'Consent', 'review-captain' ) ] = $review->consent_publish ? __( 'yes', 'review-captain' ) . ( null !== $review->consent_at ? ', ' . View::date( $review->consent_at ) : '' ) : __( 'no', 'review-captain' );
 			if ( null !== $review->author_email ) {
-				$rows[ __( 'Kontakt (privat)', 'review-captain' ) ] = $review->author_email;
+				$rows[ __( 'Contact (private)', 'review-captain' ) ] = $review->author_email;
 			}
 		}
 		if ( null !== $review->import_batch_id ) {
-			$rows[ __( 'Import-Batch', 'review-captain' ) ] = '#' . $review->import_batch_id;
+			$rows[ __( 'Import batch', 'review-captain' ) ] = '#' . $review->import_batch_id;
 		}
 		foreach ( $rows as $label => $value ) {
 			echo '<dt>' . esc_html( $label ) . '</dt><dd>' . esc_html( $value ) . '</dd>';
 		}
-		echo '</dl><p class="description">' . esc_html__( '„Kauf verifiziert“ und „Teilnahme bestätigt“ setzt nur eine angebundene Quelle; manuell ist das nicht möglich.', 'review-captain' ) . '</p></div></div>';
+		echo '</dl><p class="description">' . esc_html__( '“Verified purchase” and “Attendance confirmed” are set only by a connected source; this is not possible manually.', 'review-captain' ) . '</p></div></div>';
 	}
 
 	/**
@@ -505,16 +505,16 @@ final class ReviewsPage {
 	 */
 	private function render_history( Review $review ): void {
 		$history = $this->plugin->reviews()->history( (int) $review->id );
-		echo '<h2>' . esc_html__( 'Änderungsverlauf', 'review-captain' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Change history', 'review-captain' ) . '</h2>';
 		if ( ! $history ) {
-			echo '<p>' . esc_html__( 'Noch keine Einträge.', 'review-captain' ) . '</p>';
+			echo '<p>' . esc_html__( 'No entries yet.', 'review-captain' ) . '</p>';
 			return;
 		}
-		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Zeit', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Aktion', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Grund', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Benutzer', 'review-captain' ) . '</th></tr></thead><tbody>';
+		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Time', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Action', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Reason', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'User', 'review-captain' ) . '</th></tr></thead><tbody>';
 		foreach ( $history as $event ) {
 			$from   = ReviewStatus::tryFrom( (string) ( $event['from_status'] ?? '' ) );
 			$to     = ReviewStatus::tryFrom( (string) ( $event['to_status'] ?? '' ) );
-			$action = 'created' === $event['action'] ? __( 'erstellt', 'review-captain' ) . ( $to ? ' (' . $to->label() . ')' : '' ) : ( $from && $to ? $from->label() . ' → ' . $to->label() : (string) $event['action'] );
+			$action = 'created' === $event['action'] ? __( 'created', 'review-captain' ) . ( $to ? ' (' . $to->label() . ')' : '' ) : ( $from && $to ? $from->label() . ' → ' . $to->label() : (string) $event['action'] );
 			$user   = ! empty( $event['user_id'] ) ? get_userdata( (int) $event['user_id'] ) : false;
 			echo '<tr><td>' . esc_html( View::date( (string) $event['created_at'], true ) ) . '</td><td>' . esc_html( $action ) . '</td><td>' . esc_html( (string) $event['reason'] ) . '</td><td>' . esc_html( $user ? (string) $user->display_name : __( 'System', 'review-captain' ) ) . '</td></tr>';
 		}
@@ -581,7 +581,7 @@ final class ReviewsPage {
 		echo '<tr><th scope="row"><label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . ( $required ? ' <span class="required">*</span>' : '' ) . '</label></th><td>';
 		echo '<select id="' . esc_attr( $id ) . '" name="review[' . esc_attr( $key ) . ']"' . ( $required ? ' required' : '' ) . '>';
 		if ( $required ) {
-			echo '<option value="">' . esc_html__( '– bitte wählen –', 'review-captain' ) . '</option>';
+			echo '<option value="">' . esc_html__( '– please select –', 'review-captain' ) . '</option>';
 		}
 		foreach ( $choices as $value => $text ) {
 			echo '<option value="' . esc_attr( (string) $value ) . '"' . selected( (string) $value, $current, false ) . '>' . esc_html( (string) $text ) . '</option>';
@@ -596,14 +596,14 @@ final class ReviewsPage {
 	 * @param string $id   Context ID.
 	 */
 	private function row_context( string $type, string $id ): void {
-		echo '<tr><th scope="row"><label for="rc-context_type">' . esc_html__( 'Bezug', 'review-captain' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="rc-context_type">' . esc_html__( 'Reference', 'review-captain' ) . '</label></th><td>';
 		echo '<select id="rc-context_type" name="review[context_type]">';
 		foreach ( self::context_choices() as $value => $text ) {
 			echo '<option value="' . esc_attr( $value ) . '"' . selected( $value, $type, false ) . '>' . esc_html( $text ) . '</option>';
 		}
-		echo '</select> <label class="screen-reader-text" for="rc-context_id">' . esc_html__( 'Bezugs-ID', 'review-captain' ) . '</label>';
-		echo '<input type="text" id="rc-context_id" name="review[context_id]" class="regular-text" value="' . esc_attr( $id ) . '" placeholder="' . esc_attr__( 'ID, z. B. Beitrags- oder Produkt-ID', 'review-captain' ) . '" />';
-		echo '<p class="description">' . esc_html__( 'Optional: Ordnet den Eintrag einer Seite, einem Produkt oder einer Veranstaltung zu (für Widgets mit Filter).', 'review-captain' ) . '</p></td></tr>';
+		echo '</select> <label class="screen-reader-text" for="rc-context_id">' . esc_html__( 'Reference ID', 'review-captain' ) . '</label>';
+		echo '<input type="text" id="rc-context_id" name="review[context_id]" class="regular-text" value="' . esc_attr( $id ) . '" placeholder="' . esc_attr__( 'ID, e.g. post or product ID', 'review-captain' ) . '" />';
+		echo '<p class="description">' . esc_html__( 'Optional: Assigns the entry to a page, product, or event (for widgets with filters).', 'review-captain' ) . '</p></td></tr>';
 	}
 
 	/**

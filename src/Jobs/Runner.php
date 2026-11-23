@@ -291,7 +291,7 @@ class Runner {
 		}
 		return sprintf(
 			/* translators: 1: connector key, 2: connector state */
-			__( 'Connector „%1$s“ ist nicht aktiv (%2$s); Job wartet.', 'review-captain' ),
+			__( 'Connector “%1$s” is not active (%2$s); job is waiting.', 'review-captain' ),
 			$key,
 			$registry->status( $key )['state']
 		);
@@ -345,7 +345,7 @@ class Runner {
 				ErrorCode::CONTRACT_INCOMPATIBLE,
 				sprintf(
 					/* translators: %s: job type */
-					__( 'Kein Handler für Jobtyp „%s“ registriert.', 'review-captain' ),
+					__( 'No handler registered for job type “%s”.', 'review-captain' ),
 					$type
 				)
 			);
@@ -390,7 +390,7 @@ class Runner {
 			self::debug_log( $job, $code, 'WP_Error' );
 			return false;
 		}
-		$this->queue->fail( $id, $worker_id, ErrorCode::CONTRACT_INVALID, __( 'Ungültiges Handler-Ergebnis.', 'review-captain' ) );
+		$this->queue->fail( $id, $worker_id, ErrorCode::CONTRACT_INVALID, __( 'Invalid handler result.', 'review-captain' ) );
 		self::debug_log( $job, ErrorCode::CONTRACT_INVALID, 'result' );
 		return false;
 	}

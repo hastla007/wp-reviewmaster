@@ -77,7 +77,7 @@ final class PagesTest extends AdminTestCase {
 		$checklist->set( 'widget', 'open' );
 		$this->assertSame( 'open', $checklist->states()['widget'] );
 		$checklist->dismiss( true );
-		$this->assertStringContainsString( 'Einrichtung erneut anzeigen', $checklist->render() );
+		$this->assertStringContainsString( 'Show setup again', $checklist->render() );
 	}
 
 	public function test_dashboard_summary_is_per_platform_and_renders(): void {
@@ -109,8 +109,8 @@ final class PagesTest extends AdminTestCase {
 		$html = (string) ob_get_clean();
 		$this->assertStringContainsString( 'In Review Captain Pro', $html );
 		$this->assertStringContainsString( 'aria-disabled="true"', $html );
-		$this->assertStringContainsString( 'Einrichtung', $html );
-		$this->assertStringContainsString( 'kein plattformübergreifender Gesamtschnitt', $html );
+		$this->assertStringContainsString( 'Setup', $html );
+		$this->assertStringContainsString( 'No cross-platform overall average is calculated', $html );
 	}
 
 	public function test_profiles_https_only_and_delete_keeps_reviews(): void {
@@ -151,7 +151,7 @@ final class PagesTest extends AdminTestCase {
 		ob_start();
 		$page->render();
 		$html = (string) ob_get_clean();
-		$this->assertStringContainsString( 'API-Verbindung in Review Captain Pro', $html );
+		$this->assertStringContainsString( 'API connection in Review Captain Pro', $html );
 	}
 
 	public function test_pro_hints_switch_hides_dashboard_and_sources_info(): void {

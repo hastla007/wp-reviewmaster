@@ -27,31 +27,31 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __( 'Kontext', 'review-captain' ), initialOpen: true },
+						{ title: __( 'Context', 'review-captain' ), initialOpen: true },
 						el( SelectControl, {
-							label: __( 'Worauf bezieht sich die Bewertung?', 'review-captain' ),
+							label: __( 'What is the review about?', 'review-captain' ),
 							value: a.contextType,
 							options: [
-								{ label: __( 'Unternehmen allgemein', 'review-captain' ), value: '' },
-								{ label: __( 'Beitrag/Seite', 'review-captain' ), value: 'post' },
-								{ label: __( 'Produkt', 'review-captain' ), value: 'product' },
+								{ label: __( 'Company in general', 'review-captain' ), value: '' },
+								{ label: __( 'Post/page', 'review-captain' ), value: 'post' },
+								{ label: __( 'Product', 'review-captain' ), value: 'product' },
 								{ label: __( 'Event', 'review-captain' ), value: 'event' },
-								{ label: __( 'Kurs', 'review-captain' ), value: 'course' },
-								{ label: __( 'Gutschein', 'review-captain' ), value: 'voucher' },
+								{ label: __( 'Course', 'review-captain' ), value: 'course' },
+								{ label: __( 'Voucher', 'review-captain' ), value: 'voucher' },
 								{ label: __( 'App', 'review-captain' ), value: 'app' }
 							],
 							onChange: function ( v ) { set( { contextType: v } ); }
 						} ),
 						a.contextType && el( TextControl, {
-							label: __( 'Kontext-ID', 'review-captain' ),
-							help: __( '„current“ verwendet den aktuellen Beitrag.', 'review-captain' ),
+							label: __( 'Context ID', 'review-captain' ),
+							help: __( '“current” uses the current post.', 'review-captain' ),
 							value: a.contextId,
 							onChange: function ( v ) { set( { contextId: v } ); }
 						} ),
 						el(
 							Notice,
 							{ status: 'info', isDismissible: false },
-							__( 'Neue Bewertungen werden je nach Einstellung erst nach Moderation veröffentlicht. Einwilligungs- und Datenschutztext legen Sie unter Einstellungen fest.', 'review-captain' )
+							__( 'Depending on your settings, new reviews are published only after moderation. Set the consent and privacy text under Settings.', 'review-captain' )
 						)
 					)
 				),

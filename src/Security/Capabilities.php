@@ -153,7 +153,7 @@ final class Capabilities {
 	 */
 	public static function verify_request( string $cap, string $action, string $field = '_rc_nonce' ): void {
 		if ( ! current_user_can( $cap ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		check_admin_referer( self::nonce_action( $action ), $field );
 	}

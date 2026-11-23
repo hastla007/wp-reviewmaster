@@ -277,7 +277,7 @@ class JobQueue {
 					array(
 						'status'             => self::STATUS_DEAD,
 						'last_error_code'    => ErrorCode::TEMP_UNAVAILABLE,
-						'last_error_message' => __( 'Lease abgelaufen, Prozessabbruch vermutet.', 'review-captain' ),
+						'last_error_message' => __( 'Lease expired, process termination suspected.', 'review-captain' ),
 					)
 				);
 				continue;
@@ -552,7 +552,7 @@ class JobQueue {
 		global $wpdb;
 		$table = $this->table();
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
-		$affected = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET status = 'failed', lease_owner = NULL, lease_expires_at = NULL, last_error_code = %s, last_error_message = %s, updated_at = %s WHERE id = %d AND status IN ('queued','paused','running','dead')", ErrorCode::SOURCE_UNAVAILABLE, __( 'Abgebrochen.', 'review-captain' ), $this->now(), $id ) );
+		$affected = $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET status = 'failed', lease_owner = NULL, lease_expires_at = NULL, last_error_code = %s, last_error_message = %s, updated_at = %s WHERE id = %d AND status IN ('queued','paused','running','dead')", ErrorCode::SOURCE_UNAVAILABLE, __( 'Canceled.', 'review-captain' ), $this->now(), $id ) );
 		return 1 === (int) $affected;
 	}
 

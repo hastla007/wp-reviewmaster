@@ -68,7 +68,7 @@ class ProviderRegistry {
 				'key'        => null,
 				'class'      => get_class( $e ),
 				'error_code' => ErrorCode::INTERNAL,
-				'messages'   => array( __( 'Ein Registrierungs-Callback hat einen Fehler ausgelöst.', 'review-captain' ) ),
+				'messages'   => array( __( 'A registration callback threw an error.', 'review-captain' ) ),
 			);
 		}
 	}
@@ -81,7 +81,7 @@ class ProviderRegistry {
 	public function register( mixed $provider ): bool {
 		$class = is_object( $provider ) ? get_class( $provider ) : gettype( $provider );
 		if ( ! $provider instanceof ProviderInterface ) {
-			return $this->reject( null, $class, ErrorCode::CONTRACT_INCOMPATIBLE, __( 'Objekt implementiert ProviderInterface nicht.', 'review-captain' ) );
+			return $this->reject( null, $class, ErrorCode::CONTRACT_INCOMPATIBLE, __( 'Object does not implement ProviderInterface.', 'review-captain' ) );
 		}
 		try {
 			$key              = $provider->key();
@@ -91,40 +91,40 @@ class ProviderRegistry {
 			$contract_version = $provider->contract_version();
 			$capabilities     = $provider->capabilities();
 		} catch ( \Throwable $e ) {
-			return $this->reject( null, $class, ErrorCode::CONTRACT_INVALID, __( 'Metadaten-Methode hat einen Fehler ausgelöst.', 'review-captain' ) );
+			return $this->reject( null, $class, ErrorCode::CONTRACT_INVALID, __( 'Metadata method threw an error.', 'review-captain' ) );
 		}
 		if ( ! preg_match( self::KEY_PATTERN, $key ) ) {
-			return $this->reject( null, $class, ErrorCode::CONTRACT_INVALID, __( 'Ungültiger Provider-Schlüssel.', 'review-captain' ) );
+			return $this->reject( null, $class, ErrorCode::CONTRACT_INVALID, __( 'Invalid provider key.', 'review-captain' ) );
 		}
 		if ( isset( $this->entries[ $key ] ) ) {
-			return $this->reject( $key, $class, ErrorCode::DATA_DUPLICATE, __( 'Doppelter Schlüssel – die erste Registrierung bleibt bestehen.', 'review-captain' ) );
+			return $this->reject( $key, $class, ErrorCode::DATA_DUPLICATE, __( 'Duplicate key – the first registration is kept.', 'review-captain' ) );
 		}
 		if ( '' === trim( $label ) || mb_strlen( $label ) > 191 || '' === trim( $version ) || mb_strlen( $version ) > 64 ) {
-			return $this->reject( $key, $class, ErrorCode::CONTRACT_INVALID, __( 'Bezeichnung oder Version fehlt bzw. ist zu lang.', 'review-captain' ) );
+			return $this->reject( $key, $class, ErrorCode::CONTRACT_INVALID, __( 'Label or version is missing or too long.', 'review-captain' ) );
 		}
 		if ( Platform::LOCAL === $platform ) {
-			return $this->reject( $key, $class, ErrorCode::CONTRACT_INVALID, __( 'Provider dürfen nicht die Plattform „local“ verwenden.', 'review-captain' ) );
+			return $this->reject( $key, $class, ErrorCode::CONTRACT_INVALID, __( 'Providers must not use the “local” platform.', 'review-captain' ) );
 		}
 
 		$messages = array();
 		if ( ! preg_match( self::CONTRACT_PATTERN, $contract_version ) ) {
-			$messages[] = sprintf( /* translators: %s: version */ __( 'Vertragsversion „%s“ wird nicht unterstützt (erwartet 1.x).', 'review-captain' ), $contract_version );
+			$messages[] = sprintf( /* translators: %s: version */ __( 'Contract version “%s” is not supported (expected 1.x).', 'review-captain' ), $contract_version );
 		}
 		$caps = array();
 		foreach ( $capabilities as $cap ) {
 			if ( ! is_string( $cap ) || ! in_array( $cap, ProviderInterface::CAPABILITIES, true ) ) {
-				$messages[] = sprintf( /* translators: %s: capability */ __( 'Unbekannte Fähigkeit „%s“.', 'review-captain' ), is_scalar( $cap ) ? (string) $cap : gettype( $cap ) );
+				$messages[] = sprintf( /* translators: %s: capability */ __( 'Unknown capability “%s”.', 'review-captain' ), is_scalar( $cap ) ? (string) $cap : gettype( $cap ) );
 				continue;
 			}
 			$caps[] = $cap;
 		}
 		$caps = array_values( array_unique( $caps ) );
 		if ( ! in_array( 'read_reviews', $caps, true ) ) {
-			$messages[] = __( 'Pflichtfähigkeit „read_reviews“ fehlt.', 'review-captain' );
+			$messages[] = __( 'Required capability “read_reviews” is missing.', 'review-captain' );
 		}
 		$notices = array();
 		if ( array_intersect( $caps, self::WRITE_CAPABILITIES ) ) {
-			$notices[] = __( 'Schreibfähigkeiten (invite, reply) werden in Vertrag 1.0 nicht ausgeführt.', 'review-captain' );
+			$notices[] = __( 'Write capabilities (invite, reply) are not executed in contract 1.0.', 'review-captain' );
 		}
 
 		$this->entries[ $key ] = array(
@@ -198,20 +198,20 @@ class ProviderRegistry {
 			return array(
 				'state'       => 'source_unavailable',
 				'error_code'  => ErrorCode::SOURCE_UNAVAILABLE,
-				'next_action' => __( 'Provider ist nicht registriert (Add-on inaktiv?).', 'review-captain' ),
+				'next_action' => __( 'Provider is not registered (add-on inactive?).', 'review-captain' ),
 			);
 		}
 		if ( ! $this->entries[ $key ]['compatible'] ) {
 			return array(
 				'state'       => 'paused',
 				'error_code'  => ErrorCode::CONTRACT_INCOMPATIBLE,
-				'next_action' => __( 'Provider auf eine mit Vertrag 1.x kompatible Version aktualisieren.', 'review-captain' ),
+				'next_action' => __( 'Update the provider to a version compatible with contract 1.x.', 'review-captain' ),
 			);
 		}
 		return array(
 			'state'       => 'active',
 			'error_code'  => null,
-			'next_action' => __( 'Keine Aktion nötig.', 'review-captain' ),
+			'next_action' => __( 'No action needed.', 'review-captain' ),
 		);
 	}
 

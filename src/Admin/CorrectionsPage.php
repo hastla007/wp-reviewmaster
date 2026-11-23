@@ -62,23 +62,23 @@ class CorrectionsPage {
 		}
 		$service = new CorrectionService( $this->plugin );
 		$notice  = isset( $_GET['rc_notice'] ) ? sanitize_key( wp_unslash( (string) $_GET['rc_notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		echo '<div class="wrap"><h1>' . esc_html__( 'Korrekturen', 'review-captain' ) . '</h1>';
-		echo '<p>' . esc_html__( 'Von Autorinnen und Autoren eingereichte Änderungen an bereits freigegebenen Bewertungen. Die bisherige Fassung bleibt sichtbar, bis du die neue freigibst.', 'review-captain' ) . '</p>';
+		echo '<div class="wrap"><h1>' . esc_html__( 'Corrections', 'review-captain' ) . '</h1>';
+		echo '<p>' . esc_html__( 'Changes to already approved reviews submitted by their authors. The previous version stays visible until you approve the new one.', 'review-captain' ) . '</p>';
 		if ( '' !== $notice ) {
 			$msg = match ( $notice ) {
-				'correction_approved' => __( 'Korrektur freigegeben und veröffentlicht.', 'review-captain' ),
-				'correction_rejected' => __( 'Korrektur abgelehnt. Die bisherige Fassung bleibt veröffentlicht.', 'review-captain' ),
-				'correction_conflict' => __( 'Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden.', 'review-captain' ),
-				default               => __( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ),
+				'correction_approved' => __( 'Correction approved and published.', 'review-captain' ),
+				'correction_rejected' => __( 'Correction rejected. The previous version remains published.', 'review-captain' ),
+				'correction_conflict' => __( 'The review has been changed in the meantime or the correction is no longer open. Please reload.', 'review-captain' ),
+				default               => __( 'You do not have permission to do this.', 'review-captain' ),
 			};
 			echo '<div class="notice notice-info"><p>' . esc_html( $msg ) . '</p></div>';
 		}
 		$open = $service->open();
 		if ( ! $open ) {
-			echo '<p><em>' . esc_html__( 'Keine offenen Korrekturen.', 'review-captain' ) . '</em></p></div>';
+			echo '<p><em>' . esc_html__( 'No open corrections.', 'review-captain' ) . '</em></p></div>';
 			return;
 		}
-		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Bisher', 'review-captain' ) . '</th><th>' . esc_html__( 'Neu', 'review-captain' ) . '</th><th>' . esc_html__( 'Aktion', 'review-captain' ) . '</th></tr></thead><tbody>';
+		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Current', 'review-captain' ) . '</th><th>' . esc_html__( 'New', 'review-captain' ) . '</th><th>' . esc_html__( 'Action', 'review-captain' ) . '</th></tr></thead><tbody>';
 		foreach ( $open as $rev ) {
 			$r = $this->plugin->reviews()->find( (int) $rev['review_id'] );
 			if ( null === $r ) {
@@ -86,7 +86,7 @@ class CorrectionsPage {
 			}
 			$cell = static fn( $rating, string $title, string $body ): string => '<strong>' . esc_html( (string) $rating ) . ' / 5</strong> ' . esc_html( $title ) . '<br>' . nl2br( esc_html( $body ) );
 			echo '<tr><td>' . $cell( $r->rating_value, $r->title, $r->body ) . '</td><td>' . $cell( $rev['rating_value'], (string) $rev['title'], (string) $rev['body'] ) . '</td><td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in $cell.
-			foreach ( array( 'approve' => __( 'Freigeben', 'review-captain' ), 'reject' => __( 'Ablehnen', 'review-captain' ) ) as $decision => $label ) {
+			foreach ( array( 'approve' => __( 'Approve', 'review-captain' ), 'reject' => __( 'Reject', 'review-captain' ) ) as $decision => $label ) {
 				echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="display:inline">'
 					. '<input type="hidden" name="action" value="' . esc_attr( self::ACTION ) . '"><input type="hidden" name="revision" value="' . esc_attr( (string) $rev['id'] ) . '">'
 					. '<input type="hidden" name="decision" value="' . esc_attr( $decision ) . '">' . wp_nonce_field( self::NONCE_ACTION, '_wpnonce', true, false ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

@@ -599,8 +599,8 @@ class FormHandler {
 		}
 		if ( isset( $_GET['rc_submitted'] ) ) {
 			$state['success'] = '2' === $_GET['rc_submitted']
-				? __( 'Danke! Ihre Bewertung ist jetzt sichtbar.', 'review-captain' )
-				: __( 'Danke! Ihre Bewertung wird nach Prüfung veröffentlicht.', 'review-captain' );
+				? __( 'Thank you! Your review is now visible.', 'review-captain' )
+				: __( 'Thank you! Your review will be published after moderation.', 'review-captain' );
 		}
 		if ( isset( $_GET['rc_error'] ) ) {
 			$codes           = explode( ',', sanitize_text_field( wp_unslash( (string) $_GET['rc_error'] ) ) );
@@ -624,26 +624,26 @@ class FormHandler {
 	 */
 	public static function error_messages(): array {
 		return array(
-			'disabled'     => __( 'Bewertungen können derzeit nicht abgegeben werden.', 'review-captain' ),
-			'nonce'        => __( 'Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und senden Sie das Formular erneut.', 'review-captain' ),
-			'too_fast'     => __( 'Das Formular wurde zu schnell abgeschickt. Bitte versuchen Sie es erneut.', 'review-captain' ),
-			'expired'      => __( 'Das Formular ist abgelaufen. Bitte laden Sie die Seite neu.', 'review-captain' ),
-			'context'      => __( 'Das Formular ist ungültig. Bitte laden Sie die Seite neu.', 'review-captain' ),
-			'rate_limited' => __( 'Sie haben bereits mehrere Bewertungen gesendet. Bitte versuchen Sie es später erneut.', 'review-captain' ),
-			'rating'       => __( 'Bitte wählen Sie eine Bewertung von 1 bis 5 Sternen.', 'review-captain' ),
-			'title_long'   => __( 'Der Titel ist zu lang (höchstens 150 Zeichen).', 'review-captain' ),
-			'body_short'   => __( 'Der Bewertungstext ist zu kurz.', 'review-captain' ),
-			'body_long'    => __( 'Der Bewertungstext ist zu lang.', 'review-captain' ),
-			'name'         => __( 'Bitte geben Sie Ihren Namen an (höchstens 100 Zeichen).', 'review-captain' ),
-			'email'        => __( 'Bitte geben Sie eine gültige E-Mail-Adresse an.', 'review-captain' ),
-			'email_blocked' => __( 'Mit dieser E-Mail-Adresse kann keine Bewertung abgegeben werden. Bitte verwenden Sie eine andere Adresse.', 'review-captain' ),
-			'consent'      => __( 'Bitte bestätigen Sie die Einwilligung zur Veröffentlichung.', 'review-captain' ),
-			'save'         => __( 'Ihre Bewertung konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'review-captain' ),
-			'duplicate'       => __( 'Sie haben dieses Produkt bereits bewertet.', 'review-captain' ),
-			'items_empty'     => __( 'Bitte bewerten Sie mindestens ein Produkt.', 'review-captain' ),
-			'item_rating'     => __( 'Bitte wählen Sie für jedes bewertete Produkt 1 bis 5 Sterne.', 'review-captain' ),
-			'item_body_short' => __( 'Der Text zu einem bewerteten Produkt ist zu kurz.', 'review-captain' ),
-			'item_body_long'  => __( 'Der Text zu einem bewerteten Produkt ist zu lang.', 'review-captain' ),
+			'disabled'     => __( 'Reviews cannot be submitted at this time.', 'review-captain' ),
+			'nonce'        => __( 'Your session has expired. Please reload the page and submit the form again.', 'review-captain' ),
+			'too_fast'     => __( 'The form was submitted too quickly. Please try again.', 'review-captain' ),
+			'expired'      => __( 'The form has expired. Please reload the page.', 'review-captain' ),
+			'context'      => __( 'The form is invalid. Please reload the page.', 'review-captain' ),
+			'rate_limited' => __( 'You have already submitted several reviews. Please try again later.', 'review-captain' ),
+			'rating'       => __( 'Please select a rating from 1 to 5 stars.', 'review-captain' ),
+			'title_long'   => __( 'The title is too long (maximum 150 characters).', 'review-captain' ),
+			'body_short'   => __( 'The review text is too short.', 'review-captain' ),
+			'body_long'    => __( 'The review text is too long.', 'review-captain' ),
+			'name'         => __( 'Please enter your name (maximum 100 characters).', 'review-captain' ),
+			'email'        => __( 'Please enter a valid email address.', 'review-captain' ),
+			'email_blocked' => __( 'A review cannot be submitted with this email address. Please use a different address.', 'review-captain' ),
+			'consent'      => __( 'Please confirm your consent to publication.', 'review-captain' ),
+			'save'         => __( 'Your review could not be saved. Please try again later.', 'review-captain' ),
+			'duplicate'       => __( 'You have already reviewed this product.', 'review-captain' ),
+			'items_empty'     => __( 'Please review at least one product.', 'review-captain' ),
+			'item_rating'     => __( 'Please select 1 to 5 stars for each reviewed product.', 'review-captain' ),
+			'item_body_short' => __( 'The text for a reviewed product is too short.', 'review-captain' ),
+			'item_body_long'  => __( 'The text for a reviewed product is too long.', 'review-captain' ),
 			'photo_upload'      => PhotoStore::message( 'photo_upload' ),
 			'photo_size'        => PhotoStore::message( 'photo_size' ),
 			'photo_type'        => PhotoStore::message( 'photo_type' ),

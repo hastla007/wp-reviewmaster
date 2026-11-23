@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php echo $rc['verification']['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in verification-notice.php. ?>
 	<?php endif; ?>
 	<?php if ( ! empty( $rc['summary'] ) ) : ?>
-		<ul class="rc-summary" aria-label="<?php esc_attr_e( 'Zusammenfassung je Plattform', 'review-captain' ); ?>">
+		<ul class="rc-summary" aria-label="<?php esc_attr_e( 'Summary per platform', 'review-captain' ); ?>">
 			<?php foreach ( $rc['summary'] as $rc_row ) : ?>
 				<li class="rc-summary__item rc-source--<?php echo esc_attr( $rc_row['platform'] ); ?>"><?php echo esc_html( $rc_row['text'] ); ?></li>
 			<?php endforeach; ?>
@@ -40,12 +40,12 @@ defined( 'ABSPATH' ) || exit;
 		<p class="rc-empty"><?php echo esc_html( $rc['empty_text'] ); ?></p>
 	<?php endif; ?>
 	<?php if ( ! empty( $rc['pagination']['prev'] ) || ! empty( $rc['pagination']['next'] ) ) : ?>
-		<nav class="rc-pagination" aria-label="<?php esc_attr_e( 'Weitere Bewertungen', 'review-captain' ); ?>">
+		<nav class="rc-pagination" aria-label="<?php esc_attr_e( 'More reviews', 'review-captain' ); ?>">
 			<?php if ( ! empty( $rc['pagination']['prev'] ) ) : ?>
-				<a class="rc-pagination__prev" href="<?php echo esc_url( $rc['pagination']['prev'] ); ?>"><?php esc_html_e( 'Vorherige Seite', 'review-captain' ); ?></a>
+				<a class="rc-pagination__prev" href="<?php echo esc_url( $rc['pagination']['prev'] ); ?>"><?php esc_html_e( 'Previous page', 'review-captain' ); ?></a>
 			<?php endif; ?>
 			<?php if ( ! empty( $rc['pagination']['next'] ) ) : ?>
-				<a class="rc-pagination__next" href="<?php echo esc_url( $rc['pagination']['next'] ); ?>"><?php esc_html_e( 'Nächste Seite', 'review-captain' ); ?></a>
+				<a class="rc-pagination__next" href="<?php echo esc_url( $rc['pagination']['next'] ); ?>"><?php esc_html_e( 'Next page', 'review-captain' ); ?></a>
 			<?php endif; ?>
 		</nav>
 	<?php endif; ?>

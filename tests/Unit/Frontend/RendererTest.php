@@ -77,15 +77,15 @@ final class RendererTest extends FrontendTestCase {
 		$this->assertStringContainsString( 'href="https://de.trustpilot.com/reviews/123"', $out );
 		$this->assertStringContainsString( 'rel="nofollow noopener noreferrer ugc"', $out );
 		$this->assertStringContainsString( 'rc-card--external', $out );
-		$this->assertStringNotContainsString( 'Bewertung auf dieser Website', $out, 'local source label hidden with show_source=0' );
+		$this->assertStringNotContainsString( 'Review on this website', $out, 'local source label hidden with show_source=0' );
 
 		$with = $this->shortcode( array( 'show_source' => '1' ) );
-		$this->assertStringContainsString( 'Bewertung auf dieser Website', $with );
+		$this->assertStringContainsString( 'Review on this website', $with );
 		$this->assertStringNotContainsString( 'target="_blank"', $with );
 
 		// SET-RC-P5: "Links zum Original in neuem Tab" applies to the card link and is announced.
 		$tab = $this->shortcode( array( 'new_tab' => '1' ) );
-		$this->assertStringContainsString( 'rel="nofollow noopener noreferrer ugc" target="_blank">Original auf Trustpilot ansehen<span class="rc-visually-hidden"> (öffnet in neuem Tab)</span></a>', $tab );
+		$this->assertStringContainsString( 'rel="nofollow noopener noreferrer ugc" target="_blank">View original on Trustpilot<span class="rc-visually-hidden"> (opens in a new tab)</span></a>', $tab );
 	}
 
 	public function test_report_status_message_is_a_focusable_jump_target(): void {
@@ -103,8 +103,8 @@ final class RendererTest extends FrontendTestCase {
 		$this->review( array( 'author_name' => 'U' ) );
 		$out = $this->shortcode();
 		// Count the badges only (the verification notice quotes the labels, SET-RC-01).
-		$this->assertSame( 1, substr_count( $out, '<span class="rc-badge rc-badge--testimonial">Erfahrungsbericht dieser Website</span>' ) );
-		$this->assertSame( 1, substr_count( $out, '<span class="rc-verified">Verifizierter Kauf</span>' ) );
+		$this->assertSame( 1, substr_count( $out, '<span class="rc-badge rc-badge--testimonial">Testimonial from this website</span>' ) );
+		$this->assertSame( 1, substr_count( $out, '<span class="rc-verified">Verified purchase</span>' ) );
 		$this->assertStringContainsString( 'rc-card--testimonial', $out );
 
 		$only = $this->shortcode( array( 'kind' => 'testimonial' ) );
@@ -127,8 +127,8 @@ final class RendererTest extends FrontendTestCase {
 		$this->review( array( 'platform' => Platform::GOOGLE, 'rating_value' => 3.0 ) );
 		$out = $this->shortcode();
 		$this->assertStringContainsString( 'rc-summary', $out );
-		$this->assertStringContainsString( 'Diese Website: 4,5 von 5 (2 Bewertungen)', $out );
-		$this->assertStringContainsString( 'Google: 3 von 5 (1 Bewertung)', $out );
+		$this->assertStringContainsString( 'This website: 4,5 out of 5 (2 reviews)', $out );
+		$this->assertStringContainsString( 'Google: 3 out of 5 (1 review)', $out );
 		$this->assertSame( 2, substr_count( $out, 'rc-summary__item' ), 'no combined score row' );
 	}
 
@@ -138,13 +138,13 @@ final class RendererTest extends FrontendTestCase {
 		$this->review( array( 'rating_value' => 2.0 ) );
 		$out = $this->shortcode( array( 'min_rating' => '4' ) );
 		$this->assertSame( 2, substr_count( $out, '<article' ), 'the filter narrows the cards' );
-		$this->assertStringContainsString( 'Diese Website: 4 von 5 (3 Bewertungen)', $out, 'average over all approved reviews, not over the filtered ones' );
+		$this->assertStringContainsString( 'This website: 4 out of 5 (3 reviews)', $out, 'average over all approved reviews, not over the filtered ones' );
 	}
 
 	public function test_accessible_stars_on_original_scale(): void {
 		$this->review( array( 'rating_value' => 4.0 ) );
 		$out = $this->shortcode();
-		$this->assertStringContainsString( 'aria-label="4 von 5 Sternen"', $out );
+		$this->assertStringContainsString( 'aria-label="4 out of 5 stars"', $out );
 		$this->assertSame( 4, substr_count( $out, 'rc-star--full' ) );
 		$this->assertSame( 1, substr_count( $out, 'rc-star--empty' ) );
 		$this->assertStringContainsString( '4 / 5', $out );
@@ -153,7 +153,7 @@ final class RendererTest extends FrontendTestCase {
 	public function test_non_five_scale_not_converted_to_stars(): void {
 		$this->review( array( 'rating_value' => 8.0, 'rating_scale_max' => 10.0 ) );
 		$out = $this->shortcode();
-		$this->assertStringContainsString( 'aria-label="8 von 10 Punkten"', $out );
+		$this->assertStringContainsString( 'aria-label="8 out of 10 points"', $out );
 		$this->assertStringNotContainsString( 'rc-star--', $out );
 	}
 
@@ -168,7 +168,7 @@ final class RendererTest extends FrontendTestCase {
 
 	public function test_empty_state(): void {
 		$out = $this->shortcode();
-		$this->assertStringContainsString( '<p class="rc-empty">Es sind noch keine Bewertungen vorhanden.</p>', $out );
+		$this->assertStringContainsString( '<p class="rc-empty">There are no reviews yet.</p>', $out );
 		$this->assertStringNotContainsString( '<article', $out );
 		$this->settings( array( 'display' => array( 'empty_text' => 'Bald <b>mehr</b>' ) ) );
 		$this->assertStringContainsString( '<p class="rc-empty">Bald &lt;b&gt;mehr&lt;/b&gt;</p>', $this->shortcode() );
@@ -241,7 +241,7 @@ final class RendererTest extends FrontendTestCase {
 		$id  = (int) $this->db->insert_id;
 		$out = $this->module->shortcode_cta( array( 'v' => '1', 'profile' => (string) $id ) );
 		$this->assertStringContainsString( 'href="https://g.page/r/abc/review"', $out );
-		$this->assertStringContainsString( 'Bewerte uns auf Google', $out );
+		$this->assertStringContainsString( 'Rate us on Google', $out );
 		$this->assertStringContainsString( 'noopener noreferrer', $out );
 		$this->assertStringNotContainsString( 'target=', $out );
 		$this->assertStringNotContainsString( 'star', $out );
@@ -249,7 +249,7 @@ final class RendererTest extends FrontendTestCase {
 
 		$tab = $this->module->shortcode_cta( array( 'profile' => (string) $id, 'new_tab' => '1' ) );
 		$this->assertStringContainsString( 'target="_blank"', $tab );
-		$this->assertStringContainsString( 'öffnet in neuem Tab', $tab );
+		$this->assertStringContainsString( 'opens in a new tab', $tab );
 
 		$this->assertStringStartsWith( '<!--', $this->module->shortcode_cta( array( 'profile' => '999' ) ) );
 	}

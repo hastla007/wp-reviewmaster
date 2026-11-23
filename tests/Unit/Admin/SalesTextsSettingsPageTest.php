@@ -35,9 +35,9 @@ final class SalesTextsSettingsPageTest extends AdminTestCase {
 				$this->assertContains( $key, $in_sections, "$tab.$key section" );
 			}
 		}
-		$this->assertStringContainsString( 'Rechtstext – bitte prüfen lassen', SettingsFields::description( 'submissions', 'consent_text' ) );
+		$this->assertStringContainsString( 'Legal text – please have it reviewed', SettingsFields::description( 'submissions', 'consent_text' ) );
 		$this->assertStringContainsString( '{privacy_link}', SettingsFields::description( 'submissions', 'consent_text' ) );
-		$this->assertStringContainsString( 'Rechtstext – bitte prüfen lassen', SettingsFields::description( 'display', 'verification_notice' ) );
+		$this->assertStringContainsString( 'Legal text – please have it reviewed', SettingsFields::description( 'display', 'verification_notice' ) );
 	}
 
 	public function test_render_submissions_and_display_tabs(): void {
@@ -47,19 +47,19 @@ final class SalesTextsSettingsPageTest extends AdminTestCase {
 		ob_start();
 		$this->page()->render();
 		$html = (string) ob_get_clean();
-		$this->assertStringContainsString( 'Korrekturen durch Verfasser', $html );
+		$this->assertStringContainsString( 'Corrections by authors', $html );
 		$this->assertStringNotContainsString( '>corrections_enabled<', $html, 'no raw key' );
 		$this->assertStringContainsString( "a@example.test\nb@example.test</textarea>", $html );
-		$this->assertStringContainsString( 'Vermutlich keine echte Erfahrung', $html, 'reason checkboxes show labels' );
-		$this->assertStringContainsString( 'Text der Einwilligung', $html );
+		$this->assertStringContainsString( 'Probably not a genuine experience', $html, 'reason checkboxes show labels' );
+		$this->assertStringContainsString( 'Consent text', $html );
 
 		$_GET = array( 'page' => SettingsPage::SLUG, 'tab' => 'display' );
 		ob_start();
 		$this->page()->render();
 		$html = (string) ob_get_clean();
-		$this->assertStringContainsString( 'Bewertungs-Markup ausgeben (schema.org)', $html );
-		$this->assertStringContainsString( 'Prüfung &amp; Transparenz', $html );
-		$this->assertStringContainsString( 'Über der Liste bzw. dem Formular', $html );
+		$this->assertStringContainsString( 'Output review markup (schema.org)', $html );
+		$this->assertStringContainsString( 'Verification &amp; transparency', $html );
+		$this->assertStringContainsString( 'Above the list or form', $html );
 	}
 
 	public function test_save_reports_dropped_recipients(): void {

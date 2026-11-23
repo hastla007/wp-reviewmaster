@@ -39,17 +39,17 @@ final class PublicTexts {
 	 */
 	public static function defaults(): array {
 		return array(
-			'submissions.consent_text'           => __( 'Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. Meine E-Mail-Adresse wird nicht veröffentlicht. Die Einwilligung kann ich jederzeit widerrufen.', 'review-captain' ),
-			'submissions.name_label'             => __( 'Name (wird veröffentlicht)', 'review-captain' ),
-			'submissions.email_hint'             => __( 'Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.', 'review-captain' ),
-			'submissions.submit_label'           => __( 'Bewertung senden', 'review-captain' ),
-			'submissions.report_confirmation'    => __( 'Danke für Ihre Meldung. Wir prüfen die Bewertung.', 'review-captain' ),
-			'display.verification_notice_title'  => __( 'So prüfen wir Bewertungen', 'review-captain' ),
-			'display.label_purchase_verified'    => __( 'Verifizierter Kauf', 'review-captain' ),
-			'display.label_attendance_confirmed' => __( 'Teilnahme bestätigt', 'review-captain' ),
-			'display.label_unverified'           => __( 'Ungeprüft', 'review-captain' ),
-			'display.label_external'             => __( 'Externe Plattformbewertung', 'review-captain' ),
-			'display.label_testimonial'          => __( 'Erfahrungsbericht dieser Website', 'review-captain' ),
+			'submissions.consent_text'           => __( 'I consent to my review being published with my name on this website. My email address will not be published. I can withdraw my consent at any time.', 'review-captain' ),
+			'submissions.name_label'             => __( 'Name (will be published)', 'review-captain' ),
+			'submissions.email_hint'             => __( 'Will never be published. We only use it for follow-up questions and privacy requests.', 'review-captain' ),
+			'submissions.submit_label'           => __( 'Submit review', 'review-captain' ),
+			'submissions.report_confirmation'    => __( 'Thank you for your report. We will review it.', 'review-captain' ),
+			'display.verification_notice_title'  => __( 'How we check reviews', 'review-captain' ),
+			'display.label_purchase_verified'    => __( 'Verified purchase', 'review-captain' ),
+			'display.label_attendance_confirmed' => __( 'Attendance confirmed', 'review-captain' ),
+			'display.label_unverified'           => __( 'Unverified', 'review-captain' ),
+			'display.label_external'             => __( 'External platform review', 'review-captain' ),
+			'display.label_testimonial'          => __( 'Testimonial from this website', 'review-captain' ),
 		);
 	}
 
@@ -113,7 +113,7 @@ final class PublicTexts {
 			return $html;
 		}
 		$url  = self::privacy_url();
-		$word = esc_html__( 'Datenschutzerklärung', 'review-captain' );
+		$word = esc_html__( 'Privacy policy', 'review-captain' );
 		$link = '' !== $url ? '<a href="' . esc_url( $url ) . '">' . $word . '</a>' : $word;
 		return str_replace( self::PRIVACY_PLACEHOLDER, $link, $html );
 	}
@@ -175,7 +175,7 @@ final class PublicTexts {
 	 * @param array    $levels   Levels that occur: list of Verification values and/or self::TESTIMONIAL.
 	 */
 	public static function default_verification_notice( Settings $settings, array $levels ): string {
-		$quote = static fn( string $level ): string => '„' . self::level_label( $settings, $level ) . '“';
+		$quote = static fn( string $level ): string => sprintf( /* translators: %s: quoted text */ _x( '“%s”', 'quotation marks', 'review-captain' ), self::level_label( $settings, $level ) );
 		$out   = array();
 		foreach ( array( Verification::PURCHASE_VERIFIED->value, Verification::ATTENDANCE_CONFIRMED->value, Verification::UNVERIFIED->value, Verification::EXTERNAL_PLATFORM->value, self::TESTIMONIAL ) as $level ) {
 			if ( ! in_array( $level, $levels, true ) ) {
@@ -184,25 +184,25 @@ final class PublicTexts {
 			switch ( $level ) {
 				case Verification::PURCHASE_VERIFIED->value:
 					/* translators: %s: label of the level in quotes */
-					$out[] = sprintf( __( '%s: Der Kauf wurde von einem an diese Website angebundenen System (zum Beispiel dem Bestellsystem) bestätigt.', 'review-captain' ), $quote( $level ) );
+					$out[] = sprintf( __( '%s: the purchase was confirmed by a system connected to this site (for example the order system).', 'review-captain' ), $quote( $level ) );
 					break;
 				case Verification::ATTENDANCE_CONFIRMED->value:
 					/* translators: %s: label of the level in quotes */
-					$out[] = sprintf( __( '%s: Die Teilnahme wurde von einem an diese Website angebundenen System (zum Beispiel der Ticketverwaltung) bestätigt.', 'review-captain' ), $quote( $level ) );
+					$out[] = sprintf( __( '%s: attendance was confirmed by a system connected to this site (for example the ticketing system).', 'review-captain' ), $quote( $level ) );
 					break;
 				case Verification::UNVERIFIED->value:
 					$out[] = $settings->get( 'display', 'show_unverified_label', false )
 						/* translators: %s: label of the level in quotes */
-						? sprintf( __( '%s: Ein Kauf oder eine Nutzung ist bei dieser Bewertung nicht nachgewiesen.', 'review-captain' ), $quote( $level ) )
-						: __( 'Bewertungen ohne Prüfkennzeichen: Ein Kauf oder eine Nutzung ist nicht nachgewiesen.', 'review-captain' );
+						? sprintf( __( '%s: no purchase or use has been verified for this review.', 'review-captain' ), $quote( $level ) )
+						: __( 'Reviews without a verification label: no purchase or use has been verified.', 'review-captain' );
 					break;
 				case Verification::EXTERNAL_PLATFORM->value:
 					/* translators: %s: label of the level in quotes */
-					$out[] = sprintf( __( '%s: Die Bewertung stammt von einer externen Plattform und ist mit Quelle und Link zum Original gekennzeichnet. Ob und wie sie dort geprüft wurde, richtet sich nach den Regeln der Plattform.', 'review-captain' ), $quote( $level ) );
+					$out[] = sprintf( __( '%s: the review comes from an external platform and is labelled with its source and a link to the original. Whether and how it was checked there depends on the platform’s rules.', 'review-captain' ), $quote( $level ) );
 					break;
 				case self::TESTIMONIAL:
 					/* translators: %s: label of the level in quotes */
-					$out[] = sprintf( __( '%s: Erfahrungsbericht, den diese Website selbst ausgewählt und veröffentlicht hat.', 'review-captain' ), $quote( $level ) );
+					$out[] = sprintf( __( '%s: testimonial selected and published by this site itself.', 'review-captain' ), $quote( $level ) );
 					break;
 			}
 		}

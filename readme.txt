@@ -8,9 +8,25 @@ Stable tag: 0.1.0-dev
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Authentische, sauber attribuierte Kundenbewertungen und Erfahrungsberichte in WordPress – ohne Scraping, ohne Lizenzpflicht.
+Authentic, properly attributed customer reviews and testimonials in WordPress – no scraping, no license required.
 
 == Description ==
+
+Review Captain collects reviews on your website and displays them together with manually curated excerpts from external platforms. Every external review keeps its origin, original rating scale and a link to the source. The plugin interface is in English, with German translations in the informal ("du", `de_DE`, `de_AT`) and formal ("Sie", `de_DE_formal`, `de_CH`) form.
+
+* Review forms with moderation, consent, spam protection and rate limit
+* Manually curated external reviews (Google, Trustpilot, Trusted Shops, App Store, Google Play) with mandatory source attribution
+* Site testimonials, clearly separated from platform reviews
+* Block and shortcode `[review_captain v="1"]`, rendered on the server, no JavaScript required
+* Neutral "Rate us" link to your profiles – no review gating
+* Structured data only for eligible reviews collected on this website; compatible with Yoast SEO
+* CSV import with dry run and rollback, CSV export with formula protection
+* WordPress privacy export/erasure, retention periods, multisite separation
+* Public connector contract for your own integrations
+
+Official API sync, automatic review requests and advanced widgets are offered by the separately licensed add-on Review Captain Pro. The core works fully without Pro, WooCommerce or external accounts.
+
+= Deutsch =
 
 Review Captain sammelt Bewertungen auf deiner Website und zeigt sie zusammen mit manuell gepflegten Auszügen externer Plattformen an. Jede externe Bewertung behält Herkunft, Originalskala und Link zur Quelle.
 
@@ -70,6 +86,7 @@ Standardmäßig bleiben alle Daten erhalten. Nur wenn unter „Einstellungen ›
 == Changelog ==
 
 = 0.1.0-dev =
+* Source strings in English; German translations `de_DE` (du), `de_DE_formal` (Sie), `de_AT` and `de_CH` (SET-RC-14).
 * Erste Entwicklungsversion des kostenlosen Core (noch nicht veröffentlicht).
 * Mindestversionen angehoben (Entscheidung 16.11.2026): PHP 8.5; empfohlen MySQL 9.7 LTS oder MariaDB 12.3 LTS. Ältere Datenbanken lösen nur eine Warnung in Diagnose und `wp review-captain doctor` aus.
 * Lokale Bewertungen und Erfahrungsberichte mit Moderation, Formular (Einwilligung, Honeypot, Rate-Limit), manuell gepflegte externe Bewertungen mit Pflicht-Quellenangabe.

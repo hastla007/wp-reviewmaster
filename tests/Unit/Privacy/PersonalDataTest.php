@@ -17,7 +17,7 @@ final class PersonalDataTest extends TestCase {
 		$r               = new Review();
 		$r->origin       = Origin::LOCAL_SUBMISSION;
 		$r->body         = 'Mein persönlicher Text';
-		$r->title        = 'Titel';
+		$r->title        = 'Title';
 		$r->rating_value = 4;
 		$r->author_name  = 'Max Mustermann';
 		$r->author_email = 'max@example.test';
@@ -61,7 +61,7 @@ final class PersonalDataTest extends TestCase {
 		$this->assertStringStartsWith( 'review-captain-review-', $out['data'][0]['item_id'] );
 		$values = array_column( $out['data'][0]['data'], 'value', 'name' );
 		$this->assertSame( 'Mein persönlicher Text', $values['Text'] );
-		$this->assertSame( 'max@example.test', $values['E-Mail-Adresse'] );
+		$this->assertSame( 'max@example.test', $values['Email address'] );
 
 		$user = $this->service()->export( 'user5@example.test' );
 		$this->assertCount( 1, $user['data'] );
@@ -92,7 +92,7 @@ final class PersonalDataTest extends TestCase {
 		$this->assertTrue( $out['done'] );
 
 		$a = Plugin::instance()->reviews()->find( (int) $no_consent->id );
-		$this->assertSame( 'Anonym', $a->author_name );
+		$this->assertSame( 'Anonymous', $a->author_name );
 		$this->assertNull( $a->author_email );
 		$this->assertSame( '[deleted]', $a->body, 'text replaced without consent' );
 		$this->assertSame( '[deleted]', $a->title );
@@ -103,7 +103,7 @@ final class PersonalDataTest extends TestCase {
 		$b = Plugin::instance()->reviews()->find( (int) $consent->id );
 		$this->assertSame( 'Öffentlich freigegeben', $b->body, 'text kept with publication consent' );
 		$this->assertNull( $b->author_user_id );
-		$this->assertSame( 'Anonym', $b->author_name );
+		$this->assertSame( 'Anonymous', $b->author_name );
 
 		$this->assertSame( 'other@example.test', Plugin::instance()->reviews()->find( (int) $other->id )->author_email, 'other people untouched' );
 		$this->assertSame( 3, $this->rows( 'reviews' ) );
@@ -154,14 +154,14 @@ final class PersonalDataTest extends TestCase {
 		( new PrivacyModule() )->register( Plugin::instance() );
 		do_action( 'admin_init' );
 		$text = $GLOBALS['rc_test_privacy_policy']['Review Captain'] ?? '';
-		$this->assertStringContainsString( 'Bewertung', $text );
-		$this->assertStringContainsString( 'Anonym', $text );
+		$this->assertStringContainsString( 'we store your rating', $text );
+		$this->assertStringContainsString( 'Anonymous', $text );
 	}
 
 	public function test_policy_text_follows_moderation_consent_and_retention_settings(): void {
 		$text = PrivacyModule::policy_text();
-		$this->assertStringContainsString( 'erst nach Prüfung und nur dann veröffentlicht', $text, 'defaults: moderation and consent' );
-		$this->assertStringNotContainsString( 'Tage nach Eingang', $text );
+		$this->assertStringContainsString( 'only be published after moderation and only if you have consented', $text, 'defaults: moderation and consent' );
+		$this->assertStringNotContainsString( 'days after', $text );
 
 		$this->set_settings(
 			array(
@@ -174,15 +174,17 @@ final class PersonalDataTest extends TestCase {
 			)
 		);
 		$text = PrivacyModule::policy_text();
-		$this->assertStringNotContainsString( 'erst nach Prüfung', $text, 'no moderation claimed when new reviews are published at once' );
-		$this->assertStringNotContainsString( 'Veröffentlichung zugestimmt haben', $text, 'no consent claimed when it is not asked for' );
-		$this->assertStringContainsString( '365 Tage nach Eingang der Bewertung', $text );
-		$this->assertStringContainsString( '730 Tage nach Eingang vollständig', $text );
+		$this->assertStringNotContainsString( 'after moderation', $text, 'no moderation claimed when new reviews are published at once' );
+		$this->assertStringNotContainsString( 'after it has been checked', $text );
+		$this->assertStringNotContainsString( 'consented to publication', $text, 'no consent claimed when it is not asked for' );
+		$this->assertStringContainsString( '365 days after the review was received', $text );
+		$this->assertStringContainsString( '730 days after they were received', $text );
 
 		$this->set_settings( array( 'general' => array( 'new_review_status' => 'approved' ) ) );
 		$text = PrivacyModule::policy_text();
-		$this->assertStringContainsString( 'Ihre Bewertung wird nur veröffentlicht, wenn Sie der Veröffentlichung zugestimmt haben', $text );
-		$this->assertStringNotContainsString( 'erst nach Prüfung', $text );
+		$this->assertStringContainsString( 'Your review is only published if you have agreed to its publication', $text );
+		$this->assertStringNotContainsString( 'after moderation', $text );
+		$this->assertStringNotContainsString( 'after it has been checked', $text );
 	}
 
 	public function test_site_health_reminds_while_no_contact_retention_is_set(): void {
@@ -196,7 +198,7 @@ final class PersonalDataTest extends TestCase {
 		$this->assertSame( 'recommended', $result['status'], 'default "never" (S9) is reminded' );
 		$this->assertSame( 'review_captain_retention', $result['test'] );
 		$this->assertStringContainsString( 'tab=privacy', $result['actions'] );
-		$this->assertStringContainsString( 'rechtlich prüfen', $result['description'], 'no period is suggested as legally fine' );
+		$this->assertStringContainsString( 'checked legally', $result['description'], 'no period is suggested as legally fine' );
 
 		$this->set_settings( array( 'privacy' => array( 'retention_contact_days' => 365 ) ) );
 		$result = $module->retention_status();

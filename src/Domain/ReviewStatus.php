@@ -57,12 +57,12 @@ enum ReviewStatus: string {
 	 */
 	public function label(): string {
 		return match ( $this ) {
-			self::PENDING  => __( 'Wartet auf Moderation', 'review-captain' ),
-			self::APPROVED => __( 'Freigegeben', 'review-captain' ),
-			self::REJECTED => __( 'Abgelehnt', 'review-captain' ),
-			self::ARCHIVED => __( 'Archiviert', 'review-captain' ),
-			self::FLAGGED  => __( 'Gemeldet', 'review-captain' ),
-			self::REMOVED  => __( 'Entfernt (Quelle gelöscht)', 'review-captain' ),
+			self::PENDING  => __( 'Awaiting moderation', 'review-captain' ),
+			self::APPROVED => __( 'Approved', 'review-captain' ),
+			self::REJECTED => __( 'Rejected', 'review-captain' ),
+			self::ARCHIVED => __( 'Archived', 'review-captain' ),
+			self::FLAGGED  => __( 'Reported', 'review-captain' ),
+			self::REMOVED  => __( 'Removed (source deleted)', 'review-captain' ),
 		};
 	}
 

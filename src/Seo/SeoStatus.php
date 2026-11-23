@@ -34,26 +34,26 @@ final class SeoStatus {
 				$env->yoast_compatible() ? 'ok' : 'warn',
 				$env->yoast_compatible()
 					/* translators: 1: Yoast version, 2: edition */
-					? sprintf( __( 'Erkannt: Version %1$s%2$s – kompatibel.', 'review-captain' ), (string) $env->yoast_version(), $env->yoast_premium() ? ' (Premium)' : '' )
+					? sprintf( __( 'Detected: version %1$s%2$s – compatible.', 'review-captain' ), (string) $env->yoast_version(), $env->yoast_premium() ? ' (Premium)' : '' )
 					/* translators: 1: Yoast version, 2: minimum version */
-					: sprintf( __( 'Erkannt: Version %1$s – nicht kompatibel (mindestens %2$s). Reviews bleiben sichtbar, Markup ist gesperrt.', 'review-captain' ), (string) $env->yoast_version(), SeoEnvironment::YOAST_MIN_VERSION )
+					: sprintf( __( 'Detected: version %1$s – not compatible (minimum %2$s). Reviews remain visible, markup is blocked.', 'review-captain' ), (string) $env->yoast_version(), SeoEnvironment::YOAST_MIN_VERSION )
 			);
 		} else {
-			$items[] = self::item( __( 'Yoast SEO', 'review-captain' ), 'info', __( 'Nicht erkannt.', 'review-captain' ) );
+			$items[] = self::item( __( 'Yoast SEO', 'review-captain' ), 'info', __( 'Not detected.', 'review-captain' ) );
 		}
 
 		$items[] = match ( $mode ) {
-			'yoast'    => self::item( __( 'Schema-Ausgabe', 'review-captain' ), 'ok', __( 'Yoast-Graph-Integration aktiv: Bewertungs-Knoten werden an Yoasts Graph angehängt, kein eigenes JSON-LD.', 'review-captain' ) ),
-			'fallback' => self::item( __( 'Schema-Ausgabe', 'review-captain' ), 'info', __( 'Kein SEO-Plugin erkannt: Fallback-JSON-LD für geeignete, sichtbare Bewertungen aktiv.', 'review-captain' ) ),
-			default    => self::item( __( 'Schema-Ausgabe', 'review-captain' ), 'warn', self::blocked_reason( $env ) ),
+			'yoast'    => self::item( __( 'Schema output', 'review-captain' ), 'ok', __( 'Yoast graph integration active: review nodes are attached to Yoast\'s graph, no separate JSON-LD.', 'review-captain' ) ),
+			'fallback' => self::item( __( 'Schema output', 'review-captain' ), 'info', __( 'No SEO plugin detected: fallback JSON-LD for eligible, visible reviews is active.', 'review-captain' ) ),
+			default    => self::item( __( 'Schema output', 'review-captain' ), 'warn', self::blocked_reason( $env ) ),
 		};
 
 		foreach ( $env->foreign_schema_owners() as $owner ) {
 			$items[] = self::item(
-				__( 'Konflikt', 'review-captain' ),
+				__( 'Conflict', 'review-captain' ),
 				'warn',
 				/* translators: %s: plugin name */
-				sprintf( __( '%s verantwortet strukturierte Daten. Review Captain gibt deshalb kein Bewertungs-Markup aus; andere Plugins werden nicht verändert.', 'review-captain' ), $owner )
+				sprintf( __( '%s is responsible for structured data. Review Captain therefore does not output review markup; other plugins are not modified.', 'review-captain' ), $owner )
 			);
 		}
 
@@ -62,48 +62,48 @@ final class SeoStatus {
 				__( 'WooCommerce', 'review-captain' ),
 				'info',
 				$env->yoast_woo()
-					? __( 'Produkt-Schema durch Yoast WooCommerce SEO – Bewertungen zu WooCommerce-Produkten erhalten kein zusätzliches Markup.', 'review-captain' )
-					: __( 'WooCommerce besitzt das Produkt-Schema – Bewertungen zu WooCommerce-Produkten erhalten kein zusätzliches Markup.', 'review-captain' )
+					? __( 'Product schema by Yoast WooCommerce SEO – reviews of WooCommerce products receive no additional markup.', 'review-captain' )
+					: __( 'WooCommerce owns the product schema – reviews of WooCommerce products receive no additional markup.', 'review-captain' )
 			);
 		}
 
 		if ( false === $plugin->settings()->get( 'display', 'schema_enabled', true ) ) {
-			$items[] = self::item( __( 'Einstellung', 'review-captain' ), 'warn', __( '„Review-Markup ausgeben“ ist deaktiviert.', 'review-captain' ) );
+			$items[] = self::item( __( 'Setting', 'review-captain' ), 'warn', __( '“Output review markup” is disabled.', 'review-captain' ) );
 		}
 
 		// SET-RC-23: narrowed contexts and minimum number – say why nothing may be output.
 		$contexts = SchemaEligibility::enabled_contexts( $plugin->settings()->get( 'display', 'schema_contexts', SchemaEligibility::ELIGIBLE_CONTEXTS ) );
 		if ( ! $contexts ) {
-			$items[] = self::item( __( 'Inhaltstypen', 'review-captain' ), 'warn', __( 'Für keinen Inhaltstyp ist Markup eingeschaltet – es werden keine strukturierten Daten ausgegeben.', 'review-captain' ) );
+			$items[] = self::item( __( 'Content types', 'review-captain' ), 'warn', __( 'Markup is switched on for no content type – no structured data is output.', 'review-captain' ) );
 		} elseif ( count( $contexts ) < count( SchemaEligibility::ELIGIBLE_CONTEXTS ) ) {
 			$labels  = array(
-				'product' => __( 'Produkte', 'review-captain' ),
-				'post'    => __( 'Beiträge', 'review-captain' ),
-				'event'   => __( 'Veranstaltungen', 'review-captain' ),
+				'product' => __( 'Products', 'review-captain' ),
+				'post'    => __( 'Posts', 'review-captain' ),
+				'event'   => __( 'Events', 'review-captain' ),
 			);
 			$items[] = self::item(
-				__( 'Inhaltstypen', 'review-captain' ),
+				__( 'Content types', 'review-captain' ),
 				'info',
 				/* translators: %s: list of content types */
-				sprintf( __( 'Markup nur für: %s. Bewertungen zu anderen Inhalten erhalten kein Markup.', 'review-captain' ), implode( ', ', array_map( static fn( string $c ): string => $labels[ $c ] ?? $c, $contexts ) ) )
+				sprintf( __( 'Markup only for: %s. Reviews of other content get no markup.', 'review-captain' ), implode( ', ', array_map( static fn( string $c ): string => $labels[ $c ] ?? $c, $contexts ) ) )
 			);
 		}
 		$min = SeoModule::min_reviews( $plugin->settings() );
 		if ( $min > 1 ) {
 			$items[] = self::item(
-				__( 'Mindestzahl', 'review-captain' ),
+				__( 'Minimum number', 'review-captain' ),
 				'info',
 				/* translators: %d: minimum number of reviews */
-				sprintf( _n( 'Markup erst ab %d geeigneten Bewertung auf der Seite.', 'Markup erst ab %d geeigneten Bewertungen auf der Seite; darunter wird nichts ausgegeben.', $min, 'review-captain' ), $min )
+				sprintf( _n( 'Markup only from %d eligible review on the page.', 'Markup only from %d eligible reviews on the page; below that nothing is output.', $min, 'review-captain' ), $min )
 			);
 		}
-		$items[] = self::item( __( 'Erfahrungsberichte', 'review-captain' ), 'info', __( 'Erfahrungsberichte der Website (Testimonials) erhalten nie Bewertungs-Markup.', 'review-captain' ) );
+		$items[] = self::item( __( 'Testimonials', 'review-captain' ), 'info', __( 'Testimonials of the site never get review markup.', 'review-captain' ) );
 
-		$items[] = self::item( __( 'Externe Bewertungen', 'review-captain' ), 'info', __( 'Bewertungen von Google, Trustpilot, Trusted Shops, App Store, Google Play und anderen Plattformen werden angezeigt, aber nie ausgezeichnet.', 'review-captain' ) );
-		$items[] = self::item( __( 'Unternehmensbewertungen', 'review-captain' ), 'info', __( 'Bewertungen ohne Produkt-, Beitrags- oder Event-Bezug gelten als selbstbezogen und erhalten kein Markup.', 'review-captain' ) );
-		$items[] = self::item( __( 'Gesamtbewertung', 'review-captain' ), 'info', __( 'Es wird kein AggregateRating ausgegeben (Entscheidung offen).', 'review-captain' ) );
-		$items[] = self::item( __( 'Indexierung', 'review-captain' ), 'info', __( 'Seiten mit Review-Captain-Parametern (z. B. rc_page) erhalten noindex, follow. Titel, Beschreibung, Canonical und Sitemaps bleiben unverändert.', 'review-captain' ) );
-		$items[] = self::item( __( 'Hinweis', 'review-captain' ), 'info', __( 'Strukturierte Daten ermöglichen Rich Results, garantieren sie aber nicht.', 'review-captain' ) );
+		$items[] = self::item( __( 'External reviews', 'review-captain' ), 'info', __( 'Reviews from Google, Trustpilot, Trusted Shops, App Store, Google Play, and other platforms are displayed but never marked up.', 'review-captain' ) );
+		$items[] = self::item( __( 'Business reviews', 'review-captain' ), 'info', __( 'Reviews not related to a product, post, or event are considered self-serving and receive no markup.', 'review-captain' ) );
+		$items[] = self::item( __( 'Overall rating', 'review-captain' ), 'info', __( 'No AggregateRating is output (decision pending).', 'review-captain' ) );
+		$items[] = self::item( __( 'Indexing', 'review-captain' ), 'info', __( 'Pages with Review Captain parameters (e.g. rc_page) receive noindex, follow. Title, description, canonical, and sitemaps remain unchanged.', 'review-captain' ) );
+		$items[] = self::item( __( 'Note', 'review-captain' ), 'info', __( 'Structured data enables rich results but does not guarantee them.', 'review-captain' ) );
 
 		return $items;
 	}

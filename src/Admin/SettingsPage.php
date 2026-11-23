@@ -651,7 +651,7 @@ final class SettingsPage {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_SETTINGS ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		$tab = self::current_tab();
 		if ( 'access' === $tab ) {
@@ -665,14 +665,14 @@ final class SettingsPage {
 		$this->field_errors = $this->pending_errors( $tab );
 
 		echo '<div class="wrap rc-admin">';
-		echo View::header( __( 'Einstellungen', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo View::header( __( 'Settings', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( $this->field_errors['errors'] ) {
 			$this->render_error_summary( $tab );
 		} else {
 			echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		echo '<nav class="nav-tab-wrapper" aria-label="' . esc_attr__( 'Einstellungsbereiche', 'review-captain' ) . '">';
+		echo '<nav class="nav-tab-wrapper" aria-label="' . esc_attr__( 'Settings sections', 'review-captain' ) . '">';
 		foreach ( $tabs as $key => $label ) {
 			$active = $key === $tab;
 			echo '<a href="' . esc_url( self::tab_url( $key ) ) . '" class="nav-tab' . ( $active ? ' nav-tab-active' : '' ) . '"' . ( $active ? ' aria-current="page"' : '' ) . '>' . esc_html( $label ) . '</a>';
@@ -683,14 +683,14 @@ final class SettingsPage {
 
 		$writable = self::can_write_tab( $tab );
 		if ( ! $writable ) {
-			echo View::notice( 'warning', 'access' === $tab ? __( 'Rollen kann nur ändern, wer selbst Benutzerrollen vergeben darf.', 'review-captain' ) : __( 'Diese Einstellungen darf nur ändern, wer das Recht „Datenschutz verwalten“ hat.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo View::notice( 'warning', 'access' === $tab ? __( 'Only users who can assign user roles can change roles.', 'review-captain' ) : __( 'Only users with the “Manage privacy” permission can change these settings.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$fields = array_filter( $schema[ $tab ] ?? array(), static fn( $f ) => empty( $f['internal'] ) );
 		$hints  = SettingsHints::for_tab( $tab, $this->settings() );
 		if ( ! $fields ) {
 			// A tab whose fields all come from add-ons (requests): no empty form, no save button.
-			echo $hints ? SettingsHints::render( $hints ) : '<p class="description rc-admin-empty-tab">' . esc_html__( 'Hier erscheinen Einstellungen von Erweiterungen.', 'review-captain' ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $hints ? SettingsHints::render( $hints ) : '<p class="description rc-admin-empty-tab">' . esc_html__( 'Settings of extensions appear here.', 'review-captain' ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '</div>';
 			return;
 		}
@@ -731,7 +731,7 @@ final class SettingsPage {
 		}
 		$rest = array_values( array_diff( array_keys( $fields ), $placed, $advanced ) );
 		if ( $rest ) {
-			$this->render_section( __( 'Weitere Optionen', 'review-captain' ), $tab, $rest, $fields, $values, $writable, $pro );
+			$this->render_section( __( 'More options', 'review-captain' ), $tab, $rest, $fields, $values, $writable, $pro );
 		}
 		if ( $advanced ) {
 			$open = 'advanced' === $tab;
@@ -740,14 +740,14 @@ final class SettingsPage {
 					$open = true;
 				}
 			}
-			echo '<details class="rc-admin-advanced"' . ( $open ? ' open' : '' ) . '><summary>' . esc_html__( 'Erweitert anzeigen', 'review-captain' ) . '</summary>';
+			echo '<details class="rc-admin-advanced"' . ( $open ? ' open' : '' ) . '><summary>' . esc_html__( 'Show advanced', 'review-captain' ) . '</summary>';
 			$this->render_section( '', $tab, $advanced, $fields, $values, $writable, $pro );
 			echo '</details>';
 		}
 
 		$any_writable = $writable && array_filter( $fields, static fn( $f ) => 'pro' !== $f['owner'] || $pro );
 		if ( $any_writable ) {
-			echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'review-captain' ) . '</button></p>';
+			echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Save changes', 'review-captain' ) . '</button></p>';
 		}
 		echo '</form>';
 		echo SettingsHints::render( $hints ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -802,7 +802,7 @@ final class SettingsPage {
 	 */
 	private function render_error_summary( string $tab ): void {
 		$fields = SettingsSchema::fields()[ $tab ] ?? array();
-		echo '<div class="notice notice-error rc-admin-errors" id="rc-settings-errors" role="alert" tabindex="-1" autofocus><p>' . esc_html__( 'Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:', 'review-captain' ) . '</p><ul>';
+		echo '<div class="notice notice-error rc-admin-errors" id="rc-settings-errors" role="alert" tabindex="-1" autofocus><p>' . esc_html__( 'Some values were not saved because they are invalid. All other changes are saved. Please check:', 'review-captain' ) . '</p><ul>';
 		foreach ( $this->field_errors['errors'] as $key => $message ) {
 			$anchor = 'access' === $tab ? 'rc-access-' . $key . '-col' : 'rc-' . $tab . '-' . $key;
 			echo '<li><a href="#' . esc_attr( $anchor ) . '">' . esc_html( SettingsFields::label( $tab, $key, $fields[ $key ] ?? array() ) ) . '</a>: ' . esc_html( $message ) . '</li>';
@@ -821,14 +821,14 @@ final class SettingsPage {
 	 */
 	private function render_access_matrix( array $fields, array $access, bool $writable ): array {
 		$keys = array_values( array_filter( array_keys( self::ROLE_CAPS ), static fn( $k ) => isset( $fields[ $k ] ) ) );
-		echo '<h2>' . esc_html__( 'Rechte je Rolle', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Hake an, welche Rolle welches Recht bekommt. Administratoren behalten immer alle Rechte. Rechte, die du selbst nicht hast, kannst du weder vergeben noch entziehen; jede Änderung wird protokolliert.', 'review-captain' ) . '</p>';
-		echo '<div class="rc-admin-matrix-wrap"><table class="widefat striped rc-admin-matrix"><caption class="screen-reader-text">' . esc_html__( 'Rechte je Rolle', 'review-captain' ) . '</caption><thead><tr><th scope="col">' . esc_html__( 'Rolle', 'review-captain' ) . '</th>';
+		echo '<h2>' . esc_html__( 'Rights per role', 'review-captain' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Tick which role gets which right. Administrators always keep all rights. You can neither grant nor revoke rights you do not hold yourself; every change is logged.', 'review-captain' ) . '</p>';
+		echo '<div class="rc-admin-matrix-wrap"><table class="widefat striped rc-admin-matrix"><caption class="screen-reader-text">' . esc_html__( 'Rights per role', 'review-captain' ) . '</caption><thead><tr><th scope="col">' . esc_html__( 'Role', 'review-captain' ) . '</th>';
 		foreach ( $keys as $key ) {
 			$held = current_user_can( self::ROLE_CAPS[ $key ] );
 			echo '<th scope="col" id="' . esc_attr( 'rc-access-' . $key . '-col' ) . '">' . esc_html( SettingsFields::label( 'access', $key, $fields[ $key ] ) );
 			if ( $writable && ! $held ) {
-				echo '<br /><span class="description">' . esc_html__( '(nur lesen)', 'review-captain' ) . '</span>';
+				echo '<br /><span class="description">' . esc_html__( '(read only)', 'review-captain' ) . '</span>';
 			}
 			echo '</th>';
 		}
@@ -847,7 +847,7 @@ final class SettingsPage {
 				/* translators: 1: role, 2: capability */
 				echo '<label for="' . esc_attr( $id ) . '" class="screen-reader-text">' . esc_html( sprintf( __( '%1$s: %2$s', 'review-captain' ), $label, SettingsFields::label( 'access', $key, $fields[ $key ] ) ) ) . '</label>';
 				if ( $locked ) {
-					echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="administrator"' . ( $disabled ? ' disabled="disabled"' : '' ) . ' /> <span class="description">' . esc_html__( '(immer)', 'review-captain' ) . '</span>';
+					echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="administrator"' . ( $disabled ? ' disabled="disabled"' : '' ) . ' /> <span class="description">' . esc_html__( '(always)', 'review-captain' ) . '</span>';
 				}
 				echo '</td>';
 			}
@@ -875,19 +875,19 @@ final class SettingsPage {
 	private function render_tab_notes( string $tab ): void {
 		$notes = array();
 		if ( 'requests' === $tab && array_filter( SettingsSchema::fields()['requests'] ?? array(), static fn( $f ) => empty( $f['internal'] ) ) ) {
-			$notes[] = array( 'info', __( 'Immer gilt: höchstens eine Einladung je tatsächlichem Erlebnis und Empfänger, kein Versand ohne bekannte Versanderlaubnis, Abmeldungen sperren jede weitere Einladung, keine Filterung nach Zufriedenheit.', 'review-captain' ) );
+			$notes[] = array( 'info', __( 'Always applies: at most one invitation per actual experience and recipient, no sending without known consent, unsubscribes block any further invitation, no filtering by satisfaction.', 'review-captain' ) );
 		}
 		if ( 'sources' === $tab ) {
-			$notes[] = array( 'info', __( 'Diese Werte wirken erst, wenn eine Quelle automatisch abgeglichen wird (Review Captain Pro oder ein Connector). Profile und Links verwaltest du unter „Quellen & Profile“.', 'review-captain' ) );
+			$notes[] = array( 'info', __( 'These values only take effect when a source is synced automatically (Review Captain Pro or a connector). Manage profiles and links under “Sources & profiles”.', 'review-captain' ) );
 		}
 		if ( 'display' === $tab ) {
-			$notes[] = array( 'info', __( 'Voreinstellung für neue Widgets. Die Quellenangabe externer Bewertungen wird immer angezeigt und lässt sich nicht abschalten.', 'review-captain' ) );
+			$notes[] = array( 'info', __( 'Default for new widgets. Source attribution for external reviews is always shown and cannot be turned off.', 'review-captain' ) );
 		}
 		if ( 'submissions' === $tab && false === $this->settings()->get( 'submissions', 'require_consent' ) ) {
-			$notes[] = array( 'warning', __( 'Die Einwilligung zur Veröffentlichung wird nicht abgefragt. Stelle die Rechtsgrundlage anders sicher.', 'review-captain' ) );
+			$notes[] = array( 'warning', __( 'Consent to publication is not requested. Make sure the legal basis is covered another way.', 'review-captain' ) );
 		}
 		if ( 'advanced' === $tab && defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
-			$notes[] = array( 'warning', __( 'WP-Cron ist deaktiviert. Richte einen Server-Cron ein, z. B. „wp cron event run --due-now“ alle 5 Minuten.', 'review-captain' ) );
+			$notes[] = array( 'warning', __( 'WP-Cron is disabled. Set up a server cron, e.g. “wp cron event run --due-now” every 5 minutes.', 'review-captain' ) );
 		}
 		if ( 'privacy' === $tab ) {
 			// SET-RC-08: preview of the next retention runs (two COUNT queries).
@@ -896,15 +896,15 @@ final class SettingsPage {
 			$preview       = \ReviewCaptain\Maintenance\Retention::preview( $contact_days, $approved_days );
 			if ( $contact_days > 0 ) {
 				/* translators: %s: number of reviews */
-				$notes[] = array( 'info', sprintf( _n( 'Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertung. Die Bewertung bleibt.', 'Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertungen. Die Bewertungen bleiben.', $preview['contacts'], 'review-captain' ), number_format_i18n( $preview['contacts'] ) ) );
+				$notes[] = array( 'info', sprintf( _n( 'Contact address: the next clean-up removes the email address from %s review. The review stays.', 'Contact address: the next clean-up removes the email address from %s reviews. The reviews stay.', $preview['contacts'], 'review-captain' ), number_format_i18n( $preview['contacts'] ) ) );
 			}
 			if ( $approved_days > 0 ) {
 				/* translators: %s: number of reviews */
-				$notes[] = array( 'warning', sprintf( _n( 'Freigegebene Bewertungen: Die nächste Bereinigung löscht %s Bewertung endgültig.', 'Freigegebene Bewertungen: Die nächste Bereinigung löscht %s Bewertungen endgültig.', $preview['approved'], 'review-captain' ), number_format_i18n( $preview['approved'] ) ) );
+				$notes[] = array( 'warning', sprintf( _n( 'Approved reviews: the next clean-up deletes %s review for good.', 'Approved reviews: the next clean-up deletes %s reviews for good.', $preview['approved'], 'review-captain' ), number_format_i18n( $preview['approved'] ) ) );
 			}
 		}
 		if ( in_array( $tab, array( 'access', 'privacy' ), true ) && is_multisite() ) {
-			$notes[] = array( 'info', __( 'Multisite: Diese Einstellungen gelten nur für diese Website. Jede Website des Netzwerks hat eigene Einstellungen, Rollen und Daten; Netzwerkadministratoren ändern sie je Website.', 'review-captain' ) );
+			$notes[] = array( 'info', __( 'Multisite: These settings apply only to this site. Each site in the network has its own settings, roles, and data; network administrators change them per site.', 'review-captain' ) );
 		}
 		foreach ( $notes as [ $type, $text ] ) {
 			echo View::notice( $type, $text, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -971,7 +971,7 @@ final class SettingsPage {
 
 		switch ( $field['type'] ) {
 			case 'bool':
-				echo '<label for="' . esc_attr( $id ) . '"><input type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="1"' . checked( (bool) $value, true, false ) . $dis . $descr . ' /> ' . esc_html__( 'Aktiv', 'review-captain' ) . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '<label for="' . esc_attr( $id ) . '"><input type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="1"' . checked( (bool) $value, true, false ) . $dis . $descr . ' /> ' . esc_html__( 'Active', 'review-captain' ) . '</label>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
 			case 'int':
 				$min = isset( $field['min'] ) ? ' min="' . esc_attr( (string) $field['min'] ) . '"' : '';
@@ -1007,7 +1007,7 @@ final class SettingsPage {
 		}
 
 		if ( null !== $error ) {
-			echo '<p class="rc-admin-field-error" id="' . esc_attr( $id . '-error' ) . '"><strong>' . esc_html__( 'Fehler:', 'review-captain' ) . '</strong> ' . esc_html( $error ) . '</p>';
+			echo '<p class="rc-admin-field-error" id="' . esc_attr( $id . '-error' ) . '"><strong>' . esc_html__( 'Error:', 'review-captain' ) . '</strong> ' . esc_html( $error ) . '</p>';
 		}
 		if ( 'privacy' === $tab && 'delete_data_on_uninstall' === $key ) {
 			$this->render_uninstall_confirmation( (bool) $value, $disabled );
@@ -1015,7 +1015,7 @@ final class SettingsPage {
 		if ( '' !== $desc || $pro_lock ) {
 			echo '<p class="description" id="' . esc_attr( $id . '-desc' ) . '">' . esc_html( $desc );
 			if ( $pro_lock ) {
-				echo ( '' !== $desc ? ' ' : '' ) . View::pro_lock( __( 'Von einer Erweiterung verwaltet; derzeit nicht änderbar.', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo ( '' !== $desc ? ' ' : '' ) . View::pro_lock( __( 'Managed by an extension; cannot be changed right now.', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			echo '</p>';
 		}
@@ -1057,7 +1057,7 @@ final class SettingsPage {
 			$on     = $locked || in_array( $choice, array_map( 'strval', $value ), true );
 			echo '<label for="' . esc_attr( $id ) . '"><input type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name . '[]' ) . '" value="' . esc_attr( $choice ) . '"' . checked( $on, true, false ) . ( $locked || $disabled ? ' disabled="disabled"' : '' ) . ' /> ' . esc_html( $label ) . '</label>';
 			if ( $locked ) {
-				echo '<input type="hidden" name="' . esc_attr( $name . '[]' ) . '" value="administrator"' . $dis . ' /> <span class="description">' . esc_html__( '(immer)', 'review-captain' ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo '<input type="hidden" name="' . esc_attr( $name . '[]' ) . '" value="administrator"' . $dis . ' /> <span class="description">' . esc_html__( '(always)', 'review-captain' ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			echo '<br />';
 		}
@@ -1074,56 +1074,56 @@ final class SettingsPage {
 		$confirmed = (string) $this->settings()->get( 'privacy', 'delete_data_confirmed_at', '' );
 		if ( $on && '' !== $confirmed && ! isset( $this->field_errors['errors']['delete_data_on_uninstall'] ) ) {
 			/* translators: %s: date and time */
-			echo '<p class="rc-admin-confirmed">' . esc_html( sprintf( __( 'Bestätigt am %s. Beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt.', 'review-captain' ), View::date( $confirmed, true ) ) ) . '</p>';
+			echo '<p class="rc-admin-confirmed">' . esc_html( sprintf( __( 'Confirmed on %s. Deleting the plugin removes all Review Captain data of this site.', 'review-captain' ), View::date( $confirmed, true ) ) ) . '</p>';
 			return;
 		}
 		if ( $on ) {
-			echo '<p class="rc-admin-field-error">' . esc_html__( 'Eingeschaltet, aber noch nicht bestätigt: Beim Deinstallieren bleiben die Daten erhalten, bis du LÖSCHEN eintippst und speicherst.', 'review-captain' ) . '</p>';
+			echo '<p class="rc-admin-field-error">' . esc_html__( 'Switched on but not confirmed yet: the data is kept on uninstall until you type DELETE and save.', 'review-captain' ) . '</p>';
 		}
-		echo '<p><label for="rc-privacy-uninstall-confirm">' . esc_html__( 'Zur Bestätigung LÖSCHEN eintippen (nur nötig beim Einschalten)', 'review-captain' ) . '</label><br />';
-		echo '<input type="text" class="regular-text" id="rc-privacy-uninstall-confirm" name="' . esc_attr( self::INPUT . '[privacy][uninstall_confirm_word]' ) . '" value="" autocomplete="off" spellcheck="false" placeholder="LÖSCHEN"' . ( $disabled ? ' disabled="disabled"' : '' ) . ' /></p>';
+		echo '<p><label for="rc-privacy-uninstall-confirm">' . esc_html__( 'Type DELETE to confirm (only needed when switching on)', 'review-captain' ) . '</label><br />';
+		echo '<input type="text" class="regular-text" id="rc-privacy-uninstall-confirm" name="' . esc_attr( self::INPUT . '[privacy][uninstall_confirm_word]' ) . '" value="" autocomplete="off" spellcheck="false" placeholder="' . esc_attr_x( 'DELETE', 'confirmation word; must be DELETE, LÖSCHEN or LOESCHEN', 'review-captain' ) . '"' . ( $disabled ? ' disabled="disabled"' : '' ) . ' /></p>';
 	}
 
 	/**
 	 * Privacy tab: reset settings vs. full data deletion (separate, clearly labelled).
 	 */
 	private function render_privacy_actions(): void {
-		echo '<hr /><h2>' . esc_html__( 'Einstellungen zurücksetzen', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Setzt Einstellungen auf die Standardwerte zurück. Reviews, Profile, Verlauf und Protokolle bleiben erhalten. Der vorherige Stand wird gesichert und kann unter „Erweitert“ wiederhergestellt werden.', 'review-captain' ) . '</p>';
+		echo '<hr /><h2>' . esc_html__( 'Reset settings', 'review-captain' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Resets settings to their defaults. Reviews, profiles, history, and logs are kept. The previous state is backed up and can be restored under “Advanced”.', 'review-captain' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'reset_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<input type="hidden" name="tab" value="privacy" />';
-		echo '<fieldset><legend class="screen-reader-text">' . esc_html__( 'Umfang', 'review-captain' ) . '</legend>';
-		echo '<label><input type="radio" name="scope" value="tab" checked="checked" /> ' . esc_html__( 'Nur „Datenschutz & Aufbewahrung“', 'review-captain' ) . '</label><br />';
-		echo '<label><input type="radio" name="scope" value="all" /> ' . esc_html__( 'Alle Einstellungen (Pro-Einstellungen bleiben unverändert)', 'review-captain' ) . '</label></fieldset>';
-		echo '<p><label><input type="checkbox" name="confirm" value="1" required /> ' . esc_html__( 'Ich möchte die Einstellungen zurücksetzen.', 'review-captain' ) . '</label></p>';
-		echo '<p><button type="submit" class="button">' . esc_html__( 'Einstellungen zurücksetzen', 'review-captain' ) . '</button></p></form>';
+		echo '<fieldset><legend class="screen-reader-text">' . esc_html__( 'Scope', 'review-captain' ) . '</legend>';
+		echo '<label><input type="radio" name="scope" value="tab" checked="checked" /> ' . esc_html__( 'Only “Privacy & retention”', 'review-captain' ) . '</label><br />';
+		echo '<label><input type="radio" name="scope" value="all" /> ' . esc_html__( 'All settings (Pro settings remain unchanged)', 'review-captain' ) . '</label></fieldset>';
+		echo '<p><label><input type="checkbox" name="confirm" value="1" required /> ' . esc_html__( 'I want to reset the settings.', 'review-captain' ) . '</label></p>';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Reset settings', 'review-captain' ) . '</button></p></form>';
 
-		echo '<div class="rc-admin-danger"><h2>' . esc_html__( 'Alle Plugin-Daten löschen', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews.', 'review-captain' ) . '</p>';
-		echo '<p>' . esc_html__( 'Einzelne Personen betreffende Löschanfragen bearbeitest du unter', 'review-captain' ) . ' <a href="' . esc_url( admin_url( 'erase-personal-data.php' ) ) . '">' . esc_html__( 'Werkzeuge › Personenbezogene Daten löschen', 'review-captain' ) . '</a>.</p></div>';
+		echo '<div class="rc-admin-danger"><h2>' . esc_html__( 'Delete all plugin data', 'review-captain' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Reviews, profiles, history, and settings are not deleted here. All Review Captain data on this site is only fully deleted if “Remove all data when the plugin is deleted” is enabled and you then deactivate and delete the plugin under “Plugins”. Export your reviews first.', 'review-captain' ) . '</p>';
+		echo '<p>' . esc_html__( 'Handle erasure requests for individual people under', 'review-captain' ) . ' <a href="' . esc_url( admin_url( 'erase-personal-data.php' ) ) . '">' . esc_html__( 'Tools › Erase Personal Data', 'review-captain' ) . '</a>.</p></div>';
 	}
 
 	/**
 	 * Advanced tab: config export/import with preview and rollback.
 	 */
 	private function render_maintenance(): void {
-		echo '<hr /><h2>' . esc_html__( 'Konfiguration exportieren', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Lädt die Einstellungen als JSON-Datei herunter – ohne Zugangsdaten und ohne personenbezogene Angaben. Reviews sind nicht enthalten.', 'review-captain' ) . '</p>';
+		echo '<hr /><h2>' . esc_html__( 'Export configuration', 'review-captain' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Downloads the settings as a JSON file – without credentials or personal data. Reviews are not included.', 'review-captain' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'export_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<p><button type="submit" class="button">' . esc_html__( 'Konfiguration herunterladen', 'review-captain' ) . '</button></p></form>';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Download configuration', 'review-captain' ) . '</button></p></form>';
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
 		$preview = 'preview' === View::req( $_GET, 'import' ) ? get_transient( self::IMPORT_TRANSIENT . get_current_user_id() ) : false;
-		echo '<h2>' . esc_html__( 'Konfiguration importieren', 'review-captain' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Import configuration', 'review-captain' ) . '</h2>';
 		if ( is_array( $preview ) && ! empty( $preview['diff'] ) ) {
-			echo '<p>' . esc_html__( 'Folgende Werte werden geändert. Alle anderen Einstellungen bleiben unverändert.', 'review-captain' ) . '</p>';
+			echo '<p>' . esc_html__( 'The following values will be changed. All other settings remain unchanged.', 'review-captain' ) . '</p>';
 			foreach ( (array) ( $preview['kept'] ?? array() ) as $kept ) {
 				/* translators: 1: fields, 2: reason */
-				echo View::notice( 'warning', sprintf( __( 'Nicht übernommen, bisherige Werte bleiben: %1$s. %2$s', 'review-captain' ), implode( ', ', array_map( static fn( $key ): string => SettingsFields::label( (string) $kept['tab'], (string) $key ), (array) $kept['fields'] ) ), (string) $kept['message'] ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo View::notice( 'warning', sprintf( __( 'Not applied, previous values are kept: %1$s. %2$s', 'review-captain' ), implode( ', ', array_map( static fn( $key ): string => SettingsFields::label( (string) $kept['tab'], (string) $key ), (array) $kept['fields'] ) ), (string) $kept['message'] ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
-			echo '<table class="widefat striped rc-admin-diff"><thead><tr><th scope="col">' . esc_html__( 'Bereich', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Einstellung', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Bisher', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Neu', 'review-captain' ) . '</th></tr></thead><tbody>';
+			echo '<table class="widefat striped rc-admin-diff"><thead><tr><th scope="col">' . esc_html__( 'Section', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Setting', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Current', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'New', 'review-captain' ) . '</th></tr></thead><tbody>';
 			$tabs = SettingsSchema::tabs();
 			foreach ( (array) $preview['diff'] as $row ) {
 				echo '<tr><td>' . esc_html( $tabs[ $row['tab'] ] ?? (string) $row['tab'] ) . '</td><td>' . esc_html( SettingsFields::label( (string) $row['tab'], (string) $row['key'] ) ) . '</td><td>' . esc_html( ConfigTransfer::display_value( $row['old'] ) ) . '</td><td><strong>' . esc_html( ConfigTransfer::display_value( $row['new'] ) ) . '</strong></td></tr>';
@@ -1131,27 +1131,27 @@ final class SettingsPage {
 			echo '</tbody></table>';
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 			echo View::form_fields( 'import_apply' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '<p><button type="submit" name="decision" value="apply" class="button button-primary">' . esc_html__( 'Import übernehmen', 'review-captain' ) . '</button> ';
-			echo '<button type="submit" name="decision" value="discard" class="button">' . esc_html__( 'Verwerfen', 'review-captain' ) . '</button></p></form>';
+			echo '<p><button type="submit" name="decision" value="apply" class="button button-primary">' . esc_html__( 'Apply import', 'review-captain' ) . '</button> ';
+			echo '<button type="submit" name="decision" value="discard" class="button">' . esc_html__( 'Discard', 'review-captain' ) . '</button></p></form>';
 		} else {
-			echo '<p>' . esc_html__( 'Lade einen Export hoch oder füge den Inhalt ein. Vor dem Übernehmen siehst du eine Vorschau aller Änderungen; ungültige Werte werden wie beim Speichern korrigiert.', 'review-captain' ) . '</p>';
+			echo '<p>' . esc_html__( 'Upload an export or paste its contents. Before applying, you’ll see a preview of all changes; invalid values are corrected as when saving.', 'review-captain' ) . '</p>';
 			echo '<form method="post" enctype="multipart/form-data" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 			echo View::form_fields( 'import_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '<p><label for="rc-config-file">' . esc_html__( 'Datei (JSON)', 'review-captain' ) . '</label><br /><input type="file" id="rc-config-file" name="config_file" accept="application/json,.json" /></p>';
-			echo '<p><label for="rc-config-json">' . esc_html__( 'oder Inhalt einfügen', 'review-captain' ) . '</label><br /><textarea id="rc-config-json" name="config_json" rows="6" class="large-text code"></textarea></p>';
-			echo '<p><button type="submit" class="button">' . esc_html__( 'Vorschau anzeigen', 'review-captain' ) . '</button></p></form>';
+			echo '<p><label for="rc-config-file">' . esc_html__( 'File (JSON)', 'review-captain' ) . '</label><br /><input type="file" id="rc-config-file" name="config_file" accept="application/json,.json" /></p>';
+			echo '<p><label for="rc-config-json">' . esc_html__( 'or paste contents', 'review-captain' ) . '</label><br /><textarea id="rc-config-json" name="config_json" rows="6" class="large-text code"></textarea></p>';
+			echo '<p><button type="submit" class="button">' . esc_html__( 'Show preview', 'review-captain' ) . '</button></p></form>';
 		}
 
 		$backup = $this->transfer()->get_backup();
-		echo '<h2>' . esc_html__( 'Sicherung wiederherstellen', 'review-captain' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Restore backup', 'review-captain' ) . '</h2>';
 		if ( null === $backup ) {
-			echo '<p>' . esc_html__( 'Es ist noch keine Sicherung vorhanden. Sie wird automatisch vor jedem Import und jedem Zurücksetzen angelegt.', 'review-captain' ) . '</p>';
+			echo '<p>' . esc_html__( 'No backup yet. One is created automatically before every import and reset.', 'review-captain' ) . '</p>';
 			return;
 		}
 		/* translators: %s: date */
-		echo '<p>' . esc_html( sprintf( __( 'Sicherung vom %s. Beim Wiederherstellen wird der aktuelle Stand seinerseits gesichert.', 'review-captain' ), View::date( (string) $backup['created_at'], true ) ) ) . '</p>';
+		echo '<p>' . esc_html( sprintf( __( 'Backup from %s. Restoring backs up the current state first.', 'review-captain' ), View::date( (string) $backup['created_at'], true ) ) ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'rollback_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<p><button type="submit" class="button">' . esc_html__( 'Sicherung wiederherstellen', 'review-captain' ) . '</button></p></form>';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Restore backup', 'review-captain' ) . '</button></p></form>';
 	}
 }

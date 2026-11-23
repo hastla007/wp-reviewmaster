@@ -58,6 +58,6 @@ final class ProviderResult {
 	 * Next admin action for a failure.
 	 */
 	public function next_action(): string {
-		return null === $this->error_code ? __( 'Keine Aktion nötig.', 'review-captain' ) : ErrorCode::admin_action( $this->error_code );
+		return null === $this->error_code ? __( 'No action needed.', 'review-captain' ) : ErrorCode::admin_action( $this->error_code );
 	}
 }

@@ -182,7 +182,7 @@ final class SettingsAuditTest extends AdminTestCase {
 		$diag = new DiagnosticsPage( $this->plugin() );
 		$rows = $diag->settings_audit();
 		$this->assertCount( 1, $rows );
-		$this->assertSame( array( 'Marken- bzw. Firmenname: – → Musterladen' ), $rows[0]['changes'] );
+		$this->assertSame( array( 'Brand or company name: – → Musterladen' ), $rows[0]['changes'] );
 		$this->assertCount( 2, $diag->audit( 20 ) );
 		$this->assertCount( 1, $diag->audit( 20, true ) );
 
@@ -193,8 +193,8 @@ final class SettingsAuditTest extends AdminTestCase {
 		ob_start();
 		$diag->render();
 		$html = (string) ob_get_clean();
-		$this->assertStringContainsString( 'Änderungen (alt → neu)', $html );
-		$this->assertStringContainsString( 'Marken- bzw. Firmenname: – → Musterladen', $html );
+		$this->assertStringContainsString( 'Changes (old → new)', $html );
+		$this->assertStringContainsString( 'Brand or company name: – → Musterladen', $html );
 		$this->assertStringNotContainsString( 'review.status_changed', $html );
 	}
 }

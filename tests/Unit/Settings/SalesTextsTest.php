@@ -97,15 +97,15 @@ final class SalesTextsTest extends M7TestCase {
 		$this->review( array( 'verification' => Verification::PURCHASE_VERIFIED ) );
 		$html = $this->shortcode( array( 'v' => '1' ) );
 		$this->assertStringContainsString( '<details class="rc-verification">', $html );
-		$this->assertStringContainsString( 'So prüfen wir Bewertungen', $html );
-		$this->assertStringContainsString( '„Verifizierter Kauf“: Der Kauf wurde', $html );
-		$this->assertStringNotContainsString( 'Teilnahme', $html, 'only levels that occur' );
-		$this->assertStringNotContainsString( 'externen Plattform', $html );
+		$this->assertStringContainsString( 'How we check reviews', $html );
+		$this->assertStringContainsString( '“Verified purchase”: the purchase was confirmed', $html );
+		$this->assertStringNotContainsString( 'Attendance', $html, 'only levels that occur' );
+		$this->assertStringNotContainsString( 'external platform', $html );
 		$this->assertGreaterThan( strpos( $html, 'rc-widget__items' ), strpos( $html, 'rc-verification' ), 'below by default' );
 
 		$form = $this->module->shortcode_form( array( 'v' => '1' ) );
 		$this->assertStringContainsString( 'rc-verification', $form );
-		$this->assertStringContainsString( 'Bewertungen ohne Prüfkennzeichen', $form, 'form adds the unverified level' );
+		$this->assertStringContainsString( 'Reviews without a verification label', $form, 'form adds the unverified level' );
 
 		$this->enable( array( 'display' => array( 'verification_notice_show' => false ) ) );
 		$this->assertStringNotContainsString( 'rc-verification', $this->shortcode( array( 'v' => '1' ) ) );
@@ -130,11 +130,11 @@ final class SalesTextsTest extends M7TestCase {
 		$this->enable( array( 'display' => array( 'verification_notice_title' => 'Wie wir <prüfen>' ) ) );
 		$html = $this->shortcode( array( 'v' => '1' ) );
 		$this->assertStringContainsString( '<summary class="rc-verification__toggle">Wie wir &lt;prüfen&gt;</summary>', $html );
-		$this->assertStringNotContainsString( 'So prüfen wir Bewertungen', $html );
+		$this->assertStringNotContainsString( 'How we check reviews', $html );
 		$this->assertStringContainsString( 'Wie wir &lt;prüfen&gt;', $this->module->shortcode_form( array( 'v' => '1' ) ), 'same title at the form' );
 
 		$this->enable( array( 'display' => array( 'verification_notice_title' => '' ) ) );
-		$this->assertStringContainsString( 'So prüfen wir Bewertungen', $this->shortcode( array( 'v' => '1' ) ), 'empty = default' );
+		$this->assertStringContainsString( 'How we check reviews', $this->shortcode( array( 'v' => '1' ) ), 'empty = default' );
 		$this->assertSame( '', SettingsSchema::fields()['display']['verification_notice_title']['default'] );
 	}
 
@@ -148,8 +148,8 @@ final class SalesTextsTest extends M7TestCase {
 		$this->review( array( 'author_name' => 'U' ) );
 
 		$html = $this->shortcode( array( 'v' => '1', 'limit' => '10' ) );
-		$this->assertStringContainsString( '<span class="rc-verified rc-verified--attendance">Teilnahme bestätigt</span>', $html );
-		$this->assertStringContainsString( '<span class="rc-badge rc-badge--external">Externe Plattformbewertung</span>', $html );
+		$this->assertStringContainsString( '<span class="rc-verified rc-verified--attendance">Attendance confirmed</span>', $html );
+		$this->assertStringContainsString( '<span class="rc-badge rc-badge--external">External platform review</span>', $html );
 		$this->assertStringNotContainsString( 'rc-badge--unverified', $html, 'unverified label off by default' );
 
 		$this->enable(
@@ -166,7 +166,7 @@ final class SalesTextsTest extends M7TestCase {
 		$this->assertStringContainsString( '<span class="rc-verified">Gekauft bei uns</span>', $html );
 		$this->assertStringContainsString( '<span class="rc-badge rc-badge--testimonial">Kundenstimme</span>', $html );
 		$this->assertSame( 1, substr_count( $html, '<span class="rc-badge rc-badge--unverified">Ohne Nachweis</span>' ), 'only the unverified review, not the testimonial' );
-		$this->assertStringContainsString( '„Ohne Nachweis“: Ein Kauf oder eine Nutzung', $html );
+		$this->assertStringContainsString( '“Ohne Nachweis”: no purchase or use', $html );
 
 		// Only the text changes: the stored level of each review stays untouched.
 		$levels = array_map( static fn( $r ) => $r->verification->value, Plugin::instance()->reviews()->query( array( 'limit' => 10 ) ) );
@@ -177,10 +177,10 @@ final class SalesTextsTest extends M7TestCase {
 
 	public function test_form_texts_default_and_custom_with_privacy_link(): void {
 		$form = $this->module->shortcode_form( array( 'v' => '1' ) );
-		$this->assertStringContainsString( 'Ich willige ein, dass meine Bewertung mit meinem Namen', $form );
-		$this->assertStringContainsString( 'Name (wird veröffentlicht)', $form );
-		$this->assertStringContainsString( 'Wird nie veröffentlicht.', $form );
-		$this->assertStringContainsString( '>Bewertung senden</button>', $form );
+		$this->assertStringContainsString( 'I consent to my review being published with my name', $form );
+		$this->assertStringContainsString( 'Name (will be published)', $form );
+		$this->assertStringContainsString( 'Will never be published.', $form );
+		$this->assertStringContainsString( '>Submit review</button>', $form );
 
 		add_filter( 'review_captain_privacy_policy_url', static fn() => 'https://example.test/datenschutz/' );
 		$this->enable(
@@ -194,12 +194,12 @@ final class SalesTextsTest extends M7TestCase {
 			)
 		);
 		$form = $this->module->shortcode_form( array( 'v' => '1' ) );
-		$this->assertStringContainsString( 'Details: <a href="https://example.test/datenschutz/">Datenschutzerklärung</a>', $form );
+		$this->assertStringContainsString( 'Details: <a href="https://example.test/datenschutz/">Privacy policy</a>', $form );
 		$this->assertStringNotContainsString( '<i>', $form );
 		$this->assertStringContainsString( 'Vorname', $form );
 		$this->assertStringContainsString( 'Nur für Rückfragen.', $form );
 		$this->assertStringContainsString( '>Abschicken</button>', $form );
-		$this->assertStringNotContainsString( 'Ich willige ein', $form );
+		$this->assertStringNotContainsString( 'I consent to', $form );
 
 		add_filter( 'review_captain_public_text', static fn( $text, $id ) => 'submissions.submit_label' === $id ? 'Per Filter' : $text, 10, 2 );
 		$this->assertStringContainsString( '>Per Filter</button>', $this->module->shortcode_form( array( 'v' => '1' ) ) );
@@ -208,7 +208,7 @@ final class SalesTextsTest extends M7TestCase {
 	public function test_privacy_placeholder_without_privacy_page_is_plain_text(): void {
 		$this->enable( array( 'submissions' => array( 'consent_text' => 'Siehe {privacy_link}.' ) ) );
 		$form = $this->module->shortcode_form( array( 'v' => '1' ) );
-		$this->assertStringContainsString( 'Siehe Datenschutzerklärung.', $form );
+		$this->assertStringContainsString( 'Siehe Privacy policy.', $form );
 		$this->assertStringNotContainsString( '{privacy_link}', $form );
 	}
 
@@ -234,7 +234,7 @@ final class SalesTextsTest extends M7TestCase {
 		$mail = \RC_Test_State::$mails[0];
 		$this->assertSame( array( 'mod1@example.test', 'mod2@example.test' ), $mail['to'] );
 		$this->assertStringStartsWith( 'Neu auf ', $mail['subject'] );
-		$this->assertStringContainsString( 'Status: wartet auf Moderation', $mail['message'] );
+		$this->assertStringContainsString( 'Status: waiting for moderation', $mail['message'] );
 		$this->assertStringContainsString( 'admin.php?page=review-captain', $mail['message'] );
 		$this->assertStringNotContainsString( 'ausführlich', $mail['message'] );
 		$this->assertStringNotContainsString( 'zweite@', $mail['message'] );
@@ -267,8 +267,8 @@ final class SalesTextsTest extends M7TestCase {
 		$this->assertTrue( $report( 'fake' )['ok'] );
 		$this->assertCount( 1, \RC_Test_State::$mails );
 		$mail = \RC_Test_State::$mails[0];
-		$this->assertStringContainsString( 'Bewertung gemeldet', $mail['subject'] );
-		$this->assertStringContainsString( 'Vermutlich keine echte Erfahrung', $mail['message'] );
+		$this->assertStringContainsString( 'Review reported', $mail['subject'] );
+		$this->assertStringContainsString( 'Probably not a genuine experience', $mail['message'] );
 		$this->assertStringContainsString( 'reported=1', $mail['message'] );
 		$this->assertStringNotContainsString( 'Sehr guter Service', $mail['message'] );
 	}

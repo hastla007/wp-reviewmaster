@@ -39,7 +39,7 @@ final class ImportExportModuleTest extends TestCase {
 			$this->module->handle_export();
 			$this->fail( 'expected wp_die' );
 		} catch ( \RC_Test_Die $e ) {
-			$this->assertStringContainsString( 'Berechtigung', $e->getMessage() );
+			$this->assertStringContainsString( 'permission', $e->getMessage() );
 		}
 
 		$this->login_with( Capabilities::MANAGE_PRIVACY );
@@ -57,7 +57,7 @@ final class ImportExportModuleTest extends TestCase {
 			$this->module->handle_upload();
 			$this->fail( 'expected wp_die' );
 		} catch ( \RC_Test_Die $e ) {
-			$this->assertStringContainsString( 'Berechtigung', $e->getMessage() );
+			$this->assertStringContainsString( 'permission', $e->getMessage() );
 		}
 	}
 

@@ -6,7 +6,13 @@
  *   php bin/compile-translations.php           # check + write .mo/.json
  *   php bin/compile-translations.php --check   # check only (CI): .mo/.json up to date, placeholders consistent
  *
+ * Before compiling, bin/derive-de-variants.php writes (or with --check: verifies) de_AT and de_CH.
+ *
  * JSON file names follow WordPress: review-captain-{locale}-{md5(relative script path)}.json.
+ * Entries with msgctxt (_x(), block.json fields) are keyed "context\x04msgid" like gettext and Jed.
+ *
+ * --check also runs bin/check-i18n-language.php (SET-RC-14): English source strings, de_DE/de_AT
+ * only "du", de_DE_formal/de_CH only "Sie".
  */
 
 $root  = dirname( __DIR__ );
@@ -15,7 +21,7 @@ $check = in_array( '--check', $argv, true );
 /**
  * Parse a PO/POT file.
  *
- * @return array<int, array{id: string, plural: ?string, str: list<string>, refs: list<string>, fuzzy: bool}>
+ * @return array<int, array{id: string, ctx: ?string, plural: ?string, str: list<string>, refs: list<string>, fuzzy: bool}>
  */
 function rc_parse_po( string $file ): array {
 	$entries = array();
@@ -26,7 +32,7 @@ function rc_parse_po( string $file ): array {
 			$entries[] = $cur;
 		}
 	};
-	$new     = static fn() => array( 'refs' => array(), 'plural' => null, 'str' => array(), 'fuzzy' => false );
+	$new     = static fn() => array( 'refs' => array(), 'ctx' => null, 'plural' => null, 'str' => array(), 'fuzzy' => false );
 	foreach ( file( $file, FILE_IGNORE_NEW_LINES ) as $line ) {
 		if ( '' === trim( $line ) ) {
 			$push();
@@ -39,9 +45,12 @@ function rc_parse_po( string $file ): array {
 			$cur['refs'] = array_merge( $cur['refs'], preg_split( '/\s+/', trim( substr( $line, 2 ) ) ) );
 		} elseif ( str_starts_with( $line, '#,' ) && str_contains( $line, 'fuzzy' ) ) {
 			$cur['fuzzy'] = true;
-		} elseif ( preg_match( '/^(msgid|msgid_plural|msgstr(?:\[(\d+)\])?) "(.*)"$/', $line, $m ) ) {
+		} elseif ( preg_match( '/^(msgctxt|msgid|msgid_plural|msgstr(?:\[(\d+)\])?) "(.*)"$/', $line, $m ) ) {
 			$val = stripcslashes( $m[3] );
-			if ( 'msgid' === $m[1] ) {
+			if ( 'msgctxt' === $m[1] ) {
+				$field      = 'ctx';
+				$cur['ctx'] = $val;
+			} elseif ( 'msgid' === $m[1] ) {
 				$field = 'id';
 				$cur['id'] = $val;
 			} elseif ( 'msgid_plural' === $m[1] ) {
@@ -91,6 +100,11 @@ function rc_mo( array $map ): string {
 	return $out . $ids . $strs;
 }
 
+/** Gettext key of an entry: "context\x04msgid" or just the msgid. */
+function rc_key( array $e ): string {
+	return null === $e['ctx'] ? $e['id'] : $e['ctx'] . "\x04" . $e['id'];
+}
+
 function rc_placeholders( string $s ): array {
 	preg_match_all( '/%(?:\d+\$)?[sdfu%]/', $s, $m );
 	$p = $m[0];
@@ -102,7 +116,7 @@ $pot     = rc_parse_po( $root . '/languages/review-captain.pot' );
 $pot_ids = array();
 foreach ( $pot as $e ) {
 	if ( '' !== $e['id'] ) {
-		$pot_ids[ $e['id'] ] = $e;
+		$pot_ids[ rc_key( $e ) ] = $e;
 	}
 }
 $errors = array();
@@ -115,7 +129,7 @@ if ( $check ) {
 	$fresh_ids = array();
 	foreach ( $fresh as $e ) {
 		if ( '' !== $e['id'] ) {
-			$fresh_ids[ $e['id'] ] = $e['plural'];
+			$fresh_ids[ rc_key( $e ) ] = $e['plural'];
 		}
 	}
 	$pot_plural = array_map( static fn( $e ) => $e['plural'], $pot_ids );
@@ -123,10 +137,15 @@ if ( $check ) {
 		$errors[] = 'bin/make-pot.php failed';
 	} elseif ( $fresh_ids !== array_intersect_key( $pot_plural, $fresh_ids ) || array_diff_key( $pot_plural, $fresh_ids ) ) {
 		foreach ( array_diff_key( $fresh_ids, $pot_plural ) as $id => $unused ) {
-			$errors[] = 'not in POT: ' . substr( $id, 0, 60 );
+			$errors[] = 'not in POT: ' . substr( str_replace( "\x04", ' | ', $id ), 0, 60 );
 		}
 		$errors[] = 'languages/review-captain.pot is out of date (run php bin/make-pot.php, then translate the new strings)';
 	}
+}
+// SET-RC-14: de_AT and de_CH are derived from de_DE and de_DE_formal.
+exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __DIR__ . '/derive-de-variants.php' ) . ( $check ? ' --check' : '' ) . ' 2>&1', $derive_output, $status ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- CLI build script, fixed arguments.
+if ( 0 !== $status ) {
+	$errors[] = implode( ' ', $derive_output );
 }
 foreach ( glob( $root . '/languages/review-captain-*.po' ) as $po_file ) {
 	$locale  = substr( basename( $po_file, '.po' ), strlen( 'review-captain-' ) );
@@ -140,8 +159,9 @@ foreach ( glob( $root . '/languages/review-captain-*.po' ) as $po_file ) {
 			$header = $e['str'][0] ?? '';
 			continue;
 		}
-		$seen[ $e['id'] ] = true;
-		if ( ! isset( $pot_ids[ $e['id'] ] ) ) {
+		$id          = rc_key( $e );
+		$seen[ $id ] = true;
+		if ( ! isset( $pot_ids[ $id ] ) ) {
 			continue; // Obsolete entry: ignored.
 		}
 		if ( $e['fuzzy'] || '' === implode( '', $e['str'] ) ) {
@@ -154,17 +174,17 @@ foreach ( glob( $root . '/languages/review-captain-*.po' ) as $po_file ) {
 				$errors[] = "$locale: placeholders differ: " . substr( $e['id'], 0, 60 );
 			}
 		}
-		$key         = null === $e['plural'] ? $e['id'] : $e['id'] . "\0" . $e['plural'];
+		$key         = null === $e['plural'] ? $id : $id . "\0" . $e['plural'];
 		$map[ $key ] = implode( "\0", $e['str'] );
-		foreach ( $pot_ids[ $e['id'] ]['refs'] as $ref ) {
+		foreach ( $pot_ids[ $id ]['refs'] as $ref ) {
 			$path = preg_replace( '/:\d+$/', '', $ref );
 			if ( str_ends_with( $path, '.js' ) ) {
-				$js[ $path ][ $e['id'] ] = $e['str'];
+				$js[ $path ][ $id ] = $e['str'];
 			}
 		}
 	}
 	foreach ( array_diff_key( $pot_ids, $seen ) as $id => $unused ) {
-		$errors[] = "$locale: missing: " . substr( $id, 0, 60 );
+		$errors[] = "$locale: missing: " . substr( str_replace( "\x04", ' | ', $id ), 0, 60 );
 	}
 	$map[''] = $header;
 	$files   = array( $root . "/languages/review-captain-$locale.mo" => rc_mo( $map ) );
@@ -192,6 +212,10 @@ foreach ( glob( $root . '/languages/review-captain-*.po' ) as $po_file ) {
 		}
 	}
 	echo "$locale: " . ( count( $map ) - 1 ) . ' messages, ' . count( $js ) . " JSON file(s)\n";
+}
+if ( $check ) {
+	require_once __DIR__ . '/check-i18n-language.php';
+	$errors = array_merge( $errors, rc_i18n_language_problems( $root ) );
 }
 if ( $errors ) {
 	fwrite( STDERR, implode( PHP_EOL, array_slice( $errors, 0, 50 ) ) . PHP_EOL . count( $errors ) . " problem(s)\n" );

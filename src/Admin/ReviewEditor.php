@@ -43,9 +43,9 @@ final class ReviewEditor {
 	 */
 	public static function types(): array {
 		return array(
-			self::TYPE_LOCAL       => __( 'Eigene Bewertung (auf dieser Website abgegeben)', 'review-captain' ),
-			self::TYPE_TESTIMONIAL => __( 'Erfahrungsbericht der Website (Text-Testimonial)', 'review-captain' ),
-			self::TYPE_EXTERNAL    => __( 'Externe Bewertung manuell übernehmen (Auszug mit Quelle)', 'review-captain' ),
+			self::TYPE_LOCAL       => __( 'Own review (submitted on this site)', 'review-captain' ),
+			self::TYPE_TESTIMONIAL => __( 'Site testimonial (text testimonial)', 'review-captain' ),
+			self::TYPE_EXTERNAL    => __( 'Add external review manually (excerpt with source)', 'review-captain' ),
 		);
 	}
 

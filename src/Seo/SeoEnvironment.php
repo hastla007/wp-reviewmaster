@@ -140,7 +140,7 @@ final class SeoEnvironment {
 		$owners = $this->state['foreign'];
 		$seo    = count( array_intersect( $owners, array( 'Rank Math', 'All in One SEO', 'SEOPress' ) ) ) + ( $this->yoast_active() ? 1 : 0 );
 		if ( $seo > 1 ) {
-			$owners[] = __( 'Mehrere SEO-Plugins', 'review-captain' );
+			$owners[] = __( 'Multiple SEO plugins', 'review-captain' );
 		}
 		return $owners;
 	}

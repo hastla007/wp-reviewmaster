@@ -28,7 +28,7 @@ final class EraserVsModerationTest extends RaceTestCase {
 		$opened->body = 'Kleine Korrektur durch die Moderation, alter Stand.';
 		$this->assertFalse( $repo->update( $opened, false, true ), 'stale revision is rejected' );
 		$stored = $repo->find( $id );
-		$this->assertSame( 'Anonym', $stored->author_name );
+		$this->assertSame( 'Anonymous', $stored->author_name );
 		$this->assertNull( $stored->author_email );
 		$this->assertSame( ReviewStatus::APPROVED, $stored->status, 'eraser never changes the moderation status' );
 	}

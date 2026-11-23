@@ -71,7 +71,7 @@ final class EmbedPolicyTest extends TestCase {
 		$this->assertStringNotContainsString( '<img', $html );
 		$this->assertStringNotContainsString( '<b>', $html );
 		$this->assertStringContainsString( 'www.youtube-nocookie.com', $html );
-		$this->assertStringContainsString( 'öffnet in neuem Tab', $html );
+		$this->assertStringContainsString( 'opens in a new tab', $html );
 		$this->assertContains( EmbedPolicy::SCRIPT_HANDLE, $GLOBALS['rc_test_scripts'] );
 
 		$this->assertSame( '', EmbedPolicy::click_to_load( 'https://evil.example/embed', 'x' ) );

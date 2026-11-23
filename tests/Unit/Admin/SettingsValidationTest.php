@@ -23,9 +23,9 @@ final class SettingsValidationTest extends AdminTestCase {
 	public function test_validate_value_reports_instead_of_correcting(): void {
 		$fields = SettingsSchema::fields();
 		$this->assertSame( array( 30, null ), SettingsSchema::validate_value( $fields['submissions']['min_text_length'], ' 30 ' ) );
-		$this->assertSame( 'Bitte gib eine ganze Zahl ein.', SettingsSchema::validate_value( $fields['submissions']['min_text_length'], '3.5' )[1] );
-		$this->assertSame( 'Bitte gib eine ganze Zahl ein.', SettingsSchema::validate_value( $fields['submissions']['min_text_length'], 'abc' )[1] );
-		$this->assertSame( 'Erlaubt sind Werte von 0 bis 1.000.', SettingsSchema::validate_value( $fields['submissions']['min_text_length'], '-1' )[1] );
+		$this->assertSame( 'Please enter a whole number.', SettingsSchema::validate_value( $fields['submissions']['min_text_length'], '3.5' )[1] );
+		$this->assertSame( 'Please enter a whole number.', SettingsSchema::validate_value( $fields['submissions']['min_text_length'], 'abc' )[1] );
+		$this->assertSame( 'Allowed values are 0 to 1.000.', SettingsSchema::validate_value( $fields['submissions']['min_text_length'], '-1' )[1] );
 		$this->assertNotNull( SettingsSchema::validate_value( $fields['general']['new_review_status'], 'published' )[1] );
 		$this->assertSame( array( 'approved', null ), SettingsSchema::validate_value( $fields['general']['new_review_status'], 'approved' ) );
 		$this->assertStringContainsString( 'HH:MM', (string) SettingsSchema::validate_value( $fields['sources']['sync_window_start'], '25:00' )[1] );
@@ -42,7 +42,7 @@ final class SettingsValidationTest extends AdminTestCase {
 		// SET-RC-P1: texts over max_length were cut silently (e.g. the consent text mid-sentence).
 		$fields = SettingsSchema::fields();
 		$this->assertSame( array( str_repeat( 'a', 60 ), null ), SettingsSchema::validate_value( $fields['submissions']['submit_label'], str_repeat( 'a', 60 ) ) );
-		$this->assertSame( 'Bitte kürze den Text auf höchstens 60 Zeichen (derzeit 61).', SettingsSchema::validate_value( $fields['submissions']['submit_label'], str_repeat( 'ä', 61 ) )[1] );
+		$this->assertSame( 'Please shorten the text to at most 60 characters (currently 61).', SettingsSchema::validate_value( $fields['submissions']['submit_label'], str_repeat( 'ä', 61 ) )[1] );
 		$this->assertNull( SettingsSchema::validate_value( $fields['general']['brand_name'], str_repeat( 'a', 500 ) )[1], 'fields without max_length stay unlimited' );
 
 		$this->login_with( Capabilities::MANAGE_SETTINGS );
@@ -89,7 +89,7 @@ final class SettingsValidationTest extends AdminTestCase {
 			)
 		);
 		$this->assertSame( array( 'submissions-min_text_length', 'submissions-max_text_length' ), $result['invalid'] );
-		$this->assertSame( 'Die Mindestlänge muss kleiner als die Höchstlänge sein.', $result['errors']['submissions-min_text_length'] );
+		$this->assertSame( 'The minimum length must be smaller than the maximum length.', $result['errors']['submissions-min_text_length'] );
 		$s = new Settings();
 		$this->assertSame( 20, $s->get( 'submissions', 'min_text_length' ) );
 		$this->assertSame( 5000, $s->get( 'submissions', 'max_text_length' ) );
@@ -154,7 +154,7 @@ final class SettingsValidationTest extends AdminTestCase {
 		$html = (string) ob_get_clean();
 
 		$this->assertStringContainsString( 'id="rc-settings-errors" role="alert"', $html );
-		$this->assertStringContainsString( '<a href="#rc-submissions-min_text_length">Mindestlänge des Textes</a>: Bitte gib eine ganze Zahl ein.', $html );
+		$this->assertStringContainsString( '<a href="#rc-submissions-min_text_length">Minimum text length</a>: Please enter a whole number.', $html );
 		$this->assertStringContainsString( '<a href="#rc-submissions-rate_limit_per_hour">', $html );
 		$this->assertMatchesRegularExpression( '/id="rc-submissions-min_text_length"[^>]*value="zwanzig"[^>]*aria-describedby="[^"]*rc-submissions-min_text_length-error" aria-invalid="true"/', $html );
 		$this->assertStringContainsString( 'id="rc-submissions-min_text_length-error"', $html );
@@ -216,8 +216,8 @@ final class SettingsValidationTest extends AdminTestCase {
 		$this->page()->render();
 		$html = (string) ob_get_clean();
 		$this->assertStringContainsString( 'name="review_captain_settings[privacy][uninstall_confirm_word]"', $html );
-		$this->assertStringContainsString( 'Beim Löschen des Plugins alle Daten entfernen', $html, 'S10 suite label' );
-		$this->assertStringContainsString( 'Fotos', \ReviewCaptain\Admin\SettingsFields::description( 'privacy', 'delete_data_on_uninstall' ), 'help text names what is deleted' );
+		$this->assertStringContainsString( 'Remove all data when the plugin is deleted', $html, 'S10 suite label' );
+		$this->assertStringContainsString( 'photos', \ReviewCaptain\Admin\SettingsFields::description( 'privacy', 'delete_data_on_uninstall' ), 'help text names what is deleted' );
 		$this->assertStringNotContainsString( 'name="review_captain_settings[privacy][delete_data_confirmed_at]"', $html, 'internal field is not rendered' );
 		$this->assertStringContainsString( 'name="review_captain_settings[privacy][retention_audit_days]"', $html );
 
@@ -226,7 +226,7 @@ final class SettingsValidationTest extends AdminTestCase {
 		ob_start();
 		$this->page()->render();
 		$html = (string) ob_get_clean();
-		$this->assertStringContainsString( 'Bestätigt am', $html );
+		$this->assertStringContainsString( 'Confirmed on', $html );
 		$this->assertStringNotContainsString( 'uninstall_confirm_word', $html );
 
 		// Legacy: on but never confirmed.
@@ -234,6 +234,6 @@ final class SettingsValidationTest extends AdminTestCase {
 		$this->plugin()->settings()->flush();
 		ob_start();
 		$this->page()->render();
-		$this->assertStringContainsString( 'noch nicht bestätigt', (string) ob_get_clean() );
+		$this->assertStringContainsString( 'not confirmed yet', (string) ob_get_clean() );
 	}
 }

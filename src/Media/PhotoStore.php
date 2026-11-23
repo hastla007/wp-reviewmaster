@@ -415,11 +415,11 @@ final class PhotoStore {
 	 */
 	public static function message( string $code ): string {
 		return match ( $code ) {
-			'photo_size'        => __( 'Das Foto ist zu groß.', 'review-captain' ),
-			'photo_type'        => __( 'Bitte laden Sie ein Foto im Format JPG, PNG oder WebP hoch.', 'review-captain' ),
-			'photo_invalid'     => __( 'Das Foto konnte nicht gelesen werden.', 'review-captain' ),
-			'photo_unsupported' => __( 'Fotos können auf dieser Website derzeit nicht verarbeitet werden.', 'review-captain' ),
-			default             => __( 'Das Foto konnte nicht hochgeladen werden.', 'review-captain' ),
+			'photo_size'        => __( 'The photo is too large.', 'review-captain' ),
+			'photo_type'        => __( 'Please upload a photo in JPG, PNG, or WebP format.', 'review-captain' ),
+			'photo_invalid'     => __( 'The photo could not be read.', 'review-captain' ),
+			'photo_unsupported' => __( 'Photos cannot currently be processed on this website.', 'review-captain' ),
+			default             => __( 'The photo could not be uploaded.', 'review-captain' ),
 		};
 	}
 

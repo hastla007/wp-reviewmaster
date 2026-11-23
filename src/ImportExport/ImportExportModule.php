@@ -55,8 +55,8 @@ final class ImportExportModule implements Module {
 	public function menu(): void {
 		add_submenu_page(
 			self::PARENT,
-			__( 'Import & Export', 'review-captain' ),
-			__( 'Import & Export', 'review-captain' ),
+			__( 'Import & export', 'review-captain' ),
+			__( 'Import & export', 'review-captain' ),
 			Capabilities::MANAGE_PRIVACY,
 			self::PAGE,
 			array( $this, 'render' )
@@ -141,7 +141,7 @@ final class ImportExportModule implements Module {
 	public function handle_upload(): void {
 		Capabilities::verify_request( Capabilities::MANAGE_PRIVACY, 'import_upload' );
 		if ( ! current_user_can( Capabilities::MODERATE ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		$file  = isset( $_FILES['rc_import_file'] ) && is_array( $_FILES['rc_import_file'] ) ? $_FILES['rc_import_file'] : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- validated by UploadStore.
 		$error = UploadStore::validate( $file );
@@ -175,7 +175,7 @@ final class ImportExportModule implements Module {
 	public function handle_confirm(): void {
 		Capabilities::verify_request( Capabilities::MANAGE_PRIVACY, 'import_confirm' );
 		if ( ! current_user_can( Capabilities::MODERATE ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		$pending = get_transient( self::pending_key() );
 		$token   = isset( $_POST['token'] ) ? sanitize_key( wp_unslash( (string) $_POST['token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
@@ -270,28 +270,28 @@ final class ImportExportModule implements Module {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MANAGE_PRIVACY ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		$post_url = admin_url( 'admin-post.php' );
-		echo '<div class="wrap rc-import-export"><h1>' . esc_html__( 'Import & Export', 'review-captain' ) . '</h1>';
+		echo '<div class="wrap rc-import-export"><h1>' . esc_html__( 'Import & export', 'review-captain' ) . '</h1>';
 		$this->render_notice();
 
 		// Export.
 		echo '<h2>' . esc_html__( 'Export', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Exportiert Bewertungen und Erfahrungsberichte als CSV (UTF-8) im Importformat. E-Mail-Adressen werden nur exportiert, wenn du das ausdrücklich auswählst.', 'review-captain' ) . '</p>';
+		echo '<p>' . esc_html__( 'Exports reviews and testimonials as CSV (UTF-8) in the import format. Email addresses are only exported if you explicitly select this.', 'review-captain' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( $post_url ) . '">';
 		echo '<input type="hidden" name="action" value="review_captain_export" />';
 		wp_nonce_field( Capabilities::nonce_action( 'export' ), '_rc_nonce' );
 		echo '<table class="form-table" role="presentation"><tbody>';
-		$this->select_row( 'kind', __( 'Typ', 'review-captain' ), array_combine( Kind::values(), array_map( static fn( Kind $k ): string => $k->label(), Kind::cases() ) ) );
-		$this->select_row( 'platform', __( 'Plattform', 'review-captain' ), array_combine( Platform::values(), array_map( static fn( Platform $p ): string => $p->label(), Platform::cases() ) ) );
+		$this->select_row( 'kind', __( 'Type', 'review-captain' ), array_combine( Kind::values(), array_map( static fn( Kind $k ): string => $k->label(), Kind::cases() ) ) );
+		$this->select_row( 'platform', __( 'Platform', 'review-captain' ), array_combine( Platform::values(), array_map( static fn( Platform $p ): string => $p->label(), Platform::cases() ) ) );
 		$this->select_row( 'status', __( 'Status', 'review-captain' ), array_combine( ReviewStatus::values(), array_map( static fn( ReviewStatus $s ): string => $s->label(), ReviewStatus::cases() ) ) );
-		echo '<tr><th scope="row">' . esc_html__( 'Zeitraum (erstellt)', 'review-captain' ) . '</th><td>';
-		echo '<label>' . esc_html__( 'von', 'review-captain' ) . ' <input type="date" name="date_from" /></label> ';
-		echo '<label>' . esc_html__( 'bis', 'review-captain' ) . ' <input type="date" name="date_to" /></label></td></tr>';
-		echo '<tr><th scope="row">' . esc_html__( 'Personenbezogene Daten', 'review-captain' ) . '</th><td><label><input type="checkbox" name="include_personal" value="1" /> ' . esc_html__( 'Personenbezogene Daten einschließen (E-Mail-Adressen der Verfasser)', 'review-captain' ) . '</label></td></tr>';
+		echo '<tr><th scope="row">' . esc_html__( 'Date range (created)', 'review-captain' ) . '</th><td>';
+		echo '<label>' . esc_html__( 'from', 'review-captain' ) . ' <input type="date" name="date_from" /></label> ';
+		echo '<label>' . esc_html__( 'to', 'review-captain' ) . ' <input type="date" name="date_to" /></label></td></tr>';
+		echo '<tr><th scope="row">' . esc_html__( 'Personal data', 'review-captain' ) . '</th><td><label><input type="checkbox" name="include_personal" value="1" /> ' . esc_html__( 'Include personal data (authors\' email addresses)', 'review-captain' ) . '</label></td></tr>';
 		echo '</tbody></table>';
-		echo '<p><button type="submit" class="button button-primary">' . esc_html__( 'CSV exportieren', 'review-captain' ) . '</button></p></form>';
+		echo '<p><button type="submit" class="button button-primary">' . esc_html__( 'Export CSV', 'review-captain' ) . '</button></p></form>';
 
 		// Import.
 		echo '<h2>' . esc_html__( 'Import', 'review-captain' ) . '</h2>';
@@ -299,29 +299,29 @@ final class ImportExportModule implements Module {
 		if ( is_array( $pending ) && isset( $pending['result'] ) ) {
 			$this->render_pending( $pending, $post_url );
 		} else {
-			echo '<p>' . esc_html__( 'CSV-Datei (max. 5 MB, 10.000 Zeilen) hochladen. Vor dem Import wird immer ein Prüflauf angezeigt. Kauf- oder Teilnahmeverifizierungen werden nicht übernommen.', 'review-captain' ) . '</p>';
+			echo '<p>' . esc_html__( 'Upload a CSV file (max. 5 MB, 10,000 rows). A dry run is always shown before the import. Purchase or attendance verifications are not imported.', 'review-captain' ) . '</p>';
 			echo '<form method="post" enctype="multipart/form-data" action="' . esc_url( $post_url ) . '">';
 			echo '<input type="hidden" name="action" value="review_captain_import_upload" />';
 			wp_nonce_field( Capabilities::nonce_action( 'import_upload' ), '_rc_nonce' );
-			echo '<p><label for="rc-import-file">' . esc_html__( 'CSV-Datei', 'review-captain' ) . '</label> <input type="file" id="rc-import-file" name="rc_import_file" accept=".csv,text/csv" required /></p>';
-			echo '<p><button type="submit" class="button">' . esc_html__( 'Prüflauf starten', 'review-captain' ) . '</button></p></form>';
+			echo '<p><label for="rc-import-file">' . esc_html__( 'CSV file', 'review-captain' ) . '</label> <input type="file" id="rc-import-file" name="rc_import_file" accept=".csv,text/csv" required /></p>';
+			echo '<p><button type="submit" class="button">' . esc_html__( 'Start dry run', 'review-captain' ) . '</button></p></form>';
 		}
 
 		// Batches.
-		echo '<h2>' . esc_html__( 'Importläufe', 'review-captain' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Import runs', 'review-captain' ) . '</h2>';
 		$batches = $this->importer()->batches( 50 );
 		if ( ! $batches ) {
-			echo '<p>' . esc_html__( 'Noch keine Importe.', 'review-captain' ) . '</p></div>';
+			echo '<p>' . esc_html__( 'No imports yet.', 'review-captain' ) . '</p></div>';
 			return;
 		}
-		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Datei', 'review-captain' ) . '</th><th>' . esc_html__( 'Erstellt (UTC)', 'review-captain' ) . '</th><th>' . esc_html__( 'Zeilen', 'review-captain' ) . '</th><th>' . esc_html__( 'Importiert', 'review-captain' ) . '</th><th>' . esc_html__( 'Übersprungen', 'review-captain' ) . '</th><th>' . esc_html__( 'Status', 'review-captain' ) . '</th><th>' . esc_html__( 'Aktion', 'review-captain' ) . '</th></tr></thead><tbody>';
+		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'File', 'review-captain' ) . '</th><th>' . esc_html__( 'Created (UTC)', 'review-captain' ) . '</th><th>' . esc_html__( 'Rows', 'review-captain' ) . '</th><th>' . esc_html__( 'Imported', 'review-captain' ) . '</th><th>' . esc_html__( 'Skipped', 'review-captain' ) . '</th><th>' . esc_html__( 'Status', 'review-captain' ) . '</th><th>' . esc_html__( 'Action', 'review-captain' ) . '</th></tr></thead><tbody>';
 		foreach ( $batches as $batch ) {
 			echo '<tr><td>' . esc_html( (string) $batch['filename'] ) . '</td><td>' . esc_html( (string) $batch['created_at'] ) . '</td><td>' . esc_html( (string) $batch['rows_total'] ) . '</td><td>' . esc_html( (string) $batch['rows_imported'] ) . '</td><td>' . esc_html( (string) $batch['rows_skipped'] ) . '</td><td>' . esc_html( self::batch_status_label( (string) $batch['status'] ) ) . '</td><td>';
 			if ( empty( $batch['rolled_back_at'] ) && 'completed' === $batch['status'] ) {
-				echo '<form method="post" action="' . esc_url( $post_url ) . '" onsubmit="return confirm(\'' . esc_js( __( 'Alle Einträge dieses Imports endgültig löschen?', 'review-captain' ) ) . '\');">';
+				echo '<form method="post" action="' . esc_url( $post_url ) . '" onsubmit="return confirm(\'' . esc_js( __( 'Permanently delete all entries from this import?', 'review-captain' ) ) . '\');">';
 				echo '<input type="hidden" name="action" value="review_captain_import_rollback" /><input type="hidden" name="batch_id" value="' . esc_attr( (string) $batch['id'] ) . '" />';
 				wp_nonce_field( Capabilities::nonce_action( 'import_rollback' ), '_rc_nonce' );
-				echo '<button type="submit" class="button button-link-delete">' . esc_html__( 'Import rückgängig machen', 'review-captain' ) . '</button></form>';
+				echo '<button type="submit" class="button button-link-delete">' . esc_html__( 'Undo import', 'review-captain' ) . '</button></form>';
 			} else {
 				echo esc_html( (string) ( $batch['rolled_back_at'] ?? '' ) );
 			}
@@ -338,37 +338,37 @@ final class ImportExportModule implements Module {
 	 */
 	private function render_pending( array $pending, string $post_url ): void {
 		$r = (array) $pending['result'];
-		echo '<div class="rc-dry-run"><h3>' . esc_html__( 'Prüflauf', 'review-captain' ) . ': ' . esc_html( (string) $pending['filename'] ) . '</h3>';
+		echo '<div class="rc-dry-run"><h3>' . esc_html__( 'Dry run', 'review-captain' ) . ': ' . esc_html( (string) $pending['filename'] ) . '</h3>';
 		echo '<ul>';
 		/* translators: %d: number */
-		echo '<li>' . esc_html( sprintf( __( 'Datenzeilen: %d', 'review-captain' ), (int) $r['rows'] ) ) . '</li>';
+		echo '<li>' . esc_html( sprintf( __( 'Data rows: %d', 'review-captain' ), (int) $r['rows'] ) ) . '</li>';
 		/* translators: %d: number */
-		echo '<li>' . esc_html( sprintf( __( 'Importierbar: %d', 'review-captain' ), (int) $r['valid'] ) ) . '</li>';
+		echo '<li>' . esc_html( sprintf( __( 'Importable: %d', 'review-captain' ), (int) $r['valid'] ) ) . '</li>';
 		/* translators: %d: number */
-		echo '<li>' . esc_html( sprintf( __( 'Fehlerhafte Zeilen: %d', 'review-captain' ), count( array_unique( array_column( (array) $r['errors'], 'line' ) ) ) ) ) . '</li>';
+		echo '<li>' . esc_html( sprintf( __( 'Invalid rows: %d', 'review-captain' ), count( array_unique( array_column( (array) $r['errors'], 'line' ) ) ) ) ) . '</li>';
 		/* translators: %d: number */
-		echo '<li>' . esc_html( sprintf( __( 'Duplikate (werden übersprungen): %d', 'review-captain' ), count( (array) $r['duplicates'] ) ) ) . '</li>';
+		echo '<li>' . esc_html( sprintf( __( 'Duplicates (will be skipped): %d', 'review-captain' ), count( (array) $r['duplicates'] ) ) ) . '</li>';
 		echo '</ul>';
-		echo '<p>' . esc_html__( 'Für importierte Reviews liegt keine im Plugin dokumentierte Einwilligung zur Veröffentlichung vor.', 'review-captain' ) . '</p>';
+		echo '<p>' . esc_html__( 'For imported reviews, there is no consent to publication documented in the plugin.', 'review-captain' ) . '</p>';
 		$issues = array_merge( (array) $r['errors'], (array) ( $r['warnings'] ?? array() ) );
 		if ( $issues ) {
-			echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Zeile', 'review-captain' ) . '</th><th>' . esc_html__( 'Code', 'review-captain' ) . '</th><th>' . esc_html__( 'Hinweis', 'review-captain' ) . '</th></tr></thead><tbody>';
+			echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Row', 'review-captain' ) . '</th><th>' . esc_html__( 'Code', 'review-captain' ) . '</th><th>' . esc_html__( 'Note', 'review-captain' ) . '</th></tr></thead><tbody>';
 			foreach ( array_slice( $issues, 0, 200 ) as $issue ) {
 				echo '<tr><td>' . esc_html( (string) $issue['line'] ) . '</td><td><code>' . esc_html( (string) $issue['code'] ) . '</code></td><td>' . esc_html( (string) $issue['message'] ) . '</td></tr>';
 			}
 			echo '</tbody></table>';
 		}
 		if ( $r['duplicates'] ) {
-			echo '<p>' . esc_html__( 'Duplikate in Zeile:', 'review-captain' ) . ' ' . esc_html( implode( ', ', array_map( 'intval', (array) $r['duplicates'] ) ) ) . '</p>';
+			echo '<p>' . esc_html__( 'Duplicates in row:', 'review-captain' ) . ' ' . esc_html( implode( ', ', array_map( 'intval', (array) $r['duplicates'] ) ) ) . '</p>';
 		}
 		echo '<form method="post" action="' . esc_url( $post_url ) . '" style="display:inline-block;margin-right:8px">';
 		echo '<input type="hidden" name="action" value="review_captain_import_confirm" /><input type="hidden" name="token" value="' . esc_attr( (string) $pending['token'] ) . '" />';
 		wp_nonce_field( Capabilities::nonce_action( 'import_confirm' ), '_rc_nonce' );
-		echo '<button type="submit" class="button button-primary"' . ( (int) $r['valid'] > 0 ? '' : ' disabled="disabled"' ) . '>' . esc_html__( 'Import bestätigen', 'review-captain' ) . '</button></form>';
+		echo '<button type="submit" class="button button-primary"' . ( (int) $r['valid'] > 0 ? '' : ' disabled="disabled"' ) . '>' . esc_html__( 'Confirm import', 'review-captain' ) . '</button></form>';
 		echo '<form method="post" action="' . esc_url( $post_url ) . '" style="display:inline-block">';
 		echo '<input type="hidden" name="action" value="review_captain_import_cancel" />';
 		wp_nonce_field( Capabilities::nonce_action( 'import_cancel' ), '_rc_nonce' );
-		echo '<button type="submit" class="button">' . esc_html__( 'Abbrechen', 'review-captain' ) . '</button></form></div>';
+		echo '<button type="submit" class="button">' . esc_html__( 'Cancel', 'review-captain' ) . '</button></form></div>';
 	}
 
 	/**
@@ -389,15 +389,15 @@ final class ImportExportModule implements Module {
 		} else {
 			$text = match ( $notice ) {
 				/* translators: 1: imported, 2: skipped */
-				'imported'         => sprintf( __( '%1$d Einträge importiert, %2$d übersprungen.', 'review-captain' ), $num( 'rc_imported' ), $num( 'rc_skipped' ) ),
-				'import_failed'    => __( 'Der Import konnte nicht durchgeführt werden.', 'review-captain' ),
-				'import_expired'   => __( 'Der Prüflauf ist abgelaufen. Bitte die Datei erneut hochladen.', 'review-captain' ),
-				'dry_run'          => __( 'Prüflauf abgeschlossen. Bitte Ergebnis prüfen und Import bestätigen.', 'review-captain' ),
-				'cancelled'        => __( 'Import abgebrochen, Datei gelöscht.', 'review-captain' ),
+				'imported'         => sprintf( __( '%1$d entries imported, %2$d skipped.', 'review-captain' ), $num( 'rc_imported' ), $num( 'rc_skipped' ) ),
+				'import_failed'    => __( 'The import could not be completed.', 'review-captain' ),
+				'import_expired'   => __( 'The dry run has expired. Please upload the file again.', 'review-captain' ),
+				'dry_run'          => __( 'Dry run complete. Please check the result and confirm the import.', 'review-captain' ),
+				'cancelled'        => __( 'Import canceled, file deleted.', 'review-captain' ),
 				/* translators: %d: number */
-				'rolled_back'      => sprintf( __( '%d importierte Einträge wurden gelöscht.', 'review-captain' ), $num( 'rc_deleted' ) ),
+				'rolled_back'      => sprintf( __( '%d imported entries were deleted.', 'review-captain' ), $num( 'rc_deleted' ) ),
 				/* translators: %d: number */
-				'rollback_confirm' => sprintf( __( '%d Einträge dieses Imports wurden seitdem moderiert oder bearbeitet. Zum Löschen bitte bestätigen.', 'review-captain' ), $num( 'rc_modified' ) ),
+				'rollback_confirm' => sprintf( __( '%d entries from this import have since been moderated or edited. Please confirm to delete them.', 'review-captain' ), $num( 'rc_modified' ) ),
 				default            => '',
 			};
 			if ( in_array( $notice, array( 'import_failed', 'import_expired' ), true ) ) {
@@ -413,7 +413,7 @@ final class ImportExportModule implements Module {
 		if ( 'rollback_confirm' === $notice ) {
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="review_captain_import_rollback" /><input type="hidden" name="batch_id" value="' . esc_attr( (string) $num( 'rc_batch' ) ) . '" /><input type="hidden" name="confirm_modified" value="1" />';
 			wp_nonce_field( Capabilities::nonce_action( 'import_rollback' ), '_rc_nonce' );
-			echo '<p><button type="submit" class="button button-link-delete">' . esc_html__( 'Trotzdem rückgängig machen', 'review-captain' ) . '</button></p></form>';
+			echo '<p><button type="submit" class="button button-link-delete">' . esc_html__( 'Undo anyway', 'review-captain' ) . '</button></p></form>';
 		}
 		echo '</div>';
 	}
@@ -426,7 +426,7 @@ final class ImportExportModule implements Module {
 	 * @param array<string, string> $choices Choices.
 	 */
 	private function select_row( string $name, string $label, array $choices ): void {
-		echo '<tr><th scope="row"><label for="rc-export-' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label></th><td><select id="rc-export-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '"><option value="">' . esc_html__( 'Alle', 'review-captain' ) . '</option>';
+		echo '<tr><th scope="row"><label for="rc-export-' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label></th><td><select id="rc-export-' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '"><option value="">' . esc_html__( 'All', 'review-captain' ) . '</option>';
 		foreach ( $choices as $value => $text ) {
 			echo '<option value="' . esc_attr( $value ) . '">' . esc_html( $text ) . '</option>';
 		}
@@ -440,10 +440,10 @@ final class ImportExportModule implements Module {
 	 */
 	private static function batch_status_label( string $status ): string {
 		return match ( $status ) {
-			'completed'   => __( 'abgeschlossen', 'review-captain' ),
-			'running'     => __( 'läuft', 'review-captain' ),
-			'rolled_back' => __( 'rückgängig gemacht', 'review-captain' ),
-			'failed'      => __( 'fehlgeschlagen', 'review-captain' ),
+			'completed'   => __( 'completed', 'review-captain' ),
+			'running'     => __( 'running', 'review-captain' ),
+			'rolled_back' => __( 'undone', 'review-captain' ),
+			'failed'      => __( 'failed', 'review-captain' ),
 			default       => $status,
 		};
 	}

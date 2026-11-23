@@ -69,13 +69,13 @@ final class SchemaSettingsTest extends FrontendTestCase {
 	public function test_diagnostics_explain_narrowed_output(): void {
 		$this->settings( array( 'display' => array( 'schema_contexts' => array( 'product' ), 'schema_min_reviews' => 3 ) ) );
 		$messages = implode( ' | ', array_column( SeoStatus::report( SeoEnvironment::from_state( array() ) ), 'message' ) );
-		$this->assertStringContainsString( 'Markup nur für: Produkte', $messages );
-		$this->assertStringContainsString( 'ab 3 geeigneten Bewertungen', $messages );
-		$this->assertStringContainsString( 'Erfahrungsberichte der Website', $messages );
+		$this->assertStringContainsString( 'Markup only for: Products', $messages );
+		$this->assertStringContainsString( 'from 3 eligible reviews', $messages );
+		$this->assertStringContainsString( 'Testimonials of the site', $messages );
 
 		$this->settings( array( 'display' => array( 'schema_contexts' => array() ) ) );
 		$items = SeoStatus::report( SeoEnvironment::from_state( array() ) );
-		$warn  = array_filter( $items, static fn( array $i ): bool => 'warn' === $i['status'] && str_contains( $i['message'], 'keinen Inhaltstyp' ) );
+		$warn  = array_filter( $items, static fn( array $i ): bool => 'warn' === $i['status'] && str_contains( $i['message'], 'no content type' ) );
 		$this->assertCount( 1, $warn );
 	}
 }

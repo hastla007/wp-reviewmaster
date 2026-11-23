@@ -71,19 +71,19 @@ final class CliModule implements Module {
 		return array(
 			'jobs run'           => array(
 				'method'    => 'jobs_run',
-				'shortdesc' => __( 'Fällige Hintergrundjobs abarbeiten (für System-Cron).', 'review-captain' ),
+				'shortdesc' => __( 'Process due background jobs (for system cron).', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'        => 'assoc',
 						'name'        => 'budget',
 						'optional'    => true,
-						'description' => __( 'Zeitbudget in Sekunden (Standard: Einstellung).', 'review-captain' ),
+						'description' => __( 'Time budget in seconds (default: setting).', 'review-captain' ),
 					),
 				),
 			),
 			'jobs list'          => array(
 				'method'    => 'jobs_list',
-				'shortdesc' => __( 'Jobs auflisten.', 'review-captain' ),
+				'shortdesc' => __( 'List jobs.', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'     => 'assoc',
@@ -101,7 +101,7 @@ final class CliModule implements Module {
 			),
 			'jobs retry'         => array(
 				'method'    => 'jobs_retry',
-				'shortdesc' => __( 'Job erneut einreihen.', 'review-captain' ),
+				'shortdesc' => __( 'Requeue job.', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type' => 'positional',
@@ -111,12 +111,12 @@ final class CliModule implements Module {
 			),
 			'jobs stats'         => array(
 				'method'    => 'jobs_stats',
-				'shortdesc' => __( 'Job-Zähler anzeigen.', 'review-captain' ),
+				'shortdesc' => __( 'Show job counts.', 'review-captain' ),
 				'synopsis'  => array( $format ),
 			),
 			'maintenance run'    => array(
 				'method'    => 'maintenance_run',
-				'shortdesc' => __( 'Aufbewahrung und Bereinigung ausführen.', 'review-captain' ),
+				'shortdesc' => __( 'Run retention and cleanup.', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'     => 'assoc',
@@ -127,7 +127,7 @@ final class CliModule implements Module {
 			),
 			'reconcile'          => array(
 				'method'    => 'reconcile',
-				'shortdesc' => __( 'Konsistenzprüfung nach Upgrade/Restore.', 'review-captain' ),
+				'shortdesc' => __( 'Consistency check after upgrade/restore.', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'     => 'flag',
@@ -146,12 +146,12 @@ final class CliModule implements Module {
 			),
 			'doctor'             => array(
 				'method'    => 'doctor',
-				'shortdesc' => __( 'Schema, Cron und Schlüssel prüfen.', 'review-captain' ),
+				'shortdesc' => __( 'Check schema, cron, and keys.', 'review-captain' ),
 				'synopsis'  => array( $format ),
 			),
 			'dev seed'           => array(
 				'method'    => 'dev_seed',
-				'shortdesc' => __( 'Testdaten erzeugen (nur Entwicklung).', 'review-captain' ),
+				'shortdesc' => __( 'Generate test data (development only).', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'     => 'assoc',
@@ -174,31 +174,31 @@ final class CliModule implements Module {
 			),
 			'schema upgrade'     => array(
 				'method'    => 'schema_upgrade',
-				'shortdesc' => __( 'Datenbankschema installieren/aktualisieren.', 'review-captain' ),
+				'shortdesc' => __( 'Install/update database schema.', 'review-captain' ),
 				'synopsis'  => array(),
 			),
 			// SET-RC-18: settings with the same checks and rights as the settings page.
 			'settings list'      => array(
 				'method'    => 'settings_list',
-				'shortdesc' => __( 'Einstellungen mit aktuellem Wert und Standard auflisten.', 'review-captain' ),
+				'shortdesc' => __( 'List settings with current value and default.', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'        => 'assoc',
 						'name'        => 'tab',
 						'optional'    => true,
-						'description' => __( 'Nur diesen Bereich zeigen, z. B. privacy.', 'review-captain' ),
+						'description' => __( 'Only show this section, e.g. privacy.', 'review-captain' ),
 					),
 					$format,
 				),
 			),
 			'settings get'       => array(
 				'method'    => 'settings_get',
-				'shortdesc' => __( 'Wert einer Einstellung ausgeben (Bereich.Schlüssel).', 'review-captain' ),
+				'shortdesc' => __( 'Print the value of a setting (section.key).', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'        => 'positional',
 						'name'        => 'key',
-						'description' => __( 'Bereich.Schlüssel, z. B. submissions.min_text_length.', 'review-captain' ),
+						'description' => __( 'section.key, e.g. submissions.min_text_length.', 'review-captain' ),
 					),
 					array(
 						'type'     => 'assoc',
@@ -211,7 +211,7 @@ final class CliModule implements Module {
 			),
 			'settings set'       => array(
 				'method'    => 'settings_set',
-				'shortdesc' => __( 'Eine Einstellung ändern (wie auf der Einstellungsseite geprüft und protokolliert; braucht --user).', 'review-captain' ),
+				'shortdesc' => __( 'Change a setting (validated and logged as on the settings page; needs --user).', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type' => 'positional',
@@ -220,25 +220,25 @@ final class CliModule implements Module {
 					array(
 						'type'        => 'positional',
 						'name'        => 'value',
-						'description' => __( 'Neuer Wert. Ja/Nein: 1/0, true/false, on/off. Listen (Rollen): durch Komma getrennt.', 'review-captain' ),
+						'description' => __( 'New value. Yes/no: 1/0, true/false, on/off. Lists (roles): separated by commas.', 'review-captain' ),
 					),
 					array(
 						'type'        => 'assoc',
 						'name'        => 'confirm',
 						'optional'    => true,
-						'description' => __( 'Bestätigungswort (LÖSCHEN), nötig beim Einschalten von privacy.delete_data_on_uninstall.', 'review-captain' ),
+						'description' => __( 'Confirmation word (DELETE), needed when switching on privacy.delete_data_on_uninstall.', 'review-captain' ),
 					),
 					array(
 						'type'        => 'assoc',
 						'name'        => 'confirm-word',
 						'optional'    => true,
-						'description' => __( 'Alias für --confirm.', 'review-captain' ),
+						'description' => __( 'Alias for --confirm.', 'review-captain' ),
 					),
 				),
 			),
 			'settings reset'     => array(
 				'method'    => 'settings_reset',
-				'shortdesc' => __( 'Bereiche oder alle Einstellungen auf den Standard zurücksetzen (Sicherung wird angelegt; braucht --user).', 'review-captain' ),
+				'shortdesc' => __( 'Reset sections or all settings to the defaults (a backup is created; needs --user).', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'      => 'positional',
@@ -260,7 +260,7 @@ final class CliModule implements Module {
 			),
 			'settings export'    => array(
 				'method'    => 'settings_export',
-				'shortdesc' => __( 'Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten).', 'review-captain' ),
+				'shortdesc' => __( 'Print the configuration as JSON or write it to a file (without credentials).', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'     => 'assoc',
@@ -271,7 +271,7 @@ final class CliModule implements Module {
 			),
 			'settings import'    => array(
 				'method'    => 'settings_import',
-				'shortdesc' => __( 'Konfiguration aus einer JSON-Datei importieren; --dry-run zeigt nur die Vorschau (braucht --user).', 'review-captain' ),
+				'shortdesc' => __( 'Import the configuration from a JSON file; --dry-run only shows the preview (needs --user).', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type' => 'positional',

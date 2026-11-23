@@ -56,7 +56,7 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 	<?php if ( $rc_errors ) : ?>
 		<?php // QA F-06: the redirect targets this box (#…-errors) and autofocus moves keyboard/screen-reader focus here. ?>
 		<div class="rc-form__error rc-form__errors" id="<?php echo esc_attr( $rc_id . '-errors' ); ?>" role="alert" tabindex="-1" autofocus>
-			<p><?php esc_html_e( 'Bitte prüfen Sie Ihre Angaben:', 'review-captain' ); ?></p>
+			<p><?php esc_html_e( 'Please check your entries:', 'review-captain' ); ?></p>
 			<ul>
 				<?php foreach ( $rc_errors as $rc_message ) : ?>
 					<li><?php echo esc_html( $rc_message ); ?></li>
@@ -75,13 +75,13 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 
 		<?php if ( empty( $rc['items'] ) ) : ?>
 		<fieldset class="rc-form__field rc-form__field--rating"<?php echo $rc_described( 'rating' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in closure. ?>>
-			<legend><?php esc_html_e( 'Ihre Bewertung', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></legend>
+			<legend><?php esc_html_e( 'Your rating', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(required)', 'review-captain' ); ?></span></legend>
 			<?php for ( $rc_i = 5; $rc_i >= 1; $rc_i-- ) : ?>
 				<label class="rc-form__radio">
 					<input type="radio" name="rc_rating" value="<?php echo esc_attr( (string) $rc_i ); ?>" required<?php checked( $rc_values['rating'], (string) $rc_i ); ?> />
 					<?php
 					/* translators: %d: number of stars */
-					echo esc_html( sprintf( _n( '%d Stern', '%d Sterne', $rc_i, 'review-captain' ), $rc_i ) );
+					echo esc_html( sprintf( _n( '%d star', '%d stars', $rc_i, 'review-captain' ), $rc_i ) );
 					?>
 				</label>
 			<?php endfor; ?>
@@ -94,27 +94,27 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 				<?php $rc_item_key = 'rc_items[' . $rc_item['id'] . ']'; ?>
 				<fieldset class="rc-form__field rc-form__field--item">
 					<legend><?php echo esc_html( $rc_item['label'] ); ?></legend>
-					<div class="rc-form__field--rating" role="radiogroup" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: product name */ __( 'Bewertung für %s', 'review-captain' ), $rc_item['label'] ) ); ?>">
+					<div class="rc-form__field--rating" role="radiogroup" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: product name */ __( 'Review for %s', 'review-captain' ), $rc_item['label'] ) ); ?>">
 						<?php for ( $rc_i = 5; $rc_i >= 1; $rc_i-- ) : ?>
 							<label class="rc-form__radio">
 								<input type="radio" name="<?php echo esc_attr( $rc_item_key . '[rating]' ); ?>" value="<?php echo esc_attr( (string) $rc_i ); ?>" />
 								<?php
 								/* translators: %d: number of stars */
-								echo esc_html( sprintf( _n( '%d Stern', '%d Sterne', $rc_i, 'review-captain' ), $rc_i ) );
+								echo esc_html( sprintf( _n( '%d star', '%d stars', $rc_i, 'review-captain' ), $rc_i ) );
 								?>
 							</label>
 						<?php endfor; ?>
 					</div>
-					<label for="<?php echo esc_attr( $rc_id . '-item-' . $rc_item['id'] ); ?>"><?php esc_html_e( 'Ihre Erfahrung mit diesem Produkt', 'review-captain' ); ?></label>
+					<label for="<?php echo esc_attr( $rc_id . '-item-' . $rc_item['id'] ); ?>"><?php esc_html_e( 'Your experience with this product', 'review-captain' ); ?></label>
 					<textarea id="<?php echo esc_attr( $rc_id . '-item-' . $rc_item['id'] ); ?>" name="<?php echo esc_attr( $rc_item_key . '[body]' ); ?>" rows="4" maxlength="<?php echo esc_attr( (string) $rc['max_length'] ); ?>"></textarea>
 				</fieldset>
 			<?php endforeach; ?>
-			<p class="rc-form__hint"><?php esc_html_e( 'Sie können auch nur einzelne Produkte bewerten. Je Produkt ist eine Bewertung möglich.', 'review-captain' ); ?></p>
+			<p class="rc-form__hint"><?php esc_html_e( 'You can also review only some of the products. One review is possible per product.', 'review-captain' ); ?></p>
 		<?php endif; ?>
 
 		<?php if ( $rc['allow_title'] ) : ?>
 			<p class="rc-form__field">
-				<label for="<?php echo esc_attr( $rc_id . '-title' ); ?>"><?php esc_html_e( 'Titel (optional)', 'review-captain' ); ?></label>
+				<label for="<?php echo esc_attr( $rc_id . '-title' ); ?>"><?php esc_html_e( 'Title (optional)', 'review-captain' ); ?></label>
 				<input type="text" id="<?php echo esc_attr( $rc_id . '-title' ); ?>" name="rc_title" maxlength="150" value="<?php echo esc_attr( $rc_values['title'] ); ?>"<?php echo $rc_described( 'title' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
 				<?php if ( '' !== $rc_err_for( 'title' ) ) : ?>
 					<span class="rc-form__error" id="<?php echo esc_attr( $rc_id . '-title-error' ); ?>"><?php echo esc_html( $rc_err_for( 'title' ) ); ?></span>
@@ -124,12 +124,12 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 
 		<?php if ( empty( $rc['items'] ) ) : ?>
 		<p class="rc-form__field">
-			<label for="<?php echo esc_attr( $rc_id . '-body' ); ?>"><?php esc_html_e( 'Ihre Erfahrung', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></label>
+			<label for="<?php echo esc_attr( $rc_id . '-body' ); ?>"><?php esc_html_e( 'Your experience', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(required)', 'review-captain' ); ?></span></label>
 			<textarea id="<?php echo esc_attr( $rc_id . '-body' ); ?>" name="rc_body" rows="6" required minlength="<?php echo esc_attr( (string) $rc['min_length'] ); ?>" maxlength="<?php echo esc_attr( (string) $rc['max_length'] ); ?>"<?php echo $rc_described( 'body', $rc_id . '-body-hint' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>><?php echo esc_textarea( $rc_values['body'] ); ?></textarea>
 			<span class="rc-form__hint" id="<?php echo esc_attr( $rc_id . '-body-hint' ); ?>">
 				<?php
 				/* translators: 1: minimum length, 2: maximum length */
-				echo esc_html( sprintf( __( 'Zwischen %1$d und %2$d Zeichen.', 'review-captain' ), (int) $rc['min_length'], (int) $rc['max_length'] ) );
+				echo esc_html( sprintf( __( 'Between %1$d and %2$d characters.', 'review-captain' ), (int) $rc['min_length'], (int) $rc['max_length'] ) );
 				?>
 			</span>
 			<?php if ( '' !== $rc_err_for( 'body' ) ) : ?>
@@ -140,19 +140,19 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 
 		<?php if ( ! empty( $rc['photos'] ) ) : ?>
 			<p class="rc-form__field rc-form__field--photo">
-				<label for="<?php echo esc_attr( $rc_id . '-photo' ); ?>"><?php esc_html_e( 'Foto (optional)', 'review-captain' ); ?></label>
+				<label for="<?php echo esc_attr( $rc_id . '-photo' ); ?>"><?php esc_html_e( 'Photo (optional)', 'review-captain' ); ?></label>
 				<input type="file" id="<?php echo esc_attr( $rc_id . '-photo' ); ?>" name="rc_photo" accept="image/jpeg,image/png,image/webp" aria-describedby="<?php echo esc_attr( $rc_id . '-photo-hint' ); ?>" />
 				<span class="rc-form__hint" id="<?php echo esc_attr( $rc_id . '-photo-hint' ); ?>">
 					<?php
 					/* translators: %d: maximum size in KB */
-					echo esc_html( sprintf( __( 'JPG, PNG oder WebP, höchstens %d KB. Das Foto wird erst nach Prüfung angezeigt; Bildmetadaten (z. B. Standort) werden entfernt.', 'review-captain' ), (int) $rc['photo_max_kb'] ) );
+					echo esc_html( sprintf( __( 'JPG, PNG, or WebP, max. %d KB. The photo is only displayed after moderation; image metadata (e.g. location) is removed.', 'review-captain' ), (int) $rc['photo_max_kb'] ) );
 					?>
 				</span>
 			</p>
 		<?php endif; ?>
 
 		<p class="rc-form__field">
-			<label for="<?php echo esc_attr( $rc_id . '-name' ); ?>"><?php echo esc_html( $rc['name_label'] ?? __( 'Name (wird veröffentlicht)', 'review-captain' ) ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></label>
+			<label for="<?php echo esc_attr( $rc_id . '-name' ); ?>"><?php echo esc_html( $rc['name_label'] ?? __( 'Name (will be published)', 'review-captain' ) ); ?> <span class="rc-form__required"><?php esc_html_e( '(required)', 'review-captain' ); ?></span></label>
 			<input type="text" id="<?php echo esc_attr( $rc_id . '-name' ); ?>" name="rc_name" required maxlength="100" autocomplete="name" value="<?php echo esc_attr( $rc_values['name'] ); ?>"<?php echo $rc_described( 'name' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
 			<?php if ( '' !== $rc_err_for( 'name' ) ) : ?>
 				<span class="rc-form__error" id="<?php echo esc_attr( $rc_id . '-name-error' ); ?>"><?php echo esc_html( $rc_err_for( 'name' ) ); ?></span>
@@ -160,9 +160,9 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 		</p>
 
 		<p class="rc-form__field">
-			<label for="<?php echo esc_attr( $rc_id . '-email' ); ?>"><?php esc_html_e( 'E-Mail-Adresse', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></label>
+			<label for="<?php echo esc_attr( $rc_id . '-email' ); ?>"><?php esc_html_e( 'Email address', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(required)', 'review-captain' ); ?></span></label>
 			<input type="email" id="<?php echo esc_attr( $rc_id . '-email' ); ?>" name="rc_email" required maxlength="191" autocomplete="email" value="<?php echo esc_attr( $rc_values['email'] ); ?>"<?php echo $rc_described( 'email', $rc_id . '-email-hint' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
-			<span class="rc-form__hint" id="<?php echo esc_attr( $rc_id . '-email-hint' ); ?>"><?php echo esc_html( $rc['email_hint'] ?? __( 'Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.', 'review-captain' ) ); ?></span>
+			<span class="rc-form__hint" id="<?php echo esc_attr( $rc_id . '-email-hint' ); ?>"><?php echo esc_html( $rc['email_hint'] ?? __( 'Will never be published. We only use it for follow-up questions and privacy requests.', 'review-captain' ) ); ?></span>
 			<?php if ( '' !== $rc_err_for( 'email' ) ) : ?>
 				<span class="rc-form__error" id="<?php echo esc_attr( $rc_id . '-email-error' ); ?>"><?php echo esc_html( $rc_err_for( 'email' ) ); ?></span>
 			<?php endif; ?>
@@ -170,7 +170,7 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 
 		<?php if ( $rc['honeypot'] ) : ?>
 			<p class="rc-form__hp" aria-hidden="true">
-				<label for="<?php echo esc_attr( $rc_id . '-hp' ); ?>"><?php esc_html_e( 'Dieses Feld bitte leer lassen', 'review-captain' ); ?></label>
+				<label for="<?php echo esc_attr( $rc_id . '-hp' ); ?>"><?php esc_html_e( 'Please leave this field empty', 'review-captain' ); ?></label>
 				<input type="text" id="<?php echo esc_attr( $rc_id . '-hp' ); ?>" name="<?php echo esc_attr( $rc['honeypot_name'] ); ?>" value="" tabindex="-1" autocomplete="off" />
 			</p>
 		<?php endif; ?>
@@ -186,10 +186,10 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 				// SET-RC-04: consent text from the settings (escaped; only the {privacy_link} link is HTML).
 				echo isset( $rc['consent_html'] )
 					? wp_kses( (string) $rc['consent_html'], array( 'a' => array( 'href' => array() ) ) )
-					: esc_html__( 'Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. Meine E-Mail-Adresse wird nicht veröffentlicht. Die Einwilligung kann ich jederzeit widerrufen.', 'review-captain' );
+					: esc_html__( 'I consent to my review being published with my name on this website. My email address will not be published. I can withdraw my consent at any time.', 'review-captain' );
 				?>
 				<?php if ( $rc['require_consent'] ) : ?>
-					<span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span>
+					<span class="rc-form__required"><?php esc_html_e( '(required)', 'review-captain' ); ?></span>
 				<?php endif; ?>
 			</label>
 			<?php if ( '' !== $rc_err_for( 'consent' ) ) : ?>
@@ -202,7 +202,7 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 		<?php endif; ?>
 
 		<p class="rc-form__actions">
-			<button type="submit" class="rc-form__submit"><?php echo esc_html( $rc['submit_label'] ?? __( 'Bewertung senden', 'review-captain' ) ); ?></button>
+			<button type="submit" class="rc-form__submit"><?php echo esc_html( $rc['submit_label'] ?? __( 'Submit review', 'review-captain' ) ); ?></button>
 		</p>
 	</form>
 	<?php if ( ! empty( $rc['verification']['html'] ) && 'above' !== $rc['verification']['position'] ) : ?>
