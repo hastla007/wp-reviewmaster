@@ -1367,7 +1367,7 @@ msgid "Marken- bzw. Firmenname"
 msgstr ""
 
 #: src/Admin/SettingsFields.php:26
-msgid "Erscheint in Hinweisen und Formularen. Leer = Titel deiner Website."
+msgid "Erscheint in E-Mails an Bewertende (z. B. Korrektur-Link) und mit Review Captain Pro als Absender der Einladungen. Leer = Titel deiner Website."
 msgstr ""
 
 #: src/Admin/SettingsFields.php:27

@@ -68,6 +68,24 @@ final class CorrectionTest extends TestCase {
 		unset( $ok );
 	}
 
+	public function test_link_mail_uses_the_brand_name(): void {
+		// SET-RC-P1: general.brand_name ("Erscheint in Hinweisen und Formularen") was used nowhere in the core.
+		$this->enable();
+		$this->review();
+		$h = new CorrectionHandler( Plugin::instance() );
+		$h->process( array( 'op' => 'request', 'rc_email' => 'erika@example.org', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
+		$this->assertSame( 'Ihre Bewertung bei Testsite bearbeiten', \RC_Test_State::$mails[0]['subject'], 'empty = site title' );
+
+		$s                             = Plugin::instance()->settings()->all();
+		$s['general']['brand_name']    = 'Laden Erika';
+		update_option( 'review_captain_settings', $s );
+		Plugin::instance()->settings()->flush();
+		$h->process( array( 'op' => 'request', 'rc_email' => 'erika@example.org', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
+		$last = end( \RC_Test_State::$mails );
+		$this->assertSame( 'Ihre Bewertung bei Laden Erika bearbeiten', $last['subject'] );
+		$this->assertStringContainsString( 'Bewertung bei Laden Erika korrigieren', $last['message'] );
+	}
+
 	public function test_bad_nonce_and_bad_token(): void {
 		$this->enable();
 		$h = new CorrectionHandler( Plugin::instance() );

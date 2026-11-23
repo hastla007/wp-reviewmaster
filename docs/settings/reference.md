@@ -13,9 +13,9 @@ Jeder Eintrag nennt: **Zweck** · **Gilt für** · **Standard** · **Folgen** ·
 ## Allgemein
 
 ### Marken- bzw. Firmenname (`brand_name`)
-- **Zweck:** Name in Hinweisen, Formularen und (mit Pro) Einladungen.
+- **Zweck:** Name in E-Mails an Bewertende und (mit Pro) als Absendername der Einladungen.
 - **Gilt für:** ganze Website. **Standard:** leer = Titel Ihrer Website.
-- **Folgen:** erscheint z. B. im Text „Ihre Bewertung für {Name}“.
+- **Folgen:** erscheint z. B. in der E-Mail mit dem Korrektur-Link („Ihre Bewertung bei {Name} bearbeiten“). Benachrichtigungen an Sie selbst und strukturierte Daten nutzen weiter den Titel der Website.
 - **Datenschutz:** ist bei Einzelunternehmen oft ein Personenname; wird beim Konfigurationsexport nur nach Rückfrage mitgenommen.
 - **Voraussetzung:** keine.
 

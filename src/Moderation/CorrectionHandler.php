@@ -184,7 +184,7 @@ class CorrectionHandler {
 	 * @param string $url   Link.
 	 */
 	private function mail_link( string $email, int $id, string $url ): void {
-		$site = wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
+		$site = \ReviewCaptain\Frontend\PublicTexts::brand_name( Plugin::instance()->settings() );
 		/* translators: %s: site name */
 		$subject = sprintf( __( 'Ihre Bewertung bei %s bearbeiten', 'review-captain' ), $site );
 		/* translators: 1: site name, 2: link, 3: validity, e.g. "eine Stunde" or "24 Stunden" */
