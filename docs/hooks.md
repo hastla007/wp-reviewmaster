@@ -4,7 +4,7 @@
 
 Erfasst sind alle Aufrufe von `do_action()`/`apply_filters()` (inkl. `_ref_array`/`_deprecated`) mit Hook-Namen, die mit `review_captain_` beginnen, in `src/`, `templates/`, `blocks/`, `review-captain.php` und `uninstall.php`. Als Klassenkonstante angegebene Namen sind aufgelöst. Parameter stammen aus dem Docblock direkt über dem Aufruf, sonst aus den Argumenten. Welche Hooks öffentliche, versionierte Verträge sind, regelt [ADR-0007](adr/0007-oeffentliche-hooks-v1.md) bzw. die Hook-Tabelle in [conventions.md](architecture/conventions.md); alle übrigen sind Erweiterungspunkte ohne Stabilitätszusage ([ADR-0002](adr/0002-hook-praefix-review-captain.md)). Interne Cron-Hooks (`review_captain_run_jobs`, `review_captain_daily_maintenance`) werden von WP-Cron/Action Scheduler ausgelöst und erscheinen hier daher nicht.
 
-Anzahl: 52 Aufrufstellen, 50 Hooks.
+Anzahl: 54 Aufrufstellen, 52 Hooks.
 
 | Name | Typ | Parameter | Datei:Zeile |
 |---|---|---|---|
@@ -48,10 +48,12 @@ Anzahl: 52 Aufrufstellen, 50 Hooks.
 | `review_captain_schema_eligible` | filter | `bool $eligible` – Always true here<br>`Review $r` – Review<br>`array<string, mixed> $ctx` – Context | `src/Seo/SchemaEligibility.php:134` |
 | `review_captain_schema_min_reviews` | filter | `int $min` – Minimum from the setting | `src/Seo/SeoModule.php:143` |
 | `review_captain_schema_post_item_type` | filter | `$type`<br>`$r` | `src/Seo/SchemaBuilder.php:126` |
-| `review_captain_settings_cross_check` | filter | `list<array{fields: list<string>, message: string}> $out` – Failed checks<br>`string $tab` – Tab<br>`array<string, mixed> $values` – Tab values | `src/Settings/SettingsSchema.php:599` |
-| `review_captain_settings_schema` | filter | `array $core` – Schema | `src/Settings/SettingsSchema.php:338` |
+| `review_captain_settings_cross_check` | filter | `list<array{fields: list<string>, message: string}> $out` – Failed checks<br>`string $tab` – Tab<br>`array<string, mixed> $values` – Tab values | `src/Settings/SettingsSchema.php:609` |
+| `review_captain_settings_hint_link` | filter | `string $link` – Default ''<br>`string $id` – Hint id | `src/Admin/SettingsHints.php:70` |
+| `review_captain_settings_hints` | filter | `list<array{id: string, tab: string, title: string, text: string, link: string}> $hints` – Hint lines | `src/Admin/SettingsHints.php:94` |
+| `review_captain_settings_schema` | filter | `array $core` – Schema | `src/Settings/SettingsSchema.php:336` |
 | `review_captain_setup_checklist_detected` | filter | `array<string, bool> $detected` – Detected steps | `src/Admin/SetupChecklist.php:112` |
-| `review_captain_show_pro_info` | filter | `bool $show` – Default true; the Pro add-on returns false | `src/Admin/DashboardPage.php:171` |
+| `review_captain_show_pro_info` | filter | `bool $show` – Default: setting general.show_pro_hints (on); the Pro add-on returns false | `src/Admin/DashboardPage.php:173` |
 | `review_captain_side_effect_free_job_prefixes` | filter | `self::SIDE_EFFECT_FREE_PREFIXES` | `src/Jobs/Runner.php:235` |
 | `review_captain_submission_hold_reasons` | filter | `list<string> $reasons` – Reasons found by the settings<br>`Review $review` – Review (not yet stored) | `src/Frontend/FormHandler.php:400` |
 | `review_captain_sync_initial_status` | filter | `ReviewStatus $status` – Status (pending by default) | `src/Providers/SyncService.php:151` |

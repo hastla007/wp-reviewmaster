@@ -5,6 +5,7 @@ namespace ReviewCaptain\Tests\Unit\Settings;
 
 use ReviewCaptain\Settings\Settings;
 use ReviewCaptain\Settings\SettingsSchema;
+use ReviewCaptain\Tests\Support\ProRequestsFields;
 use ReviewCaptain\Tests\TestCase;
 
 final class SettingsTest extends TestCase {
@@ -12,9 +13,15 @@ final class SettingsTest extends TestCase {
 	public function test_safe_defaults(): void {
 		$s = new Settings();
 		$this->assertSame( 'pending', $s->get( 'general', 'new_review_status' ) );
-		$this->assertFalse( $s->get( 'requests', 'reminders_enabled' ) );
+		$this->assertNull( $s->get( 'requests', 'reminders_enabled' ), 'the core has no default for add-on fields' );
+		$this->assertTrue( $s->get( 'general', 'show_pro_hints' ) );
 		$this->assertTrue( $s->get( 'submissions', 'require_consent' ) );
 		$this->assertFalse( $s->get( 'privacy', 'delete_data_on_uninstall' ) );
+
+		ProRequestsFields::register( false );
+		$s = new Settings();
+		$this->assertFalse( $s->get( 'requests', 'reminders_enabled' ), 'default of the add-on field' );
+		$this->assertSame( 200, $s->get( 'requests', 'daily_limit' ) );
 	}
 
 	public function test_sanitize_clamps_and_rejects_invalid(): void {
@@ -39,6 +46,13 @@ final class SettingsTest extends TestCase {
 		$s   = new Settings();
 		$out = $s->sanitize( array( 'requests' => array( 'daily_limit' => 999 ) ) );
 		$this->assertSame( 50, $out['requests']['daily_limit'] );
+
+		// Registered by the add-on: still untouched unless the caller allows add-on fields.
+		ProRequestsFields::register( true );
+		$out = $s->sanitize( array( 'requests' => array( 'daily_limit' => 999 ) ) );
+		$this->assertSame( 50, $out['requests']['daily_limit'] );
+		$out = $s->sanitize( array( 'requests' => array( 'daily_limit' => 999 ) ), null, true );
+		$this->assertSame( 999, $out['requests']['daily_limit'] );
 	}
 
 	public function test_reset_keeps_pro_fields(): void {

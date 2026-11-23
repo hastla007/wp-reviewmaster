@@ -10,14 +10,17 @@ declare(strict_types=1);
 namespace ReviewCaptain\Settings;
 
 /**
- * Declarative definition of all core settings. Pro can extend via the
- * `review_captain_settings_schema` filter (fields with 'owner' => 'pro').
+ * Declarative definition of all core settings. Add-ons extend it via the
+ * `review_captain_settings_schema` filter (fields with 'owner' => 'pro'); the core itself
+ * defines no add-on fields and knows nothing about licenses (SET-RC-06).
  *
  * Field keys: type (string|int|bool|enum|array|time|email|email_list|textarea|color), default, choices
  * (enum; for array: allowed values), min/max (int), max_length (string/textarea, characters),
- * max_items (array/email_list), min_items (array: fewer → default), owner (core|pro), entitlement
- * (pro only), privacy (none|personal|config), advanced (bool, progressive disclosure), scope (site|network),
+ * max_items (array/email_list), min_items (array: fewer → default), owner (core|pro),
+ * privacy (none|personal|config), advanced (bool, progressive disclosure), scope (site|network),
  * internal (bool: written by the plugin itself, never rendered, imported, exported or set from input).
+ * Fields added by an add-on may also carry: label, description, section (heading on the settings page)
+ * and replaces_hint (id or list of ids of core hint lines this field replaces, see Admin\SettingsHints).
  */
 final class SettingsSchema {
 
@@ -61,6 +64,8 @@ final class SettingsSchema {
 					'default' => 'pending',
 					'choices' => array( 'pending', 'approved' ),
 				),
+				// SET-RC-06: grey hint lines for Review Captain Pro and the dashboard info (off = none at all).
+				'show_pro_hints'    => array( 'type' => 'bool', 'default' => true ),
 			),
 			'sources'     => array(
 				'sync_window_start'       => array( 'type' => 'time', 'default' => '02:00' ),
@@ -85,15 +90,8 @@ final class SettingsSchema {
 					'choices' => array( 'hide', 'tombstone' ),
 				),
 			),
-			'requests'    => array(
-				'sender_name'       => array( 'type' => 'string', 'default' => '', 'owner' => 'pro', 'entitlement' => 'review.review_requests', 'privacy' => 'config' ),
-				'sender_email'      => array( 'type' => 'email', 'default' => '', 'owner' => 'pro', 'entitlement' => 'review.review_requests', 'privacy' => 'config' ),
-				'send_window_start' => array( 'type' => 'time', 'default' => '09:00', 'owner' => 'pro', 'entitlement' => 'review.review_requests' ),
-				'send_window_end'   => array( 'type' => 'time', 'default' => '18:00', 'owner' => 'pro', 'entitlement' => 'review.review_requests' ),
-				'daily_limit'       => array( 'type' => 'int', 'default' => 200, 'min' => 1, 'max' => 100000, 'owner' => 'pro', 'entitlement' => 'review.review_requests' ),
-				'cooldown_days'     => array( 'type' => 'int', 'default' => 90, 'min' => 0, 'max' => 3650, 'owner' => 'pro', 'entitlement' => 'review.review_requests' ),
-				'reminders_enabled' => array( 'type' => 'bool', 'default' => false, 'owner' => 'pro', 'entitlement' => 'review.review_requests' ),
-			),
+			// Fields of this tab come from add-ons only (SET-RC-06); stored values are kept by Settings::merge().
+			'requests'    => array(),
 			'submissions' => array(
 				'enabled'             => array( 'type' => 'bool', 'default' => true ),
 				'require_consent'     => array( 'type' => 'bool', 'default' => true ),
@@ -339,13 +337,25 @@ final class SettingsSchema {
 		if ( ! is_array( $filtered ) ) {
 			return $core;
 		}
-		// Protect core fields from removal or redefinition.
-		foreach ( $core as $tab => $fields ) {
+		// Add-on fields: drop malformed entries, fill the same defaults (owner defaults to 'pro').
+		$out = $core;
+		foreach ( $filtered as $tab => $fields ) {
+			if ( ! is_string( $tab ) || ! is_array( $fields ) ) {
+				continue;
+			}
 			foreach ( $fields as $key => $field ) {
-				$filtered[ $tab ][ $key ] = $field;
+				if ( ! is_string( $key ) || isset( $core[ $tab ][ $key ] ) || ! is_array( $field ) || ! isset( $field['type'] ) || ! array_key_exists( 'default', $field ) ) {
+					continue; // Core fields are protected from removal or redefinition.
+				}
+				$out[ $tab ][ $key ] = $field + array(
+					'owner'    => 'pro',
+					'privacy'  => 'none',
+					'advanced' => false,
+					'scope'    => 'site',
+				);
 			}
 		}
-		return $filtered;
+		return $out;
 	}
 
 	/**

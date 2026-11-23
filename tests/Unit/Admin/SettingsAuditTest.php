@@ -18,6 +18,7 @@ use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Settings\Settings;
 use ReviewCaptain\Settings\SettingsSchema;
+use ReviewCaptain\Tests\Support\ProRequestsFields;
 
 final class SettingsAuditTest extends AdminTestCase {
 
@@ -50,7 +51,7 @@ final class SettingsAuditTest extends AdminTestCase {
 	}
 
 	public function test_save_logs_old_and_new_values_masked(): void {
-		add_filter( 'review_captain_pro_settings_writable', '__return_true' );
+		ProRequestsFields::register( true );
 		add_filter(
 			'review_captain_settings_schema',
 			static function ( array $schema ): array {
@@ -142,7 +143,7 @@ final class SettingsAuditTest extends AdminTestCase {
 
 	public function test_diagnostics_view_filters_settings_with_old_and_new_values(): void {
 		$this->login_with( Capabilities::MANAGE_SETTINGS, Capabilities::VIEW_REPORTS );
-		$this->page()->save_tab( 'general', array( 'general' => array( 'brand_name' => 'Musterladen' ) ) );
+		$this->page()->save_tab( 'general', array( 'general' => array( 'brand_name' => 'Musterladen', 'show_pro_hints' => '1' ) ) );
 		$this->plugin()->audit()->record( 'review.status_changed', 'review', 5, array( 'from' => 'pending', 'to' => 'approved' ) );
 
 		$diag = new DiagnosticsPage( $this->plugin() );

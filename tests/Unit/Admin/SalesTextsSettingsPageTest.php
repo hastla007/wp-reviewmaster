@@ -17,7 +17,7 @@ final class SalesTextsSettingsPageTest extends AdminTestCase {
 	private const NEW_FIELDS = array(
 		'display'     => array( 'verification_notice_show', 'verification_notice', 'verification_notice_position', 'label_purchase_verified', 'label_attendance_confirmed', 'label_unverified', 'label_external', 'label_testimonial', 'show_unverified_label', 'schema_enabled' ),
 		'submissions' => array( 'consent_text', 'name_label', 'email_hint', 'submit_label', 'notify_recipients', 'notify_subject', 'notify_body', 'notify_questions', 'report_reasons', 'report_notify', 'report_confirmation', 'corrections_enabled', 'allow_title' ),
-		'requests'    => array( 'send_window_end' ),
+		'general'     => array( 'show_pro_hints' ),
 		'privacy'     => array( 'retention_jobs_days' ),
 	);
 
