@@ -46,7 +46,7 @@ final class Notices {
 	public static function messages(): array {
 		return array(
 			'saved'                => array( 'success', __( 'Einstellungen gespeichert.', 'review-captain' ) ),
-			'saved_invalid'        => array( 'warning', __( 'Einstellungen gespeichert. Einige Werte waren ungültig und wurden auf den bisherigen bzw. erlaubten Wert gesetzt:', 'review-captain' ) ),
+			'saved_invalid'        => array( 'error', __( 'Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:', 'review-captain' ) ),
 			'unchanged'            => array( 'info', __( 'Keine Änderungen – es wurde nichts gespeichert.', 'review-captain' ) ),
 			'tab_forbidden'        => array( 'error', __( 'Für diesen Bereich fehlt dir die Berechtigung. Es wurde nichts gespeichert.', 'review-captain' ) ),
 			'reset_done'           => array( 'success', __( 'Einstellungen wurden auf die Standardwerte zurückgesetzt. Reviews, Profile und Verlauf bleiben unverändert. Der vorherige Stand wurde gesichert.', 'review-captain' ) ),

@@ -50,12 +50,15 @@ Legende
 | `privacy.retention_external_days` | Wie lange bleiben externe Reviews ohne Bestätigung gespeichert? | Einstellungen › Datenschutz & Aufbewahrung | global (Adapter darf verkürzen) | Core | `30` | manage_settings + manage_privacy | S |
 | `privacy.retention_rejected_days` | Wann werden abgelehnte Reviews gelöscht? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `90` | manage_settings + manage_privacy | S |
 | `privacy.retention_logs_days` | Wie lange bleiben Protokolle? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `90` | manage_settings + manage_privacy | S |
+| `privacy.retention_audit_days` | Wie lange bleibt das Änderungsprotokoll der Einstellungen? (SET-RC-17) | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `365` | manage_settings + manage_privacy | S |
 | `privacy.retention_jobs_days` | Wie lange bleiben erledigte Hintergrundjobs? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `30` | manage_settings + manage_privacy | S |
 | `privacy.erase_mode` | Was passiert bei einer Löschanfrage mit eigenen Reviews? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `anonymize` | manage_settings + manage_privacy | S |
-| `privacy.delete_data_on_uninstall` | Beim Löschen des Plugins alle Daten entfernen? | Einstellungen › Datenschutz & Aufbewahrung | global (site) | Core | `false` | manage_settings + manage_privacy | S |
+| `privacy.delete_data_on_uninstall` | Beim Löschen des Plugins alle Daten entfernen? (Einschalten nur mit Bestätigungswort, SET-RC-20) | Einstellungen › Datenschutz & Aufbewahrung | global (site) | Core | `false` | manage_settings + manage_privacy | S |
+| `privacy.delete_data_confirmed_at` | intern: Zeitpunkt der Bestätigung (UTC) | – (nur Anzeige „Bestätigt am …“) | global (site) | Core | `''` | – | S |
 | `privacy.privacy_notice` | Welcher Hinweis steht unter dem Formular? | Einstellungen › Datenschutz & Aufbewahrung | global (Formular darf überschreiben) | Core | `''` → Standardtext | manage_settings + manage_privacy | S |
 | `access.moderate_roles` | Wer darf Reviews moderieren? | Einstellungen › Zugriff & Rollen | global | Core | administrator, editor | manage_settings + promote_users | S (+ Rollen-Caps) |
 | `access.settings_roles` | Wer darf diese Einstellungen ändern? | Einstellungen › Zugriff & Rollen | global | Core | administrator | manage_settings + promote_users | S (+ Rollen-Caps) |
+| `access.sources_roles`, `requests_roles`, `reports_roles`, `trust_roles`, `privacy_roles` | Wer hat die übrigen fünf Rechte? (Matrix, SET-RC-16) | Einstellungen › Zugriff & Rollen | global | Core | administrator | manage_settings + promote_users + das jeweilige Recht | S (+ Rollen-Caps) |
 | `advanced.job_time_budget` | Wie lange darf ein Hintergrundlauf dauern? | Einstellungen › Erweitert | global | Core | `20` | manage_settings | S |
 | `advanced.lease_seconds` | Wann gilt ein hängender Job als verwaist? | Einstellungen › Erweitert | global | Core | `300` | manage_settings | S |
 | `advanced.debug_logging` | Ausführliches Protokoll zur Fehlersuche? | Einstellungen › Erweitert | global | Core | `false` | manage_settings | S |

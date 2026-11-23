@@ -1,6 +1,6 @@
 # Änderungshistorie und Audit-Semantik der Einstellungen (SET-019)
 
-Status: Entwurf zur Abnahme, Stand 2026-11-16. Tabelle `{prefix}review_captain_audit_log` (Spalten werden in `ReviewCaptain\Install\Schema` festgelegt; hier die logischen Felder).
+Status: Entwurf zur Abnahme, Stand 2026-11-16; alter/neuer Wert, eigene Aufbewahrung und Filter umgesetzt mit SET-RC-17 (23.11.2026, siehe §5). Tabelle `{prefix}review_captain_audit_log` (Spalten werden in `ReviewCaptain\Install\Schema` festgelegt; hier die logischen Felder).
 
 ## 1. Logischer Eintrag
 
@@ -45,6 +45,16 @@ Alle übrigen Felder werden ebenfalls protokolliert (einheitliche Logik), sind a
 - Einstellungsseite: Link „Änderungsverlauf“ je Tab → Liste (Zeit in Site-Zeitzone, Nutzer-Anzeigename, Feld, alt → neu), sichtbar mit `review_captain_view_reports`.
 - Aufbewahrung: `privacy.retention_logs_days` (Default 90). OFFEN: eigene, längere Frist für Audit vs. Fehlerlogs.
 - Privacy-Exporter: Audit-Einträge eines Nutzers werden als „Aktionen im Review-Captain-Admin“ exportiert (nur Zeit, Aktion, Objekt). Eraser setzt `actor_user_id` auf 0 statt zu löschen (Nachvollziehbarkeit bleibt, Person entfernt).
+
+## 5. Umsetzung (SET-RC-17, 23.11.2026)
+
+Gilt vor den Vorschlägen oben, wo diese abweichen.
+
+- **Ein Eintrag je Vorgang**, nicht je Feld: `settings.changed` (Speichern eines Tabs, auch per WP-CLI), `settings.reset`, `settings.imported`, `settings.restored` tragen `fields` (Liste `tab.key`) und `changes` (Liste `{field, from, to}`). `roles.capabilities_changed` je Capability, deren Rollen sich wirklich ändern (`from` = Rollen vorher, `roles` = nachher). `object_type` ist `settings` bzw. `capability`.
+- **Werte im Protokoll** (`Audit\SettingsChanges::value()`): Zahlen, Ja/Nein, Auswahl, Uhrzeit und Rollenlisten vollständig; E-Mail-Adressen maskiert (`a***@example.com`, auch in Textfeldern); Felder mit `privacy` `personal` oder `config` (z. B. `requests.sender_name`) nur als `[verborgen]`; übrige Texte (`brand_name`, `empty_text`, `privacy_notice` …) auf 40 Zeichen gekürzt; Geheimnisse (Typ `secret` oder Schlüssel mit `secret|token|key|password|passwd`) nie, nur `[verborgen]`. `AuditLog::sanitize_context()` lässt in `changes` nur flache Datensätze zu und filtert deren Schlüssel mit derselben Sperrliste.
+- **Aufbewahrung:** `privacy.retention_audit_days` (Standard 365, Filter `review_captain_retention_audit_days`) für `object_type` `settings`/`capability`; alle anderen Einträge weiter nach `retention_logs_days` (`Maintenance\Retention`).
+- **Anzeige:** Werkzeuge › Diagnose › „Letzte Protokolleinträge“ mit Filter „Alle | Einstellungen“ (`?audit=settings`); die Einstellungsansicht zeigt je Eintrag „Feld: alt → neu“. Der Diagnose-Export enthält wie bisher nur Ereignis und Kontext-Schlüssel, keine Werte.
+- Offen aus §4: Link „Änderungsverlauf“ je Tab, Privacy-Exporter/-Eraser für Audit-Einträge eines Nutzers.
 
 ## Abnahme
 

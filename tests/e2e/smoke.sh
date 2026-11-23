@@ -34,7 +34,7 @@ wp plugin uninstall review-captain --deactivate --skip-delete >/dev/null 2>>"$OU
 [ "$(ntables)" -ge 6 ] && pass "Deinstallation ohne Löschoption: Tabellen bleiben" || fail "Deinstallation ohne Löschoption hat Tabellen gelöscht"
 echo "== Core-Deinstallation mit privacy.delete_data_on_uninstall"
 wp plugin activate review-captain >/dev/null 2>&1
-wp eval '$s=get_option("review_captain_settings",array()); if(!is_array($s)){$s=array();} $s["privacy"]["delete_data_on_uninstall"]=true; update_option("review_captain_settings",$s);' >/dev/null 2>>"$OUT"
+wp eval '$s=get_option("review_captain_settings",array()); if(!is_array($s)){$s=array();} $s["privacy"]["delete_data_on_uninstall"]=true; $s["privacy"]["delete_data_confirmed_at"]=gmdate("Y-m-d H:i:s"); update_option("review_captain_settings",$s);' >/dev/null 2>>"$OUT"
 wp plugin uninstall review-captain --deactivate --skip-delete >/dev/null 2>>"$OUT"
 [ "$(ntables)" -eq 0 ] && pass "Deinstallation mit Löschoption: alle Tabellen entfernt" || fail "Deinstallation mit Löschoption: $(ntables) Tabellen übrig: $(rc_tables | tr '\n' ' ')"
 LEFT="$(wp option list --search='review_captain*' --fields=option_name --format=csv 2>/dev/null | tail -n +2 | tr '\n' ' ')"

@@ -27,12 +27,12 @@ Tab-Schlüssel (= URL-Parameter `tab` der Einstellungsseite): `general`, `source
   - `enum`: nicht in `choices` → Default; `time`: Muster `^([01]\d|2[0-3]):[0-5]\d$`, sonst Default; `email`: leer → `''`, ungültig → Default;
   - `array`: Liste aus `sanitize_key`-Werten, leere entfernt, Duplikate entfernt; kein Array → Default;
   - `textarea`: `sanitize_textarea_field`; `string`: `sanitize_text_field` (keine Längengrenze im Schema).
-  Weicht der gespeicherte Wert eines `int`/`enum`/`time`/`email`-Feldes vom eingegebenen ab, meldet die Seite das Feld als korrigiert (`invalid`). Geänderte Felder werden als Audit-Ereignis `settings.changed` protokolliert. Speichern verlangt Capability `review_captain_manage_settings` und Nonce; Tab `privacy` zusätzlich `review_captain_manage_privacy`, Tab `access` zusätzlich `promote_users` (`SettingsPage::can_write_tab()`).
+  Diese Sanitisierung gilt für Import, Rücksicherung und programmatische Aufrufe. **Einstellungsseite und WP-CLI prüfen strenger (SET-RC-19):** `SettingsSchema::validate_value()` korrigiert nicht, sondern meldet einen Fehler (keine ganze Zahl, außerhalb `min`/`max`, unbekannte Auswahl, Uhrzeit nicht `HH:MM`, ungültige E-Mail); das Feld behält seinen gespeicherten Wert, alle gültigen Felder des Tabs werden gespeichert. Danach `SettingsSchema::cross_check()`: `submissions.min_text_length < max_text_length`, `requests.send_window_start ≠ send_window_end`, `sources.sync_window_start ≠ sync_window_end`, `advanced.lease_seconds > job_time_budget` (Filter `review_captain_settings_cross_check`); schlägt eine Prüfung fehl, behalten alle beteiligten Felder ihren gespeicherten Wert. Die Seite zeigt eine Fehlerliste mit Sprungmarken und setzt `aria-invalid` am Feld. Geänderte Felder werden als Audit-Ereignis `settings.changed` mit altem und neuem Wert protokolliert ([audit.md](audit.md)). Speichern verlangt Capability `review_captain_manage_settings` und Nonce; Tab `privacy` zusätzlich `review_captain_manage_privacy`, Tab `access` zusätzlich `promote_users` (`SettingsPage::can_write_tab()`).
 - **Pro-Felder ohne aktives Pro/Entitlement:** werden angezeigt (gesperrt), beim Speichern **nicht** verändert, beim Lesen **nicht** entfernt.
 - **Booleans** werden als `true`/`false` gespeichert (nicht `'1'`/`''`). Ein nicht angehakter Checkbox-Wert im abgeschickten Tab bedeutet `false`.
-- **Felddefinition** (`SettingsSchema::fields()`): Schlüssel `type` (`string`\|`int`\|`bool`\|`enum`\|`array`\|`time`\|`email`\|`textarea`), `default`, `choices`, `min`/`max`, `owner` (`core`\|`pro`, Default `core`), `entitlement` (nur Pro), `privacy` (`none`\|`personal`\|`config`, Default `none`), `advanced` (progressive Offenlegung, Default `false`), `scope` (`site`\|`network`, Default `site`). Die Datenschutzklassen P0–P2 unten sind eine Dokumentationssicht; im Code ist nur `privacy = config` für `requests.sender_name`/`sender_email` gesetzt.
+- **Felddefinition** (`SettingsSchema::fields()`): Schlüssel `type` (`string`\|`int`\|`bool`\|`enum`\|`array`\|`time`\|`email`\|`textarea`), `default`, `choices`, `min`/`max`, `owner` (`core`\|`pro`, Default `core`), `entitlement` (nur Pro), `privacy` (`none`\|`personal`\|`config`, Default `none`), `advanced` (progressive Offenlegung, Default `false`), `scope` (`site`\|`network`, Default `site`), `internal` (vom Plugin selbst geschrieben: nicht angezeigt, nicht exportiert/importiert, nicht über Eingaben setzbar; derzeit nur `privacy.delete_data_confirmed_at`). Die Datenschutzklassen P0–P2 unten sind eine Dokumentationssicht; im Code ist nur `privacy = config` für `requests.sender_name`/`sender_email` gesetzt.
 - **Strings** werden getrimmt; Mehrzeilentexte mit `sanitize_textarea_field`, außer wo anders angegeben.
-- **Uhrzeiten** `HH:MM` 24h in **Website-Zeitzone** (`wp_timezone()`); Start > Ende bedeutet Fenster über Mitternacht. Ausblick (nicht in v1): Start = Ende als ungültig zurückweisen.
+- **Uhrzeiten** `HH:MM` 24h in **Website-Zeitzone** (`wp_timezone()`); Start > Ende bedeutet Fenster über Mitternacht. Start = Ende wird beim Speichern zurückgewiesen (SET-RC-19).
 
 ## 3. Datenschutzklassen
 
@@ -156,34 +156,42 @@ Capability zum Ändern: `review_captain_manage_settings` **und** `review_captain
 | `retention_rejected_days` | int | `90` | 1–3650 | site | P2 | — |
 | `retention_logs_days` | int | `90` | 1–3650 | site | P2 | — |
 | `retention_jobs_days` | int | `30` | 1–3650 | site | P0 | — |
+| `retention_audit_days` | int | `365` | 1–3650; Filter `review_captain_retention_audit_days` gewinnt | site | P2 | — |
 | `erase_mode` | enum `anonymize`\|`delete` | `anonymize` | Enum | site | P2 | — |
-| `delete_data_on_uninstall` | bool | `false` | bool | site | P2 | — |
+| `delete_data_on_uninstall` | bool | `false` | bool; Einschalten nur mit Bestätigungswort `LÖSCHEN` (auch `LOESCHEN`, `DELETE`, Groß-/Kleinschreibung egal) | site | P2 | — |
+| `delete_data_confirmed_at` | string (intern) | `''` | UTC `Y-m-d H:i:s` der Bestätigung; nur vom Plugin gesetzt | site | P2 | — |
 | `privacy_notice` | textarea | `''` (= Standardtext mit Link zur WP-Datenschutzseite) | `sanitize_textarea_field` (Klartext; Ausgabe mit `wpautop`, nur `p`/`br`) | site | P0 | — |
 
 - `retention_external_days`: Höchstdauer, die ein externer Review-Snapshot (`origin=provider_sync|connector`) **ohne erfolgreiche Bestätigung durch die Quelle** gespeichert bleibt; danach Tombstone. Anbieterregeln mit kürzerer Frist (z. B. Trustpilot-Refresh) haben Vorrang und werden vom Adapter erzwungen.
 - `retention_rejected_days`: Frist ab Statuswechsel auf `rejected`, danach endgültiges Löschen (inkl. `review_events`).
-- `retention_logs_days`: gilt für `audit_log` und sanitisierte Fehlerprotokolle.
+- `retention_logs_days`: gilt für `audit_log` und sanitisierte Fehlerprotokolle, **außer** Einträgen zu Einstellungen und Rollen (`object_type` `settings`/`capability`).
+- `retention_audit_days` (SET-RC-17): Frist für diese Einstellungs- und Rolleneinträge (`AuditLog::SETTINGS_OBJECT_TYPES`), getrennt von `retention_logs_days`.
 - `retention_jobs_days`: abgeschlossene Jobs (`succeeded`/`dead`) werden danach gelöscht.
 - `erase_mode`: Verhalten des WordPress-Privacy-Erasers für lokale Reviews einer E-Mail-Adresse (siehe [reference.md](reference.md)).
-- `delete_data_on_uninstall`: in Multisite entscheidet jede Site für sich; Uninstall iteriert die Sites.
+- `delete_data_on_uninstall`: in Multisite entscheidet jede Site für sich; Uninstall iteriert die Sites. Gelöscht wird nur, wenn zusätzlich `delete_data_confirmed_at` gesetzt ist (SET-RC-20, `Uninstaller::should_delete()`). Ausschalten leert den Zeitpunkt; ein Import kann die Löschung nie einschalten. Vor SET-RC-20 eingeschaltete Websites behalten ihre Daten, bis jemand das Wort eintippt.
 
 ### 4.7 `access` – Zugriff & Rollen
 
 | Schlüssel | Typ | Default | Validierung | Scope | Klasse | Entitlement |
 |---|---|---|---|---|---|---|
 | `moderate_roles` | array<string> | `['administrator','editor']` | `sanitize_key`, Duplikate entfernt; beim Speichern nur existierende Rollen (`wp_roles()`), `administrator` wird immer ergänzt | site | P2 | — |
-| `settings_roles` | array<string> | `['administrator']` | wie oben, `administrator` wird immer ergänzt | site | P2 | — |
+| `sources_roles` | array<string> | `['administrator']` | wie oben | site | P2 | — |
+| `requests_roles` | array<string> | `['administrator']` | wie oben | site | P2 | — |
+| `reports_roles` | array<string> | `['administrator']` | wie oben | site | P2 | — |
+| `trust_roles` | array<string> | `['administrator']` | wie oben | site | P2 | — |
+| `privacy_roles` | array<string> | `['administrator']` | wie oben | site | P2 | — |
+| `settings_roles` | array<string> | `['administrator']` | wie oben | site | P2 | — |
 
-- Speichern synchronisiert die Capabilities `review_captain_moderate` bzw. `review_captain_manage_settings` an den Rollen (`WP_Role::add_cap`/`remove_cap`). Rollen sind in Multisite site-lokal.
-- Nur Nutzer mit `review_captain_manage_settings` **und** `promote_users` dürfen diesen Tab ändern (`SettingsPage::can_write_tab()`, verhindert Rechteausweitung durch Redakteure).
-- Die übrigen Capabilities (`manage_sources`, `manage_requests`, `view_reports`, `manage_trust`, `manage_privacy`) sind in 1.0 nicht über diesen Tab konfigurierbar (Default: administrator; Anpassung über Rollen-Plugins möglich). Erweiterung ist eine offene Entscheidung, siehe [structure.md](structure.md).
+- SET-RC-16: je Capability eine Rollenliste (`Capabilities::ROLE_KEYS`: `moderate_roles` → `review_captain_moderate`, `sources_roles` → `manage_sources`, `requests_roles` → `manage_requests`, `reports_roles` → `view_reports`, `trust_roles` → `manage_trust`, `privacy_roles` → `manage_privacy`, `settings_roles` → `manage_settings`). Die Seite zeigt sie als Matrix Rolle × Recht. Speichern synchronisiert die Capabilities an den Rollen (`WP_Role::add_cap`/`remove_cap`); je Capability, deren Rollen sich wirklich ändern, ein Audit-Eintrag `roles.capabilities_changed` (vorher/nachher). Rollen sind in Multisite site-lokal.
+- Nur Nutzer mit `review_captain_manage_settings` **und** `promote_users` dürfen diesen Tab ändern (`SettingsPage::can_write_tab()`). Zusätzlich gilt für jede Spalte: Nur wer die Capability selbst hat, kann sie vergeben oder entziehen (`SettingsPage::keep_unheld_role_keys()`, auch bei Import, Reset und Rücksicherung); der Administrator behält immer alle Rechte.
+- Abwärtskompatibilität: `moderate_roles`/`settings_roles` behalten Namen und Werte. Fehlt eine Liste in der gespeicherten Option (Installationen vor SET-RC-16), füllt `SettingsPage::migrate_access()` sie einmalig aus den Rollen, die die Capability heute haben – so entzieht ein späterer Import, Reset oder ein Speichern nie ein Recht, das außerhalb des Plugins vergeben wurde. Kein Audit-Eintrag, weil sich kein Recht ändert.
 
 ### 4.8 `advanced` – Erweitert
 
 | Schlüssel | Typ | Default | Validierung | Scope | Klasse | Entitlement |
 |---|---|---|---|---|---|---|
 | `job_time_budget` | int (Sekunden, erweitert) | `20` | 5–120 | site | P0 | — |
-| `lease_seconds` | int (Sekunden, erweitert) | `300` | 60–3600 (Ausblick: Prüfung `> job_time_budget`) | site | P0 | — |
+| `lease_seconds` | int (Sekunden, erweitert) | `300` | 60–3600; muss `> job_time_budget` sein (Prüfung beim Speichern) | site | P0 | — |
 | `debug_logging` | bool (erweitert) | `false` | bool | site | P0 | — |
 | `use_action_scheduler` | bool (erweitert) | `true` | bool; wirkt nur, wenn Action Scheduler geladen ist, sonst WP-Cron | site | P0 | — |
 

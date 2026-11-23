@@ -62,3 +62,12 @@
 .rc-admin .column-verification,
 .rc-admin .column-status,
 .rc-admin .column-date { width: 10em; }
+
+/* SET-RC-16 role matrix, SET-RC-19 field errors. */
+.rc-admin-matrix-wrap { max-width: 100%; overflow-x: auto; }
+.rc-admin-matrix th[scope="col"], .rc-admin-matrix td { text-align: center; vertical-align: middle; }
+.rc-admin-matrix th[scope="row"] { text-align: left; }
+.rc-admin-matrix-help dt { font-weight: 600; margin-top: .5em; }
+.rc-admin-matrix-help dd { margin-left: 0; }
+.rc-admin-field-error { color: #b32d2e; margin: .4em 0 0; }
+.rc-admin-errors:focus { outline: 2px solid var(--wp-admin-theme-color, #2271b1); }

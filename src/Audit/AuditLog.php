@@ -40,7 +40,13 @@ class AuditLog {
 		'scope',
 		'capability',
 		'roles',
+		'changes',
 	);
+
+	/**
+	 * Object types of settings and role changes (SET-RC-17): own retention, own filter in the view.
+	 */
+	public const SETTINGS_OBJECT_TYPES = array( 'settings', 'capability' );
 
 	/**
 	 * Keys that are never stored, even if allowlisted by a filter.
@@ -88,8 +94,33 @@ class AuditLog {
 			if ( is_scalar( $value ) || null === $value ) {
 				$out[ $key ] = is_string( $value ) ? mb_substr( $value, 0, 200 ) : $value;
 			} elseif ( is_array( $value ) ) {
-				$out[ $key ] = array_slice( array_map( static fn( $v ) => is_scalar( $v ) ? mb_substr( (string) $v, 0, 100 ) : '', $value ), 0, 50 );
+				$out[ $key ] = array_slice( array_map( array( self::class, 'sanitize_item' ), $value ), 0, 50 );
 			}
+		}
+		return $out;
+	}
+
+	/**
+	 * One list element of a context value: a scalar, or a flat record such as a settings change
+	 * {field, from, to} (SET-RC-17) whose keys pass the same key filter.
+	 *
+	 * @param mixed $item Item.
+	 * @return string|array<string, string|int|float|bool|null>
+	 */
+	private static function sanitize_item( mixed $item ): string|array {
+		if ( is_scalar( $item ) ) {
+			return mb_substr( (string) $item, 0, 100 );
+		}
+		if ( ! is_array( $item ) ) {
+			return '';
+		}
+		$out = array();
+		foreach ( $item as $k => $v ) {
+			$k = (string) $k;
+			if ( preg_match( self::FORBIDDEN_PATTERN, $k ) || ! ( is_scalar( $v ) || null === $v ) ) {
+				continue;
+			}
+			$out[ $k ] = is_string( $v ) ? mb_substr( $v, 0, 100 ) : $v;
 		}
 		return $out;
 	}
@@ -97,27 +128,60 @@ class AuditLog {
 	/**
 	 * Recent entries.
 	 *
-	 * @param int $limit Limit.
-	 * @param int $offset Offset.
+	 * @param int               $limit        Limit.
+	 * @param int               $offset       Offset.
+	 * @param list<string>|null $object_types Only these object types (null = all).
 	 * @return list<array<string, mixed>>
 	 */
-	public function recent( int $limit = 50, int $offset = 0 ): array {
+	public function recent( int $limit = 50, int $offset = 0, ?array $object_types = null ): array {
 		global $wpdb;
 		$table = Schema::table( 'audit_log' );
+		if ( null !== $object_types && $object_types ) {
+			$in   = implode( ',', array_fill( 0, count( $object_types ), '%s' ) );
+			$args = array_merge( array_values( array_map( 'strval', $object_types ) ), array( $limit, $offset ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE object_type IN ({$in}) ORDER BY id DESC LIMIT %d OFFSET %d", ...$args ), ARRAY_A );
+			return is_array( $rows ) ? $rows : array();
+		}
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} ORDER BY id DESC LIMIT %d OFFSET %d", $limit, $offset ), ARRAY_A );
 		return is_array( $rows ) ? $rows : array();
 	}
 
 	/**
-	 * Delete entries older than N days.
+	 * Delete entries older than N days, optionally except some object types (those have their own
+	 * retention, see purge_types_older_than()).
 	 *
-	 * @param int $days Days.
+	 * @param int          $days         Days.
+	 * @param list<string> $except_types Object types to keep.
 	 */
-	public function purge_older_than( int $days ): int {
+	public function purge_older_than( int $days, array $except_types = array() ): int {
 		global $wpdb;
-		$table = Schema::table( 'audit_log' );
+		$table  = Schema::table( 'audit_log' );
+		$cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+		if ( $except_types ) {
+			$in = implode( ',', array_fill( 0, count( $except_types ), '%s' ) );
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s AND object_type NOT IN ({$in}) LIMIT 5000", $cutoff, ...array_values( array_map( 'strval', $except_types ) ) ) );
+		}
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
-		return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s LIMIT 5000", gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS ) ) );
+		return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s LIMIT 5000", $cutoff ) );
+	}
+
+	/**
+	 * Delete entries of the given object types older than N days (SET-RC-17).
+	 *
+	 * @param list<string> $types Object types.
+	 * @param int          $days  Days.
+	 */
+	public function purge_types_older_than( array $types, int $days ): int {
+		global $wpdb;
+		if ( ! $types ) {
+			return 0;
+		}
+		$table = Schema::table( 'audit_log' );
+		$in    = implode( ',', array_fill( 0, count( $types ), '%s' ) );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		return (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE created_at < %s AND object_type IN ({$in}) LIMIT 5000", gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS ), ...array_values( array_map( 'strval', $types ) ) ) );
 	}
 }

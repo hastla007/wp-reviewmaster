@@ -177,6 +177,119 @@ final class CliModule implements Module {
 				'shortdesc' => __( 'Datenbankschema installieren/aktualisieren.', 'review-captain' ),
 				'synopsis'  => array(),
 			),
+			// SET-RC-18: settings with the same checks and rights as the settings page.
+			'settings list'      => array(
+				'method'    => 'settings_list',
+				'shortdesc' => __( 'Einstellungen mit aktuellem Wert und Standard auflisten.', 'review-captain' ),
+				'synopsis'  => array(
+					array(
+						'type'        => 'assoc',
+						'name'        => 'tab',
+						'optional'    => true,
+						'description' => __( 'Nur diesen Bereich zeigen, z. B. privacy.', 'review-captain' ),
+					),
+					$format,
+				),
+			),
+			'settings get'       => array(
+				'method'    => 'settings_get',
+				'shortdesc' => __( 'Wert einer Einstellung ausgeben (Bereich.Schlüssel).', 'review-captain' ),
+				'synopsis'  => array(
+					array(
+						'type'        => 'positional',
+						'name'        => 'key',
+						'description' => __( 'Bereich.Schlüssel, z. B. submissions.min_text_length.', 'review-captain' ),
+					),
+					array(
+						'type'     => 'assoc',
+						'name'     => 'format',
+						'optional' => true,
+						'default'  => 'plain',
+						'options'  => array( 'plain', 'json' ),
+					),
+				),
+			),
+			'settings set'       => array(
+				'method'    => 'settings_set',
+				'shortdesc' => __( 'Eine Einstellung ändern (wie auf der Einstellungsseite geprüft und protokolliert; braucht --user).', 'review-captain' ),
+				'synopsis'  => array(
+					array(
+						'type' => 'positional',
+						'name' => 'key',
+					),
+					array(
+						'type'        => 'positional',
+						'name'        => 'value',
+						'description' => __( 'Neuer Wert. Ja/Nein: 1/0, true/false, on/off. Listen (Rollen): durch Komma getrennt.', 'review-captain' ),
+					),
+					array(
+						'type'        => 'assoc',
+						'name'        => 'confirm-word',
+						'optional'    => true,
+						'description' => __( 'Bestätigungswort (LÖSCHEN), nötig beim Einschalten von privacy.delete_data_on_uninstall.', 'review-captain' ),
+					),
+				),
+			),
+			'settings reset'     => array(
+				'method'    => 'settings_reset',
+				'shortdesc' => __( 'Bereiche oder alle Einstellungen auf den Standard zurücksetzen (Sicherung wird angelegt; braucht --user).', 'review-captain' ),
+				'synopsis'  => array(
+					array(
+						'type'      => 'positional',
+						'name'      => 'tab',
+						'optional'  => true,
+						'repeating' => true,
+					),
+					array(
+						'type'     => 'flag',
+						'name'     => 'all',
+						'optional' => true,
+					),
+					array(
+						'type'     => 'flag',
+						'name'     => 'yes',
+						'optional' => true,
+					),
+				),
+			),
+			'settings export'    => array(
+				'method'    => 'settings_export',
+				'shortdesc' => __( 'Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten).', 'review-captain' ),
+				'synopsis'  => array(
+					array(
+						'type'     => 'assoc',
+						'name'     => 'file',
+						'optional' => true,
+					),
+				),
+			),
+			'settings import'    => array(
+				'method'    => 'settings_import',
+				'shortdesc' => __( 'Konfiguration aus einer JSON-Datei importieren; --dry-run zeigt nur die Vorschau (braucht --user).', 'review-captain' ),
+				'synopsis'  => array(
+					array(
+						'type' => 'positional',
+						'name' => 'file',
+					),
+					array(
+						'type'     => 'flag',
+						'name'     => 'dry-run',
+						'optional' => true,
+					),
+					array(
+						'type'     => 'flag',
+						'name'     => 'yes',
+						'optional' => true,
+					),
+					array(
+						'type'     => 'assoc',
+						'name'     => 'format',
+						'optional' => true,
+						'default'  => 'table',
+						'options'  => array( 'table', 'json', 'csv', 'yaml' ),
+					),
+				),
+			),
 		);
 	}
 }
