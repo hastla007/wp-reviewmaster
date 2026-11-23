@@ -1,6 +1,6 @@
 # ADR-0011: `integrations.etrusted.com` in die Core-Embed-Allowlist aufnehmen
 
-- **Status:** Vorgeschlagen (Entwurf 2026-11-23, wartet auf Zustimmung eines Core-Maintainers)
+- **Status:** Angenommen (2026-11-23, Inhaberin laut Affiliate-Captain-Sitzung; Host noch am eTrusted-Testkanal zu bestätigen, RC-011)
 - **Datum:** 2026-11-23
 - **Autor:in / Entscheider:** Claude (Entwurf); Entscheidung: Core-Maintainer
 - **Betrifft:** RC-077, TEC-013; `src/Security/EmbedPolicy.php`, `assets/js/frontend-embed.js`, [`embed-security.md`](../architecture/embed-security.md) §3, [`KNOWN-LIMITATIONS.md`](../release/KNOWN-LIMITATIONS.md)
