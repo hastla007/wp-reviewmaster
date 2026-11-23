@@ -166,6 +166,20 @@ final class SettingsCommandsTest extends TestCase {
 		$this->assertContains( 'general', $done );
 		$this->assertSame( '', $this->settings()->get( 'general', 'brand_name' ) );
 		$this->assertSame( 'warning', $this->out->lines[ count( $this->out->lines ) - 2 ][0] );
+		$this->assertNotContains( 'requests', $done, 'a tab with add-on fields only is not reported as reset' );
+	}
+
+	public function test_reset_of_a_tab_with_addon_fields_only_changes_nothing(): void {
+		// SET-RC-P1: `settings reset requests` reported "Zurückgesetzt: requests", wrote a backup and an audit entry.
+		ProRequestsFields::register( true );
+		update_option( Settings::OPTION, array( 'requests' => array( 'daily_limit' => 77 ) ) );
+		$c = $this->commands();
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		$this->expect_error( fn() => $c->settings_reset( array( 'requests' ), array( 'yes' => true ) ) );
+		$this->assertSame( 77, $this->settings()->get( 'requests', 'daily_limit' ) );
+		$this->assertFalse( get_option( ConfigTransfer::BACKUP_OPTION ) );
+		$this->assertStringContainsString( 'requests', $this->out->lines[0][1] );
+		$this->assertSame( 'warning', $this->out->lines[0][0] );
 	}
 
 	public function test_export_and_import_with_dry_run(): void {

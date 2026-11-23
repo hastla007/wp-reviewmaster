@@ -353,7 +353,7 @@ final class SettingsPage {
 	 * @return list<string>
 	 */
 	public function reset_tabs( array $tabs ): array {
-		$tabs = array_values( array_intersect( $tabs, self::writable_tabs() ) );
+		$tabs = array_values( array_intersect( $tabs, self::writable_tabs(), self::resettable_tabs() ) );
 		if ( ! $tabs ) {
 			return array();
 		}
@@ -377,6 +377,25 @@ final class SettingsPage {
 			)
 		);
 		return $tabs;
+	}
+
+	/**
+	 * Tabs with own (core) fields; a reset never touches add-on fields, so other tabs (requests)
+	 * have nothing to reset.
+	 *
+	 * @return list<string>
+	 */
+	public static function resettable_tabs(): array {
+		$out = array();
+		foreach ( SettingsSchema::fields() as $tab => $fields ) {
+			foreach ( $fields as $field ) {
+				if ( 'core' === $field['owner'] && empty( $field['internal'] ) ) {
+					$out[] = (string) $tab;
+					break;
+				}
+			}
+		}
+		return $out;
 	}
 
 	/**

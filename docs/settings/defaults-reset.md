@@ -29,16 +29,16 @@ Status: Entwurf zur Abnahme, Stand 2026-11-16. Werte: [option-schema.md](option-
 | Aktion | Ort | Capability | Wirkung | Löscht Reviews? | Bestätigung |
 |---|---|---|---|---|---|
 | **Verbindung trennen** | Quellen › Profil | `manage_sources` | Token widerrufen (sofern Anbieter-API das bietet) und lokal löschen; Sync-Jobs des Profils pausiert; Profil bleibt | nein – vorhandene Reviews bleiben, unterliegen aber weiter `retention_external_days` | Dialog mit Profilname |
-| **Einstellungen zurücksetzen** | Einstellungen › Erweitert (gesamt) bzw. Link „Tab zurücksetzen“ je Tab | `manage_settings` (+ `manage_privacy` für Tab Datenschutz, + `promote_users` für Rollen) | entfernt die gespeicherten Werte → Defaults greifen | nein | Dialog mit Liste der geänderten Felder (Vorher → Default) |
+| **Einstellungen zurücksetzen** | Einstellungen › Datenschutz & Aufbewahrung (Umfang „nur dieser Bereich“ oder „alle Einstellungen“); je Bereich über `wp review-captain settings reset <bereich>` | `manage_settings` (+ `manage_privacy` für Tab Datenschutz, + `promote_users` für Rollen) | setzt die Kernfelder auf ihre Defaults; Add-on-Felder bleiben | nein | Kontrollkästchen „Ich möchte die Einstellungen zurücksetzen“; Audit `settings.reset` mit Vorher → Default je Feld |
 | **Alle Plugin-Daten löschen** | Einstellungen › Datenschutz › Deinstallation | `manage_privacy` **und** `manage_settings` | löscht alle `review_captain_*`-Tabellen-Inhalte, Optionen, Transients, geplanten Jobs dieser Site; Plugin bleibt aktiv; Quell-Plattformen werden **nie** verändert | **ja** | Eingabe des Site-Namens + Hinweis auf CSV-Export; Audit-Eintrag vorab, danach ist auch das Audit leer |
 
 ## 3. Reset-Regeln
 
 1. Reset löscht nur Schlüssel aus `review_captain_settings`; **nie** Reviews, Events, Profile, Jobs, Import-Batches oder Audit.
-2. Reset eines Tabs entfernt `[tab]` vollständig; Reset gesamt entfernt alle Core-Tabs.
-3. Pro-Felder (`requests` und Pro-Ergänzungen in anderen Tabs) werden beim Core-Reset **nur** zurückgesetzt, wenn Pro aktiv ist und der Nutzer das Kontrollkästchen „auch Pro-Einstellungen“ wählt.
+2. Reset eines Tabs setzt dessen Kernfelder auf die Defaults; Reset gesamt alle Kernfelder. Ein Bereich ohne Kernfelder (`requests`) gilt nicht als zurückgesetzt (keine Sicherung, kein Audit-Eintrag; WP-CLI meldet das).
+3. Pro-Felder (`requests` und Pro-Ergänzungen in anderen Tabs) werden beim Core-Reset **nie** zurückgesetzt, auch nicht mit aktivem Add-on (Seite: „Pro-Einstellungen bleiben unverändert“). Ein Kontrollkästchen „auch Pro-Einstellungen“ gibt es nicht.
 4. `access`-Reset setzt Rollen-Capabilities auf die Standard-Zuordnung (administrator, editor) zurück; administrator behält immer alle Rechte.
-5. Vor jedem Reset wird der vorherige Stand in `review_captain_settings_backup` (Vorschlag) gesichert; „Rückgängig“ ist bis zum nächsten Speichern möglich.
+5. Vor jedem Reset und Import wird der vorherige Stand in `review_captain_settings_backup` gesichert; „Sicherung wiederherstellen“ (Erweitert) holt die letzte Sicherung zurück und sichert dabei den ersetzten Stand.
 6. Jeder Reset erzeugt einen Audit-Eintrag `settings.reset` mit Tab-Liste (ohne Werte von P1-Feldern).
 7. Lizenzablauf ist **kein** Reset: Pro-Werte bleiben unverändert gespeichert und werden nur nicht angewendet.
 

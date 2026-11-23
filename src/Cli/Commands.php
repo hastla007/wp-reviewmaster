@@ -557,7 +557,12 @@ class Commands {
 		}
 		$done = $this->settings_page()->reset_tabs( $tabs );
 		$this->plugin->settings()->flush();
-		$skipped = array_diff( $tabs, $done );
+		$own = array_diff( $tabs, SettingsPage::resettable_tabs() );
+		if ( $own && empty( $assoc['all'] ) ) {
+			/* translators: %s: tabs */
+			$this->out->warning( sprintf( __( 'Nur Einstellungen von Erweiterungen, die beim Zurücksetzen erhalten bleiben: %s', 'review-captain' ), implode( ', ', $own ) ) );
+		}
+		$skipped = array_diff( $tabs, $done, $own );
 		if ( $skipped ) {
 			/* translators: %s: tabs */
 			$this->out->warning( sprintf( __( 'Ohne Berechtigung übersprungen: %s', 'review-captain' ), implode( ', ', $skipped ) ) );
