@@ -62,7 +62,7 @@ final class FormHandlerTest extends FrontendTestCase {
 		$this->assertStringNotContainsString( 'checked', $out );
 		$this->assertStringContainsString( 'name="rc_consent"', $out );
 		$this->assertStringContainsString( 'name="rc_title"', $out );
-		$this->assertStringContainsString( 'Wird nie veröffentlicht', $out );
+		$this->assertStringContainsString( 'Will never be published', $out );
 	}
 
 	public function test_form_respects_settings(): void {
@@ -80,7 +80,7 @@ final class FormHandlerTest extends FrontendTestCase {
 		$this->settings( array( 'submissions' => array( 'enabled' => false ) ) );
 		$off = $this->module->shortcode_form( array() );
 		$this->assertStringNotContainsString( '<form', $off );
-		$this->assertStringContainsString( 'Bewertungen können derzeit nicht abgegeben werden.', $off );
+		$this->assertStringContainsString( 'Reviews cannot be submitted at this time.', $off );
 	}
 
 	public function test_valid_submission_creates_pending_local_review(): void {
@@ -242,7 +242,7 @@ final class FormHandlerTest extends FrontendTestCase {
 
 		$out = $this->module->shortcode_form( array() );
 		$this->assertStringContainsString( 'role="alert"', $out );
-		$this->assertStringContainsString( 'Der Bewertungstext ist zu kurz.', $out );
+		$this->assertStringContainsString( 'The review text is too short.', $out );
 		$this->assertStringContainsString( 'aria-invalid="true"', $out );
 		$this->assertStringContainsString( '>kurz</textarea>', $out );
 		$this->assertStringContainsString( 'value="3" required checked="checked"', $out );
@@ -250,7 +250,7 @@ final class FormHandlerTest extends FrontendTestCase {
 
 	public function test_success_message_shown(): void {
 		$_GET = array( 'rc_submitted' => '1', 'rc_form' => '1' );
-		$this->assertStringContainsString( 'Danke! Ihre Bewertung wird nach Prüfung veröffentlicht.', $this->module->shortcode_form( array() ) );
+		$this->assertStringContainsString( 'Thank you! Your review will be published after moderation.', $this->module->shortcode_form( array() ) );
 	}
 
 	public function test_context_signature_manipulation_rejected(): void {

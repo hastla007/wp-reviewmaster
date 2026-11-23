@@ -105,8 +105,8 @@ final class RetentionSettingsTest extends TestCase {
 		ob_start();
 		( new SettingsPage( Plugin::instance() ) )->render();
 		$html = (string) ob_get_clean();
-		$this->assertStringContainsString( 'entfernt die E-Mail-Adresse bei 1 Bewertung', $html );
-		$this->assertStringContainsString( 'löscht 1 Bewertung endgültig', $html );
+		$this->assertStringContainsString( 'removes the email address from 1 review', $html );
+		$this->assertStringContainsString( 'deletes 1 review for good', $html );
 	}
 
 	public function test_correction_versions_follow_retention_setting(): void {
@@ -134,10 +134,10 @@ final class RetentionSettingsTest extends TestCase {
 
 	public function test_correction_link_validity_setting(): void {
 		$this->assertSame( HOUR_IN_SECONDS, CorrectionService::token_ttl() );
-		$this->assertStringContainsString( 'eine Stunde gültig', CorrectionHandler::message( 'link_sent' ) );
+		$this->assertStringContainsString( 'valid for one hour', CorrectionHandler::message( 'link_sent' ) );
 		$this->settings( array( 'submissions' => array( 'correction_link_hours' => 24, 'corrections_enabled' => true ) ) );
 		$this->assertSame( 24 * HOUR_IN_SECONDS, CorrectionService::token_ttl() );
-		$this->assertStringContainsString( '24 Stunden gültig', CorrectionHandler::message( 'link_sent' ) );
+		$this->assertStringContainsString( 'valid for 24 hours', CorrectionHandler::message( 'link_sent' ) );
 
 		$this->local( 1 );
 		$email  = Plugin::instance()->reviews()->query( array( 'limit' => 1 ) )[0]->author_email;

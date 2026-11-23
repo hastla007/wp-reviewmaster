@@ -120,7 +120,7 @@ final class TextLimitsFlowTest extends FrontendTestCase {
 		);
 		$this->review( array( 'meta' => array( 'edited_at' => '2026-11-02 09:00:00' ) ) );
 		$html = $this->shortcode( array( 'v' => '1' ) );
-		$this->assertStringContainsString( 'bearbeitet am 02.11.2026', $html, 'general.date_format, never "bearbeitet am vor …"' );
-		$this->assertStringContainsString( 'vor ', $html, 'the review date itself stays relative' );
+		$this->assertStringContainsString( 'edited on 02.11.2026', $html, 'general.date_format, never "edited on … ago"' );
+		$this->assertStringContainsString( ' ago', $html, 'the review date itself stays relative' );
 	}
 }

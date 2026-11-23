@@ -58,27 +58,27 @@ final class Diagnostics {
 		$stats  = $queue->stats();
 		$health = self::runner_health();
 		$labels = array(
-			'queued'  => __( 'Wartend', 'review-captain' ),
-			'running' => __( 'Laufend', 'review-captain' ),
-			'paused'  => __( 'Pausiert', 'review-captain' ),
-			'failed'  => __( 'Abgebrochen', 'review-captain' ),
-			'dead'    => __( 'Endgültig fehlgeschlagen', 'review-captain' ),
-			'overdue' => __( 'Überfällig (> 10 Minuten)', 'review-captain' ),
+			'queued'  => __( 'Pending', 'review-captain' ),
+			'running' => __( 'Running', 'review-captain' ),
+			'paused'  => __( 'Paused', 'review-captain' ),
+			'failed'  => __( 'Canceled', 'review-captain' ),
+			'dead'    => __( 'Permanently failed', 'review-captain' ),
+			'overdue' => __( 'Overdue (> 10 minutes)', 'review-captain' ),
 		);
 
 		$out = '<table class="widefat striped rc-diagnostics-jobs"><tbody>';
 		foreach ( $labels as $key => $label ) {
 			$out .= '<tr><th scope="row">' . esc_html( $label ) . '</th><td>' . esc_html( number_format_i18n( (int) $stats[ $key ] ) ) . '</td></tr>';
 		}
-		$out .= '<tr><th scope="row">' . esc_html__( 'Ältester fälliger Job', 'review-captain' ) . '</th><td>';
+		$out .= '<tr><th scope="row">' . esc_html__( 'Oldest due job', 'review-captain' ) . '</th><td>';
 		if ( null === $stats['oldest_due_at'] ) {
-			$out .= esc_html__( 'keiner', 'review-captain' );
+			$out .= esc_html__( 'none', 'review-captain' );
 		} else {
 			$ts   = (int) strtotime( $stats['oldest_due_at'] . ' UTC' );
 			$out .= esc_html(
 				sprintf(
 					/* translators: %s: human readable duration */
-					__( 'seit %s fällig', 'review-captain' ),
+					__( 'due for %s', 'review-captain' ),
 					human_time_diff( $ts, time() )
 				)
 			);
@@ -86,32 +86,32 @@ final class Diagnostics {
 		$out .= '</td></tr>';
 
 		$health_labels = array(
-			'ok'      => __( 'in Ordnung', 'review-captain' ),
-			'delayed' => __( 'verzögert', 'review-captain' ),
-			'broken'  => __( 'gestört', 'review-captain' ),
+			'ok'      => __( 'OK', 'review-captain' ),
+			'delayed' => __( 'delayed', 'review-captain' ),
+			'broken'  => __( 'failing', 'review-captain' ),
 		);
-		$out .= '<tr><th scope="row">' . esc_html__( 'Job-Runner', 'review-captain' ) . '</th><td>' . esc_html( $health_labels[ $health['status'] ] );
+		$out .= '<tr><th scope="row">' . esc_html__( 'Job runner', 'review-captain' ) . '</th><td>' . esc_html( $health_labels[ $health['status'] ] );
 		if ( null !== $health['last_run'] ) {
 			$out .= ' – ' . esc_html(
 				sprintf(
 					/* translators: 1: duration, 2: channel */
-					__( 'letzter Lauf vor %1$s (%2$s)', 'review-captain' ),
+					__( 'last run %1$s ago (%2$s)', 'review-captain' ),
 					human_time_diff( $health['last_run'], time() ),
 					(string) $health['channel']
 				)
 			);
 		}
 		$out .= '</td></tr>';
-		$out .= '<tr><th scope="row">' . esc_html__( 'Taktgeber', 'review-captain' ) . '</th><td>' . ( $action_scheduler ? esc_html__( 'Action Scheduler', 'review-captain' ) : esc_html__( 'WP-Cron', 'review-captain' ) ) . '</td></tr>';
+		$out .= '<tr><th scope="row">' . esc_html__( 'Scheduler', 'review-captain' ) . '</th><td>' . ( $action_scheduler ? esc_html__( 'Action Scheduler', 'review-captain' ) : esc_html__( 'WP-Cron', 'review-captain' ) ) . '</td></tr>';
 		$out .= '</tbody></table>';
 
 		if ( ! self::wp_cron_disabled() ) {
-			$out .= '<div class="notice notice-info inline"><p>' . esc_html__( 'Empfehlung: Für zuverlässige Ausführung einen echten System-Cron einrichten (DISABLE_WP_CRON in wp-config.php setzen und alle 5 Minuten „wp review-captain jobs run“ ausführen). Ohne System-Cron läuft WP-Cron nur bei Seitenaufrufen; Ausführungszeiten sind dann ungenau und nur als „frühestens“ zu verstehen.', 'review-captain' ) . '</p></div>';
+			$out .= '<div class="notice notice-info inline"><p>' . esc_html__( 'Recommendation: For reliable execution, set up a real system cron (set DISABLE_WP_CRON in wp-config.php and run “wp review-captain jobs run” every 5 minutes). Without a system cron, WP-Cron only runs on page views; execution times are then imprecise and should be understood as “at the earliest”.', 'review-captain' ) . '</p></div>';
 		} elseif ( 'ok' !== $health['status'] ) {
-			$out .= '<div class="notice notice-warning inline"><p>' . esc_html__( 'DISABLE_WP_CRON ist gesetzt, aber der Job-Runner lief in letzter Zeit nicht. Bitte den System-Cron prüfen.', 'review-captain' ) . '</p></div>';
+			$out .= '<div class="notice notice-warning inline"><p>' . esc_html__( 'DISABLE_WP_CRON is set, but the job runner has not run recently. Please check the system cron.', 'review-captain' ) . '</p></div>';
 		}
 		if ( (int) $stats['overdue'] > 0 || 'ok' !== $health['status'] ) {
-			$out .= '<p class="description">' . esc_html__( 'Geplante Zeiten sind frühestmögliche Zeitpunkte, keine Zusagen.', 'review-captain' ) . '</p>';
+			$out .= '<p class="description">' . esc_html__( 'Scheduled times are the earliest possible times, not guarantees.', 'review-captain' ) . '</p>';
 		}
 		return $out;
 	}

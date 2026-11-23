@@ -23,10 +23,10 @@ enum Verification: string {
 	 */
 	public function label(): string {
 		return match ( $this ) {
-			self::UNVERIFIED           => __( 'Ungeprüft', 'review-captain' ),
-			self::PURCHASE_VERIFIED    => __( 'Kauf verifiziert', 'review-captain' ),
-			self::ATTENDANCE_CONFIRMED => __( 'Teilnahme bestätigt', 'review-captain' ),
-			self::EXTERNAL_PLATFORM    => __( 'Externe Plattformbewertung', 'review-captain' ),
+			self::UNVERIFIED           => __( 'Unverified', 'review-captain' ),
+			self::PURCHASE_VERIFIED    => __( 'Purchase verified', 'review-captain' ),
+			self::ATTENDANCE_CONFIRMED => __( 'Attendance confirmed', 'review-captain' ),
+			self::EXTERNAL_PLATFORM    => __( 'External platform review', 'review-captain' ),
 		};
 	}
 

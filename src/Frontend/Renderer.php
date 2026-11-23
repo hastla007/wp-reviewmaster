@@ -76,9 +76,9 @@ class Renderer {
 	 * @param WidgetRegistry $registry Registry.
 	 */
 	public function register_types( WidgetRegistry $registry ): void {
-		$registry->register_core( 'reviews', array( $this, 'render_reviews' ), __( 'Bewertungen (Raster/Liste)', 'review-captain' ) );
-		$registry->register_core( 'form', array( $this, 'render_form' ), __( 'Bewertungsformular', 'review-captain' ) );
-		$registry->register_core( 'cta', array( $this, 'render_cta' ), __( 'Bewertungs-Aufruf (CTA)', 'review-captain' ) );
+		$registry->register_core( 'reviews', array( $this, 'render_reviews' ), __( 'Reviews (grid/list)', 'review-captain' ) );
+		$registry->register_core( 'form', array( $this, 'render_form' ), __( 'Review form', 'review-captain' ) );
+		$registry->register_core( 'cta', array( $this, 'render_cta' ), __( 'Review call to action (CTA)', 'review-captain' ) );
 	}
 
 	/**
@@ -181,7 +181,7 @@ class Renderer {
 				'columns'      => $d->columns,
 				'cards'        => $cards,
 				'summary'      => $summary,
-				'empty_text'   => '' !== $empty_text ? $empty_text : __( 'Es sind noch keine Bewertungen vorhanden.', 'review-captain' ),
+				'empty_text'   => '' !== $empty_text ? $empty_text : __( 'There are no reviews yet.', 'review-captain' ),
 				'pagination'   => $d->paginate ? $this->pagination( $d, $page, count( $reviews ) ) : array(),
 				'notice'       => 1 === $this->instances['widget'] ? self::report_notice( PublicTexts::get( $settings, 'submissions', 'report_confirmation' ) ) : '',
 				'verification' => $this->verification_notice( 'widget' ),
@@ -283,10 +283,10 @@ class Renderer {
 				'label'      => $external
 					/* translators: %s: platform name, e.g. Google */
 					? sprintf( __( 'via %s', 'review-captain' ), $r->platform->label() )
-					: __( 'Bewertung auf dieser Website', 'review-captain' ),
+					: __( 'Review on this website', 'review-captain' ),
 				'url'        => $external ? $url : '',
 				/* translators: %s: platform name */
-				'link_text'  => sprintf( __( 'Original auf %s ansehen', 'review-captain' ), $r->platform->label() ),
+				'link_text'  => sprintf( __( 'View original on %s', 'review-captain' ), $r->platform->label() ),
 				// display.widget_new_tab / new_tab attribute also applies to the link to the original (SET-RC-P5).
 				'link_attrs' => EmbedPolicy::external_link_attrs( $d->new_tab ),
 				'new_tab'    => $d->new_tab,
@@ -319,8 +319,8 @@ class Renderer {
 				'height' => (int) ( $media['height'] ?? 0 ),
 				'alt'    => '' !== $author
 					/* translators: %s: author name */
-					? sprintf( __( 'Foto zur Bewertung von %s', 'review-captain' ), $author )
-					: __( 'Foto zur Bewertung', 'review-captain' ),
+					? sprintf( __( 'Photo for review by %s', 'review-captain' ), $author )
+					: __( 'Photo for review', 'review-captain' ),
 			);
 		}
 
@@ -331,7 +331,7 @@ class Renderer {
 			$edited = false === $ts ? null : array(
 				'iso'  => gmdate( 'c', $ts ),
 				/* translators: %s: date */
-				'text' => sprintf( __( 'bearbeitet am %s', 'review-captain' ), wp_date( $this->date_format(), $ts ) ),
+				'text' => sprintf( __( 'edited on %s', 'review-captain' ), wp_date( $this->date_format(), $ts ) ),
 			);
 		}
 
@@ -398,7 +398,7 @@ class Renderer {
 		$five  = 5.0 === $max && $r->rating_scale_min <= 1.0;
 		if ( $five ) {
 			/* translators: 1: rating value, 2: scale maximum */
-			$label = sprintf( __( '%1$s von %2$s Sternen', 'review-captain' ), $fmt( $value ), $fmt( $max ) );
+			$label = sprintf( __( '%1$s out of %2$s stars', 'review-captain' ), $fmt( $value ), $fmt( $max ) );
 			if ( $show_stars ) {
 				$rounded = round( $value * 2 ) / 2;
 				for ( $i = 1; $i <= 5; $i++ ) {
@@ -408,7 +408,7 @@ class Renderer {
 		} else {
 			// Other scales are never converted into stars.
 			/* translators: 1: rating value, 2: scale maximum */
-			$label = sprintf( __( '%1$s von %2$s Punkten', 'review-captain' ), $fmt( $value ), $fmt( $max ) );
+			$label = sprintf( __( '%1$s out of %2$s points', 'review-captain' ), $fmt( $value ), $fmt( $max ) );
 		}
 		return array(
 			'label'      => $label,
@@ -452,7 +452,7 @@ class Renderer {
 				'platform' => $platform->value,
 				'text'     => sprintf(
 					/* translators: 1: platform name, 2: average, 3: scale max, 4: number of reviews */
-					_n( '%1$s: %2$s von %3$s (%4$s Bewertung)', '%1$s: %2$s von %3$s (%4$s Bewertungen)', $row['count'], 'review-captain' ),
+					_n( '%1$s: %2$s out of %3$s (%4$s review)', '%1$s: %2$s out of %3$s (%4$s reviews)', $row['count'], 'review-captain' ),
 					$platform->label(),
 					$avg,
 					number_format_i18n( $row['scale_max'], 0 ),
@@ -478,7 +478,7 @@ class Renderer {
 				array(
 					'disabled' => true,
 					'id'       => 'rc-form-' . $number,
-					'message'  => __( 'Bewertungen können derzeit nicht abgegeben werden.', 'review-captain' ),
+					'message'  => __( 'Reviews cannot be submitted at this time.', 'review-captain' ),
 				)
 			);
 		}
@@ -585,7 +585,7 @@ class Renderer {
 			}
 		}
 		/* translators: %s: context ID */
-		return sprintf( __( 'Produkt %s', 'review-captain' ), $id );
+		return sprintf( __( 'Product %s', 'review-captain' ), $id );
 	}
 
 	/**
@@ -597,10 +597,10 @@ class Renderer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
 		$flag = isset( $_GET['rc_reported'] ) ? sanitize_key( wp_unslash( (string) $_GET['rc_reported'] ) ) : '';
 		if ( '1' === $flag ) {
-			return '' !== trim( $confirmation ) ? $confirmation : __( 'Danke für Ihre Meldung. Wir prüfen die Bewertung.', 'review-captain' );
+			return '' !== trim( $confirmation ) ? $confirmation : __( 'Thank you for your report. We will review it.', 'review-captain' );
 		}
 		if ( 'error' === $flag ) {
-			return __( 'Die Meldung konnte nicht übermittelt werden. Bitte versuchen Sie es später erneut.', 'review-captain' );
+			return __( 'The report could not be submitted. Please try again later.', 'review-captain' );
 		}
 		return '';
 	}
@@ -614,7 +614,7 @@ class Renderer {
 		$profile = null !== $d->profile_id ? $this->profiles->find( $d->profile_id ) : null;
 		if ( null === $profile || Platform::LOCAL->value === $profile['platform'] ) {
 			if ( current_user_can( Capabilities::MODERATE ) ) {
-				return '<p class="rc-cta rc-cta--missing">' . esc_html__( 'Review Captain: Das Bewertungsprofil für diesen Aufruf wurde nicht gefunden oder hat keine gültige https-Adresse.', 'review-captain' ) . '</p>';
+				return '<p class="rc-cta rc-cta--missing">' . esc_html__( 'Review Captain: The review profile for this call to action was not found or has no valid https URL.', 'review-captain' ) . '</p>';
 			}
 			return WidgetRegistry::comment( 'Review Captain: CTA-Profil nicht verfügbar.' );
 		}
@@ -627,7 +627,7 @@ class Renderer {
 				'platform' => $platform->value,
 				'url'      => $profile['url'],
 				/* translators: %s: platform name, e.g. Google */
-				'text'     => sprintf( __( 'Bewerte uns auf %s', 'review-captain' ), $name ),
+				'text'     => sprintf( __( 'Rate us on %s', 'review-captain' ), $name ),
 				'new_tab'  => $d->new_tab,
 				// Operator content → no "ugc" (embed-security.md §5).
 				'rel'      => 'nofollow noopener noreferrer',
@@ -693,7 +693,7 @@ class Renderer {
 		$settings = $this->plugin->settings();
 		if ( 'relative' === $settings->get( 'display', 'date_style', 'absolute' ) ) {
 			/* translators: %s: human readable time difference */
-			return sprintf( __( 'vor %s', 'review-captain' ), human_time_diff( $ts, time() ) );
+			return sprintf( __( '%s ago', 'review-captain' ), human_time_diff( $ts, time() ) );
 		}
 		return (string) wp_date( $this->date_format(), $ts );
 	}

@@ -157,19 +157,19 @@ final class SchemaEligibility {
 	 */
 	public static function reason_label( string $reason ): string {
 		return match ( $reason ) {
-			'eligible'              => __( 'Geeignet für Bewertungs-Markup.', 'review-captain' ),
-			'external_platform'     => __( 'Externe Plattformbewertung – wird angezeigt, aber nie ausgezeichnet.', 'review-captain' ),
-			'not_review'            => __( 'Erfahrungsbericht (Testimonial) – kein Bewertungs-Markup.', 'review-captain' ),
-			'not_approved'          => __( 'Nicht freigegeben.', 'review-captain' ),
-			'self_serving'          => __( 'Bewertung über das eigene Unternehmen – selbstbezogen, kein Markup.', 'review-captain' ),
-			'context_not_supported' => __( 'Kontext wird für Bewertungs-Markup nicht unterstützt.', 'review-captain' ),
-			'context_disabled'      => __( 'Markup für diesen Inhaltstyp ist in den Einstellungen abgeschaltet.', 'review-captain' ),
-			'below_minimum'         => __( 'Weniger geeignete Bewertungen auf der Seite als die eingestellte Mindestzahl.', 'review-captain' ),
-			'not_rendered'          => __( 'Nicht sichtbar auf der Seite gerendert.', 'review-captain' ),
-			'woo_product_schema'    => __( 'WooCommerce besitzt das Produkt-Schema.', 'review-captain' ),
-			'foreign_schema_owner'  => __( 'Ein anderes SEO-/Schema-Plugin verantwortet strukturierte Daten.', 'review-captain' ),
-			'yoast_incompatible'    => __( 'Yoast-Version nicht kompatibel – Reviews sichtbar, Markup gesperrt.', 'review-captain' ),
-			'filtered'              => __( 'Durch Einstellung oder Filter gesperrt.', 'review-captain' ),
+			'eligible'              => __( 'Eligible for review markup.', 'review-captain' ),
+			'external_platform'     => __( 'External platform review – displayed but never marked up.', 'review-captain' ),
+			'not_review'            => __( 'Testimonial – no review markup.', 'review-captain' ),
+			'not_approved'          => __( 'Not approved.', 'review-captain' ),
+			'self_serving'          => __( 'Review of your own business – self-serving, no markup.', 'review-captain' ),
+			'context_not_supported' => __( 'Context is not supported for review markup.', 'review-captain' ),
+			'context_disabled'      => __( 'Markup for this content type is switched off in the settings.', 'review-captain' ),
+			'below_minimum'         => __( 'Fewer eligible reviews on the page than the minimum set.', 'review-captain' ),
+			'not_rendered'          => __( 'Not visibly rendered on the page.', 'review-captain' ),
+			'woo_product_schema'    => __( 'WooCommerce owns the product schema.', 'review-captain' ),
+			'foreign_schema_owner'  => __( 'Another SEO/schema plugin is responsible for structured data.', 'review-captain' ),
+			'yoast_incompatible'    => __( 'Yoast version not compatible – reviews visible, markup blocked.', 'review-captain' ),
+			'filtered'              => __( 'Blocked by setting or filter.', 'review-captain' ),
 			default                 => $reason,
 		};
 	}

@@ -203,7 +203,7 @@ final class ReviewActionsTest extends AdminTestCase {
 		ob_start();
 		( new ReviewsPage( $this->plugin() ) )->render();
 		$html = (string) ob_get_clean();
-		$this->assertStringContainsString( 'Änderungsverlauf', $html );
+		$this->assertStringContainsString( 'Change history', $html );
 		$this->assertStringContainsString( 'review_captain_review_status', $html );
 		$this->assertStringNotContainsString( 'name="review[verification]"', $html );
 

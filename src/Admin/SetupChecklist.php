@@ -38,34 +38,34 @@ final class SetupChecklist {
 	public static function steps(): array {
 		return array(
 			'brand'   => array(
-				'title'       => __( 'Marke & Sprache', 'review-captain' ),
-				'description' => __( 'Markenname und Sprache für Hinweise und Formulare prüfen.', 'review-captain' ),
+				'title'       => __( 'Brand & language', 'review-captain' ),
+				'description' => __( 'Check the brand name and language for notices and forms.', 'review-captain' ),
 				'url'         => SettingsPage::tab_url( 'general' ),
-				'link'        => __( 'Allgemeine Einstellungen', 'review-captain' ),
+				'link'        => __( 'General settings', 'review-captain' ),
 			),
 			'profile' => array(
-				'title'       => __( 'Erstes Profil / Bewertungslink', 'review-captain' ),
-				'description' => __( 'Profil-Link einer Plattform hinterlegen, damit Besucher dich dort bewerten können.', 'review-captain' ),
+				'title'       => __( 'First profile / review link', 'review-captain' ),
+				'description' => __( 'Add a platform’s profile link so visitors can review you there.', 'review-captain' ),
 				'url'         => View::page_url( SourcesPage::SLUG, array( 'action' => 'new' ) ),
-				'link'        => __( 'Profil hinzufügen', 'review-captain' ),
+				'link'        => __( 'Add profile', 'review-captain' ),
 			),
 			'form'    => array(
-				'title'       => __( 'Bewertungsformular aktiv', 'review-captain' ),
-				'description' => __( 'Formular per Block oder Shortcode [review_captain_form v="1"] einbinden und Einreichungen aktiviert lassen.', 'review-captain' ),
+				'title'       => __( 'Review form active', 'review-captain' ),
+				'description' => __( 'Embed the form via block or shortcode [review_captain_form v="1"] and keep submissions enabled.', 'review-captain' ),
 				'url'         => SettingsPage::tab_url( 'submissions' ),
-				'link'        => __( 'Einreichungen & Moderation', 'review-captain' ),
+				'link'        => __( 'Submissions & moderation', 'review-captain' ),
 			),
 			'widget'  => array(
-				'title'       => __( 'Erstes Widget', 'review-captain' ),
-				'description' => __( 'Reviews mit dem Block oder einem Shortcode auf einer Seite anzeigen.', 'review-captain' ),
+				'title'       => __( 'First widget', 'review-captain' ),
+				'description' => __( 'Display reviews on a page using the block or a shortcode.', 'review-captain' ),
 				'url'         => View::page_url( WidgetsPage::SLUG ),
-				'link'        => __( 'Widget erstellen', 'review-captain' ),
+				'link'        => __( 'Create widget', 'review-captain' ),
 			),
 			'privacy' => array(
-				'title'       => __( 'Datenschutzhinweis', 'review-captain' ),
-				'description' => __( 'Datenschutzhinweis im Formular und Aufbewahrungsfristen prüfen.', 'review-captain' ),
+				'title'       => __( 'Privacy notice', 'review-captain' ),
+				'description' => __( 'Check the privacy notice in the form and the retention periods.', 'review-captain' ),
 				'url'         => SettingsPage::tab_url( 'privacy' ),
-				'link'        => __( 'Datenschutz & Aufbewahrung', 'review-captain' ),
+				'link'        => __( 'Privacy & retention', 'review-captain' ),
 			),
 		);
 	}
@@ -189,32 +189,32 @@ final class SetupChecklist {
 	public function render(): string {
 		$stored = $this->stored();
 		if ( $stored['dismissed'] ) {
-			return '<p class="rc-admin-checklist-restore"><a href="' . esc_url( View::action_url( 'checklist', array( 'step' => 'show' ) ) ) . '">' . esc_html__( 'Einrichtung erneut anzeigen', 'review-captain' ) . '</a></p>';
+			return '<p class="rc-admin-checklist-restore"><a href="' . esc_url( View::action_url( 'checklist', array( 'step' => 'show' ) ) ) . '">' . esc_html__( 'Show setup again', 'review-captain' ) . '</a></p>';
 		}
 		$states = $this->states();
 		$done   = count( array_filter( $states, static fn( $s ) => 'open' !== $s ) );
-		$html   = '<div class="postbox rc-admin-checklist"><div class="postbox-header"><h2>' . esc_html__( 'Einrichtung', 'review-captain' ) . '</h2></div><div class="inside">';
+		$html   = '<div class="postbox rc-admin-checklist"><div class="postbox-header"><h2>' . esc_html__( 'Setup', 'review-captain' ) . '</h2></div><div class="inside">';
 		/* translators: 1: completed steps, 2: total steps */
-		$html .= '<p>' . esc_html( sprintf( __( '%1$d von %2$d Schritten erledigt oder übersprungen. Jeder Schritt ist freiwillig; Überspringen ändert keine Einstellungen.', 'review-captain' ), $done, count( $states ) ) ) . '</p><ol class="rc-admin-steps">';
+		$html .= '<p>' . esc_html( sprintf( __( '%1$d of %2$d steps completed or skipped. Every step is optional; skipping does not change any settings.', 'review-captain' ), $done, count( $states ) ) ) . '</p><ol class="rc-admin-steps">';
 		foreach ( self::steps() as $key => $step ) {
 			$state = $states[ $key ];
 			$label = match ( $state ) {
-				'done'    => __( 'Erledigt', 'review-captain' ),
-				'skipped' => __( 'Übersprungen', 'review-captain' ),
-				default   => __( 'Offen', 'review-captain' ),
+				'done'    => __( 'Done', 'review-captain' ),
+				'skipped' => __( 'Skipped', 'review-captain' ),
+				default   => __( 'Open', 'review-captain' ),
 			};
 			$html .= '<li class="rc-admin-step rc-admin-step--' . esc_attr( $state ) . '"><strong>' . esc_html( $step['title'] ) . '</strong> ' . View::pill( $label, 'done' === $state ? 'ok' : 'neutral' );
 			$html .= '<br /><span class="description">' . esc_html( $step['description'] ) . '</span><br />';
 			$html .= '<a href="' . esc_url( $step['url'] ) . '">' . esc_html( $step['link'] ) . '</a>';
 			if ( 'open' === $state ) {
-				$html .= ' · <a href="' . esc_url( View::action_url( 'checklist', array( 'step' => $key, 'state' => 'done' ) ) ) . '">' . esc_html__( 'Als erledigt markieren', 'review-captain' ) . '</a>';
-				$html .= ' · <a href="' . esc_url( View::action_url( 'checklist', array( 'step' => $key, 'state' => 'skipped' ) ) ) . '">' . esc_html__( 'Überspringen', 'review-captain' ) . '</a>';
+				$html .= ' · <a href="' . esc_url( View::action_url( 'checklist', array( 'step' => $key, 'state' => 'done' ) ) ) . '">' . esc_html__( 'Mark as done', 'review-captain' ) . '</a>';
+				$html .= ' · <a href="' . esc_url( View::action_url( 'checklist', array( 'step' => $key, 'state' => 'skipped' ) ) ) . '">' . esc_html__( 'Skip', 'review-captain' ) . '</a>';
 			} elseif ( isset( $stored['steps'][ $key ] ) ) {
-				$html .= ' · <a href="' . esc_url( View::action_url( 'checklist', array( 'step' => $key, 'state' => 'open' ) ) ) . '">' . esc_html__( 'Wieder öffnen', 'review-captain' ) . '</a>';
+				$html .= ' · <a href="' . esc_url( View::action_url( 'checklist', array( 'step' => $key, 'state' => 'open' ) ) ) . '">' . esc_html__( 'Reopen', 'review-captain' ) . '</a>';
 			}
 			$html .= '</li>';
 		}
-		$html .= '</ol><p><a class="button" href="' . esc_url( View::action_url( 'checklist', array( 'step' => 'dismiss' ) ) ) . '">' . esc_html__( 'Ausblenden', 'review-captain' ) . '</a></p></div></div>';
+		$html .= '</ol><p><a class="button" href="' . esc_url( View::action_url( 'checklist', array( 'step' => 'dismiss' ) ) ) . '">' . esc_html__( 'Hide', 'review-captain' ) . '</a></p></div></div>';
 		return $html;
 	}
 }

@@ -40,14 +40,14 @@ final class SettingsSchema {
 	 */
 	public static function tabs(): array {
 		return array(
-			'general'     => __( 'Allgemein', 'review-captain' ),
-			'sources'     => __( 'Quellen & Synchronisierung', 'review-captain' ),
-			'requests'    => __( 'Anfragen & Zustellung', 'review-captain' ),
-			'submissions' => __( 'Einreichungen & Moderation', 'review-captain' ),
-			'display'     => __( 'Darstellung', 'review-captain' ),
-			'privacy'     => __( 'Datenschutz & Aufbewahrung', 'review-captain' ),
-			'access'      => __( 'Zugriff & Rollen', 'review-captain' ),
-			'advanced'    => __( 'Erweitert', 'review-captain' ),
+			'general'     => __( 'General', 'review-captain' ),
+			'sources'     => __( 'Sources & sync', 'review-captain' ),
+			'requests'    => __( 'Requests & delivery', 'review-captain' ),
+			'submissions' => __( 'Submissions & moderation', 'review-captain' ),
+			'display'     => __( 'Appearance', 'review-captain' ),
+			'privacy'     => __( 'Privacy & retention', 'review-captain' ),
+			'access'      => __( 'Access & roles', 'review-captain' ),
+			'advanced'    => __( 'Advanced', 'review-captain' ),
 		);
 	}
 
@@ -502,7 +502,7 @@ final class SettingsSchema {
 			case 'int':
 				$given = is_scalar( $value ) ? trim( (string) $value ) : '';
 				if ( ! preg_match( '/^-?\d+$/', $given ) ) {
-					return array( null, __( 'Bitte gib eine ganze Zahl ein.', 'review-captain' ) );
+					return array( null, __( 'Please enter a whole number.', 'review-captain' ) );
 				}
 				$v   = (int) $given;
 				$min = isset( $field['min'] ) ? (int) $field['min'] : null;
@@ -518,11 +518,11 @@ final class SettingsSchema {
 						return array( $choice, null );
 					}
 				}
-				return array( null, __( 'Bitte wähle einen der angebotenen Werte.', 'review-captain' ) );
+				return array( null, __( 'Please choose one of the offered values.', 'review-captain' ) );
 			case 'time':
 				$given = is_scalar( $value ) ? trim( (string) $value ) : '';
 				if ( ! preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $given ) ) {
-					return array( null, __( 'Bitte gib eine Uhrzeit im Format HH:MM ein, z. B. 09:30.', 'review-captain' ) );
+					return array( null, __( 'Please enter a time in the format HH:MM, e.g. 09:30.', 'review-captain' ) );
 				}
 				return array( $given, null );
 			case 'email':
@@ -531,18 +531,18 @@ final class SettingsSchema {
 					return array( '', null );
 				}
 				if ( sanitize_email( $given ) !== $given || ! is_email( $given ) ) {
-					return array( null, __( 'Bitte gib eine gültige E-Mail-Adresse ein oder lass das Feld leer.', 'review-captain' ) );
+					return array( null, __( 'Please enter a valid email address or leave the field empty.', 'review-captain' ) );
 				}
 				return array( $given, null );
 			case 'array':
 				if ( ! is_array( $value ) ) {
-					return array( null, __( 'Ungültiger Wert.', 'review-captain' ) );
+					return array( null, __( 'Invalid value.', 'review-captain' ) );
 				}
 				return array( self::sanitize_value( $field, $value ), null );
 			case 'color':
 				$given = is_scalar( $value ) ? strtolower( trim( (string) $value ) ) : '';
 				if ( '' !== $given && ! preg_match( '/^#(?:[0-9a-f]{3}){1,2}$/', $given ) ) {
-					return array( null, __( 'Bitte gib einen Hex-Farbwert wie #e0a800 ein oder lass das Feld leer.', 'review-captain' ) );
+					return array( null, __( 'Please enter a hex colour value like #e0a800 or leave the field empty.', 'review-captain' ) );
 				}
 				return array( $given, null );
 			case 'email_list':
@@ -551,12 +551,12 @@ final class SettingsSchema {
 				$given = array_unique( array_map( 'strtolower', array_filter( array_map( 'trim', $parts ) ) ) );
 				if ( count( $given ) !== count( $list ) ) {
 					/* translators: %s: maximum number of addresses */
-					return array( null, sprintf( __( 'Bitte gib nur gültige E-Mail-Adressen ein, höchstens %s.', 'review-captain' ), number_format_i18n( max( 1, (int) ( $field['max_items'] ?? 10 ) ) ) ) );
+					return array( null, sprintf( __( 'Please enter only valid email addresses, at most %s.', 'review-captain' ), number_format_i18n( max( 1, (int) ( $field['max_items'] ?? 10 ) ) ) ) );
 				}
 				return array( $list, null );
 			default:
 				if ( ! is_scalar( $value ) && null !== $value ) {
-					return array( null, __( 'Ungültiger Wert.', 'review-captain' ) );
+					return array( null, __( 'Invalid value.', 'review-captain' ) );
 				}
 				if ( isset( $field['max_length'] ) ) {
 					// Too long is reported, not cut (texts such as the consent text must never end mid-sentence).
@@ -564,7 +564,7 @@ final class SettingsSchema {
 					$max   = max( 0, (int) $field['max_length'] );
 					if ( mb_strlen( $clean ) > $max ) {
 						/* translators: 1: maximum number of characters, 2: number of characters given */
-						return array( null, sprintf( __( 'Bitte kürze den Text auf höchstens %1$s Zeichen (derzeit %2$s).', 'review-captain' ), number_format_i18n( $max ), number_format_i18n( mb_strlen( $clean ) ) ) );
+						return array( null, sprintf( __( 'Please shorten the text to at most %1$s characters (currently %2$s).', 'review-captain' ), number_format_i18n( $max ), number_format_i18n( mb_strlen( $clean ) ) ) );
 					}
 				}
 				return array( self::sanitize_value( $field, (string) $value ), null );
@@ -580,14 +580,14 @@ final class SettingsSchema {
 	private static function range_message( ?int $min, ?int $max ): string {
 		if ( null !== $min && null !== $max ) {
 			/* translators: 1: minimum, 2: maximum */
-			return sprintf( __( 'Erlaubt sind Werte von %1$s bis %2$s.', 'review-captain' ), number_format_i18n( $min ), number_format_i18n( $max ) );
+			return sprintf( __( 'Allowed values are %1$s to %2$s.', 'review-captain' ), number_format_i18n( $min ), number_format_i18n( $max ) );
 		}
 		if ( null !== $min ) {
 			/* translators: %s: minimum */
-			return sprintf( __( 'Der Wert muss mindestens %s sein.', 'review-captain' ), number_format_i18n( $min ) );
+			return sprintf( __( 'The value must be at least %s.', 'review-captain' ), number_format_i18n( $min ) );
 		}
 		/* translators: %s: maximum */
-		return sprintf( __( 'Der Wert darf höchstens %s sein.', 'review-captain' ), number_format_i18n( (int) $max ) );
+		return sprintf( __( 'The value may be at most %s.', 'review-captain' ), number_format_i18n( (int) $max ) );
 	}
 
 	/**
@@ -603,25 +603,25 @@ final class SettingsSchema {
 		if ( 'submissions' === $tab && isset( $values['min_text_length'], $values['max_text_length'] ) && (int) $values['min_text_length'] >= (int) $values['max_text_length'] ) {
 			$out[] = array(
 				'fields'  => array( 'min_text_length', 'max_text_length' ),
-				'message' => __( 'Die Mindestlänge muss kleiner als die Höchstlänge sein.', 'review-captain' ),
+				'message' => __( 'The minimum length must be smaller than the maximum length.', 'review-captain' ),
 			);
 		}
 		if ( 'requests' === $tab && isset( $values['send_window_start'], $values['send_window_end'] ) && $values['send_window_start'] === $values['send_window_end'] ) {
 			$out[] = array(
 				'fields'  => array( 'send_window_start', 'send_window_end' ),
-				'message' => __( 'Beginn und Ende des Versandfensters dürfen nicht gleich sein.', 'review-captain' ),
+				'message' => __( 'Start and end of the sending window must not be the same.', 'review-captain' ),
 			);
 		}
 		if ( 'sources' === $tab && isset( $values['sync_window_start'], $values['sync_window_end'] ) && $values['sync_window_start'] === $values['sync_window_end'] ) {
 			$out[] = array(
 				'fields'  => array( 'sync_window_start', 'sync_window_end' ),
-				'message' => __( 'Beginn und Ende des Synchronisierungsfensters dürfen nicht gleich sein.', 'review-captain' ),
+				'message' => __( 'Start and end of the sync window must not be the same.', 'review-captain' ),
 			);
 		}
 		if ( 'advanced' === $tab && isset( $values['lease_seconds'], $values['job_time_budget'] ) && (int) $values['lease_seconds'] <= (int) $values['job_time_budget'] ) {
 			$out[] = array(
 				'fields'  => array( 'lease_seconds', 'job_time_budget' ),
-				'message' => __( 'Die Freigabe hängender Aufgaben muss länger dauern als das Zeitbudget je Lauf.', 'review-captain' ),
+				'message' => __( 'The release of stuck tasks must take longer than the time budget per run.', 'review-captain' ),
 			);
 		}
 		/**
@@ -670,6 +670,6 @@ final class SettingsSchema {
 		}
 		$privacy['delete_data_on_uninstall'] = false;
 		$privacy['delete_data_confirmed_at'] = '';
-		return array( $privacy, __( 'Tippe zur Bestätigung LÖSCHEN in das Feld unter dem Schalter. Ohne Bestätigung bleiben die Daten beim Deinstallieren erhalten.', 'review-captain' ) );
+		return array( $privacy, __( 'Type DELETE into the field below the switch to confirm. Without confirmation the data is kept on uninstall.', 'review-captain' ) );
 	}
 }

@@ -64,7 +64,7 @@ class Commands {
 		$this->out->success(
 			sprintf(
 				/* translators: 1: processed, 2: succeeded, 3: failed */
-				__( '%1$d Jobs verarbeitet, %2$d erfolgreich, %3$d fehlgeschlagen.', 'review-captain' ),
+				__( '%1$d jobs processed, %2$d succeeded, %3$d failed.', 'review-captain' ),
 				$result['processed'],
 				$result['succeeded'],
 				$result['failed']
@@ -82,7 +82,7 @@ class Commands {
 	public function jobs_list( array $args, array $assoc ): void {
 		$status = isset( $assoc['status'] ) ? (string) $assoc['status'] : null;
 		if ( null !== $status && ! in_array( $status, JobQueue::STATUSES, true ) ) {
-			$this->out->error( __( 'Unbekannter Status.', 'review-captain' ) );
+			$this->out->error( __( 'Unknown status.', 'review-captain' ) );
 			return;
 		}
 		$rows = array_map(
@@ -109,10 +109,10 @@ class Commands {
 	public function jobs_retry( array $args, array $assoc ): void {
 		$id = (int) ( $args[0] ?? 0 );
 		if ( $id <= 0 || ! $this->queue()->retry( $id ) ) {
-			$this->out->error( __( 'Job nicht gefunden oder nicht wiederholbar.', 'review-captain' ) );
+			$this->out->error( __( 'Job not found or not retryable.', 'review-captain' ) );
 			return;
 		}
-		$this->out->success( __( 'Job erneut eingereiht.', 'review-captain' ) );
+		$this->out->success( __( 'Job requeued.', 'review-captain' ) );
 	}
 
 	/**
@@ -148,7 +148,7 @@ class Commands {
 		$this->out->success(
 			sprintf(
 				/* translators: 1: rejected, 2: external, 3: logs, 4: jobs */
-				__( 'Aufbewahrung: %1$d abgelehnte Reviews, %2$d externe Snapshots, %3$d Logeinträge, %4$d Jobs gelöscht.', 'review-captain' ),
+				__( 'Retention: deleted %1$d rejected reviews, %2$d external snapshots, %3$d log entries, %4$d jobs.', 'review-captain' ),
 				$r['rejected_deleted'],
 				$r['external_deleted'],
 				$r['logs_deleted'],
@@ -156,7 +156,7 @@ class Commands {
 			)
 		);
 		if ( empty( $r['complete'] ) ) {
-			$this->out->warning( __( 'Nicht alle fälligen Daten wurden in diesem Lauf bereinigt; der nächste Lauf setzt fort.', 'review-captain' ) );
+			$this->out->warning( __( 'Not all due data was cleaned up in this run; the next run will continue.', 'review-captain' ) );
 		}
 		return $result;
 	}
@@ -181,7 +181,7 @@ class Commands {
 		}
 		$this->out->table( $rows, array( 'check', 'value' ), (string) ( $assoc['format'] ?? 'table' ) );
 		if ( empty( $report['schema_ok'] ) ) {
-			$this->out->error( __( 'Schema veraltet oder unvollständig: zuerst „wp review-captain schema upgrade“ ausführen.', 'review-captain' ) );
+			$this->out->error( __( 'Schema outdated or incomplete: run “wp review-captain schema upgrade” first.', 'review-captain' ) );
 		}
 		return $report;
 	}
@@ -201,7 +201,7 @@ class Commands {
 			'status'  => Schema::VERSION === $installed ? 'ok' : 'error',
 			'message' => sprintf(
 				/* translators: 1: installed, 2: expected */
-				__( 'Schema-Version %1$d (erwartet %2$d).', 'review-captain' ),
+				__( 'Schema version %1$d (expected %2$d).', 'review-captain' ),
 				$installed,
 				Schema::VERSION
 			),
@@ -212,15 +212,15 @@ class Commands {
 		$checks[]  = array(
 			'check'   => 'cron',
 			'status'  => $scheduled ? 'ok' : 'warning',
-			'message' => $scheduled ? __( 'Job-Takt ist eingeplant.', 'review-captain' ) : __( 'Job-Takt ist nicht eingeplant (Adminbereich einmal aufrufen oder Plugin reaktivieren).', 'review-captain' ),
+			'message' => $scheduled ? __( 'Job tick is scheduled.', 'review-captain' ) : __( 'Job tick is not scheduled (visit the admin area once or reactivate the plugin).', 'review-captain' ),
 		);
 		$health   = Diagnostics::runner_health();
 		$checks[] = array(
 			'check'   => 'runner',
 			'status'  => 'ok' === $health['status'] ? 'ok' : 'warning',
 			'message' => Diagnostics::wp_cron_disabled()
-				? __( 'DISABLE_WP_CRON gesetzt – System-Cron muss „wp review-captain jobs run“ ausführen.', 'review-captain' )
-				: __( 'WP-Cron aktiv: Ausführung nur bei Seitenaufrufen, Zeiten ungenau. System-Cron empfohlen.', 'review-captain' ),
+				? __( 'DISABLE_WP_CRON is set – system cron must run “wp review-captain jobs run”.', 'review-captain' )
+				: __( 'WP-Cron active: runs only on page views, timing is imprecise. System cron recommended.', 'review-captain' ),
 		);
 
 		$crypto   = new Crypto();
@@ -229,10 +229,10 @@ class Commands {
 			'check'   => 'crypto',
 			'status'  => Crypto::STATUS_EXPLICIT === $status ? 'ok' : ( Crypto::STATUS_FALLBACK === $status ? 'warning' : 'error' ),
 			'message' => match ( $status ) {
-				Crypto::STATUS_EXPLICIT => __( 'Eigener Schlüssel REVIEW_CAPTAIN_ENCRYPTION_KEY ist gesetzt.', 'review-captain' ),
-				Crypto::STATUS_FALLBACK => __( 'Zugangsdaten werden mit einem aus den WordPress-Salts abgeleiteten Schlüssel verschlüsselt. Empfehlung: REVIEW_CAPTAIN_ENCRYPTION_KEY setzen.', 'review-captain' ),
-				Crypto::STATUS_INVALID  => __( 'REVIEW_CAPTAIN_ENCRYPTION_KEY ist ungültig (Base64 von genau 32 Byte erwartet).', 'review-captain' ),
-				default                 => __( 'libsodium ist nicht verfügbar.', 'review-captain' ),
+				Crypto::STATUS_EXPLICIT => __( 'Custom key REVIEW_CAPTAIN_ENCRYPTION_KEY is set.', 'review-captain' ),
+				Crypto::STATUS_FALLBACK => __( 'Credentials are encrypted with a key derived from the WordPress salts. Recommendation: set REVIEW_CAPTAIN_ENCRYPTION_KEY.', 'review-captain' ),
+				Crypto::STATUS_INVALID  => __( 'REVIEW_CAPTAIN_ENCRYPTION_KEY is invalid (expected Base64 of exactly 32 bytes).', 'review-captain' ),
+				default                 => __( 'libsodium is not available.', 'review-captain' ),
 			},
 		);
 
@@ -242,10 +242,10 @@ class Commands {
 			'check'   => 'database',
 			'status'  => true === $db['ok'] ? 'ok' : 'warning',
 			'message' => null === $db['ok']
-				? __( 'Datenbankversion nicht ermittelbar.', 'review-captain' )
+				? __( 'Unable to determine database version.', 'review-captain' )
 				: sprintf(
 					/* translators: 1: vendor, 2: installed version, 3: minimum version */
-					__( 'Datenbank %1$s %2$s (empfohlen mindestens %3$s).', 'review-captain' ),
+					__( 'Database %1$s %2$s (recommended minimum %3$s).', 'review-captain' ),
 					'mariadb' === $db['vendor'] ? 'MariaDB' : 'MySQL',
 					$db['version'],
 					$db['minimum']
@@ -266,7 +266,7 @@ class Commands {
 	public function dev_seed( array $args, array $assoc ): array {
 		$debug = defined( 'WP_DEBUG' ) && WP_DEBUG;
 		if ( ! $debug && empty( $assoc['yes'] ) ) {
-			$this->out->error( __( 'Testdaten nur mit WP_DEBUG oder --yes erzeugen.', 'review-captain' ) );
+			$this->out->error( __( 'Generate test data only with WP_DEBUG or --yes.', 'review-captain' ) );
 			return array(
 				'reviews' => 0,
 				'jobs'    => 0,
@@ -282,7 +282,7 @@ class Commands {
 		$this->out->success(
 			sprintf(
 				/* translators: 1: reviews, 2: jobs */
-				__( '%1$d Test-Reviews und %2$d Test-Jobs angelegt.', 'review-captain' ),
+				__( 'Created %1$d test reviews and %2$d test jobs.', 'review-captain' ),
 				$out['reviews'],
 				$out['jobs']
 			)
@@ -301,7 +301,7 @@ class Commands {
 		$this->out->success(
 			sprintf(
 				/* translators: %d: schema version */
-				__( 'Schema ist auf Version %d.', 'review-captain' ),
+				__( 'Schema is at version %d.', 'review-captain' ),
 				(int) get_option( Schema::OPTION_VERSION, 0 )
 			)
 		);
@@ -333,7 +333,7 @@ class Commands {
 		$fields        = SettingsSchema::fields();
 		if ( ! isset( $fields[ $tab ][ $key ] ) ) {
 			/* translators: %s: setting key */
-			$this->out->error( sprintf( __( 'Unbekannte Einstellung „%s“. Format: Bereich.Schlüssel, siehe „wp review-captain settings list“.', 'review-captain' ), $name ) );
+			$this->out->error( sprintf( __( 'Unknown setting “%s”. Format: section.key, see “wp review-captain settings list”.', 'review-captain' ), $name ) );
 			return null;
 		}
 		return array( $tab, $key, $fields[ $tab ][ $key ] );
@@ -346,13 +346,13 @@ class Commands {
 	 */
 	private function settings_require_writer( array $tabs ): bool {
 		if ( get_current_user_id() <= 0 || ! current_user_can( Capabilities::MANAGE_SETTINGS ) ) {
-			$this->out->error( __( 'Bitte gib mit --user=<ID|Login> einen Benutzer an, der die Einstellungen ändern darf (Recht review_captain_manage_settings).', 'review-captain' ) );
+			$this->out->error( __( 'Please name a user with --user=<ID|login> who may change the settings (capability review_captain_manage_settings).', 'review-captain' ) );
 			return false;
 		}
 		foreach ( $tabs as $tab ) {
 			if ( ! SettingsPage::can_write_tab( $tab ) ) {
 				/* translators: %s: tab */
-				$this->out->error( sprintf( __( 'Für den Bereich „%s“ fehlt dem Benutzer die Berechtigung (Datenschutz: review_captain_manage_privacy, Zugriff: promote_users).', 'review-captain' ), $tab ) );
+				$this->out->error( sprintf( __( 'The user lacks the permission for section “%s” (privacy: review_captain_manage_privacy, access: promote_users).', 'review-captain' ), $tab ) );
 				return false;
 			}
 		}
@@ -383,7 +383,7 @@ class Commands {
 	public function settings_list( array $args, array $assoc ): array {
 		$only = isset( $assoc['tab'] ) ? (string) $assoc['tab'] : null;
 		if ( null !== $only && ! array_key_exists( $only, SettingsSchema::tabs() ) ) {
-			$this->out->error( __( 'Unbekannter Bereich.', 'review-captain' ) );
+			$this->out->error( __( 'Unknown section.', 'review-captain' ) );
 			return array();
 		}
 		$format = (string) ( $assoc['format'] ?? 'table' );
@@ -446,11 +446,11 @@ class Commands {
 		}
 		[ $tab, $key, $field ] = $found;
 		if ( ! empty( $field['internal'] ) ) {
-			$this->out->error( __( 'Dieser Wert wird vom Plugin gesetzt und lässt sich nicht direkt ändern.', 'review-captain' ) );
+			$this->out->error( __( 'This value is set by the plugin and cannot be changed directly.', 'review-captain' ) );
 			return null;
 		}
 		if ( 'pro' === $field['owner'] && ! SettingsPage::pro_writable() ) {
-			$this->out->error( __( 'Diese Einstellung gehört zu einer Erweiterung und ist derzeit nicht änderbar.', 'review-captain' ) );
+			$this->out->error( __( 'This setting belongs to an extension and cannot be changed right now.', 'review-captain' ) );
 			return null;
 		}
 		if ( ! $this->settings_require_writer( array( $tab ) ) ) {
@@ -460,7 +460,7 @@ class Commands {
 		if ( 'bool' === $field['type'] ) {
 			$bool = self::parse_bool( $given );
 			if ( null === $bool ) {
-				$this->out->error( __( 'Bitte gib 1 oder 0 (true/false, on/off, ja/nein) an.', 'review-captain' ) );
+				$this->out->error( __( 'Please give 1 or 0 (true/false, on/off, yes/no).', 'review-captain' ) );
 				return null;
 			}
 			$value = $bool;
@@ -497,16 +497,16 @@ class Commands {
 		}
 		if ( null !== $own ) {
 			/* translators: 1: setting key, 2: message */
-			$this->out->error( sprintf( __( '%1$s wurde nicht gespeichert: %2$s', 'review-captain' ), $tab . '.' . $key, $own ) );
+			$this->out->error( sprintf( __( '%1$s was not saved: %2$s', 'review-captain' ), $tab . '.' . $key, $own ) );
 			return $result;
 		}
 		if ( ! in_array( $tab . '.' . $key, $result['changed'], true ) ) {
 			/* translators: %s: setting key */
-			$this->out->success( sprintf( __( '%s ist unverändert.', 'review-captain' ), $tab . '.' . $key ) );
+			$this->out->success( sprintf( __( '%s is unchanged.', 'review-captain' ), $tab . '.' . $key ) );
 			return $result;
 		}
 		/* translators: 1: setting key, 2: value */
-		$this->out->success( sprintf( __( '%1$s gespeichert: %2$s', 'review-captain' ), $tab . '.' . $key, ConfigTransfer::display_value( self::settings_output_value( $key, $field, $this->plugin->settings()->get( $tab, $key ) ) ) ) );
+		$this->out->success( sprintf( __( '%1$s saved: %2$s', 'review-captain' ), $tab . '.' . $key, ConfigTransfer::display_value( self::settings_output_value( $key, $field, $this->plugin->settings()->get( $tab, $key ) ) ) ) );
 		return $result;
 	}
 
@@ -540,18 +540,18 @@ class Commands {
 		} else {
 			$tabs = array_values( array_unique( array_map( 'strval', $args ) ) );
 			if ( ! $tabs ) {
-				$this->out->error( __( 'Gib einen oder mehrere Bereiche an oder --all.', 'review-captain' ) );
+				$this->out->error( __( 'Give one or more sections or --all.', 'review-captain' ) );
 				return array();
 			}
 			$unknown = array_diff( $tabs, $known );
 			if ( $unknown ) {
 				/* translators: %s: tabs */
-				$this->out->error( sprintf( __( 'Unbekannter Bereich: %s', 'review-captain' ), implode( ', ', $unknown ) ) );
+				$this->out->error( sprintf( __( 'Unknown section: %s', 'review-captain' ), implode( ', ', $unknown ) ) );
 				return array();
 			}
 		}
 		if ( empty( $assoc['yes'] ) ) {
-			$this->out->error( __( 'Zurücksetzen nur mit --yes. Reviews, Profile und Verlauf bleiben unverändert; der vorherige Stand wird gesichert.', 'review-captain' ) );
+			$this->out->error( __( 'Reset only with --yes. Reviews, profiles and history stay unchanged; the previous state is backed up.', 'review-captain' ) );
 			return array();
 		}
 		if ( ! $this->settings_require_writer( empty( $assoc['all'] ) ? $tabs : array() ) ) {
@@ -562,19 +562,19 @@ class Commands {
 		$own = array_diff( $tabs, SettingsPage::resettable_tabs() );
 		if ( $own && empty( $assoc['all'] ) ) {
 			/* translators: %s: tabs */
-			$this->out->warning( sprintf( __( 'Nur Einstellungen von Erweiterungen, die beim Zurücksetzen erhalten bleiben: %s', 'review-captain' ), implode( ', ', $own ) ) );
+			$this->out->warning( sprintf( __( 'Add-on settings only, which are kept on reset: %s', 'review-captain' ), implode( ', ', $own ) ) );
 		}
 		$skipped = array_diff( $tabs, $done, $own );
 		if ( $skipped ) {
 			/* translators: %s: tabs */
-			$this->out->warning( sprintf( __( 'Ohne Berechtigung übersprungen: %s', 'review-captain' ), implode( ', ', $skipped ) ) );
+			$this->out->warning( sprintf( __( 'Skipped without permission: %s', 'review-captain' ), implode( ', ', $skipped ) ) );
 		}
 		if ( ! $done ) {
-			$this->out->error( __( 'Es wurde nichts zurückgesetzt.', 'review-captain' ) );
+			$this->out->error( __( 'Nothing was reset.', 'review-captain' ) );
 			return array();
 		}
 		/* translators: %s: tabs */
-		$this->out->success( sprintf( __( 'Zurückgesetzt: %s. Der vorherige Stand wurde gesichert.', 'review-captain' ), implode( ', ', $done ) ) );
+		$this->out->success( sprintf( __( 'Reset: %s. The previous state was backed up.', 'review-captain' ), implode( ', ', $done ) ) );
 		return $done;
 	}
 
@@ -596,11 +596,11 @@ class Commands {
 		$file = (string) $assoc['file'];
 		if ( false === file_put_contents( $file, $json . "\n" ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			/* translators: %s: file */
-			$this->out->error( sprintf( __( 'Datei %s konnte nicht geschrieben werden.', 'review-captain' ), $file ) );
+			$this->out->error( sprintf( __( 'File %s could not be written.', 'review-captain' ), $file ) );
 			return $doc;
 		}
 		/* translators: %s: file */
-		$this->out->success( sprintf( __( 'Konfiguration nach %s exportiert (ohne Zugangsdaten).', 'review-captain' ), $file ) );
+		$this->out->success( sprintf( __( 'Configuration exported to %s (without credentials).', 'review-captain' ), $file ) );
 		return $doc;
 	}
 
@@ -619,18 +619,18 @@ class Commands {
 		);
 		$file = (string) ( $args[0] ?? '' );
 		if ( '' === $file || ! is_readable( $file ) || ! is_file( $file ) ) {
-			$this->out->error( __( 'Importdatei nicht gefunden oder nicht lesbar.', 'review-captain' ) );
+			$this->out->error( __( 'Import file not found or not readable.', 'review-captain' ) );
 			return $none;
 		}
 		$size = (int) filesize( $file );
 		$json = $size > 0 && $size <= self::IMPORT_MAX_BYTES ? file_get_contents( $file ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$dry  = ! empty( $assoc['dry-run'] );
 		if ( ! is_string( $json ) ) {
-			$this->out->error( __( 'Die Datei ist leer oder größer als 200 KB.', 'review-captain' ) );
+			$this->out->error( __( 'The file is empty or larger than 200 KB.', 'review-captain' ) );
 			return $none;
 		}
 		if ( ! $dry && empty( $assoc['yes'] ) ) {
-			$this->out->error( __( 'Import nur mit --yes übernehmen oder mit --dry-run als Vorschau anzeigen.', 'review-captain' ) );
+			$this->out->error( __( 'Apply the import only with --yes, or show a preview with --dry-run.', 'review-captain' ) );
 			return $none;
 		}
 		if ( ! $this->settings_require_writer( array() ) ) {
@@ -640,7 +640,7 @@ class Commands {
 		$transfer = new ConfigTransfer( $this->plugin->settings() );
 		$preview  = $transfer->preview( $json, $tabs, SettingsPage::pro_writable() );
 		if ( null === $preview ) {
-			$this->out->error( __( 'Kein gültiger Review-Captain-Konfigurationsexport oder nicht unterstützte Version.', 'review-captain' ) );
+			$this->out->error( __( 'Not a valid Review Captain configuration export, or unsupported version.', 'review-captain' ) );
 			return $none;
 		}
 		if ( SettingsPage::migrate_access( $this->plugin->settings() ) ) {
@@ -649,7 +649,7 @@ class Commands {
 		foreach ( (array) ( $preview['kept'] ?? array() ) as $kept ) {
 			$names = array_map( static fn( $key ): string => $kept['tab'] . '.' . $key, (array) $kept['fields'] );
 			/* translators: 1: settings keys, 2: reason */
-			$this->out->warning( sprintf( __( 'Nicht übernommen, bisherige Werte bleiben: %1$s. %2$s', 'review-captain' ), implode( ', ', $names ), (string) $kept['message'] ) );
+			$this->out->warning( sprintf( __( 'Not applied, previous values are kept: %1$s. %2$s', 'review-captain' ), implode( ', ', $names ), (string) $kept['message'] ) );
 		}
 		$rows = array();
 		foreach ( $preview['diff'] as $row ) {
@@ -661,18 +661,18 @@ class Commands {
 			);
 		}
 		if ( ! $rows ) {
-			$this->out->success( __( 'Der Import enthält keine Änderungen gegenüber den aktuellen Einstellungen.', 'review-captain' ) );
+			$this->out->success( __( 'The import contains no changes compared to the current settings.', 'review-captain' ) );
 			return $none;
 		}
 		$this->out->table( $rows, array( 'key', 'old', 'new' ), (string) ( $assoc['format'] ?? 'table' ) );
 		$skipped = array_diff( array_keys( SettingsSchema::tabs() ), $tabs );
 		if ( $skipped ) {
 			/* translators: %s: tabs */
-			$this->out->warning( sprintf( __( 'Ohne Berechtigung nicht berücksichtigt: %s', 'review-captain' ), implode( ', ', $skipped ) ) );
+			$this->out->warning( sprintf( __( 'Ignored without permission: %s', 'review-captain' ), implode( ', ', $skipped ) ) );
 		}
 		if ( $dry ) {
 			/* translators: %d: number of changes */
-			$this->out->success( sprintf( __( 'Probelauf: %d Änderungen, nichts gespeichert.', 'review-captain' ), count( $rows ) ) );
+			$this->out->success( sprintf( __( 'Dry run: %d changes, nothing saved.', 'review-captain' ), count( $rows ) ) );
 			return array(
 				'diff'    => $rows,
 				'changed' => array(),
@@ -681,7 +681,7 @@ class Commands {
 		$changed = $this->settings_page()->apply_import( $preview['values'], $preview['tabs'] );
 		$this->plugin->settings()->flush();
 		/* translators: %d: number of changes */
-		$this->out->success( sprintf( __( '%d Einstellungen importiert. Der vorherige Stand wurde gesichert.', 'review-captain' ), count( $changed ) ) );
+		$this->out->success( sprintf( __( '%d settings imported. The previous state was backed up.', 'review-captain' ), count( $changed ) ) );
 		return array(
 			'diff'    => $rows,
 			'changed' => $changed,

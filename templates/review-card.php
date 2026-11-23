@@ -62,19 +62,19 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 		<?php if ( ! empty( $rc['source'] ) ) : ?>
 			<span class="rc-source rc-source--<?php echo esc_attr( $rc['source']['platform'] ); ?>"><?php echo esc_html( $rc['source']['label'] ); ?></span>
 			<?php if ( '' !== $rc['source']['url'] ) : ?>
-				<a class="rc-source__link" href="<?php echo esc_url( $rc['source']['url'] ); ?>" <?php echo $rc['source']['link_attrs']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string from EmbedPolicy. ?>><?php echo esc_html( $rc['source']['link_text'] ) . ( ! empty( $rc['source']['new_tab'] ) ? '<span class="rc-visually-hidden"> ' . esc_html__( '(öffnet in neuem Tab)', 'review-captain' ) . '</span>' : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped parts. ?></a>
+				<a class="rc-source__link" href="<?php echo esc_url( $rc['source']['url'] ); ?>" <?php echo $rc['source']['link_attrs']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string from EmbedPolicy. ?>><?php echo esc_html( $rc['source']['link_text'] ) . ( ! empty( $rc['source']['new_tab'] ) ? '<span class="rc-visually-hidden"> ' . esc_html__( '(opens in a new tab)', 'review-captain' ) . '</span>' : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped parts. ?></a>
 			<?php endif; ?>
 		<?php endif; ?>
 	</footer>
 	<?php if ( ! empty( $rc['report'] ) ) : ?>
 		<details class="rc-report">
-			<summary class="rc-report__toggle"><?php esc_html_e( 'Melden', 'review-captain' ); ?></summary>
+			<summary class="rc-report__toggle"><?php esc_html_e( 'Report', 'review-captain' ); ?></summary>
 			<form class="rc-report__form" method="post" action="<?php echo esc_url( $rc['report']['action'] ); ?>">
 				<?php wp_nonce_field( $rc['report']['nonce_action'], $rc['report']['nonce_name'], false ); ?>
 				<?php foreach ( $rc['report']['hidden'] as $rc_name => $rc_value ) : ?>
 					<input type="hidden" name="<?php echo esc_attr( $rc_name ); ?>" value="<?php echo esc_attr( $rc_value ); ?>" />
 				<?php endforeach; ?>
-				<label for="<?php echo esc_attr( 'rc-report-' . $rc['uuid'] ); ?>"><?php esc_html_e( 'Warum soll diese Bewertung geprüft werden?', 'review-captain' ); ?></label>
+				<label for="<?php echo esc_attr( 'rc-report-' . $rc['uuid'] ); ?>"><?php esc_html_e( 'Why should this review be checked?', 'review-captain' ); ?></label>
 				<select id="<?php echo esc_attr( 'rc-report-' . $rc['uuid'] ); ?>" name="rc_reason" required>
 					<?php foreach ( $rc['report']['reasons'] as $rc_key => $rc_label ) : ?>
 						<option value="<?php echo esc_attr( $rc_key ); ?>"><?php echo esc_html( $rc_label ); ?></option>
@@ -83,7 +83,7 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 				<?php if ( ! empty( $rc['report']['pow'] ) ) : ?>
 					<?php echo $rc['report']['pow']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in PowCaptcha::field() (SET-RC-11). ?>
 				<?php endif; ?>
-				<button type="submit" class="rc-report__submit"><?php esc_html_e( 'Meldung senden', 'review-captain' ); ?></button>
+				<button type="submit" class="rc-report__submit"><?php esc_html_e( 'Submit report', 'review-captain' ); ?></button>
 			</form>
 		</details>
 	<?php endif; ?>

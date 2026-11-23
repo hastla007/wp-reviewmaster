@@ -63,7 +63,7 @@ class PersonalData {
 			$items[] = array(
 				'group_id'          => self::GROUP_ID,
 				'group_label'       => __( 'Review Captain', 'review-captain' ),
-				'group_description' => __( 'Bewertungen und Erfahrungsberichte, die mit dieser E-Mail-Adresse oder diesem Benutzerkonto abgegeben wurden.', 'review-captain' ),
+				'group_description' => __( 'Reviews and testimonials submitted with this email address or user account.', 'review-captain' ),
 				'item_id'           => 'review-captain-review-' . $r->uuid,
 				'data'              => self::export_fields( $r ),
 			);
@@ -72,14 +72,14 @@ class PersonalData {
 			foreach ( ( new QuestionRepository() )->by_email( $email ) as $q ) {
 				$items[] = array(
 					'group_id'          => self::GROUP_ID . '-questions',
-					'group_label'       => __( 'Review Captain – Produktfragen', 'review-captain' ),
-					'group_description' => __( 'Fragen, die mit dieser E-Mail-Adresse gestellt wurden.', 'review-captain' ),
+					'group_label'       => __( 'Review Captain – Product questions', 'review-captain' ),
+					'group_description' => __( 'Questions asked with this email address.', 'review-captain' ),
 					'item_id'           => 'review-captain-question-' . (string) $q['uuid'],
 					'data'              => array_values(
 						array_filter(
 							array(
 								array(
-									'name'  => __( 'Frage', 'review-captain' ),
+									'name'  => __( 'Question', 'review-captain' ),
 									'value' => (string) $q['question'],
 								),
 								array(
@@ -87,11 +87,11 @@ class PersonalData {
 									'value' => (string) $q['author_name'],
 								),
 								array(
-									'name'  => __( 'E-Mail-Adresse', 'review-captain' ),
+									'name'  => __( 'Email address', 'review-captain' ),
 									'value' => (string) $q['author_email'],
 								),
 								array(
-									'name'  => __( 'Kontext', 'review-captain' ),
+									'name'  => __( 'Context', 'review-captain' ),
 									'value' => (string) $q['context_type'] . ':' . (string) $q['context_id'],
 								),
 								array(
@@ -99,7 +99,7 @@ class PersonalData {
 									'value' => (string) $q['status'],
 								),
 								array(
-									'name'  => __( 'Erstellt am (UTC)', 'review-captain' ),
+									'name'  => __( 'Created on (UTC)', 'review-captain' ),
 									'value' => (string) $q['created_at'],
 								),
 							),
@@ -157,7 +157,7 @@ class PersonalData {
 			}
 		}
 		if ( $retained > 0 ) {
-			$messages[] = __( 'Einige Bewertungen konnten nicht anonymisiert werden und wurden beibehalten.', 'review-captain' );
+			$messages[] = __( 'Some reviews could not be anonymized and were retained.', 'review-captain' );
 		}
 		if ( $removed > 0 ) {
 			Plugin::instance()->audit()->record(
@@ -184,7 +184,7 @@ class PersonalData {
 	 * @param Review $r Review.
 	 */
 	public function anonymize( Review $r ): bool {
-		$r->author_name    = __( 'Anonym', 'review-captain' );
+		$r->author_name    = __( 'Anonymous', 'review-captain' );
 		$r->author_email   = null;
 		$r->author_user_id = null;
 		foreach ( self::personal_meta_keys() as $key ) {
@@ -283,23 +283,23 @@ class PersonalData {
 	 */
 	private static function export_fields( Review $r ): array {
 		$fields = array(
-			__( 'Typ', 'review-captain' )                         => $r->kind->label(),
-			__( 'Plattform', 'review-captain' )                   => $r->platform->label(),
-			__( 'Bewertung', 'review-captain' )                   => null === $r->rating_value ? '' : sprintf( '%s / %s', self::num( $r->rating_value ), self::num( $r->rating_scale_max ) ),
-			__( 'Titel', 'review-captain' )                       => $r->title,
+			__( 'Type', 'review-captain' )                         => $r->kind->label(),
+			__( 'Platform', 'review-captain' )                   => $r->platform->label(),
+			__( 'Rating', 'review-captain' )                   => null === $r->rating_value ? '' : sprintf( '%s / %s', self::num( $r->rating_value ), self::num( $r->rating_scale_max ) ),
+			__( 'Title', 'review-captain' )                       => $r->title,
 			__( 'Text', 'review-captain' )                        => $r->body,
 			__( 'Name', 'review-captain' )                        => $r->author_name,
-			__( 'E-Mail-Adresse', 'review-captain' )              => (string) $r->author_email,
-			__( 'Benutzerkonto-ID', 'review-captain' )            => null === $r->author_user_id ? '' : (string) $r->author_user_id,
+			__( 'Email address', 'review-captain' )              => (string) $r->author_email,
+			__( 'User account ID', 'review-captain' )            => null === $r->author_user_id ? '' : (string) $r->author_user_id,
 			__( 'Status', 'review-captain' )                      => $r->status->label(),
-			__( 'Verifizierung', 'review-captain' )               => $r->verification->label(),
-			__( 'Kontext', 'review-captain' )                     => null === $r->context_type ? '' : $r->context_type . ':' . (string) $r->context_id,
-			__( 'Einwilligung zur Veröffentlichung', 'review-captain' ) => $r->consent_publish ? __( 'ja', 'review-captain' ) . ( $r->consent_at ? ' (' . $r->consent_at . ' UTC)' : '' ) : __( 'nein', 'review-captain' ),
-			__( 'Veröffentlicht am', 'review-captain' )           => (string) $r->published_at,
-			__( 'Erstellt am (UTC)', 'review-captain' )           => $r->created_at,
-			__( 'Foto', 'review-captain' )                        => null !== $r->id && null !== PhotoStore::for_review( $r->id ) ? __( 'ja (wird bei Löschung oder Anonymisierung entfernt)', 'review-captain' ) : '',
+			__( 'Verification', 'review-captain' )               => $r->verification->label(),
+			__( 'Context', 'review-captain' )                     => null === $r->context_type ? '' : $r->context_type . ':' . (string) $r->context_id,
+			__( 'Consent to publication', 'review-captain' ) => $r->consent_publish ? __( 'yes', 'review-captain' ) . ( $r->consent_at ? ' (' . $r->consent_at . ' UTC)' : '' ) : __( 'no', 'review-captain' ),
+			__( 'Published on', 'review-captain' )           => (string) $r->published_at,
+			__( 'Created on (UTC)', 'review-captain' )           => $r->created_at,
+			__( 'Photo', 'review-captain' )                        => null !== $r->id && null !== PhotoStore::for_review( $r->id ) ? __( 'yes (removed upon deletion or anonymization)', 'review-captain' ) : '',
 			// RC-125A: earlier and proposed versions of author corrections.
-			__( 'Fassungen (Korrekturen)', 'review-captain' )      => null === $r->id ? '' : implode(
+			__( 'Versions (corrections)', 'review-captain' )      => null === $r->id ? '' : implode(
 				"\n",
 				array_map(
 					static fn( array $v ): string => sprintf( '[%s %s] %s / %s – %s', $v['status'], $v['created_at'], self::num( (float) $v['rating_value'] ), $v['title'], $v['body'] ),

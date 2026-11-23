@@ -3,15 +3,15 @@
 	"apiVersion": 3,
 	"name": "review-captain/reviews",
 	"version": "1.0.0",
-	"title": "Bewertungen (Review Captain)",
+	"title": "Reviews (Review Captain)",
 	"category": "widgets",
 	"icon": "star-filled",
-	"description": "Freigegebene Bewertungen und Erfahrungsberichte als Raster oder Liste – serverseitig gerendert.",
+	"description": "Approved reviews and testimonials as a grid or list – rendered on the server.",
 	"keywords": [
 		"reviews",
-		"bewertungen",
+		"ratings",
 		"testimonials",
-		"sterne"
+		"stars"
 	],
 	"textdomain": "review-captain",
 	"supports": {

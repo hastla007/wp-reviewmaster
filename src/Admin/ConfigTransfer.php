@@ -254,7 +254,7 @@ final class ConfigTransfer {
 	 */
 	public static function display_value( mixed $value ): string {
 		if ( is_bool( $value ) ) {
-			return $value ? __( 'an', 'review-captain' ) : __( 'aus', 'review-captain' );
+			return $value ? __( 'on', 'review-captain' ) : __( 'off', 'review-captain' );
 		}
 		if ( is_array( $value ) ) {
 			return implode( ', ', array_map( 'strval', $value ) );

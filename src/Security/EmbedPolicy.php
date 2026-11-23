@@ -91,7 +91,7 @@ final class EmbedPolicy {
 	 * Screen reader hint for links opening a new tab.
 	 */
 	public static function new_tab_hint(): string {
-		return '<span class="rc-visually-hidden"> ' . esc_html__( '(öffnet in neuem Tab)', 'review-captain' ) . '</span>';
+		return '<span class="rc-visually-hidden"> ' . esc_html__( '(opens in a new tab)', 'review-captain' ) . '</span>';
 	}
 
 	/**
@@ -107,7 +107,7 @@ final class EmbedPolicy {
 			return '';
 		}
 		$host  = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
-		$title = '' !== trim( $title ) ? $title : __( 'Eingebetteter Inhalt', 'review-captain' );
+		$title = '' !== trim( $title ) ? $title : __( 'Embedded content', 'review-captain' );
 		if ( function_exists( 'wp_enqueue_script' ) ) {
 			wp_enqueue_script( self::SCRIPT_HANDLE );
 		}
@@ -118,19 +118,19 @@ final class EmbedPolicy {
 			esc_html(
 				sprintf(
 					/* translators: %s: third-party host name */
-					__( 'Beim Laden werden Daten an %s übertragen.', 'review-captain' ),
+					__( 'Loading this content transfers data to %s.', 'review-captain' ),
 					$host
 				)
 			),
 			esc_html(
 				sprintf(
 					/* translators: %s: content title */
-					__( 'Inhalt laden: %s', 'review-captain' ),
+					__( 'Load content: %s', 'review-captain' ),
 					$title
 				)
 			),
 			self::external_link_attrs( true ),
-			esc_html__( 'Beim Anbieter öffnen', 'review-captain' ),
+			esc_html__( 'Open on provider\'s site', 'review-captain' ),
 			self::new_tab_hint()
 		);
 	}

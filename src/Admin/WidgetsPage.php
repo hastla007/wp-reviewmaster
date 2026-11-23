@@ -136,7 +136,7 @@ final class WidgetsPage {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::MODERATE ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only generator.
 		$submitted = isset( $_GET['rc_gen'] );
@@ -149,61 +149,61 @@ final class WidgetsPage {
 
 		echo '<div class="wrap rc-admin">';
 		echo View::header( __( 'Widgets', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<p>' . esc_html__( 'Zeige ausgewählte Reviews auf deiner Website – als Block „Review Captain – Reviews“ im Editor oder per Shortcode. Die Ausgabe wird serverseitig erzeugt; es werden keine externen Skripte geladen.', 'review-captain' ) . '</p>';
+		echo '<p>' . esc_html__( 'Display selected reviews on your website – with the “Review Captain – Reviews” block in the editor or via shortcode. The output is generated server-side; no external scripts are loaded.', 'review-captain' ) . '</p>';
 
 		if ( 0 === $this->plugin->reviews()->count( array( 'status' => 'approved' ) ) ) {
-			echo View::notice( 'info', __( 'Noch keine freigegebenen Reviews – ein Widget zeigt dann den Leerzustand-Text aus den Darstellungs-Einstellungen.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo View::notice( 'info', __( 'No approved reviews yet – a widget will then show the empty state text from the display settings.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		echo '<div class="rc-admin-columns"><div class="rc-admin-main">';
-		echo '<h2>' . esc_html__( 'Shortcode erstellen', 'review-captain' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Create shortcode', 'review-captain' ) . '</h2>';
 		echo '<form method="get"><input type="hidden" name="page" value="' . esc_attr( self::SLUG ) . '" /><input type="hidden" name="rc_gen" value="1" />';
 		echo '<table class="form-table" role="presentation"><tbody>';
 
-		$this->select( 'layout', __( 'Layout', 'review-captain' ), array( 'grid' => __( 'Raster', 'review-captain' ), 'list' => __( 'Liste', 'review-captain' ) ), $atts['layout'], __( 'Karussell, Badge und Trustbar gibt es in Review Captain Pro.', 'review-captain' ) );
-		$this->select( 'platform', __( 'Plattform', 'review-captain' ), array( '' => __( 'Alle Plattformen', 'review-captain' ) ) + ReviewsPage::platform_choices(), $atts['platform'] );
+		$this->select( 'layout', __( 'Layout', 'review-captain' ), array( 'grid' => __( 'Grid', 'review-captain' ), 'list' => __( 'List', 'review-captain' ) ), $atts['layout'], __( 'Carousel, badge, and trust bar are available in Review Captain Pro.', 'review-captain' ) );
+		$this->select( 'platform', __( 'Platform', 'review-captain' ), array( '' => __( 'All platforms', 'review-captain' ) ) + ReviewsPage::platform_choices(), $atts['platform'] );
 		$this->select(
 			'kind',
-			__( 'Art', 'review-captain' ),
+			__( 'Content type', 'review-captain' ),
 			array(
-				'all'         => __( 'Bewertungen und Erfahrungsberichte', 'review-captain' ),
-				'review'      => __( 'Nur Bewertungen', 'review-captain' ),
-				'testimonial' => __( 'Nur Erfahrungsberichte', 'review-captain' ),
+				'all'         => __( 'Reviews and testimonials', 'review-captain' ),
+				'review'      => __( 'Reviews only', 'review-captain' ),
+				'testimonial' => __( 'Testimonials only', 'review-captain' ),
 			),
 			$atts['kind']
 		);
-		$ratings = array( '' => __( 'Keine Mindestbewertung', 'review-captain' ) );
+		$ratings = array( '' => __( 'No minimum rating', 'review-captain' ) );
 		for ( $i = 5; $i >= 1; $i-- ) {
 			/* translators: %d: stars */
-			$ratings[ (string) $i ] = sprintf( __( 'ab %d von 5', 'review-captain' ), $i );
+			$ratings[ (string) $i ] = sprintf( __( '%d out of 5 and up', 'review-captain' ), $i );
 		}
-		$this->select( 'min_rating', __( 'Mindestbewertung', 'review-captain' ), $ratings, $atts['min_rating'], __( 'Andere Skalen werden nur zum Filtern umgerechnet; angezeigt wird immer die Originalbewertung.', 'review-captain' ) );
-		echo '<tr><th scope="row"><label for="rc-w-limit">' . esc_html__( 'Anzahl', 'review-captain' ) . '</label></th><td><input type="number" min="1" max="50" id="rc-w-limit" name="limit" class="small-text" value="' . esc_attr( $atts['limit'] ) . '" /></td></tr>';
+		$this->select( 'min_rating', __( 'Minimum rating', 'review-captain' ), $ratings, $atts['min_rating'], __( 'Other scales are converted for filtering only; the original rating is always displayed.', 'review-captain' ) );
+		echo '<tr><th scope="row"><label for="rc-w-limit">' . esc_html__( 'Number', 'review-captain' ) . '</label></th><td><input type="number" min="1" max="50" id="rc-w-limit" name="limit" class="small-text" value="' . esc_attr( $atts['limit'] ) . '" /></td></tr>';
 		$contexts = array_intersect_key( ReviewsPage::context_choices(), array_flip( array_merge( array( '' ), self::CONTEXT_TYPES ) ) );
-		$this->select( 'context_type', __( 'Bezug', 'review-captain' ), $contexts, $atts['context_type'] );
-		echo '<tr><th scope="row"><label for="rc-w-context_id">' . esc_html__( 'Bezugs-ID', 'review-captain' ) . '</label></th><td><input type="text" id="rc-w-context_id" name="context_id" class="regular-text" value="' . esc_attr( $atts['context_id'] ) . '" /><p class="description">' . esc_html__( 'z. B. Produkt- oder Beitrags-ID. Leer = alle.', 'review-captain' ) . '</p></td></tr>';
-		$profiles = array( '' => __( 'Alle Profile', 'review-captain' ) );
+		$this->select( 'context_type', __( 'Reference', 'review-captain' ), $contexts, $atts['context_type'] );
+		echo '<tr><th scope="row"><label for="rc-w-context_id">' . esc_html__( 'Reference ID', 'review-captain' ) . '</label></th><td><input type="text" id="rc-w-context_id" name="context_id" class="regular-text" value="' . esc_attr( $atts['context_id'] ) . '" /><p class="description">' . esc_html__( 'E.g. product or post ID. Empty = all.', 'review-captain' ) . '</p></td></tr>';
+		$profiles = array( '' => __( 'All profiles', 'review-captain' ) );
 		foreach ( ( new Profiles() )->all() as $profile ) {
 			$profiles[ (string) $profile['id'] ] = (string) $profile['label'];
 		}
-		$this->select( 'profile', __( 'Profil', 'review-captain' ), $profiles, $atts['profile'] );
-		echo '<tr><th scope="row">' . esc_html__( 'Anzeige', 'review-captain' ) . '</th><td><fieldset><legend class="screen-reader-text">' . esc_html__( 'Anzeige', 'review-captain' ) . '</legend>';
-		echo '<input type="hidden" name="show_source" value="0" /><label><input type="checkbox" name="show_source" value="1"' . checked( $atts['show_source'], '1', false ) . ' /> ' . esc_html__( 'Quelle anzeigen', 'review-captain' ) . '</label><br />';
-		echo '<input type="hidden" name="show_date" value="0" /><label><input type="checkbox" name="show_date" value="1"' . checked( $atts['show_date'], '1', false ) . ' /> ' . esc_html__( 'Datum anzeigen', 'review-captain' ) . '</label>';
-		echo '<p class="description">' . esc_html__( 'Die Quellenangabe externer Bewertungen (Plattformname und Link) bleibt immer sichtbar.', 'review-captain' ) . '</p></fieldset></td></tr>';
-		echo '</tbody></table><p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Shortcode erzeugen', 'review-captain' ) . '</button></p></form>';
+		$this->select( 'profile', __( 'Profile', 'review-captain' ), $profiles, $atts['profile'] );
+		echo '<tr><th scope="row">' . esc_html__( 'Display', 'review-captain' ) . '</th><td><fieldset><legend class="screen-reader-text">' . esc_html__( 'Display', 'review-captain' ) . '</legend>';
+		echo '<input type="hidden" name="show_source" value="0" /><label><input type="checkbox" name="show_source" value="1"' . checked( $atts['show_source'], '1', false ) . ' /> ' . esc_html__( 'Show source', 'review-captain' ) . '</label><br />';
+		echo '<input type="hidden" name="show_date" value="0" /><label><input type="checkbox" name="show_date" value="1"' . checked( $atts['show_date'], '1', false ) . ' /> ' . esc_html__( 'Show date', 'review-captain' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Attribution for external reviews (platform name and link) always remains visible.', 'review-captain' ) . '</p></fieldset></td></tr>';
+		echo '</tbody></table><p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Generate shortcode', 'review-captain' ) . '</button></p></form>';
 		echo '</div><div class="rc-admin-side">';
 
-		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Dein Shortcode', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Your shortcode', 'review-captain' ) . '</h2></div><div class="inside">';
 		echo '<label class="screen-reader-text" for="rc-shortcode">' . esc_html__( 'Shortcode', 'review-captain' ) . '</label>';
 		echo '<textarea id="rc-shortcode" class="large-text code" rows="3" readonly>' . esc_textarea( $shortcode ) . '</textarea>';
-		echo '<p><button type="button" class="button rc-admin-copy" data-target="rc-shortcode" data-done="' . esc_attr__( 'Kopiert', 'review-captain' ) . '" hidden>' . esc_html__( 'Kopieren', 'review-captain' ) . '</button> <span class="rc-admin-copy-status" aria-live="polite"></span></p>';
-		echo '<p class="description">' . esc_html__( 'In einen Shortcode-Block, ein klassisches Textfeld oder ein Widget-Feld einfügen.', 'review-captain' ) . '</p></div></div>';
+		echo '<p><button type="button" class="button rc-admin-copy" data-target="rc-shortcode" data-done="' . esc_attr__( 'Copied', 'review-captain' ) . '" hidden>' . esc_html__( 'Copy', 'review-captain' ) . '</button> <span class="rc-admin-copy-status" aria-live="polite"></span></p>';
+		echo '<p class="description">' . esc_html__( 'Paste into a Shortcode block, a classic text field, or a widget field.', 'review-captain' ) . '</p></div></div>';
 
-		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Block-Editor', 'review-captain' ) . '</h2></div><div class="inside">';
-		echo '<p>' . esc_html__( 'Füge den Block „Review Captain – Reviews“ ein und stelle dieselben Optionen in der Seitenleiste ein. Für das Bewertungsformular gibt es den Block „Review Captain – Formular“ bzw. den Shortcode:', 'review-captain' ) . '</p>';
+		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Block editor', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<p>' . esc_html__( 'Insert the “Review Captain – Reviews” block and set the same options in the sidebar. For the review form, use the “Review Captain – Form” block or the shortcode:', 'review-captain' ) . '</p>';
 		echo '<p><code>[review_captain_form v="1"]</code></p>';
-		echo '<p class="description">' . esc_html__( 'Bewertungs-Markup für Suchmaschinen wird nur für freigegebene Bewertungen dieser Website ausgegeben – nie für externe Plattformbewertungen oder Erfahrungsberichte.', 'review-captain' ) . '</p></div></div>';
+		echo '<p class="description">' . esc_html__( 'Review markup for search engines is only output for approved reviews from this website – never for external platform reviews or testimonials.', 'review-captain' ) . '</p></div></div>';
 		echo '</div></div></div>';
 	}
 

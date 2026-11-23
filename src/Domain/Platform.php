@@ -26,13 +26,13 @@ enum Platform: string {
 	 */
 	public function label(): string {
 		return match ( $this ) {
-			self::LOCAL         => __( 'Diese Website', 'review-captain' ),
+			self::LOCAL         => __( 'This website', 'review-captain' ),
 			self::GOOGLE        => 'Google',
 			self::TRUSTPILOT    => 'Trustpilot',
 			self::TRUSTED_SHOPS => 'Trusted Shops',
 			self::APP_STORE     => 'App Store',
 			self::GOOGLE_PLAY   => 'Google Play',
-			self::OTHER         => __( 'Andere Plattform', 'review-captain' ),
+			self::OTHER         => __( 'Other platform', 'review-captain' ),
 		};
 	}
 

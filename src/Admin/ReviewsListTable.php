@@ -105,14 +105,14 @@ class ReviewsListTable extends \WP_List_Table {
 	public function get_columns() {
 		return array(
 			'cb'           => '<input type="checkbox" />',
-			'rating'       => __( 'Bewertung', 'review-captain' ),
+			'rating'       => __( 'Rating', 'review-captain' ),
 			'excerpt'      => __( 'Text', 'review-captain' ),
-			'author'       => __( 'Autor', 'review-captain' ),
-			'platform'     => __( 'Plattform / Quelle', 'review-captain' ),
-			'kind'         => __( 'Typ', 'review-captain' ),
-			'verification' => __( 'Verifizierung', 'review-captain' ),
+			'author'       => __( 'Author', 'review-captain' ),
+			'platform'     => __( 'Platform / source', 'review-captain' ),
+			'kind'         => __( 'Type', 'review-captain' ),
+			'verification' => __( 'Verification', 'review-captain' ),
 			'status'       => __( 'Status', 'review-captain' ),
-			'date'         => __( 'Datum', 'review-captain' ),
+			'date'         => __( 'Date', 'review-captain' ),
 		);
 	}
 
@@ -138,9 +138,9 @@ class ReviewsListTable extends \WP_List_Table {
 			return array();
 		}
 		return array(
-			'approve' => __( 'Freigeben', 'review-captain' ),
-			'reject'  => __( 'Ablehnen', 'review-captain' ),
-			'archive' => __( 'Archivieren', 'review-captain' ),
+			'approve' => __( 'Approve', 'review-captain' ),
+			'reject'  => __( 'Reject', 'review-captain' ),
+			'archive' => __( 'Archive', 'review-captain' ),
 		);
 	}
 
@@ -159,7 +159,7 @@ class ReviewsListTable extends \WP_List_Table {
 				'<a href="%s"%s>%s <span class="count">(%s)</span></a>',
 				esc_url( $base ),
 				'' === $current ? ' class="current" aria-current="page"' : '',
-				esc_html__( 'Alle', 'review-captain' ),
+				esc_html__( 'All', 'review-captain' ),
 				esc_html( number_format_i18n( $all ) )
 			),
 		);
@@ -219,10 +219,10 @@ class ReviewsListTable extends \WP_List_Table {
 			}
 		}
 		if ( $filtered ) {
-			echo esc_html__( 'Keine Reviews für diese Filter.', 'review-captain' ) . ' <a href="' . esc_url( View::page_url( ReviewsPage::SLUG ) ) . '">' . esc_html__( 'Filter zurücksetzen', 'review-captain' ) . '</a>';
+			echo esc_html__( 'No reviews match these filters.', 'review-captain' ) . ' <a href="' . esc_url( View::page_url( ReviewsPage::SLUG ) ) . '">' . esc_html__( 'Reset filters', 'review-captain' ) . '</a>';
 			return;
 		}
-		echo esc_html__( 'Noch keine Reviews. Lege dein erstes Review an oder sammle Bewertungen mit einem Formular.', 'review-captain' ) . ' <a href="' . esc_url( View::page_url( ReviewsPage::SLUG, array( 'action' => 'new' ) ) ) . '">' . esc_html__( 'Neu hinzufügen', 'review-captain' ) . '</a>';
+		echo esc_html__( 'No reviews yet. Create your first review or collect reviews with a form.', 'review-captain' ) . ' <a href="' . esc_url( View::page_url( ReviewsPage::SLUG, array( 'action' => 'new' ) ) ) . '">' . esc_html__( 'Add new', 'review-captain' ) . '</a>';
 	}
 
 	/**
@@ -235,7 +235,7 @@ class ReviewsListTable extends \WP_List_Table {
 			return;
 		}
 		echo '<div class="alignleft actions">';
-		echo '<label for="rc-bulk-reason">' . esc_html__( 'Grund (Pflicht bei Ablehnen/Archivieren)', 'review-captain' ) . '</label> ';
+		echo '<label for="rc-bulk-reason">' . esc_html__( 'Reason (required when rejecting/archiving)', 'review-captain' ) . '</label> ';
 		echo '<input type="text" id="rc-bulk-reason" name="bulk_reason" class="regular-text" maxlength="500" />';
 		echo '</div>';
 	}
@@ -246,7 +246,7 @@ class ReviewsListTable extends \WP_List_Table {
 	 * @param Review $item Review.
 	 */
 	protected function column_cb( $item ) {
-		return '<label class="screen-reader-text" for="rc-cb-' . esc_attr( (string) $item->id ) . '">' . esc_html__( 'Auswählen', 'review-captain' ) . '</label>'
+		return '<label class="screen-reader-text" for="rc-cb-' . esc_attr( (string) $item->id ) . '">' . esc_html__( 'Select', 'review-captain' ) . '</label>'
 			. '<input type="checkbox" id="rc-cb-' . esc_attr( (string) $item->id ) . '" name="review[]" value="' . esc_attr( (string) $item->id ) . '" />';
 	}
 
@@ -267,8 +267,8 @@ class ReviewsListTable extends \WP_List_Table {
 	protected function column_excerpt( $item ) {
 		$edit  = View::page_url( ReviewsPage::SLUG, array( 'action' => 'edit', 'id' => $item->id ) );
 		$text  = '' !== $item->title ? $item->title . ' – ' . $item->body : $item->body;
-		$html  = '<a class="row-title" href="' . esc_url( $edit ) . '">' . esc_html( View::excerpt( $text, 80 ) ?: __( '(ohne Text)', 'review-captain' ) ) . '</a>';
-		$extra = $item->platform->is_external() ? __( 'Ansehen', 'review-captain' ) : __( 'Bearbeiten', 'review-captain' );
+		$html  = '<a class="row-title" href="' . esc_url( $edit ) . '">' . esc_html( View::excerpt( $text, 80 ) ?: __( '(no text)', 'review-captain' ) ) . '</a>';
+		$extra = $item->platform->is_external() ? __( 'View', 'review-captain' ) : __( 'Edit', 'review-captain' );
 
 		$actions = array( 'edit' => '<a href="' . esc_url( $edit ) . '">' . esc_html( $extra ) . '</a>' );
 		if ( $item->status->can_transition_to( ReviewStatus::APPROVED ) ) {
@@ -281,16 +281,16 @@ class ReviewsListTable extends \WP_List_Table {
 						'back' => 'list',
 					)
 				)
-			) . '">' . esc_html__( 'Freigeben', 'review-captain' ) . '</a>';
+			) . '">' . esc_html__( 'Approve', 'review-captain' ) . '</a>';
 		}
 		if ( $item->status->can_transition_to( ReviewStatus::REJECTED ) ) {
-			$actions['reject'] = '<a href="' . esc_url( $edit . '#rc-moderation' ) . '">' . esc_html__( 'Ablehnen …', 'review-captain' ) . '</a>';
+			$actions['reject'] = '<a href="' . esc_url( $edit . '#rc-moderation' ) . '">' . esc_html__( 'Reject …', 'review-captain' ) . '</a>';
 		}
 		if ( $item->status->can_transition_to( ReviewStatus::ARCHIVED ) ) {
-			$actions['archive'] = '<a href="' . esc_url( $edit . '#rc-moderation' ) . '">' . esc_html__( 'Archivieren …', 'review-captain' ) . '</a>';
+			$actions['archive'] = '<a href="' . esc_url( $edit . '#rc-moderation' ) . '">' . esc_html__( 'Archive …', 'review-captain' ) . '</a>';
 		}
 		if ( null !== $item->source_url && Profiles::is_https( $item->source_url ) ) {
-			$actions['source'] = '<a href="' . esc_url( $item->source_url ) . '" target="_blank" rel="noopener noreferrer nofollow">' . esc_html__( 'Quelle öffnen', 'review-captain' ) . '<span class="screen-reader-text"> ' . esc_html__( '(öffnet in neuem Tab)', 'review-captain' ) . '</span> ↗</a>';
+			$actions['source'] = '<a href="' . esc_url( $item->source_url ) . '" target="_blank" rel="noopener noreferrer nofollow">' . esc_html__( 'Open source', 'review-captain' ) . '<span class="screen-reader-text"> ' . esc_html__( '(opens in a new tab)', 'review-captain' ) . '</span> ↗</a>';
 		}
 		return $html . $this->row_actions( $actions );
 	}
@@ -301,7 +301,7 @@ class ReviewsListTable extends \WP_List_Table {
 	 * @param Review $item Review.
 	 */
 	protected function column_author( $item ) {
-		return esc_html( '' !== $item->author_name ? $item->author_name : __( 'Anonym', 'review-captain' ) );
+		return esc_html( '' !== $item->author_name ? $item->author_name : __( 'Anonymous', 'review-captain' ) );
 	}
 
 	/**
@@ -312,7 +312,7 @@ class ReviewsListTable extends \WP_List_Table {
 	protected function column_platform( $item ) {
 		$html = esc_html( $item->platform->label() );
 		if ( null !== $item->profile_id ) {
-			$label = $this->profile_labels[ $item->profile_id ] ?? __( 'Profil gelöscht', 'review-captain' );
+			$label = $this->profile_labels[ $item->profile_id ] ?? __( 'Profile deleted', 'review-captain' );
 			$html .= '<br /><span class="description">' . esc_html( $label ) . '</span>';
 		}
 		return $html;

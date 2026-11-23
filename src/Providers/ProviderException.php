@@ -62,6 +62,6 @@ class ProviderException extends ConnectorException {
 			default                           => ErrorCode::DATA_INVALID_PAYLOAD,
 		};
 		/* translators: %d: HTTP status code */
-		return new self( $code, sprintf( __( 'Anbieter antwortete mit HTTP %d.', 'review-captain' ), $status ), $retry_after );
+		return new self( $code, sprintf( __( 'Provider responded with HTTP %d.', 'review-captain' ), $status ), $retry_after );
 	}
 }

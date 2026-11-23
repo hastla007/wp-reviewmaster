@@ -85,7 +85,7 @@ final class FixtureProvider implements ProviderInterface {
 
 	/** {@inheritDoc} */
 	public function label(): string {
-		return __( 'Demo-Bewertungen (Fixture)', 'review-captain' );
+		return __( 'Demo reviews (fixture)', 'review-captain' );
 	}
 
 	/** {@inheritDoc} */
@@ -113,7 +113,7 @@ final class FixtureProvider implements ProviderInterface {
 	public function test_connection( array $credentials ): ProviderResult {
 		$key = (string) ( $credentials['api_key'] ?? '' );
 		if ( '' === $key || 'invalid' === $key ) {
-			return ProviderResult::error( ErrorCode::AUTH_INVALID, __( 'API-Schlüssel fehlt oder wurde abgelehnt.', 'review-captain' ) );
+			return ProviderResult::error( ErrorCode::AUTH_INVALID, __( 'API key is missing or was rejected.', 'review-captain' ) );
 		}
 		return ProviderResult::ok(
 			array(
@@ -166,7 +166,7 @@ final class FixtureProvider implements ProviderInterface {
 			}
 		}
 		if ( null === $response ) {
-			throw new ProviderException( ErrorCode::DATA_INVALID_PAYLOAD, __( 'Unbekannter Cursor.', 'review-captain' ) );
+			throw new ProviderException( ErrorCode::DATA_INVALID_PAYLOAD, __( 'Unknown cursor.', 'review-captain' ) );
 		}
 		if ( isset( $response['quota'] ) && is_array( $response['quota'] ) ) {
 			$this->quota = array(

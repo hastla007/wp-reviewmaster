@@ -102,7 +102,7 @@ final class PhotoReviewTest extends M7TestCase {
 		$this->assertStringContainsString( 'rc-card__photo', $html );
 		$this->assertStringContainsString( 'action=review_captain_photo', $html );
 		$this->assertStringContainsString( 'loading="lazy"', $html );
-		$this->assertStringContainsString( 'alt="Foto zur Bewertung von Carla"', $html );
+		$this->assertStringContainsString( 'alt="Photo for review by Carla"', $html );
 
 		Plugin::instance()->reviews()->change_status( (int) $review->id, ReviewStatus::FLAGGED );
 		$this->assertNull( PhotoStore::resolve( $review->uuid, false ), 'hidden again when no longer approved' );

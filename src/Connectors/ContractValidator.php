@@ -85,7 +85,7 @@ final class ContractValidator {
 		);
 
 		if ( ! $candidate instanceof ConnectorInterface ) {
-			return self::result( self::OUTCOME_REJECTED, ErrorCode::CONTRACT_INCOMPATIBLE, array( __( 'Objekt implementiert ConnectorInterface nicht.', 'review-captain' ) ), array(), $meta );
+			return self::result( self::OUTCOME_REJECTED, ErrorCode::CONTRACT_INCOMPATIBLE, array( __( 'Object does not implement ConnectorInterface.', 'review-captain' ) ), array(), $meta );
 		}
 
 		try {
@@ -96,7 +96,7 @@ final class ContractValidator {
 			$developer        = $candidate->developer();
 			$capabilities     = $candidate->capabilities();
 		} catch ( \Throwable $e ) {
-			return self::result( self::OUTCOME_REJECTED, ErrorCode::CONTRACT_INVALID, array( __( 'Metadaten-Methode hat einen Fehler ausgelöst.', 'review-captain' ) ), array(), $meta );
+			return self::result( self::OUTCOME_REJECTED, ErrorCode::CONTRACT_INVALID, array( __( 'Metadata method threw an error.', 'review-captain' ) ), array(), $meta );
 		}
 
 		$meta['key']              = $key;
@@ -107,24 +107,24 @@ final class ContractValidator {
 
 		if ( ! preg_match( self::KEY_PATTERN, $key ) ) {
 			$meta['key'] = null;
-			return self::result( self::OUTCOME_REJECTED, ErrorCode::DATA_INVALID_PAYLOAD, array( __( 'Ungültiger Connector-Schlüssel.', 'review-captain' ) ), array(), $meta );
+			return self::result( self::OUTCOME_REJECTED, ErrorCode::DATA_INVALID_PAYLOAD, array( __( 'Invalid connector key.', 'review-captain' ) ), array(), $meta );
 		}
 		if ( ! $allow_reserved && self::is_reserved( $key ) ) {
-			return self::result( self::OUTCOME_REJECTED, ErrorCode::CONTRACT_INVALID, array( __( 'Der Schlüssel ist für offizielle Adapter reserviert.', 'review-captain' ) ), array(), $meta );
+			return self::result( self::OUTCOME_REJECTED, ErrorCode::CONTRACT_INVALID, array( __( 'This key is reserved for official adapters.', 'review-captain' ) ), array(), $meta );
 		}
 
 		$errors = array();
 		if ( ! self::valid_text( $label, 191 ) ) {
-			$errors[] = __( 'Bezeichnung fehlt oder ist zu lang.', 'review-captain' );
+			$errors[] = __( 'Label is missing or too long.', 'review-captain' );
 		}
 		if ( ! self::valid_text( $developer, 191 ) ) {
-			$errors[] = __( 'Entwicklerangabe fehlt oder ist zu lang.', 'review-captain' );
+			$errors[] = __( 'Developer information is missing or too long.', 'review-captain' );
 		}
 		if ( ! self::valid_text( $version, 64 ) ) {
-			$errors[] = __( 'Version fehlt oder ist zu lang.', 'review-captain' );
+			$errors[] = __( 'Version is missing or too long.', 'review-captain' );
 		}
 		if ( array() === $capabilities ) {
-			$errors[] = __( 'Keine Fähigkeiten deklariert.', 'review-captain' );
+			$errors[] = __( 'No capabilities declared.', 'review-captain' );
 		}
 		if ( $errors ) {
 			return self::result( self::OUTCOME_REJECTED, ErrorCode::CONTRACT_INVALID, $errors, array(), $meta );
@@ -137,11 +137,11 @@ final class ContractValidator {
 		$clean = array();
 		foreach ( $capabilities as $cap ) {
 			if ( ! is_string( $cap ) ) {
-				$incompatible[] = __( 'Fähigkeit ist kein Text.', 'review-captain' );
+				$incompatible[] = __( 'Capability is not a string.', 'review-captain' );
 				continue;
 			}
 			if ( in_array( $cap, $clean, true ) ) {
-				$notices[] = sprintf( /* translators: %s: capability */ __( 'Doppelte Fähigkeit „%s“ wurde zusammengeführt.', 'review-captain' ), $cap );
+				$notices[] = sprintf( /* translators: %s: capability */ __( 'Duplicate capability “%s” was merged.', 'review-captain' ), $cap );
 				continue;
 			}
 			$clean[] = $cap;
@@ -149,19 +149,19 @@ final class ContractValidator {
 		$meta['capabilities'] = $clean;
 
 		if ( ! preg_match( self::CONTRACT_PATTERN, $contract_version, $m ) ) {
-			$incompatible[] = sprintf( /* translators: %s: version */ __( 'Vertragsversion „%s“ wird nicht unterstützt (erwartet 1.x).', 'review-captain' ), $contract_version );
+			$incompatible[] = sprintf( /* translators: %s: version */ __( 'Contract version “%s” is not supported (expected 1.x).', 'review-captain' ), $contract_version );
 		} elseif ( 'x' !== $m[1] && (int) $m[1] > self::CORE_CONTRACT_MINOR ) {
-			$notices[] = sprintf( /* translators: 1: connector contract, 2: core contract */ __( 'Connector meldet Vertrag %1$s, der Core unterstützt %2$s; zusätzliche Fähigkeiten werden ignoriert.', 'review-captain' ), $contract_version, self::CORE_CONTRACT );
+			$notices[] = sprintf( /* translators: 1: connector contract, 2: core contract */ __( 'Connector reports contract %1$s, core supports %2$s; additional capabilities are ignored.', 'review-captain' ), $contract_version, self::CORE_CONTRACT );
 		}
 
 		foreach ( $clean as $cap ) {
 			if ( ! isset( self::CAPABILITIES[ $cap ] ) ) {
-				$incompatible[] = sprintf( /* translators: %s: capability */ __( 'Unbekannte Fähigkeit „%s“.', 'review-captain' ), $cap );
+				$incompatible[] = sprintf( /* translators: %s: capability */ __( 'Unknown capability “%s”.', 'review-captain' ), $cap );
 				continue;
 			}
 			$interface = self::CAPABILITIES[ $cap ];
 			if ( ! $candidate instanceof $interface ) {
-				$incompatible[] = sprintf( /* translators: %s: capability */ __( 'Fähigkeit „%s“ deklariert, aber Interface fehlt.', 'review-captain' ), $cap );
+				$incompatible[] = sprintf( /* translators: %s: capability */ __( 'Capability “%s” declared, but interface is missing.', 'review-captain' ), $cap );
 			}
 		}
 

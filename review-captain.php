@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Review Captain
  * Plugin URI:        https://github.com/hastla007/wp-reviewmaster
- * Description:       Authentische, sauber attribuierte Kundenbewertungen und Testimonials in WordPress verwalten und anzeigen – ohne Scraping und ohne Lizenzpflicht.
+ * Description:       Manage and display authentic, properly attributed customer reviews and testimonials in WordPress – no scraping, no license required.
  * Version:           0.1.0-dev
  * Requires at least: 7.0
  * Requires PHP:      8.5
@@ -51,7 +51,7 @@ if ( ! $review_captain_php_ok || version_compare( get_bloginfo( 'version' ), REV
 				esc_html(
 					sprintf(
 						/* translators: 1: required PHP version, 2: required WordPress version */
-						__( 'Review Captain benötigt mindestens PHP %1$s und WordPress %2$s. Das Plugin ist deshalb inaktiv.', 'review-captain' ),
+						__( 'Review Captain requires at least PHP %1$s and WordPress %2$s. The plugin is therefore inactive.', 'review-captain' ),
 						REVIEW_CAPTAIN_MIN_PHP,
 						REVIEW_CAPTAIN_MIN_WP
 					)

@@ -38,7 +38,7 @@ final class SettingsAccessibilityTest extends AdminTestCase {
 		$this->login_with( Capabilities::MANAGE_SETTINGS );
 		$html = $this->render_tab( 'general' );
 		// Row label points at the checkbox, so the accessible name is "Pro-Hinweise zeigen Aktiv", not only "Aktiv".
-		$this->assertStringContainsString( '<th scope="row"><label for="rc-general-show_pro_hints">Pro-Hinweise zeigen</label></th>', $html );
+		$this->assertStringContainsString( '<th scope="row"><label for="rc-general-show_pro_hints">Show Pro hints</label></th>', $html );
 	}
 
 	public function test_choice_list_carries_id_help_text_and_error_state(): void {
@@ -47,7 +47,7 @@ final class SettingsAccessibilityTest extends AdminTestCase {
 		$this->assertMatchesRegularExpression( '/<fieldset id="rc-display-schema_contexts" tabindex="-1" aria-describedby="rc-display-schema_contexts-desc">/', $html );
 		$this->assertStringContainsString( 'id="rc-display-schema_contexts-desc"', $html );
 		// Choices carry readable names, not the stored keys.
-		$this->assertMatchesRegularExpression( '/value="post"[^>]*\/> Beiträge<\/label>/', $html );
+		$this->assertMatchesRegularExpression( '/value="post"[^>]*\/> Posts<\/label>/', $html );
 	}
 
 	public function test_error_list_takes_focus(): void {
@@ -56,7 +56,7 @@ final class SettingsAccessibilityTest extends AdminTestCase {
 			'review_captain_settings_errors_' . get_current_user_id(),
 			array(
 				'tab'    => 'submissions',
-				'errors' => array( 'submissions-min_text_length' => 'Bitte gib eine ganze Zahl ein.' ),
+				'errors' => array( 'submissions-min_text_length' => 'Please enter a whole number.' ),
 				'given'  => array( 'min_text_length' => 'x' ),
 			),
 			60
@@ -68,9 +68,9 @@ final class SettingsAccessibilityTest extends AdminTestCase {
 	public function test_hint_link_names_its_hint(): void {
 		$html = SettingsHints::render(
 			array(
-				array( 'id' => 'a.b', 'tab' => 'general', 'title' => 'Auswertungen', 'text' => 'Ein Satz.', 'link' => 'https://shop.example.test/' ),
+				array( 'id' => 'a.b', 'tab' => 'general', 'title' => 'Analytics', 'text' => 'Ein Satz.', 'link' => 'https://shop.example.test/' ),
 			)
 		);
-		$this->assertStringContainsString( 'aria-label="Mehr erfahren: Auswertungen">Mehr erfahren</a>', $html );
+		$this->assertStringContainsString( 'aria-label="Learn more: Analytics">Learn more</a>', $html );
 	}
 }

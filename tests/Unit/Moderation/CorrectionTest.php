@@ -74,7 +74,7 @@ final class CorrectionTest extends TestCase {
 		$this->review();
 		$h = new CorrectionHandler( Plugin::instance() );
 		$h->process( array( 'op' => 'request', 'rc_email' => 'erika@example.org', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
-		$this->assertSame( 'Ihre Bewertung bei Testsite bearbeiten', \RC_Test_State::$mails[0]['subject'], 'empty = site title' );
+		$this->assertSame( 'Edit your review on Testsite', \RC_Test_State::$mails[0]['subject'], 'empty = site title' );
 
 		$s                             = Plugin::instance()->settings()->all();
 		$s['general']['brand_name']    = 'Laden Erika';
@@ -82,8 +82,8 @@ final class CorrectionTest extends TestCase {
 		Plugin::instance()->settings()->flush();
 		$h->process( array( 'op' => 'request', 'rc_email' => 'erika@example.org', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
 		$last = end( \RC_Test_State::$mails );
-		$this->assertSame( 'Ihre Bewertung bei Laden Erika bearbeiten', $last['subject'] );
-		$this->assertStringContainsString( 'Bewertung bei Laden Erika korrigieren', $last['message'] );
+		$this->assertSame( 'Edit your review on Laden Erika', $last['subject'] );
+		$this->assertStringContainsString( 'correct or withdraw your review at Laden Erika', $last['message'] );
 	}
 
 	public function test_bad_nonce_and_bad_token(): void {
@@ -99,7 +99,7 @@ final class CorrectionTest extends TestCase {
 		$svc    = new CorrectionService( Plugin::instance() );
 		$token  = $svc->issue_links( 'erika@example.org' )[ (int) $r->id ];
 		$h      = new CorrectionHandler( Plugin::instance() );
-		$res    = $h->process( array( 'op' => 'submit', 'rc_token' => $token, 'rc_rating' => '5', 'rc_title' => 'Neu', 'rc_body' => 'Korrigierter Bewertungstext mit genug Zeichen.', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
+		$res    = $h->process( array( 'op' => 'submit', 'rc_token' => $token, 'rc_rating' => '5', 'rc_title' => 'New', 'rc_body' => 'Korrigierter Bewertungstext mit genug Zeichen.', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
 		$this->assertSame( 'proposed', $res['result'] );
 		$this->assertSame( 'Alt', Plugin::instance()->reviews()->find( (int) $r->id )->title, 'public review unchanged' );
 		$this->assertNull( $svc->review_for_token( $token ), 'token is single use' );
@@ -110,7 +110,7 @@ final class CorrectionTest extends TestCase {
 		$url = ( new CorrectionsPage( Plugin::instance() ) )->decide( array( 'revision' => $open[0]['id'], 'decision' => 'approve', '_wpnonce' => wp_create_nonce( CorrectionsPage::NONCE_ACTION ) ) );
 		$this->assertStringContainsString( 'correction_approved', $url );
 		$now = Plugin::instance()->reviews()->find( (int) $r->id );
-		$this->assertSame( 'Neu', $now->title );
+		$this->assertSame( 'New', $now->title );
 		$this->assertSame( 5.0, $now->rating_value );
 		$this->assertNotEmpty( $now->meta['edited_at'] );
 		$versions = CorrectionService::versions( (int) $r->id );

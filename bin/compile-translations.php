@@ -6,6 +6,8 @@
  *   php bin/compile-translations.php           # check + write .mo/.json
  *   php bin/compile-translations.php --check   # check only (CI): .mo/.json up to date, placeholders consistent
  *
+ * Before compiling, bin/derive-de-variants.php writes (or with --check: verifies) de_AT and de_CH.
+ *
  * JSON file names follow WordPress: review-captain-{locale}-{md5(relative script path)}.json.
  * Entries with msgctxt (_x(), block.json fields) are keyed "context\x04msgid" like gettext and Jed.
  */
@@ -136,6 +138,11 @@ if ( $check ) {
 		}
 		$errors[] = 'languages/review-captain.pot is out of date (run php bin/make-pot.php, then translate the new strings)';
 	}
+}
+// SET-RC-14: de_AT and de_CH are derived from de_DE and de_DE_formal.
+exec( escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __DIR__ . '/derive-de-variants.php' ) . ( $check ? ' --check' : '' ) . ' 2>&1', $derive_output, $status ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- CLI build script, fixed arguments.
+if ( 0 !== $status ) {
+	$errors[] = implode( ' ', $derive_output );
 }
 foreach ( glob( $root . '/languages/review-captain-*.po' ) as $po_file ) {
 	$locale  = substr( basename( $po_file, '.po' ), strlen( 'review-captain-' ) );

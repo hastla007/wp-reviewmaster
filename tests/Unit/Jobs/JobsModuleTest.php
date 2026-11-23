@@ -71,9 +71,9 @@ final class JobsModuleTest extends TestCase {
 		ob_start();
 		( $sections['jobs']['render'] )();
 		$html = (string) ob_get_clean();
-		$this->assertStringContainsString( 'Wartend', $html );
-		$this->assertStringContainsString( 'System-Cron', $html );
-		$this->assertStringContainsString( 'frühestens', $html );
+		$this->assertStringContainsString( 'Pending', $html );
+		$this->assertStringContainsString( 'system cron', $html );
+		$this->assertStringContainsString( 'at the earliest', $html );
 		$this->assertStringNotContainsString( '<script', $html );
 	}
 }

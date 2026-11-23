@@ -85,7 +85,7 @@ class Registry {
 				'key'        => null,
 				'class'      => get_class( $e ),
 				'error_code' => ErrorCode::INTERNAL,
-				'messages'   => array( __( 'Ein Registrierungs-Callback hat einen Fehler ausgelöst.', 'review-captain' ) ),
+				'messages'   => array( __( 'A registration callback threw an error.', 'review-captain' ) ),
 			);
 		}
 		$this->remember_known();
@@ -110,7 +110,7 @@ class Registry {
 			$result = array(
 				'outcome'    => ContractValidator::OUTCOME_REJECTED,
 				'error_code' => ErrorCode::INTERNAL,
-				'messages'   => array( __( 'Validierung fehlgeschlagen.', 'review-captain' ) ),
+				'messages'   => array( __( 'Validation failed.', 'review-captain' ) ),
 				'notices'    => array(),
 				'meta'       => array(
 					'key'   => null,
@@ -126,7 +126,7 @@ class Registry {
 
 		$key = (string) $result['meta']['key'];
 		if ( isset( $this->entries[ $key ] ) ) {
-			$this->reject( $key, (string) $result['meta']['class'], ErrorCode::DATA_DUPLICATE, array( __( 'Doppelter Schlüssel – die erste Registrierung bleibt bestehen.', 'review-captain' ) ) );
+			$this->reject( $key, (string) $result['meta']['class'], ErrorCode::DATA_DUPLICATE, array( __( 'Duplicate key – the first registration is kept.', 'review-captain' ) ) );
 			return false;
 		}
 
@@ -238,13 +238,13 @@ class Registry {
 				return array(
 					'state'       => self::STATE_SOURCE_UNAVAILABLE,
 					'error_code'  => ErrorCode::SOURCE_UNAVAILABLE,
-					'next_action' => __( 'Das Quell- bzw. Connector-Plugin ist nicht aktiv. Plugin wieder aktivieren; offene Vorgänge werden erst nach erneuter Prüfung von Vertrag, Einwilligung und Fristen fortgesetzt.', 'review-captain' ),
+					'next_action' => __( 'The source or connector plugin is not active. Reactivate the plugin; pending operations will only resume after the contract, consent, and deadlines have been rechecked.', 'review-captain' ),
 				);
 			}
 			return array(
 				'state'       => self::STATE_INACTIVE,
 				'error_code'  => null,
-				'next_action' => __( 'Connector ist nicht registriert.', 'review-captain' ),
+				'next_action' => __( 'Connector is not registered.', 'review-captain' ),
 			);
 		}
 
@@ -253,7 +253,7 @@ class Registry {
 			return array(
 				'state'       => self::STATE_PAUSED,
 				'error_code'  => ErrorCode::CONTRACT_INCOMPATIBLE,
-				'next_action' => __( 'Connector auf eine mit Vertrag 1.x kompatible Version aktualisieren. Bis dahin wird er nicht ausgeführt.', 'review-captain' ),
+				'next_action' => __( 'Update the connector to a version compatible with contract 1.x. Until then, it will not run.', 'review-captain' ),
 			);
 		}
 
@@ -262,20 +262,20 @@ class Registry {
 			return array(
 				'state'       => self::STATE_PAUSED,
 				'error_code'  => $code,
-				'next_action' => null !== $code ? ErrorCode::admin_action( $code ) : __( 'Connector wurde pausiert. Fortsetzen im Connector-Manager (Review Captain Pro).', 'review-captain' ),
+				'next_action' => null !== $code ? ErrorCode::admin_action( $code ) : __( 'Connector has been paused. Resume it in the Connector Manager (Review Captain Pro).', 'review-captain' ),
 			);
 		}
 		if ( self::STATE_ACTIVE === $stored['state'] ) {
 			return array(
 				'state'       => self::STATE_ACTIVE,
 				'error_code'  => null,
-				'next_action' => __( 'Keine Aktion nötig.', 'review-captain' ),
+				'next_action' => __( 'No action needed.', 'review-captain' ),
 			);
 		}
 		return array(
 			'state'       => self::STATE_INACTIVE,
 			'error_code'  => null,
-			'next_action' => __( 'Neu erkannte Connectoren sind inaktiv. Die Aktivierung erfolgt im Connector-Manager von Review Captain Pro.', 'review-captain' ),
+			'next_action' => __( 'Newly detected connectors are inactive. Activate them in the Connector Manager of Review Captain Pro.', 'review-captain' ),
 		);
 	}
 

@@ -32,7 +32,7 @@ final class NotifierSiteNameTest extends TestCase {
 	public function test_escaped_site_title_is_decoded_in_plain_text_mails(): void {
 		update_option( 'blogname', 'Müller &amp; Söhne' ); // WordPress stores the title escaped.
 		$mail = ( new Notifier( Plugin::instance()->settings() ) )->message( Notifier::EVENT_REVIEW, array( 'moderation_url' => 'https://example.test/wp-admin/' ) );
-		$this->assertSame( '[Müller & Söhne] Neue Bewertung eingegangen', $mail['subject'] );
+		$this->assertSame( '[Müller & Söhne] New review received', $mail['subject'] );
 
 		$this->settings( array( 'submissions' => array( 'notify_subject' => 'Neu bei {site}' ) ) );
 		$mail = ( new Notifier( Plugin::instance()->settings() ) )->message( Notifier::EVENT_REVIEW, array() );
@@ -47,7 +47,7 @@ final class NotifierSiteNameTest extends TestCase {
 			)
 		);
 		$mail = ( new Notifier( Plugin::instance()->settings() ) )->message( Notifier::EVENT_REPORT, array( 'reason' => 'spam' ) );
-		$this->assertSame( '[Kaffeerösterei Nord] Bewertung gemeldet', $mail['subject'] );
+		$this->assertSame( '[Kaffeerösterei Nord] Review reported', $mail['subject'] );
 
 		$r                  = new Review();
 		$r->origin          = Origin::LOCAL_SUBMISSION;

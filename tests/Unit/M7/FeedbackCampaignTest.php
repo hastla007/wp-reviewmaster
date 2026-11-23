@@ -132,8 +132,8 @@ final class FeedbackCampaignTest extends M7TestCase {
 
 		$svg = $store->qr_svg( $c );
 		$this->assertStringStartsWith( '<svg xmlns="http://www.w3.org/2000/svg"', $svg );
-		$this->assertStringContainsString( 'Feedback geben', $svg );
-		$this->assertStringContainsString( 'Kein Ticket – kein Einlasscode', $svg );
+		$this->assertStringContainsString( 'Give feedback', $svg );
+		$this->assertStringContainsString( 'No ticket – no admission code', $svg );
 		$this->assertStringNotContainsStringIgnoringCase( 'ticket-id', $svg );
 		$this->assertStringNotContainsString( '<script', $svg );
 		$xml = simplexml_load_string( $svg );

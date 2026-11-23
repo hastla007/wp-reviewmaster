@@ -308,14 +308,14 @@ final class DiagnosticsPage {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Capabilities::VIEW_REPORTS ) ) {
-			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You do not have permission to do this.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
 		echo '<div class="wrap rc-admin">';
-		echo View::header( __( 'Diagnose', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<p>' . esc_html__( 'Nur lesend. Hier wird nichts verändert. Der Diagnosebericht enthält keine Zugangsdaten, E-Mail-Adressen oder Reviewtexte.', 'review-captain' ) . '</p>';
+		echo View::header( __( 'Diagnostics', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<p>' . esc_html__( 'Read-only. Nothing is changed here. The diagnostics report contains no credentials, email addresses, or review texts.', 'review-captain' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'diagnostics_export' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo '<p><button type="submit" class="button">' . esc_html__( 'Diagnosebericht herunterladen (JSON)', 'review-captain' ) . '</button></p></form>';
+		echo '<p><button type="submit" class="button">' . esc_html__( 'Download diagnostics report (JSON)', 'review-captain' ) . '</button></p></form>';
 
 		$extra = $this->extra_sections();
 		$this->render_system();
@@ -328,7 +328,7 @@ final class DiagnosticsPage {
 			try {
 				call_user_func( $section['render'] );
 			} catch ( \Throwable $e ) {
-				echo '<p>' . esc_html__( 'Dieser Abschnitt konnte nicht geladen werden.', 'review-captain' ) . '</p>';
+				echo '<p>' . esc_html__( 'This section could not be loaded.', 'review-captain' ) . '</p>';
 			}
 			echo '</div></div>';
 		}
@@ -341,22 +341,22 @@ final class DiagnosticsPage {
 	 */
 	private function render_system(): void {
 		$info = $this->system_info();
-		$yes  = __( 'ja', 'review-captain' );
-		$no   = __( 'nein', 'review-captain' );
+		$yes  = __( 'yes', 'review-captain' );
+		$no   = __( 'no', 'review-captain' );
 		$rows = array(
 			__( 'Review Captain', 'review-captain' )           => (string) $info['plugin_version'],
 			__( 'PHP', 'review-captain' )                      => (string) $info['php_version'],
 			__( 'WordPress', 'review-captain' )                => (string) $info['wp_version'],
-			__( 'Datenbank-Schema', 'review-captain' )         => ( null === $info['db_schema_installed'] ? __( 'nicht installiert', 'review-captain' ) : (string) $info['db_schema_installed'] ) . ' / ' . __( 'erwartet', 'review-captain' ) . ' ' . $info['db_schema_expected'],
-			__( 'Einstellungen-Version', 'review-captain' )    => $info['settings_version'] . ' / ' . __( 'erwartet', 'review-captain' ) . ' ' . $info['settings_expected'],
+			__( 'Database schema', 'review-captain' )         => ( null === $info['db_schema_installed'] ? __( 'not installed', 'review-captain' ) : (string) $info['db_schema_installed'] ) . ' / ' . __( 'expected', 'review-captain' ) . ' ' . $info['db_schema_expected'],
+			__( 'Settings version', 'review-captain' )    => $info['settings_version'] . ' / ' . __( 'expected', 'review-captain' ) . ' ' . $info['settings_expected'],
 			__( 'Multisite', 'review-captain' )                => $info['multisite'] ? $yes : $no,
-			__( 'WP-Cron deaktiviert', 'review-captain' )      => $info['wp_cron_disabled'] ? $yes : $no,
-			__( 'Action Scheduler verfügbar', 'review-captain' ) => $info['action_scheduler'] ? $yes : $no,
-			__( 'Sprache / Zeitzone', 'review-captain' )       => $info['locale'] . ' / ' . $info['timezone'],
+			__( 'WP-Cron disabled', 'review-captain' )      => $info['wp_cron_disabled'] ? $yes : $no,
+			__( 'Action Scheduler available', 'review-captain' ) => $info['action_scheduler'] ? $yes : $no,
+			__( 'Language / time zone', 'review-captain' )       => $info['locale'] . ' / ' . $info['timezone'],
 		);
-		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Umgebung', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Environment', 'review-captain' ) . '</h2></div><div class="inside">';
 		if ( ! $info['db_schema_ok'] ) {
-			echo View::notice( 'warning', __( 'Das Datenbank-Schema entspricht nicht der erwarteten Version. Es wird beim nächsten Aufruf im Admin automatisch aktualisiert; bleibt die Meldung, deaktiviere und aktiviere das Plugin erneut.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo View::notice( 'warning', __( 'The database schema does not match the expected version. It will be updated automatically the next time an admin page loads; if the message persists, deactivate and reactivate the plugin.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		echo '<table class="widefat striped"><tbody>';
 		foreach ( $rows as $label => $value ) {
@@ -369,7 +369,7 @@ final class DiagnosticsPage {
 		foreach ( ReviewStatus::cases() as $status ) {
 			$parts[] = $status->label() . ': ' . number_format_i18n( $counts[ 'reviews_' . $status->value ] );
 		}
-		$parts[] = __( 'Profile', 'review-captain' ) . ': ' . number_format_i18n( $counts['profiles'] );
+		$parts[] = __( 'Profiles', 'review-captain' ) . ': ' . number_format_i18n( $counts['profiles'] );
 		echo esc_html( implode( ' · ', $parts ) ) . '</p></div></div>';
 	}
 
@@ -378,9 +378,9 @@ final class DiagnosticsPage {
 	 */
 	private function render_jobs(): void {
 		$jobs = $this->jobs();
-		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Hintergrundaufgaben', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Background tasks', 'review-captain' ) . '</h2></div><div class="inside">';
 		if ( null === $jobs ) {
-			echo '<p>' . esc_html__( 'Die Aufgabenverwaltung ist nicht geladen.', 'review-captain' ) . '</p></div></div>';
+			echo '<p>' . esc_html__( 'The task manager is not loaded.', 'review-captain' ) . '</p></div></div>';
 			return;
 		}
 		if ( $jobs['stats'] ) {
@@ -393,11 +393,11 @@ final class DiagnosticsPage {
 			echo '<p>' . esc_html( implode( ' · ', $parts ) ) . '</p>';
 		}
 		if ( ! $jobs['recent'] ) {
-			echo '<p>' . esc_html__( 'Noch keine Hintergrundaufgaben gelaufen.', 'review-captain' ) . '</p></div></div>';
+			echo '<p>' . esc_html__( 'No background tasks have run yet.', 'review-captain' ) . '</p></div></div>';
 			return;
 		}
 		echo '<table class="widefat striped"><thead><tr>';
-		foreach ( array( __( 'ID', 'review-captain' ), __( 'Typ', 'review-captain' ), __( 'Status', 'review-captain' ), __( 'Versuche', 'review-captain' ), __( 'Fehlercode', 'review-captain' ), __( 'Zeit', 'review-captain' ) ) as $head ) {
+		foreach ( array( __( 'ID', 'review-captain' ), __( 'Type', 'review-captain' ), __( 'Status', 'review-captain' ), __( 'Attempts', 'review-captain' ), __( 'Error code', 'review-captain' ), __( 'Time', 'review-captain' ) ) as $head ) {
 			echo '<th scope="col">' . esc_html( $head ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -412,9 +412,9 @@ final class DiagnosticsPage {
 	 */
 	private function render_seo(): void {
 		$seo = $this->seo();
-		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'SEO & strukturierte Daten', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'SEO & structured data', 'review-captain' ) . '</h2></div><div class="inside">';
 		if ( null === $seo ) {
-			echo '<p>' . esc_html__( 'Der SEO-Status ist nicht verfügbar.', 'review-captain' ) . '</p></div></div>';
+			echo '<p>' . esc_html__( 'SEO status is not available.', 'review-captain' ) . '</p></div></div>';
 			return;
 		}
 		echo '<table class="widefat striped"><tbody>';
@@ -436,10 +436,10 @@ final class DiagnosticsPage {
 	private function render_settings_audit(): void {
 		$rows = $this->settings_audit( 50 );
 		if ( ! $rows ) {
-			echo '<p>' . esc_html__( 'Noch keine Änderungen an Einstellungen oder Rollen protokolliert.', 'review-captain' ) . '</p></div></div>';
+			echo '<p>' . esc_html__( 'No changes to settings or roles logged yet.', 'review-captain' ) . '</p></div></div>';
 			return;
 		}
-		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Zeit', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Ereignis', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Bereich', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Änderungen (alt → neu)', 'review-captain' ) . '</th></tr></thead><tbody>';
+		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Time', 'review-captain' ) . '</th><th scope="col">' . esc_html_x( 'Event', 'log entry', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Section', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Changes (old → new)', 'review-captain' ) . '</th></tr></thead><tbody>';
 		foreach ( $rows as $row ) {
 			echo '<tr><td>' . esc_html( View::date( $row['created_at'], true ) ) . '</td><td><code>' . esc_html( $row['event'] ) . '</code></td><td>' . esc_html( $row['object_id'] ) . '</td><td>';
 			echo $row['changes'] ? '<ul class="rc-admin-changes"><li>' . implode( '</li><li>', array_map( 'esc_html', $row['changes'] ) ) . '</li></ul>' : '–'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per item.
@@ -454,11 +454,11 @@ final class DiagnosticsPage {
 	private function render_audit(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display filter only.
 		$settings_only = 'settings' === View::req( $_GET, 'audit' );
-		echo '<div class="postbox" id="rc-audit"><div class="postbox-header"><h2>' . esc_html__( 'Letzte Protokolleinträge', 'review-captain' ) . '</h2></div><div class="inside">';
-		echo '<p class="rc-admin-filter">' . esc_html__( 'Anzeigen:', 'review-captain' ) . ' ';
-		echo $settings_only ? '<a href="' . esc_url( View::page_url( self::SLUG ) . '#rc-audit' ) . '">' . esc_html__( 'Alle', 'review-captain' ) . '</a>' : '<strong aria-current="true">' . esc_html__( 'Alle', 'review-captain' ) . '</strong>';
+		echo '<div class="postbox" id="rc-audit"><div class="postbox-header"><h2>' . esc_html__( 'Recent log entries', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<p class="rc-admin-filter">' . esc_html__( 'Show:', 'review-captain' ) . ' ';
+		echo $settings_only ? '<a href="' . esc_url( View::page_url( self::SLUG ) . '#rc-audit' ) . '">' . esc_html__( 'All', 'review-captain' ) . '</a>' : '<strong aria-current="true">' . esc_html__( 'All', 'review-captain' ) . '</strong>';
 		echo ' | ';
-		echo $settings_only ? '<strong aria-current="true">' . esc_html__( 'Einstellungen', 'review-captain' ) . '</strong>' : '<a href="' . esc_url( View::page_url( self::SLUG, array( 'audit' => 'settings' ) ) . '#rc-audit' ) . '">' . esc_html__( 'Einstellungen', 'review-captain' ) . '</a>';
+		echo $settings_only ? '<strong aria-current="true">' . esc_html__( 'Settings', 'review-captain' ) . '</strong>' : '<a href="' . esc_url( View::page_url( self::SLUG, array( 'audit' => 'settings' ) ) . '#rc-audit' ) . '">' . esc_html__( 'Settings', 'review-captain' ) . '</a>';
 		echo '</p>';
 		if ( $settings_only ) {
 			$this->render_settings_audit();
@@ -466,10 +466,10 @@ final class DiagnosticsPage {
 		}
 		$rows = $this->audit( 20 );
 		if ( ! $rows ) {
-			echo '<p>' . esc_html__( 'Noch keine Einträge.', 'review-captain' ) . '</p></div></div>';
+			echo '<p>' . esc_html__( 'No entries yet.', 'review-captain' ) . '</p></div></div>';
 			return;
 		}
-		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Zeit', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Ereignis', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Objekt', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Angaben', 'review-captain' ) . '</th></tr></thead><tbody>';
+		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Time', 'review-captain' ) . '</th><th scope="col">' . esc_html_x( 'Event', 'log entry', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Object', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Details', 'review-captain' ) . '</th></tr></thead><tbody>';
 		foreach ( $rows as $row ) {
 			echo '<tr><td>' . esc_html( View::date( $row['created_at'], true ) ) . '</td><td><code>' . esc_html( $row['event'] ) . '</code></td><td>' . esc_html( trim( $row['object_type'] . ' ' . $row['object_id'] ) ) . '</td><td>' . esc_html( implode( ', ', $row['fields'] ) ) . '</td></tr>';
 		}

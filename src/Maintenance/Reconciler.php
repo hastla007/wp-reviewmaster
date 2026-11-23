@@ -124,7 +124,7 @@ class Reconciler {
 		$report['side_effect_jobs_overdue'] = count( $overdue_ids );
 		if ( $fix && array() !== $overdue_ids && in_array( $mode, array( 'restore', 'clone' ), true ) ) {
 			$placeholders = implode( ',', array_fill( 0, count( $overdue_ids ), '%d' ) );
-			$params       = array_merge( array( __( 'Nach Wiederherstellung erneut prüfen.', 'review-captain' ), $now ), $overdue_ids );
+			$params       = array_merge( array( __( 'Check again after recovery.', 'review-captain' ), $now ), $overdue_ids );
 			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 			$paused                                    = (int) $wpdb->query( $wpdb->prepare( "UPDATE {$jobs} SET status = 'paused', last_error_code = 'rc.source.unavailable', last_error_message = %s, updated_at = %s WHERE status = 'queued' AND id IN ({$placeholders})", $params ) );
 			$report['fixed']['side_effect_jobs_paused'] = max( 0, $paused );

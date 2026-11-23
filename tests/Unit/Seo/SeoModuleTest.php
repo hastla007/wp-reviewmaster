@@ -205,7 +205,7 @@ final class SeoModuleTest extends FrontendTestCase {
 			$this->assertSame( array( 'label', 'status', 'message' ), array_keys( $item ) );
 			$this->assertContains( $item['status'], array( 'ok', 'warn', 'info' ) );
 		}
-		$this->assertStringContainsString( 'Fallback', $report[1]['message'] );
+		$this->assertStringContainsString( 'fallback', $report[1]['message'] );
 
 		$yoast = SeoStatus::report( SeoEnvironment::from_state( array( 'yoast_version' => '26.0', 'yoast_premium' => true ) ) );
 		$this->assertSame( 'ok', $yoast[0]['status'] );
@@ -219,7 +219,7 @@ final class SeoModuleTest extends FrontendTestCase {
 		$conflict = SeoStatus::report( SeoEnvironment::from_state( array( 'yoast_version' => '26.0', 'foreign' => array( 'Rank Math' ) ) ) );
 		$messages = implode( ' ', array_column( $conflict, 'message' ) );
 		$this->assertStringContainsString( 'Rank Math', $messages );
-		$this->assertStringContainsString( 'Mehrere SEO-Plugins', $messages );
+		$this->assertStringContainsString( 'Multiple SEO plugins', $messages );
 		$this->assertSame( 'warn', $conflict[1]['status'] );
 	}
 

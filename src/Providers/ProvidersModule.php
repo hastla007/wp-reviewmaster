@@ -79,7 +79,7 @@ final class ProvidersModule implements Module {
 	public function diagnostics_section( mixed $sections ): array {
 		$sections              = is_array( $sections ) ? $sections : array();
 		$sections['providers'] = array(
-			'title'  => __( 'Review-Provider', 'review-captain' ),
+			'title'  => __( 'Review providers', 'review-captain' ),
 			'render' => array( $this, 'render_diagnostics' ),
 		);
 		return $sections;
@@ -94,16 +94,16 @@ final class ProvidersModule implements Module {
 		echo '<p>' . esc_html(
 			sprintf(
 				/* translators: %s: contract version */
-				__( 'Unterstützter Provider-Vertrag: %s (Hook review_captain_providers_v1).', 'review-captain' ),
+				__( 'Supported provider contract: %s (hook review_captain_providers_v1).', 'review-captain' ),
 				ProviderRegistry::CORE_CONTRACT
 			)
 		) . '</p>';
 		$keys = $registry->keys();
 		if ( ! $keys && ! $registry->rejected() ) {
-			echo '<p>' . esc_html__( 'Es sind keine Provider registriert.', 'review-captain' ) . '</p>';
+			echo '<p>' . esc_html__( 'No providers are registered.', 'review-captain' ) . '</p>';
 			return;
 		}
-		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Schlüssel', 'review-captain' ) . '</th><th>' . esc_html__( 'Plattform', 'review-captain' ) . '</th><th>' . esc_html__( 'Version', 'review-captain' ) . '</th><th>' . esc_html__( 'Vertrag', 'review-captain' ) . '</th><th>' . esc_html__( 'Fähigkeiten', 'review-captain' ) . '</th><th>' . esc_html__( 'Status', 'review-captain' ) . '</th></tr></thead><tbody>';
+		echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Key', 'review-captain' ) . '</th><th>' . esc_html__( 'Platform', 'review-captain' ) . '</th><th>' . esc_html__( 'Version', 'review-captain' ) . '</th><th>' . esc_html__( 'Contract', 'review-captain' ) . '</th><th>' . esc_html__( 'Capabilities', 'review-captain' ) . '</th><th>' . esc_html__( 'Status', 'review-captain' ) . '</th></tr></thead><tbody>';
 		foreach ( $keys as $key ) {
 			$d      = (array) $registry->details( $key );
 			$meta   = (array) ( $d['meta'] ?? array() );

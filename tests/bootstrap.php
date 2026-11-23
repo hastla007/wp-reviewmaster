@@ -63,8 +63,16 @@ final class RC_Test_State {
 	public static int $blog_id = 1;
 	public static array $blog_stack = array();
 	public static array $blog_options = array();
+	/**
+	 * Loaded translations (SET-RC-14): gettext key ("context\x04msgid" or msgid) => list of forms.
+	 * Empty = the English source strings, as on an en_US site. See rc_test_load_translations().
+	 *
+	 * @var array<string, list<string>>
+	 */
+	public static array $l10n = array();
 
 	public static function reset(): void {
+		self::$l10n         = array();
 		self::$blog_id      = 1;
 		self::$blog_stack   = array();
 		self::$blog_options = array();
@@ -114,15 +122,40 @@ function doing_action( $hook = null ) { return false; }
 
 // ---------------------------------------------------------------------------
 // i18n & escaping.
-function __( $t, $d = 'default' ) { return $t; }
-function _x( $t, $c, $d = 'default' ) { return $t; }
-function _n( $s, $p, $n, $d = 'default' ) { return 1 === (int) $n ? $s : $p; }
-function _e( $t, $d = 'default' ) { echo $t; }
-function esc_html__( $t, $d = 'default' ) { return esc_html( $t ); }
-function esc_attr__( $t, $d = 'default' ) { return esc_attr( $t ); }
-function esc_html_e( $t, $d = 'default' ) { echo esc_html( $t ); }
-function esc_attr_e( $t, $d = 'default' ) { echo esc_attr( $t ); }
-function esc_html_x( $t, $c, $d = 'default' ) { return esc_html( $t ); }
+/**
+ * Load languages/review-captain-{locale}.mo into the gettext stubs below (null = English source again).
+ * Lets tests check the German output of the du (de_DE) and Sie (de_DE_formal) translations.
+ */
+function rc_test_load_translations( ?string $locale ): void {
+	RC_Test_State::$l10n = array();
+	if ( null === $locale ) {
+		return;
+	}
+	$data = (string) file_get_contents( dirname( __DIR__ ) . '/languages/review-captain-' . $locale . '.mo' );
+	$head = unpack( 'V7', substr( $data, 0, 28 ) );
+	for ( $i = 0; $i < $head[3]; $i++ ) {
+		$orig = unpack( 'V2', substr( $data, $head[4] + 8 * $i, 8 ) );
+		$tran = unpack( 'V2', substr( $data, $head[5] + 8 * $i, 8 ) );
+		$key  = explode( "\0", substr( $data, $orig[2], $orig[1] ) )[0];
+		if ( '' !== $key ) {
+			RC_Test_State::$l10n[ $key ] = explode( "\0", substr( $data, $tran[2], $tran[1] ) );
+		}
+	}
+}
+function rc_test_gettext( $t, $c = null, int $form = 0 ) {
+	$forms = RC_Test_State::$l10n[ null === $c ? (string) $t : $c . "\x04" . $t ] ?? null;
+	return null === $forms ? $t : ( $forms[ $form ] ?? $forms[0] );
+}
+function __( $t, $d = 'default' ) { return rc_test_gettext( $t ); }
+function _x( $t, $c, $d = 'default' ) { return rc_test_gettext( $t, $c ); }
+function _n( $s, $p, $n, $d = 'default' ) { $one = 1 === (int) $n; $t = rc_test_gettext( $s, null, $one ? 0 : 1 ); return $t === $s && ! $one ? $p : $t; }
+function _e( $t, $d = 'default' ) { echo __( $t ); }
+function esc_html__( $t, $d = 'default' ) { return esc_html( __( $t ) ); }
+function esc_attr__( $t, $d = 'default' ) { return esc_attr( __( $t ) ); }
+function esc_html_e( $t, $d = 'default' ) { echo esc_html( __( $t ) ); }
+function esc_attr_e( $t, $d = 'default' ) { echo esc_attr( __( $t ) ); }
+function esc_html_x( $t, $c, $d = 'default' ) { return esc_html( _x( $t, $c ) ); }
+function esc_attr_x( $t, $c, $d = 'default' ) { return esc_attr( _x( $t, $c ) ); }
 function esc_html( $t ) { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
 function esc_attr( $t ) { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
 function esc_textarea( $t ) { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }

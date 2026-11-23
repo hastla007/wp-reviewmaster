@@ -50,14 +50,14 @@ final class SettingsHints {
 	 */
 	public static function defaults(): array {
 		$lines = array(
-			array( self::REPORTS, 'general', __( 'Auswertungen', 'review-captain' ), __( 'Auswertungen zu Bewertungen, Quellen und Einladungen. Verfügbar mit Review Captain Pro.', 'review-captain' ) ),
-			array( self::PLATFORM, 'sources', __( 'Automatischer Abgleich', 'review-captain' ), __( 'Bewertungen von Google, Trustpilot und anderen Plattformen automatisch übernehmen. Verfügbar mit Review Captain Pro.', 'review-captain' ) ),
-			array( self::REQUESTS, 'requests', __( 'Bewertungs-Einladungen', 'review-captain' ), __( 'Bewertungs-Einladungen automatisch nach Kauf oder Besuch senden. Verfügbar mit Review Captain Pro.', 'review-captain' ) ),
-			array( self::SENDER, 'requests', __( 'Absender', 'review-captain' ), __( 'Absendername und -adresse der Einladungen. Verfügbar mit Review Captain Pro.', 'review-captain' ) ),
-			array( self::SEND_WINDOW, 'requests', __( 'Versandzeiten', 'review-captain' ), __( 'Einladungen nur zu bestimmten Tageszeiten senden. Verfügbar mit Review Captain Pro.', 'review-captain' ) ),
-			array( self::LIMITS, 'requests', __( 'Grenzen', 'review-captain' ), __( 'Tageslimit und Mindestabstand je Empfänger. Verfügbar mit Review Captain Pro.', 'review-captain' ) ),
-			array( self::REMINDERS, 'requests', __( 'Erinnerungen', 'review-captain' ), __( 'Eine Erinnerung für unbeantwortete Einladungen senden. Verfügbar mit Review Captain Pro.', 'review-captain' ) ),
-			array( self::WIDGETS, 'display', __( 'Weitere Widgets', 'review-captain' ), __( 'Karussell, Plattformleiste und schwebendes Badge. Verfügbar mit Review Captain Pro.', 'review-captain' ) ),
+			array( self::REPORTS, 'general', __( 'Analytics', 'review-captain' ), __( 'Analytics for reviews, sources and invitations. Available with Review Captain Pro.', 'review-captain' ) ),
+			array( self::PLATFORM, 'sources', __( 'Automatic sync', 'review-captain' ), __( 'Import reviews from Google, Trustpilot and other platforms automatically. Available with Review Captain Pro.', 'review-captain' ) ),
+			array( self::REQUESTS, 'requests', __( 'Review invitations', 'review-captain' ), __( 'Send review invitations automatically after a purchase or visit. Available with Review Captain Pro.', 'review-captain' ) ),
+			array( self::SENDER, 'requests', __( 'Sender', 'review-captain' ), __( 'Sender name and address of invitations. Available with Review Captain Pro.', 'review-captain' ) ),
+			array( self::SEND_WINDOW, 'requests', __( 'Sending times', 'review-captain' ), __( 'Send invitations only at certain times of day. Available with Review Captain Pro.', 'review-captain' ) ),
+			array( self::LIMITS, 'requests', __( 'Limits', 'review-captain' ), __( 'Daily limit and minimum interval per recipient. Available with Review Captain Pro.', 'review-captain' ) ),
+			array( self::REMINDERS, 'requests', __( 'Reminders', 'review-captain' ), __( 'Send one reminder for unanswered invitations. Available with Review Captain Pro.', 'review-captain' ) ),
+			array( self::WIDGETS, 'display', __( 'More widgets', 'review-captain' ), __( 'Carousel, platform bar and floating badge. Available with Review Captain Pro.', 'review-captain' ) ),
 		);
 		$out   = array();
 		foreach ( $lines as [ $id, $tab, $title, $text ] ) {
@@ -169,12 +169,12 @@ final class SettingsHints {
 		if ( ! $hints ) {
 			return '';
 		}
-		$html = '<ul class="rc-admin-hints" aria-label="' . esc_attr__( 'Weitere Funktionen in Review Captain Pro', 'review-captain' ) . '">';
+		$html = '<ul class="rc-admin-hints" aria-label="' . esc_attr__( 'More features in Review Captain Pro', 'review-captain' ) . '">';
 		foreach ( $hints as $hint ) {
 			$html .= '<li class="rc-admin-hint" data-hint="' . esc_attr( $hint['id'] ) . '"><span class="rc-admin-hint-badge">' . esc_html__( 'Pro', 'review-captain' ) . '</span> <strong>' . esc_html( $hint['title'] ) . ':</strong> ' . esc_html( $hint['text'] );
 			if ( '' !== $hint['link'] ) {
 				/* translators: %s: title of the hint line */
-				$html .= ' <a href="' . esc_url( $hint['link'] ) . '" aria-label="' . esc_attr( sprintf( __( 'Mehr erfahren: %s', 'review-captain' ), $hint['title'] ) ) . '">' . esc_html__( 'Mehr erfahren', 'review-captain' ) . '</a>';
+				$html .= ' <a href="' . esc_url( $hint['link'] ) . '" aria-label="' . esc_attr( sprintf( __( 'Learn more: %s', 'review-captain' ), $hint['title'] ) ) . '">' . esc_html__( 'Learn more', 'review-captain' ) . '</a>';
 			}
 			$html .= '</li>';
 		}

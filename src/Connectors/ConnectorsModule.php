@@ -57,7 +57,7 @@ final class ConnectorsModule implements Module {
 	public function diagnostics_section( mixed $sections ): array {
 		$sections               = is_array( $sections ) ? $sections : array();
 		$sections['connectors'] = array(
-			'title'  => __( 'Connectoren', 'review-captain' ),
+			'title'  => __( 'Connectors', 'review-captain' ),
 			'render' => array( $this, 'render_diagnostics' ),
 		);
 		return $sections;
@@ -73,7 +73,7 @@ final class ConnectorsModule implements Module {
 		echo '<p>' . esc_html(
 			sprintf(
 				/* translators: %s: contract version */
-				__( 'Unterstützter Connector-Vertrag: %s (Hook review_captain_connectors_v1). Aktivierung und automatische Ausführung erfolgen über Review Captain Pro.', 'review-captain' ),
+				__( 'Supported connector contract: %s (hook review_captain_connectors_v1). Activation and automatic execution are handled by Review Captain Pro.', 'review-captain' ),
 				ContractValidator::CORE_CONTRACT
 			)
 		) . '</p>';
@@ -83,12 +83,12 @@ final class ConnectorsModule implements Module {
 		$rejected    = $registry->rejected();
 
 		if ( ! $keys && ! $unavailable && ! $rejected ) {
-			echo '<p>' . esc_html__( 'Es sind keine Connectoren registriert.', 'review-captain' ) . '</p>';
+			echo '<p>' . esc_html__( 'No connectors are registered.', 'review-captain' ) . '</p>';
 			return;
 		}
 
 		echo '<table class="widefat striped rc-diagnostics-connectors"><thead><tr>';
-		foreach ( array( __( 'Schlüssel', 'review-captain' ), __( 'Bezeichnung', 'review-captain' ), __( 'Version', 'review-captain' ), __( 'Vertrag', 'review-captain' ), __( 'Fähigkeiten', 'review-captain' ), __( 'Status', 'review-captain' ), __( 'Fehler / Hinweise', 'review-captain' ) ) as $head ) {
+		foreach ( array( __( 'Key', 'review-captain' ), __( 'Label', 'review-captain' ), __( 'Version', 'review-captain' ), __( 'Contract', 'review-captain' ), __( 'Capabilities', 'review-captain' ), __( 'Status', 'review-captain' ), __( 'Errors / notices', 'review-captain' ) ) as $head ) {
 			echo '<th scope="col">' . esc_html( $head ) . '</th>';
 		}
 		echo '</tr></thead><tbody>';
@@ -119,9 +119,9 @@ final class ConnectorsModule implements Module {
 				'',
 				'',
 				array(
-					'state'       => __( 'verworfen', 'review-captain' ),
+					'state'       => __( 'rejected', 'review-captain' ),
 					'error_code'  => $item['error_code'],
-					'next_action' => __( 'Connector entspricht nicht dem Vertrag und wurde nicht registriert.', 'review-captain' ),
+					'next_action' => __( 'Connector does not comply with the contract and was not registered.', 'review-captain' ),
 				),
 				$item['messages']
 			);
@@ -166,10 +166,10 @@ final class ConnectorsModule implements Module {
 	 */
 	public static function state_label( string $state ): string {
 		return match ( $state ) {
-			Registry::STATE_ACTIVE             => __( 'aktiv', 'review-captain' ),
-			Registry::STATE_INACTIVE           => __( 'inaktiv', 'review-captain' ),
-			Registry::STATE_PAUSED             => __( 'pausiert', 'review-captain' ),
-			Registry::STATE_SOURCE_UNAVAILABLE => __( 'Quelle nicht verfügbar', 'review-captain' ),
+			Registry::STATE_ACTIVE             => __( 'active', 'review-captain' ),
+			Registry::STATE_INACTIVE           => __( 'inactive', 'review-captain' ),
+			Registry::STATE_PAUSED             => __( 'paused', 'review-captain' ),
+			Registry::STATE_SOURCE_UNAVAILABLE => __( 'Source unavailable', 'review-captain' ),
 			default                            => $state,
 		};
 	}

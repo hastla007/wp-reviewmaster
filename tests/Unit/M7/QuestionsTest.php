@@ -144,7 +144,7 @@ final class QuestionsTest extends M7TestCase {
 		$erase = $pd->erase( 'tom@example.test' );
 		$this->assertTrue( $erase['items_removed'] );
 		$row = ( new QuestionRepository() )->query()[0];
-		$this->assertSame( 'Anonym', $row['author_name'] );
+		$this->assertSame( 'Anonymous', $row['author_name'] );
 		$this->assertNull( $row['author_email'] );
 	}
 }

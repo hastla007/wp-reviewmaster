@@ -263,9 +263,9 @@ final class PowCaptcha {
 	 * @return array<string, string>
 	 */
 	public static function messages(): array {
-		$neutral = __( 'Ihre Eingabe konnte nicht überprüft werden. Bitte laden Sie die Seite neu und senden Sie das Formular erneut.', 'review-captain' );
+		$neutral = __( 'Your input could not be verified. Please reload the page and submit the form again.', 'review-captain' );
 		return array(
-			self::REASON_MISSING  => __( 'Das Formular konnte nicht überprüft werden. Bitte aktivieren Sie JavaScript und senden Sie das Formular erneut – die Prüfung läuft unbemerkt in Ihrem Browser, ohne Daten an Dritte.', 'review-captain' ),
+			self::REASON_MISSING  => __( 'The form could not be verified. Please enable JavaScript and submit the form again – the check runs unnoticed in your browser, without sending data to third parties.', 'review-captain' ),
 			self::REASON_INVALID  => $neutral,
 			self::REASON_REPLAYED => $neutral,
 			self::EXTERNAL_CODE   => $neutral,
@@ -285,10 +285,10 @@ final class PowCaptcha {
 				'endpoint' => admin_url( 'admin-ajax.php' ),
 				'action'   => self::AJAX_ACTION,
 				'i18n'     => array(
-					'working' => __( 'Spam-Schutz: Prüfung läuft im Hintergrund …', 'review-captain' ),
-					'ready'   => __( 'Spam-Schutz: bereit zum Absenden.', 'review-captain' ),
-					'sending' => __( 'Spam-Schutz: Prüfung wird abgeschlossen, das Formular wird gleich gesendet …', 'review-captain' ),
-					'failed'  => __( 'Spam-Schutz: Die Prüfung konnte nicht geladen werden. Bitte prüfen Sie Ihre Verbindung und senden Sie das Formular erneut.', 'review-captain' ),
+					'working' => __( 'Spam protection: check running in the background …', 'review-captain' ),
+					'ready'   => __( 'Spam protection: ready to submit.', 'review-captain' ),
+					'sending' => __( 'Spam protection: finishing the check, the form will be sent shortly …', 'review-captain' ),
+					'failed'  => __( 'Spam protection: the check could not be loaded. Please check your connection and submit the form again.', 'review-captain' ),
 				),
 			)
 		);
@@ -311,7 +311,7 @@ final class PowCaptcha {
 		return '<div class="rc-pow" data-rc-pow="1" data-rc-pow-scope="' . esc_attr( $scope ) . '">'
 			. '<input type="hidden" name="' . esc_attr( self::FIELD ) . '" value="" />'
 			. '<p class="rc-pow__status rc-form__hint" id="' . esc_attr( $status ) . '" role="status" aria-live="polite"></p>'
-			. '<noscript><p class="rc-pow__noscript rc-form__hint">' . esc_html__( 'Zum Absenden wird JavaScript benötigt: Ein unsichtbarer Spam-Schutz rechnet kurz in Ihrem Browser. Es werden keine Daten an Dritte übertragen und keine Cookies gesetzt.', 'review-captain' ) . '</p></noscript>'
+			. '<noscript><p class="rc-pow__noscript rc-form__hint">' . esc_html__( 'JavaScript is required to submit: an invisible spam protection computes briefly in your browser. No data is sent to third parties and no cookies are set.', 'review-captain' ) . '</p></noscript>'
 			. '</div>';
 	}
 }

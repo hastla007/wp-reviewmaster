@@ -30,7 +30,7 @@ final class DisplaySettingsTest extends FrontendTestCase {
 		$stars = $this->renderer()->rating_data( $this->rated( 4 ), true, 'stars' );
 		$this->assertCount( 5, $stars['stars'] );
 		$this->assertFalse( $stars['show_value'] );
-		$this->assertSame( '4 von 5 Sternen', $stars['label'], 'screen reader label always present' );
+		$this->assertSame( '4 out of 5 stars', $stars['label'], 'screen reader label always present' );
 
 		$number = $this->renderer()->rating_data( $this->rated( 4 ), true, 'number' );
 		$this->assertSame( array(), $number['stars'] );
@@ -47,7 +47,7 @@ final class DisplaySettingsTest extends FrontendTestCase {
 		$html = $this->shortcode();
 		$this->assertStringContainsString( 'rc-stars', $html );
 		$this->assertStringNotContainsString( 'rc-rating__value', $html );
-		$this->assertStringContainsString( 'aria-label="5 von 5 Sternen"', $html );
+		$this->assertStringContainsString( 'aria-label="5 out of 5 stars"', $html );
 	}
 
 	public function test_decimal_places_for_averages(): void {
@@ -63,7 +63,7 @@ final class DisplaySettingsTest extends FrontendTestCase {
 		$this->review( array( 'rating_value' => 5.0 ) );
 		$this->settings( array( 'display' => array( 'decimal_places' => 2 ) ) );
 		$summary = $this->renderer()->summary( WidgetDefinition::from_atts( array() ) );
-		$this->assertStringContainsString( '4,67 von 5', $summary[0]['text'] );
+		$this->assertStringContainsString( '4,67 out of 5', $summary[0]['text'] );
 	}
 
 	public function test_colours_become_css_custom_properties(): void {

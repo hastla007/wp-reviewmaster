@@ -99,7 +99,7 @@ final class JobsModule implements Module {
 		$schedules                   = is_array( $schedules ) ? $schedules : array();
 		$schedules[ self::SCHEDULE ] = array(
 			'interval' => self::INTERVAL,
-			'display'  => __( 'Alle 5 Minuten (Review Captain)', 'review-captain' ),
+			'display'  => __( 'Every 5 minutes (Review Captain)', 'review-captain' ),
 		);
 		return $schedules;
 	}
@@ -198,7 +198,7 @@ final class JobsModule implements Module {
 		$sections = is_array( $sections ) ? $sections : array();
 		return $sections + array(
 			'jobs' => array(
-				'title'  => __( 'Hintergrundjobs', 'review-captain' ),
+				'title'  => __( 'Background jobs', 'review-captain' ),
 				'render' => function (): void {
 					/** @var JobQueue $queue */
 					$queue = $this->plugin()->get( 'jobs' );

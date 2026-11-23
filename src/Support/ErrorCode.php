@@ -89,12 +89,12 @@ final class ErrorCode {
 	 */
 	public static function admin_action( string $code ): string {
 		return match ( self::retry_class( $code ) ) {
-			self::CLASS_AUTH       => __( 'Verbindung neu autorisieren bzw. Schlüssel prüfen.', 'review-captain' ),
-			self::CLASS_RATE_LIMIT => __( 'Keine Aktion nötig – automatischer Neuversuch nach Ablauf des Limits.', 'review-captain' ),
-			self::CLASS_CONFIG     => __( 'Quell-Plugin bzw. Connector prüfen (aktiv, kompatible Vertragsversion); der Vorgang wird danach automatisch fortgesetzt.', 'review-captain' ),
-			self::CLASS_DATA       => __( 'Eingangsdaten bzw. Mapping prüfen; der Vorgang wird nicht wiederholt.', 'review-captain' ),
-			self::CLASS_PERMANENT  => __( 'Vorgang ist endgültig fehlgeschlagen; Konfiguration oder Vertrag prüfen.', 'review-captain' ),
-			default                => __( 'Keine Aktion nötig – automatischer Neuversuch mit Wartezeit.', 'review-captain' ),
+			self::CLASS_AUTH       => __( 'Reauthorize the connection or check the key.', 'review-captain' ),
+			self::CLASS_RATE_LIMIT => __( 'No action needed – automatic retry after the limit expires.', 'review-captain' ),
+			self::CLASS_CONFIG     => __( 'Check the source plugin or connector (active, compatible contract version); the process will then resume automatically.', 'review-captain' ),
+			self::CLASS_DATA       => __( 'Check the input data or mapping; the process will not be retried.', 'review-captain' ),
+			self::CLASS_PERMANENT  => __( 'The process failed permanently; check the configuration or contract.', 'review-captain' ),
+			default                => __( 'No action needed – automatic retry with backoff.', 'review-captain' ),
 		};
 	}
 }
