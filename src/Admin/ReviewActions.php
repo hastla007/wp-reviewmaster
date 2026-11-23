@@ -12,6 +12,7 @@ namespace ReviewCaptain\Admin;
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Media\PhotoStore;
 use ReviewCaptain\Moderation\TagStore;
+use ReviewCaptain\Moderation\ReportStore;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 
@@ -206,6 +207,12 @@ final class ReviewActions {
 		$review = $this->plugin->reviews()->find( $id );
 		if ( null === $review ) {
 			return 'review_missing';
+		}
+		if ( ReviewStatus::APPROVED === $to && ReviewStatus::APPROVED === $review->status && ( new ReportStore() )->open_count( $id ) > 0 ) {
+			// Reports below the threshold: the moderator keeps the review public and closes them (review P2).
+			ReportStore::resolve( $id );
+			$this->plugin->audit()->record( 'review.reports_dismissed', 'review', $id, array( 'reason' => '' !== trim( $reason ) ? 'given' : 'none' ) );
+			return 'status_changed';
 		}
 		if ( null === $to || ReviewStatus::REMOVED === $to || ! $review->status->can_transition_to( $to ) ) {
 			return 'status_failed';

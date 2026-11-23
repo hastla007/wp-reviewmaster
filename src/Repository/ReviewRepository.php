@@ -283,8 +283,10 @@ class ReviewRepository {
 			return false;
 		}
 		$review->status = $to;
-		if ( ReviewStatus::FLAGGED === $from ) {
-			// A moderator (or the system) decided on a flagged review: close its public reports.
+		if ( ReviewStatus::FLAGGED !== $to ) {
+			// A moderator (or the system) decided on the review: close its public reports – also
+			// reports below the threshold of an approved review that is now rejected or archived
+			// (review P2). Flagging keeps them: they are the reason for the check.
 			ReportStore::resolve( $id );
 		}
 		$this->log_event( $id, 'status_changed', $from->value, $to->value, $reason );

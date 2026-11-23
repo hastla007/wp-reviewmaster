@@ -448,6 +448,10 @@ final class ReviewsPage {
 		echo View::form_fields( 'review_status' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<input type="hidden" name="id" value="' . esc_attr( (string) $review->id ) . '" />';
 		echo '<p><label for="rc-status-to">' . esc_html__( 'Neuer Status', 'review-captain' ) . '</label><br /><select id="rc-status-to" name="to">';
+		if ( ReviewStatus::APPROVED === $review->status && ( new ReportStore() )->open_count( (int) $review->id ) > 0 ) {
+			// Open reports below the threshold can be closed without hiding the review (review P2).
+			echo '<option value="' . esc_attr( ReviewStatus::APPROVED->value ) . '">' . esc_html__( 'Freigegeben lassen, Meldungen schließen', 'review-captain' ) . '</option>';
+		}
 		foreach ( $targets as $target ) {
 			echo '<option value="' . esc_attr( $target->value ) . '">' . esc_html( $target->label() ) . '</option>';
 		}
