@@ -480,14 +480,14 @@ final class SettingsPage {
 			View::redirect( Notices::url( $back, 'import_invalid' ) );
 			return;
 		}
-		$preview = $this->transfer()->preview( $json, self::writable_tabs() );
+		$preview = $this->transfer()->preview( $json, self::writable_tabs(), self::pro_writable() );
 		if ( null === $preview ) {
 			View::redirect( Notices::url( $back, 'import_invalid' ) );
 			return;
 		}
 		if ( self::migrate_access( $this->settings() ) ) {
 			// Role lists missing in the file must keep today's roles, not the defaults.
-			$preview = (array) $this->transfer()->preview( $json, self::writable_tabs() );
+			$preview = (array) $this->transfer()->preview( $json, self::writable_tabs(), self::pro_writable() );
 		}
 		if ( ! $preview['diff'] ) {
 			View::redirect( Notices::url( $back, 'import_empty' ) );
@@ -533,9 +533,17 @@ final class SettingsPage {
 		self::migrate_access( $this->settings() );
 		$before  = $this->settings()->all();
 		$current = $before;
+		$pro     = self::pro_writable();
+		$schema  = SettingsSchema::fields();
 		foreach ( $tabs as $tab ) {
 			if ( isset( $values[ $tab ] ) && is_array( $values[ $tab ] ) ) {
 				$current[ $tab ] = $values[ $tab ];
+				foreach ( $schema[ $tab ] ?? array() as $key => $field ) {
+					if ( 'pro' === $field['owner'] && ! $pro && array_key_exists( $key, (array) ( $before[ $tab ] ?? array() ) ) ) {
+						// The add-on stopped allowing writes since the preview: keep its stored value.
+						$current[ $tab ][ $key ] = $before[ $tab ][ $key ];
+					}
+				}
 			}
 		}
 		if ( in_array( 'access', $tabs, true ) ) {
@@ -1089,6 +1097,10 @@ final class SettingsPage {
 		echo '<h2>' . esc_html__( 'Konfiguration importieren', 'review-captain' ) . '</h2>';
 		if ( is_array( $preview ) && ! empty( $preview['diff'] ) ) {
 			echo '<p>' . esc_html__( 'Folgende Werte werden geändert. Alle anderen Einstellungen bleiben unverändert.', 'review-captain' ) . '</p>';
+			foreach ( (array) ( $preview['kept'] ?? array() ) as $kept ) {
+				/* translators: 1: fields, 2: reason */
+				echo View::notice( 'warning', sprintf( __( 'Nicht übernommen, bisherige Werte bleiben: %1$s. %2$s', 'review-captain' ), implode( ', ', array_map( static fn( $key ): string => SettingsFields::label( (string) $kept['tab'], (string) $key ), (array) $kept['fields'] ) ), (string) $kept['message'] ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
 			echo '<table class="widefat striped rc-admin-diff"><thead><tr><th scope="col">' . esc_html__( 'Bereich', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Einstellung', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Bisher', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Neu', 'review-captain' ) . '</th></tr></thead><tbody>';
 			$tabs = SettingsSchema::tabs();
 			foreach ( (array) $preview['diff'] as $row ) {
