@@ -671,6 +671,16 @@ class ReviewRepository {
 	}
 
 	/**
+	 * Record which consent text version the author agreed to (P3, proof of consent; no personal data).
+	 *
+	 * @param int    $review_id Review ID.
+	 * @param string $version   Version from PublicTexts::consent_version().
+	 */
+	public function record_consent( int $review_id, string $version ): void {
+		$this->log_event( $review_id, 'consent_recorded', null, null, 'consent_text:' . preg_replace( '/[^a-f0-9]/', '', $version ) );
+	}
+
+	/**
 	 * Write a moderation history entry.
 	 *
 	 * @param int         $review_id Review ID.

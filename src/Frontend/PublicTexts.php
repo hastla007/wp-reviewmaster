@@ -22,6 +22,12 @@ final class PublicTexts {
 	public const PRIVACY_PLACEHOLDER = '{privacy_link}';
 
 	/**
+	 * Option with every consent text version shown at the form (P3, proof of consent):
+	 * version => {text, privacy_url, first_used (UTC)}. Not autoloaded; removed on uninstall with data.
+	 */
+	public const CONSENT_ARCHIVE_OPTION = 'review_captain_consent_texts';
+
+	/**
 	 * Pseudo level for testimonials (kind, not a verification state).
 	 */
 	public const TESTIMONIAL = 'testimonial';
@@ -110,6 +116,31 @@ final class PublicTexts {
 		$word = esc_html__( 'Datenschutzerklärung', 'review-captain' );
 		$link = '' !== $url ? '<a href="' . esc_url( $url ) . '">' . $word . '</a>' : $word;
 		return str_replace( self::PRIVACY_PLACEHOLDER, $link, $html );
+	}
+
+	/**
+	 * Version of the effective consent text (text and privacy link) for the proof of consent.
+	 * The consent text is configurable (SET-RC-04), so a review records which version was
+	 * agreed to; the text of each version is archived once in self::CONSENT_ARCHIVE_OPTION.
+	 *
+	 * @param Settings $settings Settings.
+	 * @return string 16 hex characters.
+	 */
+	public static function consent_version( Settings $settings ): string {
+		$text    = self::get( $settings, 'submissions', 'consent_text' );
+		$url     = self::privacy_url();
+		$version = substr( hash( 'sha256', $text . "\n" . $url ), 0, 16 );
+		$archive = get_option( self::CONSENT_ARCHIVE_OPTION, array() );
+		$archive = is_array( $archive ) ? $archive : array();
+		if ( ! isset( $archive[ $version ] ) ) {
+			$archive[ $version ] = array(
+				'text'        => $text,
+				'privacy_url' => $url,
+				'first_used'  => gmdate( 'Y-m-d H:i:s' ),
+			);
+			update_option( self::CONSENT_ARCHIVE_OPTION, $archive, false );
+		}
+		return $version;
 	}
 
 	/**

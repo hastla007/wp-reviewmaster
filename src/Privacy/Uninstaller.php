@@ -38,6 +38,7 @@ final class Uninstaller {
 		'review_captain_connectors_state',
 		'review_captain_connectors_known',
 		'review_captain_feedback_campaigns',
+		'review_captain_consent_texts',
 	);
 
 	/**
