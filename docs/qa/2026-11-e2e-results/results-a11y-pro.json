@@ -1,0 +1,291 @@
+{
+  "axe": [
+    {
+      "scope": "page",
+      "violations": [
+        {
+          "id": "list",
+          "impact": "serious",
+          "help": "<ul> and <ol> must only directly contain <li>, <script> or <template> elements",
+          "nodes": [
+            {
+              "target": ".is-responsive.items-justified-right.wp-block-navigation__container",
+              "html": "<ul class=\"wp-block-navigation__container is-responsive items-justified-right wp-block-navigation\">",
+              "summary": "Fix all of the following:   List element has direct children that are not allowed: ul"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "scope": ".rc-pro",
+      "violations": []
+    },
+    {
+      "scope": "badge-open",
+      "violations": []
+    }
+  ],
+  "keyboard": {
+    "tabOrder": [
+      "-:a:Skip to content",
+      "-:a:E2E",
+      "-:a:Cart",
+      "-:a:Checkout",
+      "-:a:E2E Feedback",
+      "-:a:My account",
+      "-:a:Pro-Widgets",
+      "-:a:Pro-Widgets mit Bewertungsformular",
+      "-:a:Sample Page",
+      "-:a:Shop",
+      "-:a:Login",
+      "rc-pro-carousel:button:Next",
+      "rc-pro-carousel:ul:Bewertungen im Karussell",
+      "rc-pro-bar:a:View profile on Google",
+      "rc-pro-bar:a:View profile on Trustpilot",
+      "rc-pro-trust:a:Verify \"Geprüfter Kundenservice 2026\" with the iss",
+      "rc-pro-provider-embed:button:Load content from Trustpilot",
+      "rc-pro-provider-embed:a:View profile on Trustpilot",
+      "e2e-contact:input:name",
+      "e2e-contact:textarea:msg",
+      "e2e-contact:button:Senden",
+      "-:a:E2E",
+      "-:a:Blog",
+      "-:a:About",
+      "-:a:FAQs",
+      "-:a:Authors",
+      "-:a:Events",
+      "-:a:Shop",
+      "-:a:Patterns",
+      "-:a:Themes",
+      "-:a:WordPress",
+      "rc-pro-floating:summary:Google 4.6 / 5 Show or hide the ratings"
+    ],
+    "allVisibleFocus": true,
+    "noVisibleFocus": [],
+    "domOrderFollowsLayout": true,
+    "badgeLastInOrder": true,
+    "carousel": {
+      "enterOnNext": [
+        0,
+        220
+      ],
+      "status": "Item 2 of 7",
+      "trackFocusable": true,
+      "end": 881,
+      "home": 0,
+      "live": {
+        "live": "polite",
+        "role": null
+      },
+      "prevDisabledAtStart": true
+    },
+    "providerEmbed": {
+      "button": {
+        "tag": "button",
+        "type": "button",
+        "text": "Load content from Trustpilot"
+      },
+      "externalBeforeClick": 0,
+      "externalAfterClick": [
+        "https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
+      ],
+      "focusAfterClick": {
+        "tag": "div",
+        "text": "Trustpilot",
+        "widget": "rc-pro-provider-embed",
+        "visible": true,
+        "inViewport": true,
+        "y": 1750
+      }
+    },
+    "floating": {
+      "before": {
+        "open": false,
+        "focusOnSummary": true
+      },
+      "afterEnter": {
+        "open": true,
+        "focusOnSummary": true
+      },
+      "afterEscape": {
+        "open": false,
+        "focusOnSummary": true
+      },
+      "afterClose": {
+        "open": false,
+        "focusOnSummary": true
+      },
+      "afterSpace": {
+        "open": true,
+        "focusOnSummary": true
+      },
+      "summaryName": "Google 4.6 / 5 Show or hide the ratings",
+      "ariaExpanded": null
+    }
+  },
+  "motion": {
+    "no-preference": {
+      "carouselScrollBehavior": "smooth",
+      "animated": [],
+      "autoplay": false
+    },
+    "reduce": {
+      "carouselScrollBehavior": "auto",
+      "animated": [],
+      "autoplay": false
+    }
+  },
+  "mobile": [
+    {
+      "badge": true,
+      "startsOpen": false,
+      "overflowX": false,
+      "overlaps": [],
+      "overlapsWhileFocused": [],
+      "smallTargets": [
+        {
+          "field": "name",
+          "w": 185,
+          "h": 21
+        },
+        {
+          "field": "BUTTON",
+          "w": 62,
+          "h": 21
+        }
+      ],
+      "badgeBox": [
+        124,
+        62
+      ],
+      "vp": "iphone13",
+      "page": "rc-pro-widgets",
+      "axe": []
+    },
+    {
+      "badge": true,
+      "startsOpen": false,
+      "overflowX": false,
+      "overlaps": [
+        {
+          "field": "fc[f_body001]",
+          "area": 5602
+        }
+      ],
+      "overlapsWhileFocused": [],
+      "smallTargets": [
+        {
+          "field": "fc_website_9dd5cd47",
+          "w": 185,
+          "h": 21
+        }
+      ],
+      "badgeBox": [
+        124,
+        62
+      ],
+      "vp": "iphone13",
+      "page": "e2e-feedback"
+    },
+    {
+      "badge": false,
+      "startsOpen": null,
+      "overflowX": false,
+      "overlaps": [],
+      "overlapsWhileFocused": [],
+      "smallTargets": [],
+      "vp": "iphone13",
+      "page": "rc-pro-form"
+    },
+    {
+      "badge": true,
+      "startsOpen": false,
+      "overflowX": false,
+      "overlaps": [],
+      "overlapsWhileFocused": [],
+      "smallTargets": [
+        {
+          "field": "name",
+          "w": 185,
+          "h": 21
+        },
+        {
+          "field": "BUTTON",
+          "w": 62,
+          "h": 21
+        }
+      ],
+      "badgeBox": [
+        124,
+        62
+      ],
+      "vp": "pixel7",
+      "page": "rc-pro-widgets",
+      "axe": []
+    },
+    {
+      "badge": true,
+      "startsOpen": false,
+      "overflowX": false,
+      "overlaps": [
+        {
+          "field": "fc[f_mail001]",
+          "area": 3476
+        }
+      ],
+      "overlapsWhileFocused": [],
+      "smallTargets": [
+        {
+          "field": "fc_website_9dd5cd47",
+          "w": 185,
+          "h": 21
+        }
+      ],
+      "badgeBox": [
+        124,
+        62
+      ],
+      "vp": "pixel7",
+      "page": "e2e-feedback"
+    },
+    {
+      "badge": false,
+      "startsOpen": null,
+      "overflowX": false,
+      "overlaps": [],
+      "overlapsWhileFocused": [],
+      "smallTargets": [],
+      "vp": "pixel7",
+      "page": "rc-pro-form"
+    }
+  ],
+  "shots": [
+    "pro-widgets-desktop.png",
+    "badge-open-desktop.png",
+    "badge-iphone13-kontaktformular.png",
+    "badge-pixel7-formcaptain.png"
+  ],
+  "external": [
+    {
+      "phase": "load",
+      "url": "blob:http://127.0.0.1:8899/fbc06605-7d92-4eb3-9ee1-dfded518c1d7"
+    },
+    {
+      "phase": "keyboard",
+      "url": "blob:http://127.0.0.1:8899/d6cd5c40-1c98-4797-a0f4-762bfdbb02d9"
+    },
+    {
+      "phase": "keyboard",
+      "url": "https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
+    }
+  ],
+  "present": {
+    "carousel": 1,
+    "platform_bar": 1,
+    "testimonial_wall": 9,
+    "trustmarks": 1,
+    "provider_embed": 1,
+    "floating_badge": 1
+  }
+}

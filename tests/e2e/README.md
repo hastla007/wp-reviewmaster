@@ -51,7 +51,24 @@ gibt es `php tests/e2e/php/sql.php <sqlite-datei> "<SQL>"` (`wp db query` brauch
 
 `E2E_CORE_REF=worktree tests/e2e/deploy-plugins.sh` testet statt `HEAD` den Arbeitsstand des Core.
 
+## Suite-E2E (RC-106) und Pro-Widgets (RC-137)
+
+Eigene Instanz mit WordPress 7.x, WooCommerce (GitHub-Release-ZIP, `E2E_WOO_ZIP`/`E2E_WOO_URL`) und den Suite-Kernen aus `E2E_SUITE_SRC` (`origin/main`):
+
+```bash
+export E2E_DIR=/tmp/claude-0/wp-e2e/suite
+tests/e2e/suite-e2e.sh setup    # Instanz, Plugins, Testlizenz, Basis-Snapshot base.sqlite
+tests/e2e/suite-e2e.sh run      # Snapshot zurück, Szenarien S1–S8 (php/suite/*.php) → $E2E_DIR/results-suite.txt
+tests/e2e/suite-e2e.sh pro      # nur Pro neu bauen (Arbeitsstand) und Webserver neu starten
+wp eval-file tests/e2e/php/suite/widgets.php --user=admin   # Pro-Widget-Testseiten
+NODE_PATH=/opt/node-tools/node_modules node tests/e2e/a11y-pro.cjs   # axe, Tastatur, reduced motion, iPhone 13/Pixel 7
+```
+
+Unter PHP < 8.5 senkt `suite-e2e.sh` in den **Testkopien** von Pro und den Suite-Kernen das PHP-Minimum (die haben keinen Testschalter wie der Core). Protokoll: `docs/qa/2026-11-23-suite-e2e.md`.
+
 ## Hilfs-MU-Plugins (`mu-plugins/`, nur Testinstanz)
+
+- `e2e-mail-capture.php`: fängt `wp_mail()` ab (Option `e2e_mails`), damit Einladungen und Abmeldelinks geprüft werden können; kein echter Versand.
 
 - `e2e-trace.php`: schreibt bei `_doing_it_wrong`/Deprecations eine Zeile `E2E-TRACE … <= Datei:Zeile` ins `debug.log`, damit Notices dem Plugin-Code zugeordnet werden können. Wird von `smoke.sh` kopiert.
 - `e2e-license-fake.php`: **simulierter Lizenzserver** für Review Captain Pro. Nutzt den dokumentierten Dev-Weg (`REVIEW_CAPTAIN_PRO_LICENSE_DEV`, Filter `review_captain_pro_license_server_url` / `…_public_keys`) und signiert wie `packages/license-client/testing/client-test-kit.php`. Aktivieren: Datei nach `wp-content/mu-plugins/` kopieren, dann

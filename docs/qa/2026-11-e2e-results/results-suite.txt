@@ -1,0 +1,142 @@
+== voucher
+PASS S1-voucher Kampagne suite:voucher aktiv (#1)
+PASS S1-voucher Voucher Captain sieht eine Review-Quelle (vcap_review_source_active)
+PASS S1-voucher Kauf: Bestellung #13 abgeschlossen, Gutschein ausgestellt (1)
+INFO S1-voucher Gutschein #1 Typ voucher Status active Empfänger - Käufer gesetzt
+INFO S1-voucher Anfragen nach dem Kauf: voucher=0, woo:order:13=0 (Kauf allein plant keine Voucher-Anfrage)
+PASS S1-voucher Einlösung am Schalter (redeem_single, Kanal counter)
+PASS S1-voucher Einlösung → genau eine geplante Anfrage (1, planned)
+PASS S1-voucher Anfragezeile ohne E-Mail im Klartext (voucher:vcr1_72b62686d2e9d2e21d5b2ed40ccae680)
+PASS S1-voucher Voucher Captain liefert den Zustand der Referenz über get()
+PASS S1-voucher S8 doppeltes Ereignis (2× erneut gefeuert) → keine weitere Anfrage
+PASS S1-voucher Versandjob: Kontakt über vcap recipient() aufgelöst, Einladung an die Käuferin (state sent, , Mails 1)
+INFO S1-voucher Betreff: How was your experience?
+PASS S1-voucher Audit suite.recipient_resolved für den Abruf (1)
+INFO S1-voucher reverse_redemption: 60
+PASS S1-voucher Einlösung storniert (Tickets::reverse_redemption) → Anfrage storniert (cancelled rc.experience.revoked)
+{"accepted":3,"rejected":0,"ignored":2,"retry":0,"last":"accepted","last_code":"","last_at":"2026-11-23 13:50:10"}
+== pass
+PASS S2-pass Kampagne suite:pass aktiv (#2)
+PASS S2-pass Pass-Adapter im Modus contract (PassCaptain\Review\Contract::VERSION 1.0.0)
+PASS S2-pass Provider auf wp_pass_captain_review_provider_v1 registriert (ReviewCaptainPro\Suite\Adapters\PassReviewProvider)
+PASS S2-pass Ticketkauf: Bestellung 1 bezahlt, 3 Tickets (3)
+PASS S2-pass Kauf und Ticketversand erzeugen keine Anfrage
+PASS S2-pass Ticket A eingecheckt (checked_in)
+PASS S2-pass Outbox zugestellt (1) → genau eine geplante Anfrage (1)
+INFO S2-pass experience_id pass-captain:1:attendance:9fb614edd716c32a64483e1870abe2df:1 recipient_ref pass-captain:recipient:9fb614edd716c32a64483e1870abe2df:rcp_0deb0a9ddadd0ffc25aac04553267a9a
+PASS S2-pass S8 zweiter Scan + wiederholter Hook → weiterhin eine Anfrage
+PASS S2-pass Ohne Dienstkonto: Versandjob pausiert (paused rc.source.unavailable), Anfrage bleibt eligible
+PASS S2-pass Ohne Capability keine Mail
+INFO S2-pass Suite-Zähler pass: {"accepted":1,"rejected":0,"ignored":0,"retry":1,"last":"retry","last_code":"rc.source.unavailable","last_at":"2026-11-23 13:50:11"}
+PASS S2-pass Konto ohne wpcap_resolve_review_contacts wird als Dienstkonto abgelehnt
+PASS S2-pass Statusseite meldet: Dienstkonto ohne Capability
+PASS S2-pass Dienstkonto mit wpcap_resolve_review_contacts gespeichert
+PASS S2-pass Mit Dienstkonto: Kontakt über ContactResolver, Einladung an die Teilnehmerin (sent, Mails 1)
+PASS S2-pass Käufer bekommt keine Einladung (Empfänger = Teilnehmer)
+PASS S2-pass Benutzerwechsel für den Abruf zurückgesetzt (aktuell 1)
+PASS S2-pass Pass Captain protokolliert review_contact_resolved (1) ohne Adresse
+PASS S2-pass Ticket B eingecheckt → Anfrage geplant
+INFO S2-pass undo_checkin: {"ticket_id":2,"public_id":"c5b416e5f3a07fcaecf1e946dff203cf","status":"valid","remaining_entries":0}
+PASS S2-pass Check-in rückgängig → Anfrage storniert (cancelled rc.experience.check_in_undone)
+PASS S2-pass Erneuter Check-in → genau eine neue Anfrage (gesamt 2, offen 1)
+PASS S2-pass S8 Replay aller Review-Ereignisse → weiterhin genau eine offene Anfrage für Ticket B (1)
+FAIL S2-pass S8 Replay legt keine neue Anfragezeile an (3 → 4)
+INFO S2-pass nach Replay neu: #6 planned 
+INFO S2-pass durch Replay geändert: #5 planned → cancelled rc.experience.check_in_undone
+PASS S2-pass Ticket B: genau eine Einladung versendet
+PASS S2-pass Ticket C eingecheckt → Anfrage geplant
+INFO S2-pass Refunds::request: {"refund_id":"1","status":"pending_approval"}
+INFO S2-pass Refunds::approve (zweite Person): wpcap_db_busy
+INFO S2-pass Erstattung auf SQLite nachgestellt (Ticket refunded=1, Hook wpcap_refund_completed)
+PASS S2-pass Erstattung (Ticket refunded=1) → Anfrage storniert (cancelled rc.experience.refunded)
+PASS S2-pass Erstattung sperrt das Erlebnis: Replay des Abschlusses plant nichts Neues (1)
+INFO S2-pass Check-in des erstatteten Tickets: wpcap_ticket_refunded
+PASS S2-pass Ticket C: keine Einladung
+INFO S2-pass Suite-Zähler pass: {"accepted":11,"rejected":0,"ignored":5,"retry":1,"last":"accepted","last_code":"","last_at":"2026-11-23 13:50:12"}
+PASS S2-pass Keine endgültig gescheiterten Review-Ereignisse in der Outbox (0)
+== woo
+PASS S3-woo Kampagne woocommerce aktiv (#3, nur mit Einwilligung)
+PASS S3-woo Bestellung in Bearbeitung → noch keine Anfrage
+PASS S3-woo Bestellung #18 abgeschlossen → Anfrage geplant (1)
+PASS S3-woo S8 Statuswechsel hin und her → keine zweite Anfrage
+INFO S3-woo wc_create_refund: ok, Status refunded
+PASS S3-woo Vollständige Erstattung → Anfrage storniert (cancelled rc.experience.revoked)
+PASS S3-woo Nach Erstattung erneut abgeschlossen → keine neue Anfrage (Erlebnis gesperrt)
+PASS S3-woo Erstattete Bestellung: keine Einladung
+PASS S3-woo Ohne Einwilligung → keine geplante Anfrage (skipped rc.consent.missing)
+PASS S3-woo Bestellung #21 → Einladung versendet (sent, Mails 1)
+PASS S3-woo Einladung enthält Abmeldelink und List-Unsubscribe-Header
+PASS S3-woo Einladung enthält den Bewertungslink der Kampagne
+INFO S3-woo Kauf eines Leistungsgutscheins mit aktiver Woo-Kampagne: 1 Woo-Anfrage(n) planned – die spätere Einlösung plant eine zweite (Voucher); die 90-Tage-Sperre (cooldown) verhindert dann die zweite Mail
+== form
+PASS S4-form Form Captain kennt die Aktion review.create_local_review (Connector von Review Captain Pro)
+INFO S4-form Connector-Zustand vor Aktivierung: detected
+PASS S4-form Connector review aktiviert (active)
+PASS S4-form Formular #1 veröffentlicht (public_id 1skpbdro6hevaoky)
+PASS S4-form Token über REST geholt (HTTP 200)
+PASS S4-form Einsendung angenommen (HTTP 201, created)
+INFO S4-form Form-Captain-Jobs: {"processed":1,"succeeded":1,"failed":0,"dead":0,"paused":0} / {"processed":0,"succeeded":0,"failed":0,"dead":0,"paused":0}
+PASS S4-form Aktionsjob erfolgreich (succeeded )
+PASS S4-form Review-Entwurf im Core: #1 pending/unverified origin connector rating 5
+PASS S4-form S8 Aktion erneut ausgeführt (Duplikat) → weiterhin eine Review (1, ok)
+PASS S4-form Formular erzeugt keine Bewertungsanfrage und keine Mail
+PASS S4-form Entwurf ist nicht veröffentlicht (Moderation nötig)
+INFO S4-form Einsendung ohne Pflicht-Einwilligung: HTTP 400 (Form Captain prüft das Pflichtfeld selbst)
+== affiliate
+PASS S5-affiliate Affiliate Captain erkannt, Vertrag 1.6.0 (benötigt 1.3.0)
+PASS S5-affiliate Partner angelegt (#1, #2)
+PASS S5-affiliate Review Captain (Pro) hängt an keinem Affiliate-Ereignis ()
+PASS S5-affiliate 8 vermittelte Verkäufe gebucht (8)
+PASS S5-affiliate Anfragen entstehen nur aus den abgeschlossenen Bestellungen (+8)
+INFO S5-affiliate Bericht: {"status":"ok","days":90,"min_sample":5,"truncated":false,"other_sources":0,"rows":[{"affiliate_id":1,"sufficient":true,"orders":6,"orders_reached":6,"requests_sent":6,"requests_per_order":1,"response_rate":0},{"affiliate_id":2,"sufficient":false,"orders":null,"orders_reached":null,"requests_sent":null,"requests_per_order":null,"response_rate":null}]}
+PASS S5-affiliate Partner Groß: 6 Bestellungen, 6 gesendete Anfragen
+PASS S5-affiliate Partner Klein (2 Bestellungen): „Zu kleine Stichprobe“ ohne Zahlen
+PASS S5-affiliate Bericht ohne E-Mail-Adressen
+PASS S5-affiliate Statusseite zeigt den Affiliate-Abschnitt ohne Adressen (5285 Bytes)
+PASS S5-affiliate Administrator hat wpac_manage_affiliates (Sichtbarkeitsbedingung)
+INFO S5-affiliate Affiliate Captain bietet seit Vertrag 1.6.0 den Filter wpac_review_aggregates; Callbacks: keine
+== optout
+PASS S6-optout Abmeldelink aus der Einladung vorhanden
+PASS S6-optout GET zeigt nur die Bestätigung (kein Abmelden durch Linkvorschau), HTTP 200
+PASS S6-optout Nach GET noch nicht abgemeldet (sent)
+PASS S6-optout POST (Ein-Klick nach RFC 8058) meldet ab, HTTP 200
+PASS S6-optout Anfrage unsubscribed, Kontakt-Hash auf der Sperrliste
+PASS S6-optout Manipulierter Token → 400
+PASS S6-optout Neue Bestellung derselben Person → Versand übersprungen (skipped rc.recipient.suppressed)
+PASS S6-optout Keine weitere Einladung an die abgemeldete Adresse
+PASS S6-optout Voucher Captain gibt die abgemeldete Adresse nicht heraus (vcap_review_opted_out): vcap_review_opted_out
+PASS S6-optout Gutschein-Einlösung derselben Person → keine Einladung (skipped rc.consent.revoked)
+PASS S6-optout Weiterhin keine weitere Einladung
+== missing prepare
+PASS S7-missing Vorbereitung: je eine offene Pass-, Voucher- und Woo-Anfrage (1/1/1)
+== missing check-deaktiviert
+INFO S7-missing [deaktiviert] WooCommerce inaktiv
+PASS S7-missing [deaktiviert] Suite-Plugins nicht geladen ()
+PASS S7-missing [deaktiviert] Review Captain Pro geladen und lizenziert
+PASS S7-missing [deaktiviert] Statusseite: {"voucher":"not_installed","pass":"not_installed","form":"not_installed","affiliate":"not_installed","workflow":"not_installed"}
+PASS S7-missing [deaktiviert] Statusseite rendert (4746 Bytes)
+PASS S7-missing [deaktiviert] Startseite HTTP 200
+PASS S7-missing [deaktiviert] Pass-Anfrage wartet (Anfrage eligible , Job paused rc.source.unavailable)
+PASS S7-missing [deaktiviert] Voucher-Anfrage wartet (Anfrage eligible , Job paused rc.source.unavailable)
+PASS S7-missing [deaktiviert] WooCommerce-Anfrage wartet (Anfrage eligible , Job paused rc.source.unavailable)
+== missing check-fehlt
+INFO S7-missing [fehlt] WooCommerce aktiv
+PASS S7-missing [fehlt] Suite-Plugins nicht geladen ()
+PASS S7-missing [fehlt] Review Captain Pro geladen und lizenziert
+PASS S7-missing [fehlt] Statusseite: {"voucher":"not_installed","pass":"not_installed","form":"not_installed","affiliate":"not_installed","workflow":"not_installed"}
+PASS S7-missing [fehlt] Statusseite rendert (4788 Bytes)
+PASS S7-missing [fehlt] Startseite HTTP 200
+PASS S7-missing [fehlt] Pass-Anfrage wartet (Anfrage eligible , Job paused rc.source.unavailable)
+PASS S7-missing [fehlt] Voucher-Anfrage wartet (Anfrage eligible , Job paused rc.source.unavailable)
+Startseite ohne Suite-Ordner: HTTP 200
+== missing resume
+PASS S7-missing Nach Reaktivierung: Anfrage #24 versendet (sent )
+PASS S7-missing Nach Reaktivierung: Anfrage #26 versendet (sent )
+PASS S7-missing Nach Reaktivierung: Anfrage #27 versendet (sent )
+== debug.log (Meldungen, gezählt)
+     30 WordPress database error <div style="clear:both">&nbsp;</div>
+      1 Pass Captain: [info][mail] fa0f2dd4f993 Mail sent: order_access {"order":2,"mail_type":"order_access"}
+      1 Pass Captain: [info][mail] ee03369a34ea Mail sent: tickets {"order":1,"mail_type":"tickets"}
+      1 Pass Captain: [info][mail] e0ef90bfca2b Mail sent: tickets {"order":2,"mail_type":"tickets"}
+      1 Pass Captain: [info][mail] 756b8584da0a Mail sent: order_access {"order":1,"mail_type":"order_access"}
+      1 Pass Captain: [error][refund_bookkeeping_failed] 23f2efec4006 refund bookkeeping failed {"order":1,"object_type":"order","object_id":1,"details":{"refund_id":1}}

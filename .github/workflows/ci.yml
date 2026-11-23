@@ -1,12 +1,20 @@
 name: CI
 
 on:
+  # Branches run through pull_request only; push runs only on main and tags (avoids double runs).
   push:
-    branches: [main, 'claude/**']
+    branches: [main]
+    tags: ['*']
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+# One run per PR: a new push cancels the PR's previous run; runs on main are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
