@@ -6,6 +6,13 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 
 ## [Unreleased]
 
+### Added
+- Trusted-Shops-Siegel `[review_captain_trustbadge]` mit Klick-Freigabe: das offizielle Trustbadge lädt erst nach Klick der Besucher (RC-077).
+- Autorenkorrektur (RC-125A): Kundinnen und Kunden können freigegebene Bewertungen per Einmal-Link (oder angemeldet) korrigieren oder zurückziehen; Korrekturen erst nach Freigabe sichtbar, Karte zeigt „bearbeitet am …“; Schema v4 (`review_revisions`), Admin-Seite „Korrekturen“, Shortcode `[review_captain_correction]`; standardmäßig aus.
+- Natives Elementor-Widget „Review Captain“ (Bewertungen, Formular, Profil-Button) als Hülle um den Widget-Vertrag v1, serverseitig gerendert, nur bei aktivem Elementor geladen (RC-119A).
+- Übersetzungen Englisch (`en_US`) und Deutsch formal (`de_DE_formal`) für alle 936 Texte inkl. Block-Editor-JSON; `bin/compile-translations.php` erzeugt MO/JSON ohne WP-CLI und prüft Vollständigkeit und Platzhalter (RC-138).
+- `tests/e2e/ci-db.sh`: Integration gegen echtes MySQL/MariaDB (Installation, Upgrade v2→v3, Race-Tests); CI-Jobs für MariaDB 12.3 und MySQL 9.7. Release-Stand und offene Gates: [docs/release/RELEASE-CHECKLIST.md](docs/release/RELEASE-CHECKLIST.md), Einschränkungen: [docs/release/KNOWN-LIMITATIONS.md](docs/release/KNOWN-LIMITATIONS.md).
+
 ### Changed
 - Mindestversionen ergänzt (Entscheidung 17.11.2026, einheitlich für alle Captain-Plugins): WordPress 7.0, WooCommerce 11.2.2 (optional; 11.2.0 übernimmt Bestell-/Zahlungsdaten früherer Store-API-Checkouts im selben PHP-Prozess, behoben in 11.2.2, woocommerce#70637); getestet bis WordPress 7.1 / WooCommerce 11.3.
 - Kartenüberschriften standardmäßig `h2` statt `h3` (Barrierefreiheit, F-07); Block, Shortcode und Elementor-Widget.
@@ -20,12 +27,6 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 ### Fixed
 - `AdminModule::menu()` funktioniert auch, wenn Add-ons das Core-Menü außerhalb des Adminbereichs aufbauen (Lizenzseite von Pro per WP-CLI).
 - Verlorene Insert-Rennen bei `JobQueue::enqueue` und `upsert_external` liefern unter hoher Parallelität zuverlässig die Gewinnerzeile statt `false` (TEC-005, MariaDB-Racetest).
-
-### Added
-- Autorenkorrektur (RC-125A): Kundinnen und Kunden können freigegebene Bewertungen per Einmal-Link (oder angemeldet) korrigieren oder zurückziehen; Korrekturen erst nach Freigabe sichtbar, Karte zeigt „bearbeitet am …“; Schema v4 (`review_revisions`), Admin-Seite „Korrekturen“, Shortcode `[review_captain_correction]`; standardmäßig aus.
-- Natives Elementor-Widget „Review Captain“ (Bewertungen, Formular, Profil-Button) als Hülle um den Widget-Vertrag v1, serverseitig gerendert, nur bei aktivem Elementor geladen (RC-119A).
-- Übersetzungen Englisch (`en_US`) und Deutsch formal (`de_DE_formal`) für alle 936 Texte inkl. Block-Editor-JSON; `bin/compile-translations.php` erzeugt MO/JSON ohne WP-CLI und prüft Vollständigkeit und Platzhalter (RC-138).
-- `tests/e2e/ci-db.sh`: Integration gegen echtes MySQL/MariaDB (Installation, Upgrade v2→v3, Race-Tests); CI-Jobs für MariaDB 12.3 und MySQL 9.7. Release-Stand und offene Gates: [docs/release/RELEASE-CHECKLIST.md](docs/release/RELEASE-CHECKLIST.md), Einschränkungen: [docs/release/KNOWN-LIMITATIONS.md](docs/release/KNOWN-LIMITATIONS.md).
 
 ## [0.1.0-dev] – unveröffentlicht (Stand 2026-11-16)
 

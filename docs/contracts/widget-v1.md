@@ -163,6 +163,14 @@ Leerzustand: `<p class="rc-empty">` mit dem Text aus `display.empty_text` (Fallb
 
 Zeigt einen Button „Bewerte uns auf {Plattform}“ mit dem Link des Profils (`profile` = `profiles.id`, Pflicht). Fehlt das Profil, hat es die Plattform `local` oder keine gültige https-Adresse, sehen Nutzer mit `review_captain_moderate` einen Hinweis, alle anderen nur einen HTML-Kommentar. Link-Attribute `rel="nofollow noopener noreferrer"` (Betreiberinhalt, kein `ugc`); `new_tab="1"` ergänzt `target="_blank"` und einen Screenreader-Hinweis.
 
+### Trusted-Shops-Siegel `[review_captain_trustbadge]` (RC-077)
+
+```
+[review_captain_trustbadge tsid="X…"]
+```
+
+Offizielles Trusted-Shops-Trustbadge als Embed mit Klick-Freigabe (RC-003 F15, TEC-013). `tsid` = Trusted-Shops-ID (`X` + 32 Hex-Zeichen); ohne Attribut gilt die Einstellung *Darstellung → Trusted-Shops-ID*. Ausgabe ist nur ein Platzhalter mit Hinweis „Beim Laden werden Daten an widgets.trustedshops.com übertragen“, Button und Link zum öffentlichen Trusted-Shops-Profil. Erst der Klick lädt `https://widgets.trustedshops.com/js/{TSID}.js` (`assets/js/frontend-embed.js` prüft Host und Pfad erneut). Ungültige ID oder per `review_captain_embed_hosts` entfernter Host → keine Ausgabe. Kein API-Zugriff, keine Daten von Trusted Shops gespeichert, kein Schema-Markup.
+
 ## 2. Formular `[review_captain_form]`
 
 ### Attribute (vollständig)

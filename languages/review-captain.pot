@@ -198,47 +198,47 @@ msgid "Nur auf dieser Website gesammelte Bewertungen können strukturierte Daten
 msgstr ""
 
 #. translators: 1: required PHP version, 2: required WordPress version
-#: review-captain.php:50
+#: review-captain.php:52
 msgid "Review Captain benötigt mindestens PHP %1$s und WordPress %2$s. Das Plugin ist deshalb inaktiv."
 msgstr ""
 
-#: src/Admin/AdminModule.php:93 src/Admin/AdminModule.php:94 src/Admin/DiagnosticsPage.php:313 src/Integrations/Elementor/ElementorModule.php:58 src/Integrations/Elementor/ReviewsWidget.php:26 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
+#: src/Admin/AdminModule.php:94 src/Admin/AdminModule.php:95 src/Admin/DiagnosticsPage.php:313 src/Integrations/Elementor/ElementorModule.php:58 src/Integrations/Elementor/ReviewsWidget.php:26 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
 msgid "Review Captain"
 msgstr ""
 
-#: src/Admin/AdminModule.php:102
+#: src/Admin/AdminModule.php:103
 msgid "Dashboard"
 msgstr ""
 
-#: src/Admin/AdminModule.php:103 src/Admin/ReviewsPage.php:73 src/Admin/SourcesPage.php:67
+#: src/Admin/AdminModule.php:104 src/Admin/ReviewsPage.php:73 src/Admin/SourcesPage.php:67
 msgid "Reviews"
 msgstr ""
 
-#: src/Admin/AdminModule.php:104 src/Admin/WidgetsPage.php:151
+#: src/Admin/AdminModule.php:105 src/Admin/WidgetsPage.php:151
 msgid "Widgets"
 msgstr ""
 
-#: src/Admin/AdminModule.php:105 src/Admin/SourcesPage.php:57
+#: src/Admin/AdminModule.php:106 src/Admin/SourcesPage.php:57
 msgid "Quellen & Profile"
 msgstr ""
 
-#: src/Admin/AdminModule.php:106 src/Admin/SettingsFields.php:141 src/Admin/SettingsPage.php:476
+#: src/Admin/AdminModule.php:107 src/Admin/SettingsFields.php:143 src/Admin/SettingsPage.php:476
 msgid "Einstellungen"
 msgstr ""
 
-#: src/Admin/AdminModule.php:107 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:280
+#: src/Admin/AdminModule.php:108 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:280
 msgid "Diagnose"
 msgstr ""
 
-#: src/Admin/AdminModule.php:111 src/Admin/QuestionsPage.php:65
+#: src/Admin/AdminModule.php:112 src/Admin/QuestionsPage.php:65
 msgid "Fragen & Antworten"
 msgstr ""
 
-#: src/Admin/AdminModule.php:114 src/Admin/CorrectionsPage.php:65
+#: src/Admin/AdminModule.php:115 src/Admin/CorrectionsPage.php:65
 msgid "Korrekturen"
 msgstr ""
 
-#: src/Admin/AdminModule.php:117
+#: src/Admin/AdminModule.php:118
 msgid "Feedback-Links"
 msgstr ""
 
@@ -506,7 +506,7 @@ msgstr ""
 msgid "Umgebung"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:347 src/Admin/SettingsFields.php:144
+#: src/Admin/DiagnosticsPage.php:347 src/Admin/SettingsFields.php:146
 msgid "Hintergrundaufgaben"
 msgstr ""
 
@@ -1070,7 +1070,7 @@ msgstr ""
 msgid "Veranstaltung"
 msgstr ""
 
-#: src/Admin/ReviewsPage.php:206 src/Admin/SettingsFields.php:122
+#: src/Admin/ReviewsPage.php:206 src/Admin/SettingsFields.php:123
 msgid "Formular"
 msgstr ""
 
@@ -1202,7 +1202,7 @@ msgstr ""
 msgid "Angelegt"
 msgstr ""
 
-#: src/Admin/ReviewsPage.php:483 src/Admin/SettingsFields.php:123
+#: src/Admin/ReviewsPage.php:483 src/Admin/SettingsFields.php:124
 msgid "Einwilligung"
 msgstr ""
 
@@ -1682,219 +1682,231 @@ msgstr ""
 msgid "Zeigt Fotos freigegebener Bewertungen in den Karten. Personenbezogen möglich."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:78
+#: src/Admin/SettingsFields.php:76
+msgid "Trusted-Shops-ID (TSID)"
+msgstr ""
+
+#: src/Admin/SettingsFields.php:76
+msgid "Für das offizielle Siegel über [review_captain_trustbadge]. Es lädt erst nach Klick der Besucher; vorher wird nichts an Trusted Shops übertragen. Leer = aus."
+msgstr ""
+
+#: src/Admin/SettingsFields.php:79
 msgid "Externe Reviews ohne Bestätigung (Tage)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:78
+#: src/Admin/SettingsFields.php:79
 msgid "Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:79
+#: src/Admin/SettingsFields.php:80
 msgid "Abgelehnte Reviews (Tage)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:79
+#: src/Admin/SettingsFields.php:80
 msgid "Danach endgültige Löschung inklusive Verlauf."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:80
+#: src/Admin/SettingsFields.php:81
 msgid "Datenschutzhinweis im Formular"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:80
+#: src/Admin/SettingsFields.php:81
 msgid "Leer = kurzer Standardtext mit Link zu deiner Datenschutzseite."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:81
+#: src/Admin/SettingsFields.php:82
 msgid "Verhalten bei Löschanfragen"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:81
+#: src/Admin/SettingsFields.php:82
 msgid "Was „Personenbezogene Daten löschen“ (Werkzeuge) mit Reviews dieser E-Mail-Adresse macht."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:82
+#: src/Admin/SettingsFields.php:83
 msgid "Protokolle (Tage)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:82
+#: src/Admin/SettingsFields.php:83
 msgid "Protokolle enthalten keine Reviewtexte oder Zugangsdaten."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:83
+#: src/Admin/SettingsFields.php:84
 msgid "Erledigte Hintergrundaufgaben (Tage)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:84
+#: src/Admin/SettingsFields.php:85
 msgid "Daten beim Deinstallieren löschen"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:84
+#: src/Admin/SettingsFields.php:85
 msgid "An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:87
+#: src/Admin/SettingsFields.php:88
 msgid "Wer darf moderieren"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:87
+#: src/Admin/SettingsFields.php:88
 msgid "Moderierende sehen eingereichte Reviews inklusive Kontaktadresse. Administratoren behalten immer alle Rechte."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:88
+#: src/Admin/SettingsFields.php:89
 msgid "Wer darf Einstellungen ändern"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:88
+#: src/Admin/SettingsFields.php:89
 msgid "Administratoren behalten immer alle Rechte."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:91
+#: src/Admin/SettingsFields.php:92
 msgid "Action Scheduler verwenden"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:91
+#: src/Admin/SettingsFields.php:92
 msgid "Falls verfügbar (z. B. durch WooCommerce), sonst WP-Cron. Bei wenig Besucherverkehr empfehlen wir einen Server-Cron."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:92
+#: src/Admin/SettingsFields.php:93
 msgid "Zeitbudget je Lauf (Sekunden)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:92
+#: src/Admin/SettingsFields.php:93
 msgid "Nur ändern, wenn die Diagnose Zeitüberschreitungen meldet."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:93
+#: src/Admin/SettingsFields.php:94
 msgid "Freigabe hängender Aufgaben (Sekunden)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:93
+#: src/Admin/SettingsFields.php:94
 msgid "Muss länger als das Zeitbudget sein."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:94
+#: src/Admin/SettingsFields.php:95
 msgid "Fehlerprotokoll"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:94
+#: src/Admin/SettingsFields.php:95
 msgid "Enthält keine Zugangsdaten, Reviewtexte oder E-Mail-Adressen."
 msgstr ""
 
-#: src/Admin/SettingsFields.php:107
+#: src/Admin/SettingsFields.php:108
 msgid "Identität"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:108
+#: src/Admin/SettingsFields.php:109
 msgid "Sprache & Datum"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:109
+#: src/Admin/SettingsFields.php:110
 msgid "Neue Reviews"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:112
+#: src/Admin/SettingsFields.php:113
 msgid "Zeitfenster"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:113
+#: src/Admin/SettingsFields.php:114
 msgid "Gelöschte Reviews"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:116
+#: src/Admin/SettingsFields.php:117
 msgid "Absender"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:117
+#: src/Admin/SettingsFields.php:118
 msgid "Versandzeiten"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:118
+#: src/Admin/SettingsFields.php:119
 msgid "Grenzen"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:119
+#: src/Admin/SettingsFields.php:120
 msgid "Erinnerungen"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:124
+#: src/Admin/SettingsFields.php:125
 msgid "Benachrichtigung"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:125
+#: src/Admin/SettingsFields.php:126
 msgid "Erweiterte Funktionen (nach 1.0)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:128
+#: src/Admin/SettingsFields.php:129
 msgid "Inhalte"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:129
+#: src/Admin/SettingsFields.php:130
 msgid "Leerer Zustand"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:130
+#: src/Admin/SettingsFields.php:131
 msgid "Barrierefreiheit"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:131
+#: src/Admin/SettingsFields.php:132
 msgid "Fotos"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:134
-msgid "Aufbewahrung"
-msgstr ""
-
-#: src/Admin/SettingsFields.php:135 src/Admin/SetupChecklist.php:65
-msgid "Datenschutzhinweis"
+#: src/Admin/SettingsFields.php:133
+msgid "Trusted Shops"
 msgstr ""
 
 #: src/Admin/SettingsFields.php:136
+msgid "Aufbewahrung"
+msgstr ""
+
+#: src/Admin/SettingsFields.php:137 src/Admin/SetupChecklist.php:65
+msgid "Datenschutzhinweis"
+msgstr ""
+
+#: src/Admin/SettingsFields.php:138
 msgid "Löschanfragen"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:137
+#: src/Admin/SettingsFields.php:139
 msgid "Deinstallation"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:140
+#: src/Admin/SettingsFields.php:142
 msgid "Moderation"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:145
+#: src/Admin/SettingsFields.php:147
 msgid "Fehlersuche"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:160
+#: src/Admin/SettingsFields.php:162
 msgid "Prüfung ausstehend (empfohlen)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:161
+#: src/Admin/SettingsFields.php:163
 msgid "Sofort freigeben"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:164
+#: src/Admin/SettingsFields.php:166
 msgid "Inhalt entfernen, Platzhalter behalten"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:165
+#: src/Admin/SettingsFields.php:167
 msgid "Nur ausblenden (Inhalt bis Fristablauf speichern)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:168
+#: src/Admin/SettingsFields.php:170
 msgid "Absolut (12.11.2026)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:169
+#: src/Admin/SettingsFields.php:171
 msgid "Relativ (vor 3 Tagen)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:172
+#: src/Admin/SettingsFields.php:174
 msgid "Anonymisieren (Text und Bewertung bleiben)"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:173
+#: src/Admin/SettingsFields.php:175
 msgid "Review vollständig löschen"
 msgstr ""
 
@@ -3210,6 +3222,19 @@ msgstr ""
 msgid "Profil-ID"
 msgstr ""
 
+#. translators: %s: third-party host name
+#: src/Integrations/TrustedShops/Trustbadge.php:81 src/Security/EmbedPolicy.php:121
+msgid "Beim Laden werden Daten an %s übertragen."
+msgstr ""
+
+#: src/Integrations/TrustedShops/Trustbadge.php:85
+msgid "Trusted-Shops-Siegel laden"
+msgstr ""
+
+#: src/Integrations/TrustedShops/Trustbadge.php:88
+msgid "Bewertungen bei Trusted Shops ansehen"
+msgstr ""
+
 #: src/Jobs/Diagnostics.php:61
 msgid "Wartend"
 msgstr ""
@@ -3589,11 +3614,6 @@ msgstr ""
 
 #: src/Security/EmbedPolicy.php:110
 msgid "Eingebetteter Inhalt"
-msgstr ""
-
-#. translators: %s: third-party host name
-#: src/Security/EmbedPolicy.php:121
-msgid "Beim Laden werden Daten an %s übertragen."
 msgstr ""
 
 #. translators: %s: content title

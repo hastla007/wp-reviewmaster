@@ -73,6 +73,7 @@ final class SettingsFields {
 				'reduced_motion' => array( __( 'Bewegung reduzieren', 'review-captain' ), __( 'Keine automatischen Animationen oder Karussell-Rotation. Die Systemeinstellung der Besucher wird immer beachtet.', 'review-captain' ) ),
 				'load_css'       => array( __( 'Plugin-CSS laden', 'review-captain' ), __( 'Aus = dein Theme muss die Ausgabe selbst gestalten (Klassen rc-…).', 'review-captain' ) ),
 				'show_photos'    => array( __( 'Fotos anzeigen', 'review-captain' ), __( 'Zeigt Fotos freigegebener Bewertungen in den Karten. Personenbezogen möglich.', 'review-captain' ) ),
+				'trustedshops_id' => array( __( 'Trusted-Shops-ID (TSID)', 'review-captain' ), __( 'Für das offizielle Siegel über [review_captain_trustbadge]. Es lädt erst nach Klick der Besucher; vorher wird nichts an Trusted Shops übertragen. Leer = aus.', 'review-captain' ) ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( __( 'Externe Reviews ohne Bestätigung (Tage)', 'review-captain' ), __( 'Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde.', 'review-captain' ) ),
@@ -129,6 +130,7 @@ final class SettingsFields {
 				__( 'Leerer Zustand', 'review-captain' )   => array( 'empty_text' ),
 				__( 'Barrierefreiheit', 'review-captain' ) => array( 'reduced_motion' ),
 				__( 'Fotos', 'review-captain' )            => array( 'show_photos' ),
+				__( 'Trusted Shops', 'review-captain' )    => array( 'trustedshops_id' ),
 			),
 			'privacy'     => array(
 				__( 'Aufbewahrung', 'review-captain' )       => array( 'retention_external_days', 'retention_rejected_days' ),

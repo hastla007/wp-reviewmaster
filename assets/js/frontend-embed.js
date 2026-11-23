@@ -15,7 +15,46 @@
 		'widgets.trustedshops.com'
 	];
 
+	// RC-077: official script widgets (Trusted Shops trustbadge). Only this host and path shape.
+	var SCRIPT_HOSTS = [ 'widgets.trustedshops.com' ];
+	var SCRIPT_PATH = /^\/js\/X[0-9A-F]{32}\.js$/;
+
+	function loadScript( placeholder, src ) {
+		var url;
+		try {
+			url = new URL( src );
+		} catch ( e ) {
+			return;
+		}
+		if ( 'https:' !== url.protocol || ( url.port && '443' !== url.port ) || url.username || url.password || url.search || SCRIPT_HOSTS.indexOf( url.hostname ) === -1 || ! SCRIPT_PATH.test( url.pathname ) ) {
+			return;
+		}
+		var script = document.createElement( 'script' );
+		script.src = url.href;
+		script.async = true;
+		script.setAttribute( 'referrerpolicy', 'strict-origin-when-cross-origin' );
+		document.body.appendChild( script );
+		var fallback = placeholder.querySelector( '.rc-embed-placeholder__fallback' );
+		var notice = placeholder.querySelector( '.rc-embed-placeholder__notice' );
+		var button = placeholder.querySelector( '.rc-embed-placeholder__load' );
+		if ( button ) {
+			button.remove();
+		}
+		if ( notice ) {
+			notice.remove();
+		}
+		placeholder.classList.add( 'is-loaded' );
+		if ( fallback ) {
+			fallback.focus();
+		}
+	}
+
 	function load( placeholder ) {
+		var scriptSrc = placeholder.getAttribute( 'data-rc-embed-script' );
+		if ( scriptSrc ) {
+			loadScript( placeholder, scriptSrc );
+			return;
+		}
 		var src = placeholder.getAttribute( 'data-rc-embed-src' ) || '';
 		var url;
 		try {

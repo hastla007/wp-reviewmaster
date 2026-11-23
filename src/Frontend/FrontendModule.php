@@ -143,6 +143,7 @@ final class FrontendModule implements Module {
 		add_shortcode( self::SHORTCODE_REVIEWS, array( $this, 'shortcode_reviews' ) );
 		add_shortcode( self::SHORTCODE_FORM, array( $this, 'shortcode_form' ) );
 		add_shortcode( self::SHORTCODE_CTA, array( $this, 'shortcode_cta' ) );
+		add_shortcode( \ReviewCaptain\Integrations\TrustedShops\Trustbadge::SHORTCODE, array( $this, 'shortcode_trustbadge' ) );
 		add_shortcode( QuestionHandler::SHORTCODE, array( $this, 'shortcode_qa' ) );
 		add_shortcode( \ReviewCaptain\Moderation\CorrectionHandler::SHORTCODE, array( $this, 'shortcode_correction' ) );
 		self::register_assets();
@@ -179,6 +180,20 @@ final class FrontendModule implements Module {
 		$atts         = is_array( $atts ) ? $atts : array();
 		$atts['type'] = 'cta';
 		return $this->registry()->render( WidgetDefinition::from_atts( $atts, 'cta' ) );
+	}
+
+	/**
+	 * Shortcode [review_captain_trustbadge tsid="X…"] (RC-077). Without tsid the setting is used.
+	 *
+	 * @param mixed $atts Attributes.
+	 */
+	public function shortcode_trustbadge( $atts ): string {
+		$atts = is_array( $atts ) ? $atts : array();
+		$tsid = isset( $atts['tsid'] ) && is_scalar( $atts['tsid'] ) ? (string) $atts['tsid'] : '';
+		if ( '' === $tsid ) {
+			$tsid = (string) $this->plugin->settings()->get( 'display', 'trustedshops_id', '' );
+		}
+		return \ReviewCaptain\Integrations\TrustedShops\Trustbadge::render( $tsid );
 	}
 
 	/**

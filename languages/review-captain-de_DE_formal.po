@@ -3884,3 +3884,18 @@ msgstr "Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt 
 
 msgid "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."
 msgstr "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."
+
+msgid "Trusted-Shops-Siegel laden"
+msgstr "Trusted-Shops-Siegel laden"
+
+msgid "Bewertungen bei Trusted Shops ansehen"
+msgstr "Bewertungen bei Trusted Shops ansehen"
+
+msgid "Trusted-Shops-ID (TSID)"
+msgstr "Trusted-Shops-ID (TSID)"
+
+msgid "Für das offizielle Siegel über [review_captain_trustbadge]. Es lädt erst nach Klick der Besucher; vorher wird nichts an Trusted Shops übertragen. Leer = aus."
+msgstr "Für das offizielle Siegel über [review_captain_trustbadge]. Es lädt erst nach Klick der Besucher; vorher wird nichts an Trusted Shops übertragen. Leer = aus."
+
+msgid "Trusted Shops"
+msgstr "Trusted Shops"

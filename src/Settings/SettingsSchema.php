@@ -125,6 +125,8 @@ final class SettingsSchema {
 				'schema_enabled' => array( 'type' => 'bool', 'default' => true ),
 				'load_css'       => array( 'type' => 'bool', 'default' => true, 'advanced' => true ),
 				'show_photos'    => array( 'type' => 'bool', 'default' => false ),
+				// RC-077: Trusted Shops ID for the consent-gated trustbadge; empty = off.
+				'trustedshops_id' => array( 'type' => 'string', 'default' => '' ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),

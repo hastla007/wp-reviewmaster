@@ -3884,3 +3884,18 @@ msgstr "The change is only published after review. Until then the previous versi
 
 msgid "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."
 msgstr "Hello,\n\nwith this link you can correct or withdraw your review on %1$s. The link is valid for one hour and works once:\n\n%2$s\n\nIf you did not request this, please ignore this email."
+
+msgid "Trusted-Shops-Siegel laden"
+msgstr "Load Trusted Shops trustmark"
+
+msgid "Bewertungen bei Trusted Shops ansehen"
+msgstr "View reviews on Trusted Shops"
+
+msgid "Trusted-Shops-ID (TSID)"
+msgstr "Trusted Shops ID (TSID)"
+
+msgid "Für das offizielle Siegel über [review_captain_trustbadge]. Es lädt erst nach Klick der Besucher; vorher wird nichts an Trusted Shops übertragen. Leer = aus."
+msgstr "For the official trustmark via [review_captain_trustbadge]. It only loads after the visitor clicks; nothing is sent to Trusted Shops before that. Empty = off."
+
+msgid "Trusted Shops"
+msgstr "Trusted Shops"

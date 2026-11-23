@@ -179,7 +179,7 @@ Jeder Provider durchläuft dieselbe Reihenfolge: Verbindung → Test → Profilw
 - [x] **RC-074 – eTrusted-API-Client verbinden.** Ergebnis: API-Client, Channel, Berechtigung und Tokenrefresh werden geprüft.
 - [x] **RC-075 – eTrusted-Reviews paginiert synchronisieren.** Ergebnis: Service-/Produktreviews werden korrekt typisiert und dem Kanal zugeordnet.
 - [ ] **RC-076 – eTrusted-Review-Invite-Modus integrieren.** Ergebnis: Event-/Invite-API läuft nur mit gültigem Vertrag und zugelassenen Datenfeldern.
-- [ ] **RC-077 – Trusted-Shops-Widget-Fallback einbauen.** Ergebnis: offizieller Badge-/Embed-Weg ist konfigurierbar, trennbar und im Frontend datenschutzbewusst.
+- [x] **RC-077 – Trusted-Shops-Widget-Fallback einbauen.** Ergebnis: offizieller Badge-/Embed-Weg ist konfigurierbar, trennbar und im Frontend datenschutzbewusst. *Erledigt 23.11.2026:* `[review_captain_trustbadge]` + Einstellung *Darstellung → Trusted-Shops-ID*; offizielles Trustbadge-Skript lädt erst nach Klick (Hinweis, Fallback-Link zum Profil, Host-/Pfadprüfung in PHP und JS), Unit-Tests ([widget-v1](docs/contracts/widget-v1.md)). Offen nur: Sichtprüfung mit echter TSID eines Händlers.
 
 ### Apple App Store und Google Play
 
