@@ -228,7 +228,7 @@ class Renderer {
 			'html'     => '' === $text ? '' : TemplateLoader::render(
 				'verification-notice.php',
 				array(
-					'title' => __( 'So prüfen wir Bewertungen', 'review-captain' ),
+					'title' => PublicTexts::get( $settings, 'display', 'verification_notice_title' ),
 					'html'  => wpautop( esc_html( $text ) ),
 				)
 			),

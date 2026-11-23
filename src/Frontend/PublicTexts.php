@@ -38,6 +38,7 @@ final class PublicTexts {
 			'submissions.email_hint'             => __( 'Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.', 'review-captain' ),
 			'submissions.submit_label'           => __( 'Bewertung senden', 'review-captain' ),
 			'submissions.report_confirmation'    => __( 'Danke für Ihre Meldung. Wir prüfen die Bewertung.', 'review-captain' ),
+			'display.verification_notice_title'  => __( 'So prüfen wir Bewertungen', 'review-captain' ),
 			'display.label_purchase_verified'    => __( 'Verifizierter Kauf', 'review-captain' ),
 			'display.label_attendance_confirmed' => __( 'Teilnahme bestätigt', 'review-captain' ),
 			'display.label_unverified'           => __( 'Ungeprüft', 'review-captain' ),
