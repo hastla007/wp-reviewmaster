@@ -7,7 +7,7 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 ## [Unreleased]
 
 ### Added
-- Vertrag 1.1.0 (RC-4): Payload `review_captain.review.v1` der Hooks `review_captain_review_created_v1`, `_status_changed_v1` und `_removed_v1` enthält zusätzlich `rating_value`, `rating_scale_min` und `rating_scale_max`. `rating_value` ist `null`, wenn die Bewertung keine Sterne hat. ADR-0007 stellt klar: Zusätzliche optionale Felder heben nur MINOR.
+- Vertrag 1.1.0 (RC-4): Payload `review_captain.review.v1` der Hooks `review_captain_review_created_v1`, `_status_changed_v1` und `_removed_v1` enthält zusätzlich `rating_value`, `rating_scale_min` und `rating_scale_max`. `rating_value` ist `null`, wenn die Bewertung keine Sterne hat. Neu ist außerdem `removal`: `tombstoned` (Status „entfernt“, Zeile bleibt) oder `deleted` (Zeile gelöscht) bei `review_captain_review_removed_v1`, sonst `null`. ADR-0007 stellt klar: Zusätzliche optionale Felder heben nur MINOR.
 - Öffentliche Vertragsversion `REVIEW_CAPTAIN_CONTRACT_VERSION` = `1.0.0` (SemVer, unabhängig von der Plugin-Version; Suite-Spezifikation R-3.1, RC-2), dokumentiert in `docs/contracts/README.md`, geprüft durch `tests/Unit/Support/ContractVersionTest.php` und `bin/check-plugin-meta.php`.
 
 ### Changed

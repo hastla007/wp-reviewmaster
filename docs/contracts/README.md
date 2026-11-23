@@ -35,7 +35,7 @@ Stand: `1.1.0`.
 | Version | Änderung |
 |---|---|
 | 1.0.0 | erster öffentlicher Vertrag (RC-2) |
-| 1.1.0 | Payload `review_captain.review.v1` additiv um `rating_value`, `rating_scale_min`, `rating_scale_max` ergänzt (RC-4); `rating_value` ist `null`, wenn die Bewertung keine Sterne hat |
+| 1.1.0 | Payload `review_captain.review.v1` additiv um `rating_value`, `rating_scale_min`, `rating_scale_max` ergänzt (RC-4); `rating_value` ist `null`, wenn die Bewertung keine Sterne hat; außerdem `removal` (`tombstoned` = Status „entfernt“, Zeile bleibt; `deleted` = Zeile gelöscht) bei `review_captain_review_removed_v1`, sonst `null` |
 
 Neue Felder in einem Payload sind additiv und optional: Empfänger müssen unbekannte Schlüssel ignorieren (siehe [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md), Ergänzung vom 23.11.2026).
 

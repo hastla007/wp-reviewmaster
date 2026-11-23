@@ -54,8 +54,26 @@ final class PayloadTest extends TestCase {
 			$this->assertStringNotContainsString( $needle, $encoded );
 		}
 		$this->assertSame(
-			array( 'schema', 'event_id', 'review_uuid', 'kind', 'platform', 'origin', 'status', 'previous_status', 'verification', 'rating_value', 'rating_scale_min', 'rating_scale_max', 'context_type', 'context_id', 'experience_id', 'occurred_at' ),
+			array( 'schema', 'event_id', 'review_uuid', 'kind', 'platform', 'origin', 'status', 'previous_status', 'verification', 'rating_value', 'rating_scale_min', 'rating_scale_max', 'context_type', 'context_id', 'experience_id', 'removal', 'occurred_at' ),
 			array_keys( Events::payload( self::review( 5.0 ) ) )
 		);
+	}
+
+	public function test_removal_field(): void {
+		$this->assertNull( Events::payload( self::review( 5.0 ) )['removal'] );
+		$this->assertSame( 'tombstoned', Events::payload( self::review( 5.0 ), null, 'tombstoned' )['removal'] );
+
+		$seen = array();
+		add_action(
+			'review_captain_review_removed_v1',
+			static function ( $payload ) use ( &$seen ) {
+				$seen[] = $payload['removal'];
+			}
+		);
+		$events = new Events();
+		$events->review_removed( self::review( 5.0 ), 'tombstoned' );
+		$events->review_removed( self::review( 5.0 ) );
+		$events->review_removed( self::review( 5.0 ), 'anything' );
+		$this->assertSame( array( 'tombstoned', 'deleted', 'deleted' ), $seen );
 	}
 }
