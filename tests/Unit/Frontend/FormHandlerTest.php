@@ -163,9 +163,9 @@ final class FormHandlerTest extends FrontendTestCase {
 
 	public function test_rate_limit_per_ip_hash(): void {
 		$this->settings( array( 'submissions' => array( 'rate_limit_per_hour' => 2 ) ) );
-		$this->assertTrue( $this->handler()->process( $this->post() )['ok'] );
-		$this->assertTrue( $this->handler()->process( $this->post() )['ok'] );
-		$third = $this->handler()->process( $this->post() );
+		$this->assertTrue( $this->handler()->process( $this->post( array( 'rc_body' => 'Erste Bewertung mit ausreichend langem Text.' ) ) )['ok'] );
+		$this->assertTrue( $this->handler()->process( $this->post( array( 'rc_body' => 'Zweite Bewertung mit ausreichend langem Text.' ) ) )['ok'] );
+		$third = $this->handler()->process( $this->post( array( 'rc_body' => 'Dritte Bewertung mit ausreichend langem Text.' ) ) );
 		$this->assertSame( array( 'rate_limited' ), $third['errors'] );
 		$this->assertSame( 2, $this->rows( 'reviews' ) );
 
@@ -176,6 +176,28 @@ final class FormHandlerTest extends FrontendTestCase {
 		// Another IP is not affected.
 		$_SERVER['REMOTE_ADDR'] = '10.0.0.9';
 		$this->assertTrue( $this->handler()->process( $this->post() )['ok'] );
+	}
+
+	public function test_double_click_stores_one_review_and_answers_like_the_first(): void {
+		$this->settings( array( 'general' => array( 'new_review_status' => 'approved' ) ) );
+		$post   = $this->post();
+		$first  = $this->handler()->process( $post );
+		$mails  = count( \RC_Test_State::$mails );
+		$second = $this->handler()->process( $post );
+		$this->assertTrue( $second['ok'], 'the repeated POST is not an error' );
+		$this->assertSame( $first['redirect'], $second['redirect'], 'same answer ("now visible")' );
+		$this->assertSame( (int) $first['review']->id, (int) $second['review']->id );
+		$this->assertSame( 1, $this->rows( 'reviews' ) );
+		$this->assertSame( $mails, count( \RC_Test_State::$mails ), 'no second notification' );
+
+		// Same form, changed text (e.g. back button, edited): a new review as before.
+		$edited = $this->handler()->process( $this->post( array( 'rc_body' => 'Nachtrag: auch die Lieferung war schnell und gut verpackt.' ) ) );
+		$this->assertNotSame( (int) $first['review']->id, (int) $edited['review']->id );
+		$this->assertSame( 2, $this->rows( 'reviews' ) );
+
+		// The key is cleared with the contact address (retention/erasure), like the multi-product key.
+		$this->assertNotNull( $first['review']->submission_key );
+		$this->assertStringNotContainsString( 'carla', (string) $first['review']->submission_key );
 	}
 
 	public function test_repeated_invalid_attempts_are_limited(): void {

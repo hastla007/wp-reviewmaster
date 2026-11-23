@@ -296,6 +296,11 @@ class FormHandler {
 			$review    = $this->build_review( $settings, $item['rating'], $title, $item['body'], $name, $email, $consent, $type, $target_id );
 			if ( $unique && '' !== $target_id ) {
 				$review->submission_key = self::submission_key( $email, $type, $target_id );
+			} elseif ( null === $multi ) {
+				// Double click / resent POST (review P2): the same rendered form with the same content
+				// is stored once; the UNIQUE key makes this hold for parallel requests, too.
+				$photo_sum              = null !== $photo && is_string( $file['tmp_name'] ?? null ) && is_readable( $file['tmp_name'] ) ? (string) sha1_file( $file['tmp_name'] ) : '';
+				$review->submission_key = self::replay_key( (string) ( $post['rc_ts'] ?? '' ), $email, $type, $target_id, $item['rating'] . '|' . $title . '|' . $item['body'] . '|' . $photo_sum );
 			}
 			$hold = self::hold_reasons( $review, $settings );
 			if ( $hold ) {
@@ -308,7 +313,12 @@ class FormHandler {
 				}
 				$saved[] = $inserted;
 			} catch ( \Throwable $e ) {
-				if ( null !== $review->submission_key && null !== $this->plugin->reviews()->find_by_submission_key( $review->submission_key ) ) {
+				$existing = null !== $review->submission_key ? $this->plugin->reviews()->find_by_submission_key( $review->submission_key ) : null;
+				if ( null !== $existing && null === $multi && ! ( $unique && '' !== $target_id ) ) {
+					// Replay of a stored submission: answer like the first request, store and notify nothing.
+					return $success( $existing, ReviewStatus::APPROVED === $existing->status ) + array( 'reviews' => array( $existing ) );
+				}
+				if ( null !== $existing ) {
 					++$duplicates; // UNIQUE submission_key: this person already rated this context.
 					continue;
 				}
@@ -480,6 +490,21 @@ class FormHandler {
 	 */
 	public static function submission_key( string $email, string $type, string $cid ): string {
 		return hash_hmac( 'sha1', strtolower( trim( $email ) ) . '|' . $type . '|' . $cid, wp_salt( 'auth' ) );
+	}
+
+	/**
+	 * Key of one rendered form submitted with one content (double-click protection, review P2).
+	 * Stored in the UNIQUE submission_key column like the multi-product key, so retention and
+	 * erasure clear it together with the e-mail; the e-mail is not derivable from it.
+	 *
+	 * @param string $ts      Signed render timestamp of the form (rc_ts).
+	 * @param string $email   E-mail.
+	 * @param string $type    Context type.
+	 * @param string $cid     Context ID.
+	 * @param string $content Rating, title and text.
+	 */
+	public static function replay_key( string $ts, string $email, string $type, string $cid, string $content ): string {
+		return hash_hmac( 'sha1', 'once|' . $ts . '|' . strtolower( trim( $email ) ) . '|' . $type . '|' . $cid . '|' . $content, wp_salt( 'auth' ) );
 	}
 
 	/**
