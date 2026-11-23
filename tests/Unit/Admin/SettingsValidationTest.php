@@ -38,6 +38,33 @@ final class SettingsValidationTest extends AdminTestCase {
 		$this->assertSame( 1000, SettingsSchema::sanitize_value( $fields['submissions']['min_text_length'], '99999' ) );
 	}
 
+	public function test_too_long_text_is_reported_not_cut(): void {
+		// SET-RC-P1: texts over max_length were cut silently (e.g. the consent text mid-sentence).
+		$fields = SettingsSchema::fields();
+		$this->assertSame( array( str_repeat( 'a', 60 ), null ), SettingsSchema::validate_value( $fields['submissions']['submit_label'], str_repeat( 'a', 60 ) ) );
+		$this->assertSame( 'Bitte kürze den Text auf höchstens 60 Zeichen (derzeit 61).', SettingsSchema::validate_value( $fields['submissions']['submit_label'], str_repeat( 'ä', 61 ) )[1] );
+		$this->assertNull( SettingsSchema::validate_value( $fields['general']['brand_name'], str_repeat( 'a', 500 ) )[1], 'fields without max_length stay unlimited' );
+
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		$consent = str_repeat( 'Ich willige ein. ', 120 ); // 2040 characters, limit 2000.
+		$result  = $this->page()->save_tab(
+			'submissions',
+			array(
+				'submissions' => array(
+					'enabled'      => '1',
+					'consent_text' => $consent,
+					'submit_label' => 'Senden',
+				),
+			)
+		);
+		$this->assertSame( array( 'submissions-consent_text' ), $result['invalid'] );
+		$this->assertSame( $consent, $result['given']['consent_text'], 'the whole input is shown again for editing' );
+		$s = new Settings();
+		$this->assertSame( '', $s->get( 'submissions', 'consent_text' ), 'the stored value stays' );
+		$this->assertSame( 'Senden', $s->get( 'submissions', 'submit_label' ) );
+		$this->assertSame( 60, mb_strlen( SettingsSchema::sanitize_value( $fields['submissions']['submit_label'], str_repeat( 'a', 70 ) ) ), 'import keeps shortening' );
+	}
+
 	public function test_cross_checks(): void {
 		$this->assertSame( array( 'min_text_length', 'max_text_length' ), SettingsSchema::cross_check( 'submissions', array( 'min_text_length' => 500, 'max_text_length' => 500 ) )[0]['fields'] );
 		$this->assertSame( array(), SettingsSchema::cross_check( 'submissions', array( 'min_text_length' => 20, 'max_text_length' => 500 ) ) );
@@ -189,6 +216,8 @@ final class SettingsValidationTest extends AdminTestCase {
 		$this->page()->render();
 		$html = (string) ob_get_clean();
 		$this->assertStringContainsString( 'name="review_captain_settings[privacy][uninstall_confirm_word]"', $html );
+		$this->assertStringContainsString( 'Beim Löschen des Plugins alle Daten entfernen', $html, 'S10 suite label' );
+		$this->assertStringContainsString( 'Fotos', \ReviewCaptain\Admin\SettingsFields::description( 'privacy', 'delete_data_on_uninstall' ), 'help text names what is deleted' );
 		$this->assertStringNotContainsString( 'name="review_captain_settings[privacy][delete_data_confirmed_at]"', $html, 'internal field is not rendered' );
 		$this->assertStringContainsString( 'name="review_captain_settings[privacy][retention_audit_days]"', $html );
 

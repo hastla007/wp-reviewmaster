@@ -16,6 +16,8 @@ Status: Entwurf zur Abnahme, Stand 2026-11-23 (Hinweiszeilen nach Entscheidung S
 
 `{id, tab, title, text, link}` – `id` aus `[a-z0-9_.-]`, eindeutig, nie ein Lizenzschlüssel; `tab` ein bestehender Tab; `title` und `text` nicht leer; `link` leer oder `http(s)`. Quelle: `Admin\SettingsHints`, Filter `review_captain_settings_hints` (ganze Liste) und `review_captain_settings_hint_link` (Link einer Core-Zeile, Standard leer). Vorläufig, bis die Lizenz-Sitzung den Kernel-Vertrag veröffentlicht.
 
+Die Kennungen und Tabs der Tabelle sind Vertrag mit Review Captain Pro (`CoreBridge::HINT_*`, `replaces_hint`): Eine umbenannte Kennung ließe die graue Zeile neben dem echten Feld stehen, ohne Fehlermeldung. Änderungen nur gemeinsam mit Pro; `tests/Unit/Admin/SettingsHintsContractTest.php` hält Konstanten, Tabs und diese Tabelle gleich (SET-RC-P6).
+
 | Kennung (`SettingsHints::…`) | Tab | Titel | Ersetzt durch |
 |---|---|---|---|
 | `requests.invitations` (`REQUESTS`) | requests | Bewertungs-Einladungen | Pro-Feld `sender_name` |

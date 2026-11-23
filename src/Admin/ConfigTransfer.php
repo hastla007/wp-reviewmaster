@@ -14,7 +14,8 @@ use ReviewCaptain\Settings\SettingsSchema;
 
 /**
  * Pure logic, no output. Export never contains secrets or personal data:
- * fields with privacy 'personal' and keys that look like secrets are omitted.
+ * fields with privacy 'personal', fields with 'export' => false (the uninstall switch, S10) and
+ * keys that look like secrets are omitted; an import never touches them either.
  */
 final class ConfigTransfer {
 
@@ -36,7 +37,7 @@ final class ConfigTransfer {
 	 * @param array<string, mixed> $field Field definition.
 	 */
 	public static function exportable( string $key, array $field ): bool {
-		if ( 'personal' === ( $field['privacy'] ?? 'none' ) || ! empty( $field['internal'] ) ) {
+		if ( 'personal' === ( $field['privacy'] ?? 'none' ) || ! empty( $field['internal'] ) || false === ( $field['export'] ?? true ) ) {
 			return false;
 		}
 		if ( preg_match( self::SECRET_PATTERN, $key ) ) {
@@ -78,13 +79,17 @@ final class ConfigTransfer {
 	 *
 	 * Rules: schema must match and schema_version must not be newer than ours; only known,
 	 * exportable fields of the allowed tabs are taken; values pass the same sanitizer as the
-	 * settings page; Pro-owned fields stay untouched; unknown roles are dropped.
+	 * settings page; add-on fields (owner 'pro') are only taken while the add-on lets them be
+	 * written ($allow_pro, as on the settings page), otherwise they stay untouched; unknown roles
+	 * are dropped. Fields of a failed cross-field check (SettingsSchema::cross_check(), e.g.
+	 * minimum ≥ maximum text length) keep their current values; `kept` lists those checks.
 	 *
 	 * @param string            $json         JSON document.
 	 * @param list<string>|null $allowed_tabs Tabs the user may write (null = all).
-	 * @return array{values: array<string, array<string, mixed>>, diff: list<array{tab: string, key: string, old: mixed, new: mixed}>, tabs: list<string>}|null
+	 * @param bool              $allow_pro    Whether add-on fields may be written.
+	 * @return array{values: array<string, array<string, mixed>>, diff: list<array{tab: string, key: string, old: mixed, new: mixed}>, tabs: list<string>, kept: list<array{tab: string, fields: list<string>, message: string}>}|null
 	 */
-	public function preview( string $json, ?array $allowed_tabs = null ): ?array {
+	public function preview( string $json, ?array $allowed_tabs = null, bool $allow_pro = false ): ?array {
 		$doc = json_decode( $json, true );
 		if ( ! is_array( $doc ) || self::SCHEMA !== ( $doc['schema'] ?? null ) ) {
 			return null;
@@ -129,10 +134,31 @@ final class ConfigTransfer {
 				'values' => $current,
 				'diff'   => array(),
 				'tabs'   => array(),
+				'kept'   => array(),
 			);
 		}
 
-		$values = $this->settings->sanitize( $input, $tabs );
+		$values = $this->settings->sanitize( $input, $tabs, $allow_pro );
+		$kept   = array();
+		foreach ( $tabs as $tab ) {
+			foreach ( SettingsSchema::cross_check( $tab, (array) ( $values[ $tab ] ?? array() ) ) as $check ) {
+				$involved = array_values( array_filter( array_map( 'strval', (array) ( $check['fields'] ?? array() ) ), static fn( string $key ): bool => isset( $schema[ $tab ][ $key ] ) ) );
+				$reverted = array();
+				foreach ( $involved as $key ) {
+					if ( ( $values[ $tab ][ $key ] ?? null ) !== ( $current[ $tab ][ $key ] ?? null ) ) {
+						$values[ $tab ][ $key ] = $current[ $tab ][ $key ] ?? $schema[ $tab ][ $key ]['default'];
+						$reverted[]             = $key;
+					}
+				}
+				if ( $reverted ) {
+					$kept[] = array(
+						'tab'     => $tab,
+						'fields'  => $involved,
+						'message' => (string) ( $check['message'] ?? '' ),
+					);
+				}
+			}
+		}
 		if ( in_array( 'privacy', $tabs, true ) ) {
 			// SET-RC-20: an import can never switch on data deletion without the typed confirmation.
 			$values['privacy'] = SettingsSchema::guard_uninstall( (array) ( $values['privacy'] ?? array() ), (array) ( $current['privacy'] ?? array() ) )[0];
@@ -156,6 +182,7 @@ final class ConfigTransfer {
 			'values' => $values,
 			'diff'   => $diff,
 			'tabs'   => $tabs,
+			'kept'   => $kept,
 		);
 	}
 

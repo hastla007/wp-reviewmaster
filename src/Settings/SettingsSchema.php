@@ -18,7 +18,9 @@ namespace ReviewCaptain\Settings;
  * (enum; for array: allowed values), min/max (int), max_length (string/textarea, characters),
  * max_items (array/email_list), min_items (array: fewer → default), owner (core|pro),
  * privacy (none|personal|config), advanced (bool, progressive disclosure), scope (site|network),
- * internal (bool: written by the plugin itself, never rendered, imported, exported or set from input).
+ * internal (bool: written by the plugin itself, never rendered, imported, exported or set from input),
+ * export (bool, default true: false keeps a field out of configuration exports and imports, e.g. the
+ * uninstall switch – suite uninstall standard S10).
  * Fields added by an add-on may also carry: label, description, section (heading on the settings page)
  * and replaces_hint (id or list of ids of core hint lines this field replaces, see Admin\SettingsHints).
  */
@@ -217,6 +219,12 @@ final class SettingsSchema {
 					'type'    => 'bool',
 					'default' => true,
 				),
+				// P3: heading of the disclosure; empty = "So prüfen wir Bewertungen".
+				'verification_notice_title' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 80,
+				),
 				'verification_notice' => array(
 					'type'       => 'textarea',
 					'default'    => '',
@@ -301,9 +309,10 @@ final class SettingsSchema {
 					'default' => 'anonymize',
 					'choices' => array( 'anonymize', 'delete' ),
 				),
-				'delete_data_on_uninstall' => array( 'type' => 'bool', 'default' => false ),
+				// S10 suite uninstall standard: never exported or imported, switched on only with the typed word.
+				'delete_data_on_uninstall' => array( 'type' => 'bool', 'default' => false, 'export' => false ),
 				// SET-RC-20: UTC time the operator typed the confirmation word; empty = not confirmed.
-				'delete_data_confirmed_at' => array( 'type' => 'string', 'default' => '', 'internal' => true ),
+				'delete_data_confirmed_at' => array( 'type' => 'string', 'default' => '', 'internal' => true, 'export' => false ),
 				'privacy_notice'           => array( 'type' => 'textarea', 'default' => '' ),
 			),
 			'access'      => array(
@@ -549,6 +558,15 @@ final class SettingsSchema {
 				if ( ! is_scalar( $value ) && null !== $value ) {
 					return array( null, __( 'Ungültiger Wert.', 'review-captain' ) );
 				}
+				if ( isset( $field['max_length'] ) ) {
+					// Too long is reported, not cut (texts such as the consent text must never end mid-sentence).
+					$clean = 'textarea' === $field['type'] ? sanitize_textarea_field( (string) $value ) : sanitize_text_field( (string) $value );
+					$max   = max( 0, (int) $field['max_length'] );
+					if ( mb_strlen( $clean ) > $max ) {
+						/* translators: 1: maximum number of characters, 2: number of characters given */
+						return array( null, sprintf( __( 'Bitte kürze den Text auf höchstens %1$s Zeichen (derzeit %2$s).', 'review-captain' ), number_format_i18n( $max ), number_format_i18n( mb_strlen( $clean ) ) ) );
+					}
+				}
 				return array( self::sanitize_value( $field, (string) $value ), null );
 		}
 	}
@@ -618,7 +636,7 @@ final class SettingsSchema {
 	}
 
 	/**
-	 * Whether a typed word confirms "Daten beim Deinstallieren löschen" (SET-RC-20).
+	 * Whether a typed word confirms "Beim Löschen des Plugins alle Daten entfernen" (SET-RC-20).
 	 *
 	 * @param mixed $word Typed word.
 	 */

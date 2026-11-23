@@ -1,6 +1,6 @@
 # Review Captain – Verträge und Spezifikationen (Index)
 
-Stand: 2026-11-16. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme**, sofern nicht anders markiert. Verbindliche Namen, Tabellen, Hooks, Statuswerte und das Fehlercode-Format stammen aus [`../architecture/conventions.md`](../architecture/conventions.md); bei Widerspruch gilt conventions.md. Anbieterspezifische Werte (Auth, Scopes, Limits, Cache-Fristen) sind hier **nicht bestätigt** und werden in den Auth-/Provider-Records (RC-010–RC-013, RC-026) festgelegt.
+Stand: 2026-11-23. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme**, sofern nicht anders markiert. Verbindliche Namen, Tabellen, Hooks, Statuswerte und das Fehlercode-Format stammen aus [`../architecture/conventions.md`](../architecture/conventions.md); bei Widerspruch gilt conventions.md. Anbieterspezifische Werte (Auth, Scopes, Limits, Cache-Fristen) sind hier **nicht bestätigt** und werden in den Auth-/Provider-Records (RC-010–RC-013, RC-026) festgelegt.
 
 ## Dokumente
 
@@ -20,7 +20,8 @@ Stand: 2026-11-16. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme*
 | [race-conditions.md](race-conditions.md) | TEC-005 | 12 Szenarien mit erwartetem Verhalten und Testfällen | Entwurf |
 | [cross-site-interfaces.md](cross-site-interfaces.md) | TEC-011 | Voraussetzungen für spätere signierte REST/Webhooks | Entwurf (v1: nicht implementiert) |
 | [widget-v1.md](widget-v1.md) | RC-049–RC-055, RC-039, RC-118 | Shortcode-/Block-/Formularvertrag | **verbindlich**, an Implementierung angeglichen |
-| [../hooks.md](../hooks.md) | – | generierte Referenz aller `review_captain_*`-Hooks (`bin/list-hooks.php`) | generiert |
+| [../settings/pro-matrix.md](../settings/pro-matrix.md) | SET-RC-06, SET-RC-07 | Add-on-Felder (`review_captain_settings_schema`, `owner => 'pro'`, `replaces_hint`), Schreibrecht (`review_captain_pro_settings_writable`), Hinweiszeilen `{id, tab, title, text, link}` (`review_captain_settings_hints`) mit festen Kennungen | Entwurf; Kennungen geprüft durch `tests/Unit/Admin/SettingsHintsContractTest.php` |
+| [../hooks.md](../hooks.md) | – | generierte Referenz aller `review_captain_*`-Hooks (`bin/list-hooks.php`) | generiert; Stabilitätsstufe jedes Hooks in [conventions.md](../architecture/conventions.md) (`tests/Unit/Support/HookTiersTest.php`) |
 
 ## Vertragsversion
 
@@ -38,6 +39,8 @@ Stand: `1.1.0`.
 | 1.1.0 | Payload `review_captain.review.v1` additiv um `rating_value`, `rating_scale_min`, `rating_scale_max` ergänzt (RC-4); `rating_value` ist `null`, wenn die Bewertung keine Sterne hat; außerdem `removal` (`tombstoned` = Status „entfernt“, Zeile bleibt; `deleted` = Zeile gelöscht) bei `review_captain_review_removed_v1`, sonst `null` |
 
 Neue Felder in einem Payload sind additiv und optional: Empfänger müssen unbekannte Schlüssel ignorieren (siehe [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md), Ergänzung vom 23.11.2026).
+
+**Verwendungsregel für `rating_value` (Prüfphase SET-RC-P3, 23.11.2026):** Empfänger dürfen die Höhe einer Bewertung nicht nutzen, um Vorteile (Gutschein, Punkte, Provision, Rabatt), weitere Einladungen oder die Sichtbarkeit einer Bewertung davon abhängig zu machen, wie gut sie ausfällt (kein Review-Gating, vgl. [`rc-014`](../m0/rc-014-datenschutz-kommunikation.md), [`invitation-rule.md`](invitation-rule.md) Regel 3). Zulässig sind Auswertungen und Anzeigen, die alle Bewertungen gleich behandeln. Ob und wie ein Vorteil für eine Bewertung überhaupt gewährt und gekennzeichnet werden darf, ist eine Rechtsfrage (Kennzeichen „gegen Vorteil erhalten“, SET-RC-12) und *wartet auf* Rechtsprüfung.
 
  Ein Test (`tests/Unit/Support/ContractVersionTest.php`) prüft Format und Übereinstimmung der Hauptversion mit `WorkflowService::CONTRACT`. Adapter (z. B. Workflow Captain Pro) melden sich nur bei Hauptversion 1 an.
 

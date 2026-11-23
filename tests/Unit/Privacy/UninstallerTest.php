@@ -49,6 +49,21 @@ final class UninstallerTest extends TestCase {
 		$this->assertSame( array(), \RC_Test_State::$scheduled );
 	}
 
+	public function test_addon_data_is_left_to_the_addon(): void {
+		// P4-5: the core uninstall deleted review_captain_pro_* options (licence) and cleared the add-on's cron hooks.
+		wp_schedule_event( time(), 'hourly', 'review_captain_pro_send_requests' );
+		wp_schedule_event( time(), 'hourly', 'review_captain_custom_hook' );
+		update_option( 'review_captain_settings', array( 'privacy' => array( 'delete_data_on_uninstall' => true, 'delete_data_confirmed_at' => '2026-11-23 10:00:00' ) ) );
+		Uninstaller::run();
+		$this->assertArrayHasKey( 'review_captain_pro_send_requests', \RC_Test_State::$scheduled );
+		$this->assertArrayNotHasKey( 'review_captain_custom_hook', \RC_Test_State::$scheduled, 'other core hooks found by prefix are removed' );
+		$this->assertTrue( Uninstaller::is_addon_name( 'review_captain_pro_license' ) );
+		$this->assertTrue( Uninstaller::is_addon_name( '_transient_review_captain_pro_catalog' ) );
+		$this->assertTrue( Uninstaller::is_addon_name( '_transient_timeout_review_captain_pro_catalog' ) );
+		$this->assertFalse( Uninstaller::is_addon_name( 'review_captain_settings' ) );
+		$this->assertFalse( Uninstaller::is_addon_name( '_transient_review_captain_rl_x' ) );
+	}
+
 	public function test_false_like_values_keep_data(): void {
 		foreach ( array( false, 0, '0', '', 'false' ) as $value ) {
 			update_option( 'review_captain_settings', array( 'privacy' => array( 'delete_data_on_uninstall' => $value ) ) );

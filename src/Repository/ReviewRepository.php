@@ -283,8 +283,10 @@ class ReviewRepository {
 			return false;
 		}
 		$review->status = $to;
-		if ( ReviewStatus::FLAGGED === $from ) {
-			// A moderator (or the system) decided on a flagged review: close its public reports.
+		if ( ReviewStatus::FLAGGED !== $to ) {
+			// A moderator (or the system) decided on the review: close its public reports – also
+			// reports below the threshold of an approved review that is now rejected or archived
+			// (review P2). Flagging keeps them: they are the reason for the check.
 			ReportStore::resolve( $id );
 		}
 		$this->log_event( $id, 'status_changed', $from->value, $to->value, $reason );
@@ -308,7 +310,8 @@ class ReviewRepository {
 
 	/**
 	 * Tombstone content scrub (SET-RC-05, docs/contracts/review-schema-v1.md "Tombstone"): clears
-	 * title, text, author name, rating, avatar/reply and personal meta and deletes the photo of a
+	 * title, text, author name, contact address and account link (P4-4), rating, avatar/reply and
+	 * personal meta and deletes the photo of a
 	 * review that already has status `removed`. Identity (uuid, platform, profile, external_id,
 	 * dedupe_key), source link and dates stay so a later sync hits the same row and retention can
 	 * delete it. Written directly (no validation: an empty review is intended here).
@@ -334,7 +337,7 @@ class ReviewRepository {
 		$updated = $wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"UPDATE {$this->table()} SET title = '', body = '', author_name = '', rating_value = NULL, meta = %s, updated_at = %s, revision = revision + 1 WHERE id = %d AND status = %s",
+				"UPDATE {$this->table()} SET title = '', body = '', author_name = '', author_email = NULL, author_user_id = NULL, submission_key = NULL, rating_value = NULL, meta = %s, updated_at = %s, revision = revision + 1 WHERE id = %d AND status = %s",
 				(string) wp_json_encode( (object) $meta ),
 				gmdate( 'Y-m-d H:i:s' ),
 				$id,
@@ -668,6 +671,16 @@ class ReviewRepository {
 	 */
 	public function record_hold( int $review_id, array $reasons ): void {
 		$this->log_event( $review_id, 'held_for_moderation', null, ReviewStatus::PENDING->value, implode( ',', array_map( 'sanitize_key', $reasons ) ) );
+	}
+
+	/**
+	 * Record which consent text version the author agreed to (P3, proof of consent; no personal data).
+	 *
+	 * @param int    $review_id Review ID.
+	 * @param string $version   Version from PublicTexts::consent_version().
+	 */
+	public function record_consent( int $review_id, string $version ): void {
+		$this->log_event( $review_id, 'consent_recorded', null, null, 'consent_text:' . preg_replace( '/[^a-f0-9]/', '', $version ) );
 	}
 
 	/**

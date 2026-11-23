@@ -35,6 +35,9 @@ class CorrectionService {
 	public const RETENTION_DAYS = 90;
 	private const TOKEN_PREFIX = 'rc_corr_';
 
+	/** How long a used one-time link answers a repeated request with its first result. */
+	public const USED_TTL = 10 * MINUTE_IN_SECONDS;
+
 	/**
 	 * Constructor.
 	 *
@@ -93,14 +96,39 @@ class CorrectionService {
 			return null;
 		}
 		$data = get_transient( self::TOKEN_PREFIX . hash( 'sha256', $token ) );
-		$id   = is_array( $data ) ? (int) ( $data['review'] ?? 0 ) : 0;
+		$id   = is_array( $data ) && ! isset( $data['used'] ) ? (int) ( $data['review'] ?? 0 ) : 0;
 		$r    = $id > 0 ? $this->plugin->reviews()->find( $id ) : null;
 		return self::correctable( $r ) ? $r : null;
 	}
 
-	/** Consume a token (single use). */
-	public function consume_token( string $token ): void {
-		delete_transient( self::TOKEN_PREFIX . hash( 'sha256', $token ) );
+	/**
+	 * Consume a token (single use). With a result code the used token is remembered for a few
+	 * minutes, so a double click or a resent form gets the same answer instead of "link expired"
+	 * (review P2); it never opens the review again.
+	 *
+	 * @param string $token  Token.
+	 * @param string $result Result code of the use (proposed|withdrawn), '' = forget at once.
+	 */
+	public function consume_token( string $token, string $result = '' ): void {
+		$key = self::TOKEN_PREFIX . hash( 'sha256', $token );
+		if ( '' === $result ) {
+			delete_transient( $key );
+			return;
+		}
+		set_transient( $key, array( 'used' => sanitize_key( $result ) ), self::USED_TTL );
+	}
+
+	/**
+	 * Result code of an already used token, null if the token is unused, unknown or expired.
+	 *
+	 * @param string $token Token.
+	 */
+	public function used_result( string $token ): ?string {
+		if ( '' === $token || strlen( $token ) > 100 ) {
+			return null;
+		}
+		$data = get_transient( self::TOKEN_PREFIX . hash( 'sha256', $token ) );
+		return is_array( $data ) && isset( $data['used'] ) && '' !== (string) $data['used'] ? (string) $data['used'] : null;
 	}
 
 	/**
@@ -124,14 +152,20 @@ class CorrectionService {
 	 */
 	public function propose( Review $r, array $fields, string $channel ) {
 		global $wpdb;
+		// Titles off (submissions.allow_title): the stored title stays, a correction cannot add one.
 		$settings = $this->plugin->settings();
 		$rating   = isset( $fields['rating_value'] ) ? (float) $fields['rating_value'] : (float) $r->rating_value;
-		$title    = substr( sanitize_text_field( (string) ( $fields['title'] ?? $r->title ) ), 0, 191 );
+		$title    = $settings->get( 'submissions', 'allow_title', true ) ? sanitize_text_field( (string) ( $fields['title'] ?? $r->title ) ) : $r->title;
 		$body     = trim( sanitize_textarea_field( (string) ( $fields['body'] ?? $r->body ) ) );
-		$min      = (int) $settings->get( 'submissions', 'min_text_length', 20 );
-		$max      = (int) $settings->get( 'submissions', 'max_text_length', 5000 );
+		$limits   = \ReviewCaptain\Frontend\FormHandler::text_limits( $settings );
+		$min      = $limits[0];
+		$max      = $limits[1];
 		if ( $rating < 1 || $rating > 5 || fmod( $rating * 2, 1.0 ) !== 0.0 ) {
 			return new \WP_Error( 'rc.form.invalid_input', 'rating' );
+		}
+		if ( $title !== $r->title && mb_strlen( $title ) > 150 ) {
+			// Same limit as the form; never cut in bytes (a cut multibyte character breaks the row).
+			return new \WP_Error( 'rc.form.invalid_input', 'title' );
 		}
 		if ( mb_strlen( $body ) < $min || mb_strlen( $body ) > $max ) {
 			return new \WP_Error( 'rc.form.invalid_input', 'body' );
@@ -261,6 +295,19 @@ class CorrectionService {
 		global $wpdb;
 		$cut = gmdate( 'Y-m-d H:i:s', time() - max( 1, $days ) * DAY_IN_SECONDS );
 		return max( 0, (int) $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Schema::table( 'review_revisions' ) . " WHERE status <> 'proposed' AND decided_at IS NOT NULL AND decided_at < %s", $cut ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery
+	}
+
+	/**
+	 * Delete every version of a review, open proposals included (privacy erasure: earlier and
+	 * proposed texts are the author's personal data, and an open proposal must never be approved
+	 * over an anonymised review, review P2).
+	 *
+	 * @param int $review_id Review ID.
+	 * @return int Rows deleted.
+	 */
+	public static function delete_for_review( int $review_id ): int {
+		global $wpdb;
+		return max( 0, (int) $wpdb->delete( Schema::table( 'review_revisions' ), array( 'review_id' => $review_id ), array( '%d' ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
 	/**

@@ -59,8 +59,15 @@ final class RC_Test_State {
 	public static array $nonces_valid = array();
 	public static bool $is_admin = false;
 	public static int $queried_id = 0;
+	/** Multisite stand-in: current site and the options of the other sites (switch_to_blog). */
+	public static int $blog_id = 1;
+	public static array $blog_stack = array();
+	public static array $blog_options = array();
 
 	public static function reset(): void {
+		self::$blog_id      = 1;
+		self::$blog_stack   = array();
+		self::$blog_options = array();
 		self::$options      = array();
 		self::$site_options = array();
 		self::$hooks        = array();
@@ -187,14 +194,15 @@ function wp_roles() { $o = new stdClass(); $o->role_objects = array(); $o->role_
 // ---------------------------------------------------------------------------
 // Environment / URLs.
 function is_multisite() { return false; }
-function get_current_blog_id() { return 1; }
-function switch_to_blog( $id ) { return true; }
-function restore_current_blog() { return true; }
+function get_current_blog_id() { return RC_Test_State::$blog_id; }
+function rc_test_use_blog( int $id ): void { RC_Test_State::$blog_options[ RC_Test_State::$blog_id ] = RC_Test_State::$options; RC_Test_State::$blog_id = $id; RC_Test_State::$options = RC_Test_State::$blog_options[ $id ] ?? array(); }
+function switch_to_blog( $id ) { RC_Test_State::$blog_stack[] = RC_Test_State::$blog_id; rc_test_use_blog( (int) $id ); return true; }
+function restore_current_blog() { if ( ! RC_Test_State::$blog_stack ) { return false; } rc_test_use_blog( (int) array_pop( RC_Test_State::$blog_stack ) ); return true; }
 function is_admin() { return RC_Test_State::$is_admin; }
 function wp_doing_cron() { return false; }
 function wp_doing_ajax() { return false; }
 function is_ssl() { return true; }
-function get_bloginfo( $show = '' ) { return match ( $show ) { 'version' => '6.7', 'name' => 'Testsite', 'charset' => 'UTF-8', default => '' }; }
+function get_bloginfo( $show = '' ) { return match ( $show ) { 'version' => '6.7', 'name' => (string) ( RC_Test_State::$options['blogname'] ?? 'Testsite' ), 'charset' => 'UTF-8', default => '' }; }
 function get_locale() { return 'de_DE'; }
 function determine_locale() { return 'de_DE'; }
 function get_user_locale( $u = 0 ) { return 'de_DE'; }
@@ -236,6 +244,7 @@ function wp_next_scheduled( $hook, $args = array() ) { return RC_Test_State::$sc
 function wp_schedule_event( $ts, $rec, $hook, $args = array() ) { RC_Test_State::$scheduled[ $hook ] = array( $ts, $args, $rec ); return true; }
 function wp_schedule_single_event( $ts, $hook, $args = array() ) { RC_Test_State::$scheduled[ $hook ] = array( $ts, $args, 'single' ); return true; }
 function wp_clear_scheduled_hook( $hook, $args = array() ) { unset( RC_Test_State::$scheduled[ $hook ] ); return 1; }
+function _get_cron_array() { $out = array(); foreach ( RC_Test_State::$scheduled as $hook => $e ) { $out[ (int) $e[0] ][ $hook ][ md5( serialize( $e[1] ) ) ] = array( 'schedule' => $e[2], 'args' => $e[1] ); } ksort( $out ); return $out; }
 function wp_unschedule_event( $ts, $hook, $args = array() ) { unset( RC_Test_State::$scheduled[ $hook ] ); return true; }
 function wp_get_schedules() { return array( 'hourly' => array( 'interval' => 3600 ), 'daily' => array( 'interval' => 86400 ) ); }
 function wp_mail( $to, $subject, $message, $headers = '', $att = array() ) { RC_Test_State::$mails[] = compact( 'to', 'subject', 'message' ); return true; }

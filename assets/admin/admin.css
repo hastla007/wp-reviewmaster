@@ -73,6 +73,9 @@
 .rc-admin-matrix-wrap { max-width: 100%; overflow-x: auto; }
 .rc-admin-matrix th[scope="col"], .rc-admin-matrix td { text-align: center; vertical-align: middle; }
 .rc-admin-matrix th[scope="row"] { text-align: left; }
+/* Role names stay visible while the matrix scrolls sideways on narrow screens (SET-RC-P5). */
+.rc-admin-matrix th[scope="row"], .rc-admin-matrix thead th:first-child { position: sticky; left: 0; z-index: 1; background: #fff; }
+.rc-admin-matrix.striped > tbody > :nth-child(odd) > th[scope="row"] { background: #f6f7f7; }
 .rc-admin-matrix-help dt { font-weight: 600; margin-top: .5em; }
 .rc-admin-matrix-help dd { margin-left: 0; }
 .rc-admin-field-error { color: #b32d2e; margin: .4em 0 0; }

@@ -77,7 +77,7 @@ final class TagsAndReportsTest extends M7TestCase {
 		$out = $this->report( $r->uuid, 'offensive' );
 		$this->assertTrue( $out['ok'] );
 		$this->assertTrue( $out['flagged'] );
-		$this->assertSame( 'https://example.test/bewertungen/?rc_reported=1', $out['redirect'] );
+		$this->assertSame( 'https://example.test/bewertungen/?rc_reported=1#rc-report-notice', $out['redirect'] );
 		$this->assertSame( ReviewStatus::FLAGGED, Plugin::instance()->reviews()->find( (int) $r->id )->status );
 		$this->assertStringNotContainsString( $r->uuid, $this->shortcode( array( 'v' => '1' ) ) );
 		$this->assertSame( array( 'offensive' => 1 ), ( new ReportStore() )->open_reasons( (int) $r->id ) );
@@ -123,5 +123,41 @@ final class TagsAndReportsTest extends M7TestCase {
 		Plugin::instance()->reviews()->delete( $id );
 		$this->assertSame( 0, $this->rows( 'review_tags' ) );
 		$this->assertSame( 0, $this->rows( 'review_reports' ) );
+	}
+
+	public function test_reports_below_the_threshold_can_be_closed(): void {
+		$this->enable( array( 'submissions' => array( 'reports_enabled' => true, 'report_threshold' => 3 ) ) );
+		$store = new ReportStore();
+		$repo  = Plugin::instance()->reviews();
+		$this->login_with( 'review_captain_moderate' );
+		$actions = new \ReviewCaptain\Admin\ReviewActions( Plugin::instance() );
+
+		// Keep public, close the reports: offered in the status box, answered as a status change.
+		$keep = $this->review();
+		$this->report( $keep->uuid );
+		$this->assertSame( ReviewStatus::APPROVED, $repo->find( (int) $keep->id )->status, 'below the threshold' );
+		$this->assertSame( 1, $store->open_count( (int) $keep->id ) );
+		$this->assertSame( 'status_changed', $actions->change_status( (int) $keep->id, ReviewStatus::APPROVED, '' ) );
+		$this->assertSame( 0, $store->open_count( (int) $keep->id ) );
+		$this->assertSame( ReviewStatus::APPROVED, $repo->find( (int) $keep->id )->status );
+		$this->assertSame( 'status_failed', $actions->change_status( (int) $keep->id, ReviewStatus::APPROVED, '' ), 'no reports: nothing to do' );
+
+		// Archived (a decision) and later approved again: old reports do not count again.
+		$arch = $this->review();
+		$this->report( $arch->uuid );
+		$_SERVER['REMOTE_ADDR'] = '10.0.0.2';
+		$this->report( $arch->uuid );
+		$this->assertSame( 'status_changed', $actions->change_status( (int) $arch->id, ReviewStatus::ARCHIVED, 'geprüft' ) );
+		$this->assertSame( 0, $store->open_count( (int) $arch->id ), 'closed by the decision, as the status box says' );
+		$this->assertSame( 'status_changed', $actions->change_status( (int) $arch->id, ReviewStatus::APPROVED, '' ) );
+		$_SERVER['REMOTE_ADDR'] = '10.0.0.3';
+		$this->report( $arch->uuid );
+		$this->assertSame( ReviewStatus::APPROVED, $repo->find( (int) $arch->id )->status, 'one new report, not three' );
+
+		// Flagging keeps the reports: they are the reason for the check.
+		$flag = $this->review();
+		$store->add( (int) $flag->id, 'spam' );
+		$this->assertSame( 'status_changed', $actions->change_status( (int) $flag->id, ReviewStatus::FLAGGED, '' ) );
+		$this->assertSame( 1, $store->open_count( (int) $flag->id ) );
 	}
 }

@@ -77,7 +77,12 @@ class CorrectionHandler {
 			}
 			return $out( true, 'link_sent' ); // Same answer whether or not reviews exist (no enumeration).
 		}
-		$token  = (string) ( $post['rc_token'] ?? '' );
+		$token = (string) ( $post['rc_token'] ?? '' );
+		$used  = '' !== $token ? $this->service->used_result( $token ) : null;
+		if ( null !== $used ) {
+			// Double click or resent form: the first request already did the work.
+			return $out( true, $used );
+		}
 		$review = '' !== $token ? $this->service->review_for_token( $token ) : $this->service->review_for_user( (int) ( $post['rc_review'] ?? 0 ) );
 		if ( null === $review ) {
 			return $out( false, 'invalid_link' );
@@ -86,7 +91,7 @@ class CorrectionHandler {
 		if ( 'withdraw' === $op ) {
 			$ok = $this->service->withdraw( $review );
 			if ( $ok && '' !== $token ) {
-				$this->service->consume_token( $token );
+				$this->service->consume_token( $token, 'withdrawn' );
 			}
 			return $out( $ok, $ok ? 'withdrawn' : 'error' );
 		}
@@ -104,7 +109,7 @@ class CorrectionHandler {
 				return $out( false, 'invalid_' . sanitize_key( (string) $res->get_error_message() ) );
 			}
 			if ( '' !== $token ) {
-				$this->service->consume_token( $token );
+				$this->service->consume_token( $token, 'proposed' );
 			}
 			return $out( true, 'proposed' );
 		}
@@ -137,7 +142,7 @@ class CorrectionHandler {
 		} else {
 			$html .= '<form method="post" action="' . $action . '">' . $hidden . '<input type="hidden" name="rc_token" value="' . esc_attr( $token ) . '">'
 				. '<p><label for="rc-corr-rating">' . esc_html__( 'Bewertung (1–5)', 'review-captain' ) . '</label><br><input id="rc-corr-rating" type="number" name="rc_rating" min="1" max="5" step="0.5" value="' . esc_attr( (string) $review->rating_value ) . '" required></p>'
-				. '<p><label for="rc-corr-title">' . esc_html__( 'Titel', 'review-captain' ) . '</label><br><input id="rc-corr-title" type="text" name="rc_title" maxlength="191" value="' . esc_attr( $review->title ) . '"></p>'
+				. ( $this->plugin->settings()->get( 'submissions', 'allow_title', true ) ? '<p><label for="rc-corr-title">' . esc_html__( 'Titel', 'review-captain' ) . '</label><br><input id="rc-corr-title" type="text" name="rc_title" maxlength="150" value="' . esc_attr( $review->title ) . '"></p>' : '' )
 				. '<p><label for="rc-corr-body">' . esc_html__( 'Text', 'review-captain' ) . '</label><br><textarea id="rc-corr-body" name="rc_body" rows="6" required>' . esc_textarea( $review->body ) . '</textarea></p>'
 				. '<p class="description">' . esc_html__( 'Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt die bisherige Fassung sichtbar.', 'review-captain' ) . '</p>'
 				. '<p><button type="submit" name="op" value="submit">' . esc_html__( 'Korrektur einreichen', 'review-captain' ) . '</button> '
@@ -184,7 +189,7 @@ class CorrectionHandler {
 	 * @param string $url   Link.
 	 */
 	private function mail_link( string $email, int $id, string $url ): void {
-		$site = wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
+		$site = Notifier::site_name( $this->plugin->settings() );
 		/* translators: %s: site name */
 		$subject = sprintf( __( 'Ihre Bewertung bei %s bearbeiten', 'review-captain' ), $site );
 		/* translators: 1: site name, 2: link, 3: validity, e.g. "eine Stunde" or "24 Stunden" */
@@ -203,6 +208,13 @@ class CorrectionHandler {
 		$url      = isset( $post['rc_return'] ) ? esc_url_raw( (string) $post['rc_return'] ) : '';
 		$url      = '' !== $url ? wp_validate_redirect( $url, $fallback ) : $fallback;
 		$url      = strtok( (string) $url, '#' );
-		return remove_query_arg( array( self::QUERY_TOKEN, self::QUERY_RESULT ), false !== $url ? $url : $fallback );
+		$url      = false !== $url ? $url : $fallback;
+		if ( str_starts_with( $url, '/' ) && ! str_starts_with( $url, '//' ) ) {
+			// The form posts the current request path (relative). The link goes out by e-mail, so it
+			// needs scheme and host: those of the site, never of the request (review P2).
+			$origin = (string) preg_replace( '#^(https?://[^/?\#]+).*$#i', '$1', $fallback );
+			$url    = $origin . $url;
+		}
+		return remove_query_arg( array( self::QUERY_TOKEN, self::QUERY_RESULT ), $url );
 	}
 }

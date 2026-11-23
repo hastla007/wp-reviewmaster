@@ -81,6 +81,20 @@ final class RendererTest extends FrontendTestCase {
 
 		$with = $this->shortcode( array( 'show_source' => '1' ) );
 		$this->assertStringContainsString( 'Bewertung auf dieser Website', $with );
+		$this->assertStringNotContainsString( 'target="_blank"', $with );
+
+		// SET-RC-P5: "Links zum Original in neuem Tab" applies to the card link and is announced.
+		$tab = $this->shortcode( array( 'new_tab' => '1' ) );
+		$this->assertStringContainsString( 'rel="nofollow noopener noreferrer ugc" target="_blank">Original auf Trustpilot ansehen<span class="rc-visually-hidden"> (öffnet in neuem Tab)</span></a>', $tab );
+	}
+
+	public function test_report_status_message_is_a_focusable_jump_target(): void {
+		$this->review( array( 'author_name' => 'Lokal' ) );
+		$_GET['rc_reported'] = '1';
+		$out = $this->shortcode();
+		unset( $_GET['rc_reported'] );
+		// SET-RC-P5: the report redirect ends in #rc-report-notice; the message takes focus.
+		$this->assertStringContainsString( '<p class="rc-notice" id="rc-report-notice" role="status" tabindex="-1" autofocus>', $out );
 	}
 
 	public function test_testimonial_and_verified_badges(): void {
@@ -116,6 +130,15 @@ final class RendererTest extends FrontendTestCase {
 		$this->assertStringContainsString( 'Diese Website: 4,5 von 5 (2 Bewertungen)', $out );
 		$this->assertStringContainsString( 'Google: 3 von 5 (1 Bewertung)', $out );
 		$this->assertSame( 2, substr_count( $out, 'rc-summary__item' ), 'no combined score row' );
+	}
+
+	public function test_summary_ignores_min_rating_filter(): void {
+		$this->review( array( 'rating_value' => 5.0 ) );
+		$this->review( array( 'rating_value' => 5.0 ) );
+		$this->review( array( 'rating_value' => 2.0 ) );
+		$out = $this->shortcode( array( 'min_rating' => '4' ) );
+		$this->assertSame( 2, substr_count( $out, '<article' ), 'the filter narrows the cards' );
+		$this->assertStringContainsString( 'Diese Website: 4 von 5 (3 Bewertungen)', $out, 'average over all approved reviews, not over the filtered ones' );
 	}
 
 	public function test_accessible_stars_on_original_scale(): void {

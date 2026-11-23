@@ -146,6 +146,13 @@ final class SettingsCommandsTest extends TestCase {
 		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm-word' => 'LÖSCHEN' ) );
 		$this->assertTrue( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
 		$this->assertNotSame( '', $this->settings()->get( 'privacy', 'delete_data_confirmed_at' ) );
+
+		// S10 suite standard: --confirm is the documented flag (case-insensitive word).
+		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '0' ), array() );
+		$this->assertFalse( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
+		$this->expect_error( fn() => $c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm' => 'ja' ) ), 'LÖSCHEN' );
+		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm' => 'löschen' ) );
+		$this->assertTrue( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
 	}
 
 	public function test_reset_per_tab_and_all(): void {
@@ -166,6 +173,20 @@ final class SettingsCommandsTest extends TestCase {
 		$this->assertContains( 'general', $done );
 		$this->assertSame( '', $this->settings()->get( 'general', 'brand_name' ) );
 		$this->assertSame( 'warning', $this->out->lines[ count( $this->out->lines ) - 2 ][0] );
+		$this->assertNotContains( 'requests', $done, 'a tab with add-on fields only is not reported as reset' );
+	}
+
+	public function test_reset_of_a_tab_with_addon_fields_only_changes_nothing(): void {
+		// SET-RC-P1: `settings reset requests` reported "Zurückgesetzt: requests", wrote a backup and an audit entry.
+		ProRequestsFields::register( true );
+		update_option( Settings::OPTION, array( 'requests' => array( 'daily_limit' => 77 ) ) );
+		$c = $this->commands();
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		$this->expect_error( fn() => $c->settings_reset( array( 'requests' ), array( 'yes' => true ) ) );
+		$this->assertSame( 77, $this->settings()->get( 'requests', 'daily_limit' ) );
+		$this->assertFalse( get_option( ConfigTransfer::BACKUP_OPTION ) );
+		$this->assertStringContainsString( 'requests', $this->out->lines[0][1] );
+		$this->assertSame( 'warning', $this->out->lines[0][0] );
 	}
 
 	public function test_export_and_import_with_dry_run(): void {
@@ -206,5 +227,6 @@ final class SettingsCommandsTest extends TestCase {
 		$json = json_decode( $this->out->lines[0][1], true );
 		$this->assertSame( ConfigTransfer::SCHEMA, $json['schema'] );
 		$this->assertArrayNotHasKey( 'delete_data_confirmed_at', $json['settings']['privacy'] );
+		$this->assertArrayNotHasKey( 'delete_data_on_uninstall', $json['settings']['privacy'] );
 	}
 }

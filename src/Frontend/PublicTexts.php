@@ -22,6 +22,12 @@ final class PublicTexts {
 	public const PRIVACY_PLACEHOLDER = '{privacy_link}';
 
 	/**
+	 * Option with every consent text version shown at the form (P3, proof of consent):
+	 * version => {text, privacy_url, first_used (UTC)}. Not autoloaded; removed on uninstall with data.
+	 */
+	public const CONSENT_ARCHIVE_OPTION = 'review_captain_consent_texts';
+
+	/**
 	 * Pseudo level for testimonials (kind, not a verification state).
 	 */
 	public const TESTIMONIAL = 'testimonial';
@@ -38,6 +44,7 @@ final class PublicTexts {
 			'submissions.email_hint'             => __( 'Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.', 'review-captain' ),
 			'submissions.submit_label'           => __( 'Bewertung senden', 'review-captain' ),
 			'submissions.report_confirmation'    => __( 'Danke für Ihre Meldung. Wir prüfen die Bewertung.', 'review-captain' ),
+			'display.verification_notice_title'  => __( 'So prüfen wir Bewertungen', 'review-captain' ),
 			'display.label_purchase_verified'    => __( 'Verifizierter Kauf', 'review-captain' ),
 			'display.label_attendance_confirmed' => __( 'Teilnahme bestätigt', 'review-captain' ),
 			'display.label_unverified'           => __( 'Ungeprüft', 'review-captain' ),
@@ -109,6 +116,41 @@ final class PublicTexts {
 		$word = esc_html__( 'Datenschutzerklärung', 'review-captain' );
 		$link = '' !== $url ? '<a href="' . esc_url( $url ) . '">' . $word . '</a>' : $word;
 		return str_replace( self::PRIVACY_PLACEHOLDER, $link, $html );
+	}
+
+	/**
+	 * Name shown to reviewers (general.brand_name; empty = site title), plain text.
+	 *
+	 * @param Settings $settings Settings.
+	 */
+	public static function brand_name( Settings $settings ): string {
+		// One rule for mails and texts (P1-7, P2-06): brand name, otherwise the site title, as plain text.
+		return \ReviewCaptain\Moderation\Notifier::site_name( $settings );
+	}
+
+	/**
+	 * Version of the effective consent text (text and privacy link) for the proof of consent.
+	 * The consent text is configurable (SET-RC-04), so a review records which version was
+	 * agreed to; the text of each version is archived once in self::CONSENT_ARCHIVE_OPTION.
+	 *
+	 * @param Settings $settings Settings.
+	 * @return string 16 hex characters.
+	 */
+	public static function consent_version( Settings $settings ): string {
+		$text    = self::get( $settings, 'submissions', 'consent_text' );
+		$url     = self::privacy_url();
+		$version = substr( hash( 'sha256', $text . "\n" . $url ), 0, 16 );
+		$archive = get_option( self::CONSENT_ARCHIVE_OPTION, array() );
+		$archive = is_array( $archive ) ? $archive : array();
+		if ( ! isset( $archive[ $version ] ) ) {
+			$archive[ $version ] = array(
+				'text'        => $text,
+				'privacy_url' => $url,
+				'first_used'  => gmdate( 'Y-m-d H:i:s' ),
+			);
+			update_option( self::CONSENT_ARCHIVE_OPTION, $archive, false );
+		}
+		return $version;
 	}
 
 	/**

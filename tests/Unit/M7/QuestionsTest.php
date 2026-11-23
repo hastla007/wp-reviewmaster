@@ -67,9 +67,25 @@ final class QuestionsTest extends M7TestCase {
 
 	public function test_rate_limit(): void {
 		$this->enable( array( 'submissions' => array( 'rate_limit_per_hour' => 2 ) ) );
-		$this->ask();
-		$this->ask();
-		$this->assertSame( array( 'rate_limited' ), $this->ask()['errors'] );
+		$this->ask( array( 'rc_question' => 'Ist das Gerät auch für Linkshänder geeignet?' ) );
+		$this->ask( array( 'rc_question' => 'Gibt es das Gerät auch in Blau zu kaufen?' ) );
+		$this->assertSame( array( 'rate_limited' ), $this->ask( array( 'rc_question' => 'Wie lange hält der Akku bei Dauerbetrieb?' ) )['errors'] );
+	}
+
+	public function test_double_click_stores_one_question_and_notifies_once(): void {
+		$post   = array( 'rc_ts' => FormHandler::sign_timestamp( time() - 10 ) );
+		$first  = $this->ask( $post );
+		$mails  = count( \RC_Test_State::$mails );
+		$second = $this->ask( $post );
+		$this->assertTrue( $second['ok'] );
+		$this->assertSame( $first['redirect'], $second['redirect'] );
+		$this->assertSame( $first['question']['id'], $second['question']['id'] );
+		$this->assertSame( 1, $this->rows( 'questions' ) );
+		$this->assertSame( $mails, count( \RC_Test_State::$mails ), 'no second notification' );
+		$this->assertMatchesRegularExpression( '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$/', (string) $first['question']['uuid'] );
+
+		$other = $this->ask( $post + array( 'rc_question' => 'Und passt das Gerät in eine normale Schublade?' ) );
+		$this->assertNotSame( $first['question']['id'], $other['question']['id'], 'another question from the same page is stored' );
 	}
 
 	public function test_only_approved_questions_are_public_without_schema(): void {

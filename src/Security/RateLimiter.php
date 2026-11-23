@@ -47,6 +47,18 @@ final class RateLimiter {
 		if ( '' === $key || ! isset( $_SERVER[ $key ] ) ) {
 			return $remote;
 		}
+		/**
+		 * Addresses of the operator's own reverse proxies / CDN edge (exact IPs). When the list is not
+		 * empty, the proxy header is only read for requests that come from one of them, so a client
+		 * that reaches the origin directly cannot choose its address (P4-7). Empty (default) = the
+		 * header is read for every request, as configured.
+		 *
+		 * @param list<string> $proxies Proxy addresses.
+		 */
+		$proxies = array_values( array_filter( array_map( 'trim', array_map( 'strval', (array) apply_filters( 'review_captain_trusted_proxies', array() ) ) ), 'strlen' ) );
+		if ( $proxies && ! in_array( $remote, $proxies, true ) ) {
+			return $remote;
+		}
 		$parts = array_reverse( array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( (string) $_SERVER[ $key ] ) ) ) ) );
 		foreach ( $parts as $candidate ) {
 			if ( false !== filter_var( $candidate, FILTER_VALIDATE_IP ) ) {

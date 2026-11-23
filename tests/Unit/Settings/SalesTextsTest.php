@@ -125,6 +125,19 @@ final class SalesTextsTest extends M7TestCase {
 		$this->assertStringNotContainsString( 'rc-verification', $this->module->shortcode_form( array( 'v' => '1' ) ), 'filter wins, empty hides' );
 	}
 
+	public function test_verification_notice_title_configurable(): void {
+		$this->review();
+		$this->enable( array( 'display' => array( 'verification_notice_title' => 'Wie wir <prüfen>' ) ) );
+		$html = $this->shortcode( array( 'v' => '1' ) );
+		$this->assertStringContainsString( '<summary class="rc-verification__toggle">Wie wir &lt;prüfen&gt;</summary>', $html );
+		$this->assertStringNotContainsString( 'So prüfen wir Bewertungen', $html );
+		$this->assertStringContainsString( 'Wie wir &lt;prüfen&gt;', $this->module->shortcode_form( array( 'v' => '1' ) ), 'same title at the form' );
+
+		$this->enable( array( 'display' => array( 'verification_notice_title' => '' ) ) );
+		$this->assertStringContainsString( 'So prüfen wir Bewertungen', $this->shortcode( array( 'v' => '1' ) ), 'empty = default' );
+		$this->assertSame( '', SettingsSchema::fields()['display']['verification_notice_title']['default'] );
+	}
+
 	// ---------------------------------------------------------------- SET-RC-02
 
 	public function test_level_labels_configurable_and_unverified_switch(): void {

@@ -28,6 +28,43 @@ foreach ( array( 'Requires at least', 'Requires PHP', 'Stable tag', 'License' ) 
 		$errors[] = "readme.txt missing: $h";
 	}
 }
+// Minimum platform (SET-RC-P6): one value everywhere – plugin header, readme.txt, the runtime
+// constants, Support\Requirements, composer.json and the required (non-experimental) CI matrix.
+$meta = static function ( string $pattern, string $text ): string {
+	return preg_match( $pattern, $text, $m ) ? trim( $m[1] ) : '';
+};
+$requirements = (string) file_get_contents( $root . '/src/Support/Requirements.php' );
+$composer     = json_decode( (string) file_get_contents( $root . '/composer.json' ), true );
+$ci           = is_file( $root . '/.github/workflows/ci.yml' ) ? (string) file_get_contents( $root . '/.github/workflows/ci.yml' ) : '';
+$php_min      = array(
+	'review-captain.php header'  => $meta( '/^\s*\*\s*Requires PHP:\s*(\S+)/m', $main ),
+	'readme.txt'                 => $meta( '/^Requires PHP:\s*(\S+)/m', $readme ),
+	'REVIEW_CAPTAIN_MIN_PHP'     => $meta( "/define\( 'REVIEW_CAPTAIN_MIN_PHP', '([^']+)' \)/", $main ),
+	'Requirements::MIN_PHP'      => $meta( "/const MIN_PHP\s*=\s*'([^']+)'/", $requirements ),
+	'composer.json require.php'  => $meta( '/^>=\s*(\S+)$/', (string) ( $composer['require']['php'] ?? '' ) ),
+	'ci.yml required PHP matrix' => $meta( "/^\s*php:\s*\[\s*'([^']+)'/m", $ci ),
+);
+$wp_min = array(
+	'review-captain.php header' => $meta( '/^\s*\*\s*Requires at least:\s*(\S+)/m', $main ),
+	'readme.txt'                => $meta( '/^Requires at least:\s*(\S+)/m', $readme ),
+	'REVIEW_CAPTAIN_MIN_WP'     => $meta( "/define\( 'REVIEW_CAPTAIN_MIN_WP', '([^']+)' \)/", $main ),
+);
+$platform = array(
+	'PHP'       => $php_min,
+	'WordPress' => $wp_min,
+);
+foreach ( $platform as $what => $values ) {
+	if ( in_array( '', $values, true ) || 1 !== count( array_unique( $values ) ) ) {
+		$list = array();
+		foreach ( $values as $where => $value ) {
+			$list[] = $where . ' = ' . ( '' === $value ? '(missing)' : $value );
+		}
+		$errors[] = "Minimum $what differs or is missing: " . implode( ', ', $list );
+	}
+}
+if ( $meta( '/^Stable tag:\s*(\S+)/m', $readme ) !== ( $hv[1] ?? '' ) ) {
+	$errors[] = 'readme.txt Stable tag differs from the plugin version';
+}
 // Every translation call in src/ and templates/ must use the review-captain domain.
 $it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root . '/src' ) );
 $files = iterator_to_array( $it );

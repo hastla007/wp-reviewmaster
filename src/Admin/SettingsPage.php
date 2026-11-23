@@ -43,6 +43,11 @@ final class SettingsPage {
 	private const ERRORS_TRANSIENT = 'review_captain_settings_errors_';
 
 	/**
+	 * Characters of a refused input kept to show it again (longer than every text field's limit).
+	 */
+	private const GIVEN_MAX = 20000;
+
+	/**
 	 * Role keys of the access tab and the capability each one grants (SET-RC-16: all seven).
 	 */
 	private const ROLE_CAPS = Capabilities::ROLE_KEYS;
@@ -208,7 +213,7 @@ final class SettingsPage {
 			[ $value, $error ] = SettingsSchema::validate_value( $field, $raw[ $key ] );
 			if ( null !== $error ) {
 				$errors[ $key ] = $error;
-				$given[ $key ]  = is_scalar( $raw[ $key ] ) ? mb_substr( (string) $raw[ $key ], 0, 500 ) : '';
+				$given[ $key ]  = is_scalar( $raw[ $key ] ) ? mb_substr( (string) $raw[ $key ], 0, self::GIVEN_MAX ) : '';
 				continue;
 			}
 			$values[ $tab ][ $key ] = $value;
@@ -223,7 +228,7 @@ final class SettingsPage {
 				$values[ $tab ][ $key ] = $current[ $tab ][ $key ] ?? null;
 				$errors[ $key ]       ??= (string) ( $check['message'] ?? '' );
 				if ( ! isset( $given[ $key ] ) && array_key_exists( $key, $raw ) && is_scalar( $raw[ $key ] ) ) {
-					$given[ $key ] = mb_substr( (string) $raw[ $key ], 0, 500 );
+					$given[ $key ] = mb_substr( (string) $raw[ $key ], 0, self::GIVEN_MAX );
 				}
 			}
 		}
@@ -348,7 +353,7 @@ final class SettingsPage {
 	 * @return list<string>
 	 */
 	public function reset_tabs( array $tabs ): array {
-		$tabs = array_values( array_intersect( $tabs, self::writable_tabs() ) );
+		$tabs = array_values( array_intersect( $tabs, self::writable_tabs(), self::resettable_tabs() ) );
 		if ( ! $tabs ) {
 			return array();
 		}
@@ -372,6 +377,25 @@ final class SettingsPage {
 			)
 		);
 		return $tabs;
+	}
+
+	/**
+	 * Tabs with own (core) fields; a reset never touches add-on fields, so other tabs (requests)
+	 * have nothing to reset.
+	 *
+	 * @return list<string>
+	 */
+	public static function resettable_tabs(): array {
+		$out = array();
+		foreach ( SettingsSchema::fields() as $tab => $fields ) {
+			foreach ( $fields as $field ) {
+				if ( 'core' === $field['owner'] && empty( $field['internal'] ) ) {
+					$out[] = (string) $tab;
+					break;
+				}
+			}
+		}
+		return $out;
 	}
 
 	/**
@@ -475,14 +499,14 @@ final class SettingsPage {
 			View::redirect( Notices::url( $back, 'import_invalid' ) );
 			return;
 		}
-		$preview = $this->transfer()->preview( $json, self::writable_tabs() );
+		$preview = $this->transfer()->preview( $json, self::writable_tabs(), self::pro_writable() );
 		if ( null === $preview ) {
 			View::redirect( Notices::url( $back, 'import_invalid' ) );
 			return;
 		}
 		if ( self::migrate_access( $this->settings() ) ) {
 			// Role lists missing in the file must keep today's roles, not the defaults.
-			$preview = (array) $this->transfer()->preview( $json, self::writable_tabs() );
+			$preview = (array) $this->transfer()->preview( $json, self::writable_tabs(), self::pro_writable() );
 		}
 		if ( ! $preview['diff'] ) {
 			View::redirect( Notices::url( $back, 'import_empty' ) );
@@ -528,9 +552,17 @@ final class SettingsPage {
 		self::migrate_access( $this->settings() );
 		$before  = $this->settings()->all();
 		$current = $before;
+		$pro     = self::pro_writable();
+		$schema  = SettingsSchema::fields();
 		foreach ( $tabs as $tab ) {
 			if ( isset( $values[ $tab ] ) && is_array( $values[ $tab ] ) ) {
 				$current[ $tab ] = $values[ $tab ];
+				foreach ( $schema[ $tab ] ?? array() as $key => $field ) {
+					if ( 'pro' === $field['owner'] && ! $pro && array_key_exists( $key, (array) ( $before[ $tab ] ?? array() ) ) ) {
+						// The add-on stopped allowing writes since the preview: keep its stored value.
+						$current[ $tab ][ $key ] = $before[ $tab ][ $key ];
+					}
+				}
 			}
 		}
 		if ( in_array( 'access', $tabs, true ) ) {
@@ -770,7 +802,7 @@ final class SettingsPage {
 	 */
 	private function render_error_summary( string $tab ): void {
 		$fields = SettingsSchema::fields()[ $tab ] ?? array();
-		echo '<div class="notice notice-error rc-admin-errors" id="rc-settings-errors" role="alert" tabindex="-1"><p>' . esc_html__( 'Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:', 'review-captain' ) . '</p><ul>';
+		echo '<div class="notice notice-error rc-admin-errors" id="rc-settings-errors" role="alert" tabindex="-1" autofocus><p>' . esc_html__( 'Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:', 'review-captain' ) . '</p><ul>';
 		foreach ( $this->field_errors['errors'] as $key => $message ) {
 			$anchor = 'access' === $tab ? 'rc-access-' . $key . '-col' : 'rc-' . $tab . '-' . $key;
 			echo '<li><a href="#' . esc_attr( $anchor ) . '">' . esc_html( SettingsFields::label( $tab, $key, $fields[ $key ] ?? array() ) ) . '</a>: ' . esc_html( $message ) . '</li>';
@@ -933,7 +965,8 @@ final class SettingsPage {
 		$descr = ( $ids ? ' aria-describedby="' . esc_attr( implode( ' ', $ids ) ) . '"' : '' ) . ( null !== $error ? ' aria-invalid="true"' : '' );
 
 		echo '<tr><th scope="row">';
-		echo in_array( $field['type'], array( 'bool', 'array' ), true ) ? esc_html( $label ) : '<label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+		// A checkbox gets the row label as a second <label>, so its accessible name is "<label> Aktiv", not only "Aktiv".
+		echo 'array' === $field['type'] ? esc_html( $label ) : '<label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
 		echo '</th><td>';
 
 		switch ( $field['type'] ) {
@@ -965,7 +998,7 @@ final class SettingsPage {
 				echo '<textarea class="large-text" rows="4" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"' . $dis . $descr . '>' . esc_textarea( (string) $value ) . '</textarea>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
 			case 'array':
-				$this->render_array_field( $tab, $key, $field, (array) $value, $name, $disabled );
+				$this->render_array_field( $tab, $key, $field, (array) $value, $name, $disabled, $descr );
 				break;
 			case 'string':
 			default:
@@ -998,8 +1031,9 @@ final class SettingsPage {
 	 * @param array<int, mixed>    $value    Value.
 	 * @param string               $name     Input name.
 	 * @param bool                 $disabled Disabled.
+	 * @param string               $descr    aria-describedby/aria-invalid attributes of the field (help text, error).
 	 */
-	private function render_array_field( string $tab, string $key, array $field, array $value, string $name, bool $disabled ): void {
+	private function render_array_field( string $tab, string $key, array $field, array $value, string $name, bool $disabled, string $descr = '' ): void {
 		$roles   = str_ends_with( $key, '_roles' );
 		// Choice labels come from SettingsFields::choice_label() (falls back to the raw value).
 		$choices = array();
@@ -1013,7 +1047,8 @@ final class SettingsPage {
 			}
 		}
 		$dis = $disabled ? ' disabled="disabled"' : '';
-		echo '<fieldset><legend class="screen-reader-text">' . esc_html( SettingsFields::label( $tab, $key, $field ) ) . '</legend>';
+		// The fieldset carries the field id (target of the error list) and the help/error text.
+		echo '<fieldset id="' . esc_attr( 'rc-' . $tab . '-' . $key ) . '" tabindex="-1"' . $descr . '><legend class="screen-reader-text">' . esc_html( SettingsFields::label( $tab, $key, $field ) ) . '</legend>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $descr is escaped in render_field().
 		// Empty marker so "nothing checked" is submitted as an empty list.
 		echo '<input type="hidden" name="' . esc_attr( $name . '[]' ) . '" value=""' . $dis . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		foreach ( $choices as $choice => $label ) {
@@ -1030,7 +1065,7 @@ final class SettingsPage {
 	}
 
 	/**
-	 * Confirmation for "Daten beim Deinstallieren löschen" (SET-RC-20): a typed word, stored as time.
+	 * Confirmation for "Beim Löschen des Plugins alle Daten entfernen" (SET-RC-20, S10): a typed word, stored as time.
 	 *
 	 * @param bool $on       Switch state.
 	 * @param bool $disabled Read-only.
@@ -1065,7 +1100,7 @@ final class SettingsPage {
 		echo '<p><button type="submit" class="button">' . esc_html__( 'Einstellungen zurücksetzen', 'review-captain' ) . '</button></p></form>';
 
 		echo '<div class="rc-admin-danger"><h2>' . esc_html__( 'Alle Plugin-Daten löschen', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Daten beim Deinstallieren löschen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews.', 'review-captain' ) . '</p>';
+		echo '<p>' . esc_html__( 'Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews.', 'review-captain' ) . '</p>';
 		echo '<p>' . esc_html__( 'Einzelne Personen betreffende Löschanfragen bearbeitest du unter', 'review-captain' ) . ' <a href="' . esc_url( admin_url( 'erase-personal-data.php' ) ) . '">' . esc_html__( 'Werkzeuge › Personenbezogene Daten löschen', 'review-captain' ) . '</a>.</p></div>';
 	}
 
@@ -1084,6 +1119,10 @@ final class SettingsPage {
 		echo '<h2>' . esc_html__( 'Konfiguration importieren', 'review-captain' ) . '</h2>';
 		if ( is_array( $preview ) && ! empty( $preview['diff'] ) ) {
 			echo '<p>' . esc_html__( 'Folgende Werte werden geändert. Alle anderen Einstellungen bleiben unverändert.', 'review-captain' ) . '</p>';
+			foreach ( (array) ( $preview['kept'] ?? array() ) as $kept ) {
+				/* translators: 1: fields, 2: reason */
+				echo View::notice( 'warning', sprintf( __( 'Nicht übernommen, bisherige Werte bleiben: %1$s. %2$s', 'review-captain' ), implode( ', ', array_map( static fn( $key ): string => SettingsFields::label( (string) $kept['tab'], (string) $key ), (array) $kept['fields'] ) ), (string) $kept['message'] ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
 			echo '<table class="widefat striped rc-admin-diff"><thead><tr><th scope="col">' . esc_html__( 'Bereich', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Einstellung', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Bisher', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Neu', 'review-captain' ) . '</th></tr></thead><tbody>';
 			$tabs = SettingsSchema::tabs();
 			foreach ( (array) $preview['diff'] as $row ) {

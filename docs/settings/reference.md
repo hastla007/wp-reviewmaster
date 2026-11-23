@@ -4,7 +4,7 @@ Status: an den implementierten Stand angeglichen (Standards und Wertebereiche ex
 
 Jeder Eintrag nennt: **Zweck** · **Gilt für** · **Standard** · **Folgen** · **Datenschutz** · **Voraussetzung**.
 
-**Prüfung beim Speichern (SET-RC-19):** Ungültige Eingaben werden nicht still korrigiert. Die Seite listet sie oben mit Sprunglinks zum Feld auf, markiert das Feld (auch für Screenreader) und zeigt Ihre Eingabe zum Korrigieren erneut an; das Feld behält seinen bisherigen Wert, alle gültigen Änderungen des Bereichs werden gespeichert. Zusätzlich geprüft: Mindestlänge < Höchstlänge, Beginn ≠ Ende bei Versand- und Synchronisierungsfenster, Freigabe hängender Aufgaben > Zeitbudget je Lauf. Beim Import einer Konfiguration werden Werte dagegen wie bisher auf den erlaubten Bereich gesetzt (die Vorschau zeigt das Ergebnis).
+**Prüfung beim Speichern (SET-RC-19):** Ungültige Eingaben werden nicht still korrigiert. Die Seite listet sie oben mit Sprunglinks zum Feld auf, markiert das Feld (auch für Screenreader) und zeigt Ihre Eingabe zum Korrigieren erneut an; das Feld behält seinen bisherigen Wert, alle gültigen Änderungen des Bereichs werden gespeichert. Zusätzlich geprüft: Mindestlänge < Höchstlänge, Beginn ≠ Ende bei Versand- und Synchronisierungsfenster, Freigabe hängender Aufgaben > Zeitbudget je Lauf. Beim Import einer Konfiguration werden Werte dagegen wie bisher auf den erlaubten Bereich gesetzt (die Vorschau zeigt das Ergebnis); Texte über der Höchstlänge werden dort gekürzt. Die Zusatzprüfungen gelten auch beim Import: Schlägt eine fehl, behalten die beteiligten Felder ihren bisherigen Wert, und die Vorschau nennt sie („Nicht übernommen …“).
 
 **Änderungsprotokoll (SET-RC-17):** Jede Änderung wird mit Benutzer, Zeit, altem und neuem Wert protokolliert (Werkzeuge › Diagnose › Protokoll, Filter „Einstellungen“). Texte werden gekürzt, E-Mail-Adressen maskiert, Absendernamen und Zugangsdaten nie gespeichert.
 
@@ -13,9 +13,9 @@ Jeder Eintrag nennt: **Zweck** · **Gilt für** · **Standard** · **Folgen** ·
 ## Allgemein
 
 ### Marken- bzw. Firmenname (`brand_name`)
-- **Zweck:** Name in Hinweisen, Formularen und (mit Pro) Einladungen.
+- **Zweck:** Name in E-Mails an Bewertende und (mit Pro) als Absendername der Einladungen.
 - **Gilt für:** ganze Website. **Standard:** leer = Titel Ihrer Website.
-- **Folgen:** erscheint z. B. im Text „Ihre Bewertung für {Name}“.
+- **Folgen:** erscheint z. B. in der E-Mail mit dem Korrektur-Link („Ihre Bewertung bei {Name} bearbeiten“). Benachrichtigungen an Sie selbst und strukturierte Daten nutzen weiter den Titel der Website.
 - **Datenschutz:** ist bei Einzelunternehmen oft ein Personenname; wird beim Konfigurationsexport nur nach Rückfrage mitgenommen.
 - **Voraussetzung:** keine.
 
@@ -124,7 +124,7 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 
 ### Absenderadresse hinter einem Proxy (`trusted_proxy_header`)
 - **Zweck:** Welche Adresse für die Sendebegrenzung (Bewertungen, Meldungen, Fragen) gezählt wird. **Standard:** „Keine“ = direkte Verbindungsadresse (`REMOTE_ADDR`). Wählbar: `X-Forwarded-For`, `X-Real-IP`, `CF-Connecting-IP` (erweiterte Einstellung). Filter `review_captain_trusted_proxy_header` hat Vorrang.
-- **Folgen:** Nur einstellen, wenn Ihre Website hinter einem Reverse Proxy/CDN liegt, der diese Kopfzeile selbst setzt – sonst zählen alle Besucher als ein Absender. Bei einer Liste (`X-Forwarded-For`) gilt die letzte gültige Adresse (die Ihr Proxy angehängt hat); ungültige Werte fallen auf `REMOTE_ADDR` zurück. Ohne vertrauenswürdigen Proxy könnten Absender die Begrenzung durch eine gefälschte Kopfzeile umgehen.
+- **Folgen:** Nur einstellen, wenn Ihre Website hinter einem Reverse Proxy/CDN liegt, der diese Kopfzeile selbst setzt – sonst zählen alle Besucher als ein Absender. Bei einer Liste (`X-Forwarded-For`) gilt die letzte gültige Adresse (die Ihr Proxy angehängt hat); ungültige Werte fallen auf `REMOTE_ADDR` zurück. Ohne vertrauenswürdigen Proxy könnten Absender die Begrenzung durch eine gefälschte Kopfzeile umgehen. Ist der Server auch direkt erreichbar, nennen Sie die Adressen Ihrer Proxys über den Filter `review_captain_trusted_proxies` (Liste exakter IP-Adressen): dann wird die Kopfzeile nur bei Anfragen von diesen Adressen gelesen.
 - **Datenschutz:** gespeichert wird weiterhin nur ein gekürzter Hash, nie die Adresse.
 
 ### Einreichungen pro Stunde (`rate_limit_per_hour`)
@@ -146,6 +146,7 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Zweck:** Text neben dem Kontrollkästchen „Einwilligung zur Veröffentlichung“. **Standard:** leer = heutiger Text („Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. …“).
 - **Platzhalter:** `{privacy_link}` wird zum Link „Datenschutzerklärung“ auf Ihre WordPress-Datenschutzseite (ohne Datenschutzseite: das Wort ohne Link; Filter `review_captain_privacy_policy_url`). Höchstens 2 000 Zeichen, sonst reiner Text.
 - **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen.** Der Standardtext ist ein Entwurf und nicht rechtlich freigegeben.
+- **Nachweis (Prüfphase SET-RC-P3):** Jede Einreichung mit Einwilligung bekommt im Verlauf der Bewertung den Eintrag `consent_recorded` mit der Fassung `consent_text:<16 Hex-Zeichen>` (Hash aus wirksamem Text und Datenschutz-Link). Der Wortlaut jeder Fassung wird einmalig in der Option `review_captain_consent_texts` abgelegt (mit erstem Verwendungszeitpunkt, UTC; nicht autoload; wird bei „Daten löschen“ mit entfernt). So bleibt nach einer Textänderung nachvollziehbar, welcher Wortlaut gezeigt wurde. Wie lange das Archiv aufbewahrt werden muss, *wartet auf* Rechtsprüfung.
 
 ### Benachrichtigungen (`notify_admin`, `notify_recipients`, `notify_subject`, `notify_body`, `notify_questions`) – SET-RC-09
 - **Zweck:** E-Mail an die Moderation bei neuer Bewertung (`notify_admin`, Standard an), bei neuer Produktfrage (`notify_questions`, Standard an, wirkt nur mit „Produktfragen“) und bei Meldungen (siehe `report_notify`).
@@ -209,9 +210,9 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 - **Diagnose:** „Einstellungen → SEO & Yoast“ nennt eingeschränkte Inhaltstypen, die Mindestzahl und warum ggf. nichts ausgegeben wird (Gründe `context_disabled`, `below_minimum`).
 - **Datenschutz:** keiner. **Voraussetzung:** keine; mit Yoast SEO wird das Markup in dessen Schema-Graph eingefügt.
 
-### Hinweis „So prüfen wir Bewertungen“ (`verification_notice_show`, `verification_notice`, `verification_notice_position`) – SET-RC-01
+### Hinweis „So prüfen wir Bewertungen“ (`verification_notice_show`, `verification_notice_title`, `verification_notice`, `verification_notice_position`) – SET-RC-01
 - **Zweck:** aufklappbarer Hinweis (Link „So prüfen wir Bewertungen“) an jedem Bewertungs-Widget und am Bewertungsformular, der erklärt, ob und wie Bewertungen geprüft werden (Transparenzpflicht, z. B. EU-Omnibus-Richtlinie).
-- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten.
+- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten. Die Überschrift (Text des aufklappbaren Links) ist mit `verification_notice_title` einstellbar (höchstens 80 Zeichen, leer = „So prüfen wir Bewertungen“; Filter `review_captain_public_text` mit ID `display.verification_notice_title`).
 - **Filter:** `review_captain_verification_notice` (`$text`, `$context` = `widget`|`form`, `$levels`) gewinnt; leerer Rückgabewert blendet den Hinweis aus. Pro-Widgets können `Renderer::verification_notice()` nutzen.
 - **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen.** Der Entwurf macht keine rechtlichen Aussagen; beschreiben Sie nur, was Sie tatsächlich prüfen.
 
@@ -261,10 +262,11 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 - **Standard:** „Anonymisieren“: Name wird zu „Anonym“, E-Mail und Nutzerverknüpfung werden entfernt, Text und Bewertung bleiben. **Alternative:** „Löschen“: das Review wird vollständig entfernt.
 - **Datenschutz:** Enthält der Text selbst personenbezogene Angaben, prüfen und bearbeiten bzw. löschen Sie ihn zusätzlich manuell.
 
-### Daten beim Deinstallieren löschen (`delete_data_on_uninstall`)
-- **Standard:** aus = Reviews und Einstellungen bleiben beim Löschen des Plugins erhalten. An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert.
+### Beim Löschen des Plugins alle Daten entfernen (`delete_data_on_uninstall`)
+- **Standard:** aus = Reviews und Einstellungen bleiben beim Löschen des Plugins erhalten. An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt (Bewertungen mit Fotos, Antworten, Korrekturfassungen, Meldungen und Schlagwörtern, Profile und Quellen, Fragen, Importe, Hintergrundaufgaben, Protokolle, Einstellungen und die Review-Captain-Rechte der Rollen). Daten bei Google, Trustpilot usw. werden nie verändert. Geplante Aufgaben (Cron, Action Scheduler) und unbestätigte CSV-Uploads werden immer entfernt. Multisite: jede Website entscheidet für sich.
+- **Export (Suite-Standard S10):** Die Einstellung und ihr Bestätigungszeitpunkt werden nie exportiert; ein Import lässt sie unverändert.
 - **Bestätigung (SET-RC-20):** Zum Einschalten tippen Sie `LÖSCHEN` in das Feld unter dem Schalter (auch `LOESCHEN` oder `DELETE`). Der Zeitpunkt wird gespeichert und angezeigt („Bestätigt am …“). Gelöscht wird nur mit dieser Bestätigung; Ausschalten hebt sie auf. Ein Konfigurationsimport kann die Löschung nicht einschalten. War der Schalter schon vor dieser Version an, bleiben die Daten erhalten, bis Sie einmal bestätigen; die Seite weist darauf hin.
-- **WP-CLI:** `wp review-captain settings set privacy.delete_data_on_uninstall 1 --confirm-word=LÖSCHEN --user=<admin>`.
+- **WP-CLI:** `wp review-captain settings set privacy.delete_data_on_uninstall 1 --confirm=LÖSCHEN --user=<admin>` (`--confirm-word` bleibt als gleichwertiger Alias).
 
 ### Datenschutzhinweis im Formular (`privacy_notice`)
 - **Standard:** leer = kurzer Standardtext mit Link zu Ihrer WordPress-Datenschutzseite. Eigener Text wird als reiner Text gespeichert (Absätze bleiben erhalten, HTML wird entfernt).

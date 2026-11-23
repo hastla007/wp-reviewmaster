@@ -9,6 +9,7 @@ namespace ReviewCaptain\Tests\Unit\Frontend;
 
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Frontend\FormHandler;
+use ReviewCaptain\Frontend\PublicTexts;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\RateLimiter;
 
@@ -86,6 +87,27 @@ final class ModerationRulesTest extends FrontendTestCase {
 		$this->assertSame( ReviewStatus::APPROVED, $part['review']->status, 'whole words only' );
 	}
 
+	public function test_consent_text_version_is_recorded_and_archived(): void {
+		$first   = $this->handler()->process( $this->post() );
+		$archive = get_option( PublicTexts::CONSENT_ARCHIVE_OPTION, array() );
+		$this->assertCount( 1, $archive );
+		$version = (string) array_key_first( $archive );
+		$this->assertMatchesRegularExpression( '/^[a-f0-9]{16}$/', $version );
+		$this->assertSame( PublicTexts::defaults()['submissions.consent_text'], $archive[ $version ]['text'], 'the text the author saw' );
+		$this->assertContains( 'consent_recorded:consent_text:' . $version, $this->history( (int) $first['review']->id ) );
+
+		$this->settings( array( 'submissions' => array( 'consent_text' => 'Neuer Einwilligungstext {privacy_link}.' ) ) );
+		$second  = $this->handler()->process( $this->post( array( 'rc_email' => 'dora@example.test' ) ) );
+		$archive = get_option( PublicTexts::CONSENT_ARCHIVE_OPTION, array() );
+		$this->assertCount( 2, $archive, 'the earlier version stays archived' );
+		$this->assertArrayHasKey( $version, $archive );
+		$this->assertNotContains( 'consent_recorded:consent_text:' . $version, $this->history( (int) $second['review']->id ) );
+
+		$this->settings( array( 'submissions' => array( 'require_consent' => false ) ) );
+		$none = $this->handler()->process( $this->post( array( 'rc_email' => 'emil@example.test', 'rc_consent' => '' ) ) );
+		$this->assertSame( array(), array_filter( $this->history( (int) $none['review']->id ), static fn( string $e ): bool => str_starts_with( $e, 'consent_recorded' ) ), 'no consent, no record' );
+	}
+
 	public function test_hold_links(): void {
 		$this->settings(
 			array(
@@ -148,6 +170,18 @@ final class ModerationRulesTest extends FrontendTestCase {
 		$_SERVER['HTTP_X_FORWARDED_FOR'] = 'garbage';
 		$this->assertSame( '10.0.0.1', RateLimiter::client_ip(), 'invalid header → REMOTE_ADDR' );
 		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
+	}
+
+	public function test_proxy_header_only_from_listed_proxies(): void {
+		// P4-7: with a proxy list, a client reaching the origin directly cannot spoof its address.
+		$this->settings( array( 'submissions' => array( 'trusted_proxy_header' => 'cf-connecting-ip' ) ) );
+		add_filter( 'review_captain_trusted_proxies', static fn() => array( '10.0.0.1' ) );
+		$_SERVER['HTTP_CF_CONNECTING_IP'] = '203.0.113.9';
+		$_SERVER['REMOTE_ADDR']           = '10.0.0.1';
+		$this->assertSame( '203.0.113.9', RateLimiter::client_ip(), 'request from the listed proxy' );
+		$_SERVER['REMOTE_ADDR'] = '198.51.100.50';
+		$this->assertSame( '198.51.100.50', RateLimiter::client_ip(), 'direct request: header ignored' );
+		unset( $_SERVER['HTTP_CF_CONNECTING_IP'] );
 	}
 
 	public function test_form_item_limit_filter_has_upper_bound(): void {

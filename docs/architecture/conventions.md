@@ -74,7 +74,7 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 | `review_captain_review_removed_v1` | action | V | nach Commit |
 | `review_captain_request_planner_v1` | filter | V | Pro registriert den Anfrage-Planer für `WorkflowService` (`RequestPlannerInterface`, Vertrag 1.x); ohne → `rc.contract.unavailable` (RC-WF-03) |
 | `review_captain_spam_checks_v1` | filter | V | zusätzliche Spam-Prüfungen/externe Captcha-Anbieter für Bewertungs-, Melde- und Frageformular (SET-RC-11); Rückgabe Liste von Gründen, jeder Grund lehnt neutral ab. **Nur nach Rechtsprüfung.** Angelehnt an Form Captains `form_captain_spam_checks_v1` |
-| `review_captain_pow_max_number_v1` | filter | B | Schwierigkeit der eingebauten Rechenprüfung (Standard 50 000, 1 000–1 000 000, wie `form_captain_pow_max_number_v1`) |
+| `review_captain_pow_max_number_v1` | filter | V | Schwierigkeit der eingebauten Rechenprüfung (Standard 50 000, 1 000–1 000 000, wie `form_captain_pow_max_number_v1`); Name mit Versionsendung aus Form Captain, daher versionierter Vertrag: Bedeutung und Grenzen ändern sich nur mit `_v2` |
 | `review_captain_settings_schema` | filter | S | Pro ergänzt Einstellungsfelder (Core-Felder nicht entfern-/änderbar) |
 | `review_captain_pro_settings_writable` | filter | S | Pro erlaubt das Schreiben von Pro-Feldern (Default `false`) |
 | `review_captain_show_pro_info` | filter | S | Pro-Hinweis im Dashboard ausblenden (Default `true`) |
@@ -94,6 +94,30 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 | `review_captain_runner_max_jobs` | filter | B | max. Jobs je Runner-Lauf (Default 50) |
 | `review_captain_runner_concurrency` | filter | B | max. gleichzeitig laufende Jobs (Default 2) |
 | `review_captain_side_effect_free_job_prefixes` | filter | B | Jobtyp-Präfixe ohne Außenwirkung (laufen trotz Reconcile-Sperre) |
+| `review_captain_connector_runtime_v1` | filter | V | Pro meldet die Laufzeit für eigene Connectoren (CON-006, QA F-03); Default `false` = aktivierte Connectoren laufen nicht |
+| `review_captain_settings_hints` | filter | S | graue Hinweiszeilen der Einstellungen `{id, tab, title, text, link}`; Pro entfernt Zeilen aktiver Funktionen ([pro-matrix.md](../settings/pro-matrix.md)) |
+| `review_captain_settings_hint_link` | filter | S | Link einer Core-Hinweiszeile (Default leer) |
+| `review_captain_settings_cross_check` | filter | S | Feldübergreifende Prüfungen eines Tabs (z. B. für Add-on-Felder) |
+| `review_captain_public_text` | filter | S | öffentlicher Text (Einstellung oder übersetzter Standard), Kennung `tab.key` |
+| `review_captain_verification_notice` | filter | S | Text „So prüfen wir Bewertungen“; `''` blendet aus |
+| `review_captain_privacy_policy_url` | filter | S | Datenschutz-Link für `{privacy_link}` im Einwilligungstext |
+| `review_captain_notification` | filter | S | Benachrichtigungs-Mail (`to`, `subject`, `body`) je Ereignis, ohne personenbezogenen Kontext |
+| `review_captain_notify_recipients` | filter | S | Empfänger der Benachrichtigungen je Ereignis |
+| `review_captain_report_reasons` | filter | S | angebotene Meldegründe (nur Werte aus `ReportStore::REASONS`) |
+| `review_captain_submission_hold_reasons` | filter | S | Gründe, eine Einreichung zur Moderation zurückzuhalten (Codes, kein Inhalt) |
+| `review_captain_blocked_email_domains` | filter | S | gesperrte E-Mail-Domains des Formulars |
+| `review_captain_widget_defaults` | filter | S | globale Widget-Vorgaben (`limit`, `layout`, `columns`, `heading_level`, `new_tab`) |
+| `review_captain_removed_review_behavior` | filter | S | Umgang mit an der Quelle entfernten Reviews; nur `tombstone` erzwingbar |
+| `review_captain_debug_log_line` | filter | S | Diagnose-Logzeile ohne personenbezogene Daten; `''` unterdrückt |
+| `review_captain_form_max_items` | filter | B | max. Produkte je Mehrprodukt-Formular (1–50, Einstellung) |
+| `review_captain_form_min_seconds` | filter | B | Mindestzeit bis zum Absenden (Spam-Schutz, Einstellung) |
+| `review_captain_max_feedback_links` | filter | B | max. Feedback-Links je Kampagne |
+| `review_captain_max_tags` | filter | B | max. Schlagwörter je Review |
+| `review_captain_photo_max_edge` | filter | B | längste Bildkante beim Speichern (400–4000, Einstellung) |
+| `review_captain_retention_audit_days` | filter | B | Aufbewahrung des Änderungsprotokolls in Tagen (Einstellung) |
+| `review_captain_schema_min_reviews` | filter | B | Mindestzahl Reviews für strukturierte Daten (Einstellung) |
+| `review_captain_trusted_proxy_header` | filter | B | vertrauenswürdiger Proxy-Header für die Client-IP (Einstellung) |
+| `review_captain_trusted_proxies` | filter | B | exakte IP-Adressen der Proxys, von denen der Proxy-Header gelesen wird (Standard leer = Header immer lesen, P4-7) |
 
 Interne Cron-Hooks ohne Stabilitätszusage: `review_captain_run_jobs` (5-Minuten-Tick), `review_captain_daily_maintenance`.
 

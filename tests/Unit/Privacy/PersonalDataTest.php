@@ -110,6 +110,25 @@ final class PersonalDataTest extends TestCase {
 		$this->assertSame( array(), $this->service()->export( 'max@example.test' )['data'], 'nothing left to find' );
 	}
 
+	public function test_erase_anonymize_removes_correction_versions(): void {
+		// P4-3: the versions of an author correction kept the original text after anonymisation.
+		$r     = $this->review( array( 'status' => \ReviewCaptain\Domain\ReviewStatus::APPROVED ) );
+		$table = \ReviewCaptain\Install\Schema::table( 'review_revisions' );
+		$this->db->insert(
+			$table,
+			array(
+				'review_id'  => $r->id,
+				'status'     => 'proposed',
+				'title'      => 'Neuer Titel',
+				'body'       => 'Ich, Max aus der Hauptstraße 5, korrigiere',
+				'created_at' => gmdate( 'Y-m-d H:i:s' ),
+			)
+		);
+		$this->assertStringContainsString( 'Hauptstraße 5', wp_json_encode( $this->service()->export( 'max@example.test' ) ), 'versions are exported' );
+		$this->service()->erase( 'max@example.test' );
+		$this->assertSame( 0, $this->rows( 'review_revisions' ) );
+	}
+
 	public function test_erase_delete_mode(): void {
 		update_option( Settings::OPTION, array( 'privacy' => array( 'erase_mode' => 'delete' ) ) );
 		$this->review();
@@ -137,5 +156,59 @@ final class PersonalDataTest extends TestCase {
 		$text = $GLOBALS['rc_test_privacy_policy']['Review Captain'] ?? '';
 		$this->assertStringContainsString( 'Bewertung', $text );
 		$this->assertStringContainsString( 'Anonym', $text );
+	}
+
+	public function test_policy_text_follows_moderation_consent_and_retention_settings(): void {
+		$text = PrivacyModule::policy_text();
+		$this->assertStringContainsString( 'erst nach Prüfung und nur dann veröffentlicht', $text, 'defaults: moderation and consent' );
+		$this->assertStringNotContainsString( 'Tage nach Eingang', $text );
+
+		$this->set_settings(
+			array(
+				'general'     => array( 'new_review_status' => 'approved' ),
+				'submissions' => array( 'require_consent' => false ),
+				'privacy'     => array(
+					'retention_contact_days'  => 365,
+					'retention_approved_days' => 730,
+				),
+			)
+		);
+		$text = PrivacyModule::policy_text();
+		$this->assertStringNotContainsString( 'erst nach Prüfung', $text, 'no moderation claimed when new reviews are published at once' );
+		$this->assertStringNotContainsString( 'Veröffentlichung zugestimmt haben', $text, 'no consent claimed when it is not asked for' );
+		$this->assertStringContainsString( '365 Tage nach Eingang der Bewertung', $text );
+		$this->assertStringContainsString( '730 Tage nach Eingang vollständig', $text );
+
+		$this->set_settings( array( 'general' => array( 'new_review_status' => 'approved' ) ) );
+		$text = PrivacyModule::policy_text();
+		$this->assertStringContainsString( 'Ihre Bewertung wird nur veröffentlicht, wenn Sie der Veröffentlichung zugestimmt haben', $text );
+		$this->assertStringNotContainsString( 'erst nach Prüfung', $text );
+	}
+
+	public function test_site_health_reminds_while_no_contact_retention_is_set(): void {
+		$module = new PrivacyModule();
+		$module->register( Plugin::instance() );
+		$tests = apply_filters( 'site_status_tests', array( 'direct' => array( 'other' => array() ) ) );
+		$this->assertArrayHasKey( 'other', $tests['direct'], 'other tests are kept' );
+		$this->assertArrayHasKey( 'review_captain_retention', $tests['direct'] );
+
+		$result = $module->retention_status();
+		$this->assertSame( 'recommended', $result['status'], 'default "never" (S9) is reminded' );
+		$this->assertSame( 'review_captain_retention', $result['test'] );
+		$this->assertStringContainsString( 'tab=privacy', $result['actions'] );
+		$this->assertStringContainsString( 'rechtlich prüfen', $result['description'], 'no period is suggested as legally fine' );
+
+		$this->set_settings( array( 'privacy' => array( 'retention_contact_days' => 365 ) ) );
+		$result = $module->retention_status();
+		$this->assertSame( 'good', $result['status'] );
+		$this->assertStringContainsString( '365', $result['description'] );
+	}
+
+	/**
+	 * @param array<string, mixed> $settings Settings by tab.
+	 */
+	private function set_settings( array $settings ): void {
+		update_option( 'review_captain_settings', $settings );
+		Plugin::instance()->settings()->flush();
 	}
 }

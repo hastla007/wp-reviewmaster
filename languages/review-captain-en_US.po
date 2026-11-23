@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: review-captain\n"
 
-#: blocks/form/editor.js:30 blocks/reviews/editor.js:125 src/Privacy/PersonalData.php:93 src/Privacy/PersonalData.php:293
+#: blocks/form/editor.js:30 blocks/reviews/editor.js:127 src/Integrations/Elementor/ReviewsWidget.php:68 src/Privacy/PersonalData.php:94 src/Privacy/PersonalData.php:296
 msgid "Kontext"
 msgstr "Context"
 
@@ -20,19 +20,19 @@ msgstr "Context"
 msgid "Worauf bezieht sich die Bewertung?"
 msgstr "What is the review about?"
 
-#: blocks/form/editor.js:35
+#: blocks/form/editor.js:35 src/Integrations/Elementor/ReviewsWidget.php:68
 msgid "Unternehmen allgemein"
 msgstr "Company in general"
 
-#: blocks/form/editor.js:36 blocks/reviews/editor.js:33 src/Admin/ReviewsPage.php:201
+#: blocks/form/editor.js:36 blocks/reviews/editor.js:33 src/Admin/ReviewsPage.php:201 src/Integrations/Elementor/ReviewsWidget.php:68
 msgid "Beitrag/Seite"
 msgstr "Post/page"
 
-#: blocks/form/editor.js:37 blocks/reviews/editor.js:34 src/Admin/ReviewsPage.php:202
+#: blocks/form/editor.js:37 blocks/reviews/editor.js:34 src/Admin/ReviewsPage.php:202 src/Integrations/Elementor/ReviewsWidget.php:68
 msgid "Produkt"
 msgstr "Product"
 
-#: blocks/form/editor.js:38 blocks/reviews/editor.js:35
+#: blocks/form/editor.js:38 blocks/reviews/editor.js:35 src/Integrations/Elementor/ReviewsWidget.php:68
 msgid "Event"
 msgstr "Event"
 
@@ -48,11 +48,11 @@ msgstr "Voucher"
 msgid "App"
 msgstr "App"
 
-#: blocks/form/editor.js:46 blocks/reviews/editor.js:133
+#: blocks/form/editor.js:46 blocks/reviews/editor.js:135
 msgid "Kontext-ID"
 msgstr "Context ID"
 
-#: blocks/form/editor.js:47 blocks/reviews/editor.js:134
+#: blocks/form/editor.js:47 blocks/reviews/editor.js:136
 msgid "„current“ verwendet den aktuellen Beitrag."
 msgstr "“current” uses the current post."
 
@@ -92,11 +92,11 @@ msgstr "Hide"
 msgid "Datenquelle"
 msgstr "Data source"
 
-#: blocks/reviews/editor.js:83 src/Admin/ReviewsPage.php:111 src/Admin/ReviewsPage.php:244 src/Admin/ReviewsPage.php:326 src/Admin/ReviewsPage.php:478 src/Admin/SourcesPage.php:67 src/Admin/SourcesPage.php:122 src/Admin/WidgetsPage.php:164 src/ImportExport/ImportExportModule.php:287 src/Privacy/PersonalData.php:284
+#: blocks/reviews/editor.js:83 src/Admin/ReviewsPage.php:111 src/Admin/ReviewsPage.php:244 src/Admin/ReviewsPage.php:326 src/Admin/ReviewsPage.php:482 src/Admin/SourcesPage.php:67 src/Admin/SourcesPage.php:124 src/Admin/WidgetsPage.php:164 src/ImportExport/ImportExportModule.php:287 src/Privacy/PersonalData.php:287
 msgid "Plattform"
 msgstr "Platform"
 
-#: blocks/reviews/editor.js:89 src/Admin/DiagnosticsPage.php:366 src/Admin/ReviewsListTable.php:112 src/Admin/ReviewsPage.php:110 src/Admin/ReviewsPage.php:476 src/ImportExport/ImportExportModule.php:286 src/Privacy/PersonalData.php:283
+#: blocks/reviews/editor.js:89 src/Admin/DiagnosticsPage.php:400 src/Admin/ReviewsListTable.php:112 src/Admin/ReviewsPage.php:110 src/Admin/ReviewsPage.php:480 src/ImportExport/ImportExportModule.php:286 src/Integrations/Elementor/ReviewsWidget.php:66 src/Privacy/PersonalData.php:286
 msgid "Typ"
 msgstr "Type"
 
@@ -112,7 +112,7 @@ msgstr "Reviews only"
 msgid "Nur Erfahrungsberichte (Website)"
 msgstr "Testimonials only (website)"
 
-#: blocks/reviews/editor.js:99 src/Admin/WidgetsPage.php:180
+#: blocks/reviews/editor.js:99 src/Admin/WidgetsPage.php:180 src/Integrations/Elementor/ReviewsWidget.php:67
 msgid "Mindestbewertung"
 msgstr "Minimum rating"
 
@@ -140,114 +140,174 @@ msgstr "5 stars only"
 msgid "Anzahl"
 msgstr "Number"
 
-#: blocks/reviews/editor.js:118
+#: blocks/reviews/editor.js:112
+msgid "Leer = Vorgabe aus den Einstellungen (Darstellung › Widget-Vorgaben)."
+msgstr "Empty = default from the settings (Appearance › Widget defaults)."
+
+#: blocks/reviews/editor.js:120
 msgid "Blättern erlauben"
 msgstr "Allow pagination"
 
-#: blocks/reviews/editor.js:127
+#: blocks/reviews/editor.js:129
 msgid "Kontexttyp"
 msgstr "Context type"
 
-#: blocks/reviews/editor.js:141 src/Admin/WidgetsPage.php:163
+#: blocks/reviews/editor.js:143 src/Admin/WidgetsPage.php:163 src/Integrations/Elementor/ReviewsWidget.php:62
 msgid "Layout"
 msgstr "Layout"
 
-#: blocks/reviews/editor.js:143 src/Settings/SettingsSchema.php:35
+#: blocks/reviews/editor.js:145 src/Admin/SettingsFields.php:108 src/Settings/SettingsSchema.php:47
 msgid "Darstellung"
 msgstr "Appearance"
 
-#: blocks/reviews/editor.js:146 src/Admin/WidgetsPage.php:163
+#: blocks/reviews/editor.js:148
+msgid "Vorgabe aus den Einstellungen"
+msgstr "Default from the settings"
+
+#: blocks/reviews/editor.js:149 src/Admin/SettingsFields.php:232 src/Admin/WidgetsPage.php:163 src/Integrations/Elementor/ReviewsWidget.php:62
 msgid "Raster"
 msgstr "Grid"
 
-#: blocks/reviews/editor.js:147 src/Admin/WidgetsPage.php:163
+#: blocks/reviews/editor.js:150 src/Admin/SettingsFields.php:233 src/Admin/WidgetsPage.php:163 src/Integrations/Elementor/ReviewsWidget.php:62
 msgid "Liste"
 msgstr "List"
 
-#: blocks/reviews/editor.js:152
+#: blocks/reviews/editor.js:155
 msgid "Spalten"
 msgstr "Columns"
 
-#: blocks/reviews/editor.js:161 src/Admin/WidgetsPage.php:190
+#: blocks/reviews/editor.js:156
+msgid "Leer = Vorgabe aus den Einstellungen."
+msgstr "Empty = default from the settings."
+
+#: blocks/reviews/editor.js:166 src/Admin/WidgetsPage.php:190
 msgid "Anzeige"
 msgstr "Display"
 
-#: blocks/reviews/editor.js:163
+#: blocks/reviews/editor.js:168
 msgid "Quelle bei Website-Bewertungen anzeigen"
 msgstr "Show source for website reviews"
 
-#: blocks/reviews/editor.js:164
+#: blocks/reviews/editor.js:169
 msgid "Externe Bewertungen zeigen Quelle und Link zum Original immer an."
 msgstr "External reviews always show the source and a link to the original."
 
-#: blocks/reviews/editor.js:169 src/Admin/ReviewsListTable.php:115 src/Admin/ReviewsPage.php:269 src/Admin/ReviewsPage.php:361
+#: blocks/reviews/editor.js:174 src/Admin/ReviewsListTable.php:115 src/Admin/ReviewsPage.php:269 src/Admin/ReviewsPage.php:361 src/Admin/SettingsFields.php:154
 msgid "Datum"
 msgstr "Date"
 
-#: blocks/reviews/editor.js:175 src/Admin/ReviewsListTable.php:110
+#: blocks/reviews/editor.js:180 src/Admin/ReviewsListTable.php:110
 msgid "Autor"
 msgstr "Author"
 
-#: blocks/reviews/editor.js:181 templates/reviews-grid.php:21
+#: blocks/reviews/editor.js:186 templates/reviews-grid.php:25
 msgid "Zusammenfassung je Plattform"
 msgstr "Summary per platform"
 
-#: blocks/reviews/editor.js:188
+#: blocks/reviews/editor.js:193
 msgid "SEO-Hinweis"
 msgstr "SEO note"
 
-#: blocks/reviews/editor.js:192
+#: blocks/reviews/editor.js:197
 msgid "Nur auf dieser Website gesammelte Bewertungen können strukturierte Daten erhalten; kein Rich-Result-Versprechen. Externe Bewertungen werden angezeigt, erhalten aber kein Bewertungs-Markup."
 msgstr "Only reviews collected on this website can receive structured data; rich results are not guaranteed. External reviews are displayed but do not receive review markup."
 
 #. translators: 1: required PHP version, 2: required WordPress version
-#: review-captain.php:42
+#: review-captain.php:54
 msgid "Review Captain benötigt mindestens PHP %1$s und WordPress %2$s. Das Plugin ist deshalb inaktiv."
 msgstr "Review Captain requires at least PHP %1$s and WordPress %2$s. The plugin is therefore inactive."
 
-#: src/Admin/AdminModule.php:92 src/Admin/AdminModule.php:93 src/Admin/DiagnosticsPage.php:313 src/Privacy/PersonalData.php:64 src/Privacy/PrivacyModule.php:53 src/Privacy/PrivacyModule.php:68 src/Privacy/PrivacyModule.php:79
+#: src/Admin/AdminModule.php:94 src/Admin/AdminModule.php:95 src/Admin/DiagnosticsPage.php:347 src/Integrations/Elementor/ElementorModule.php:58 src/Integrations/Elementor/ReviewsWidget.php:26 src/Privacy/PersonalData.php:65 src/Privacy/PrivacyModule.php:102 src/Privacy/PrivacyModule.php:117 src/Privacy/PrivacyModule.php:128
 msgid "Review Captain"
 msgstr "Review Captain"
 
-#: src/Admin/AdminModule.php:101
+#: src/Admin/AdminModule.php:103
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: src/Admin/AdminModule.php:102 src/Admin/ReviewsPage.php:73 src/Admin/SourcesPage.php:67
+#: src/Admin/AdminModule.php:104 src/Admin/ReviewsPage.php:73 src/Admin/SourcesPage.php:67
 msgid "Reviews"
 msgstr "Reviews"
 
-#: src/Admin/AdminModule.php:103 src/Admin/WidgetsPage.php:151
+#: src/Admin/AdminModule.php:105 src/Admin/WidgetsPage.php:151
 msgid "Widgets"
 msgstr "Widgets"
 
-#: src/Admin/AdminModule.php:104 src/Admin/SourcesPage.php:57
+#: src/Admin/AdminModule.php:106 src/Admin/SourcesPage.php:57
 msgid "Quellen & Profile"
 msgstr "Sources & profiles"
 
-#: src/Admin/AdminModule.php:105 src/Admin/SettingsFields.php:141 src/Admin/SettingsPage.php:476
+#: src/Admin/AdminModule.php:107 src/Admin/DiagnosticsPage.php:461 src/Admin/SettingsPage.php:668
 msgid "Einstellungen"
 msgstr "Settings"
 
-#: src/Admin/AdminModule.php:106 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:280
+#: src/Admin/AdminModule.php:108 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:314
 msgid "Diagnose"
 msgstr "Diagnostics"
 
-#: src/Admin/AdminModule.php:110 src/Admin/QuestionsPage.php:65
+#: src/Admin/AdminModule.php:112 src/Admin/QuestionsPage.php:65
 msgid "Fragen & Antworten"
 msgstr "Questions & answers"
 
-#: src/Admin/AdminModule.php:113
+#: src/Admin/AdminModule.php:115 src/Admin/CorrectionsPage.php:65 src/Admin/SettingsFields.php:169
+msgid "Korrekturen"
+msgstr "Corrections"
+
+#: src/Admin/AdminModule.php:118
 msgid "Feedback-Links"
 msgstr "Feedback links"
 
-#: src/Admin/ConfigTransfer.php:226
+#: src/Admin/ConfigTransfer.php:257
 msgid "an"
 msgstr "on"
 
-#: src/Admin/ConfigTransfer.php:226
+#: src/Admin/ConfigTransfer.php:257
 msgid "aus"
 msgstr "off"
+
+#: src/Admin/CorrectionsPage.php:69
+msgid "Korrektur freigegeben und veröffentlicht."
+msgstr "Correction approved and published."
+
+#: src/Admin/CorrectionsPage.php:70
+msgid "Korrektur abgelehnt. Die bisherige Fassung bleibt veröffentlicht."
+msgstr "Correction rejected. The previous version remains published."
+
+#: src/Admin/CorrectionsPage.php:71
+msgid "Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden."
+msgstr "The review has been changed in the meantime or the correction is no longer open. Please reload."
+
+#: src/Admin/CorrectionsPage.php:72 src/Admin/DashboardPage.php:57 src/Admin/DiagnosticsPage.php:311 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:654 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144
+msgid "Dafür fehlt dir die Berechtigung."
+msgstr "You do not have permission to do this."
+
+#: src/Admin/CorrectionsPage.php:89 src/Admin/ReviewsListTable.php:141 src/Admin/ReviewsListTable.php:284
+msgid "Freigeben"
+msgstr "Approve"
+
+#: src/Admin/CorrectionsPage.php:89 src/Admin/ReviewsListTable.php:142
+msgid "Ablehnen"
+msgstr "Reject"
+
+#: src/Admin/CorrectionsPage.php:66
+msgid "Von Autorinnen und Autoren eingereichte Änderungen an bereits freigegebenen Bewertungen. Die bisherige Fassung bleibt sichtbar, bis du die neue freigibst."
+msgstr "Changes to already approved reviews submitted by their authors. The previous version stays visible until you approve the new one."
+
+#: src/Admin/CorrectionsPage.php:78
+msgid "Keine offenen Korrekturen."
+msgstr "No open corrections."
+
+#: src/Admin/CorrectionsPage.php:81 src/Admin/SettingsPage.php:1126
+msgid "Bisher"
+msgstr "Current"
+
+#: src/Admin/CorrectionsPage.php:81 src/Admin/SettingsPage.php:1126
+msgid "Neu"
+msgstr "New"
+
+#: src/Admin/CorrectionsPage.php:81 src/Admin/ReviewsPage.php:513 src/ImportExport/ImportExportModule.php:317
+msgid "Aktion"
+msgstr "Action"
 
 #: src/Admin/DashboardPage.php:66 src/Admin/DashboardPage.php:74
 msgid "Review hinzufügen"
@@ -285,25 +345,21 @@ msgstr "Go to list"
 msgid "Prüfen"
 msgstr "Review"
 
-#: src/Admin/DashboardPage.php:177
+#: src/Admin/DashboardPage.php:179
 msgid "Review-Anfragen nach echten Erlebnissen"
 msgstr "Review requests after real experiences"
 
-#: src/Admin/DashboardPage.php:178
+#: src/Admin/DashboardPage.php:180
 msgid "Analytics je Quelle"
 msgstr "Analytics per source"
 
-#: src/Admin/DashboardPage.php:179
+#: src/Admin/DashboardPage.php:181
 msgid "Automatische Synchronisierung über offizielle Schnittstellen"
 msgstr "Automatic sync via official APIs"
 
-#: src/Admin/DashboardPage.php:180
+#: src/Admin/DashboardPage.php:182
 msgid "Captain-Suite-Integrationen und Connectoren"
 msgstr "Captain Suite integrations and connectors"
-
-#: src/Admin/DashboardPage.php:57 src/Admin/DiagnosticsPage.php:277 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:467 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144 src/ImportExport/ImportExportModule.php:178
-msgid "Dafür fehlt dir die Berechtigung."
-msgstr "You do not have permission to do this."
 
 #: src/Admin/DashboardPage.php:72
 msgid "Noch keine Reviews"
@@ -341,7 +397,7 @@ msgstr "Values are kept separate per source and based only on stored, approved e
 msgid "Zuletzt eingegangen"
 msgstr "Recently received"
 
-#: src/Admin/DashboardPage.php:134 src/Admin/DiagnosticsPage.php:406 src/Admin/ReviewsPage.php:506
+#: src/Admin/DashboardPage.php:134 src/Admin/DiagnosticsPage.php:469 src/Admin/ReviewsPage.php:510
 msgid "Noch keine Einträge."
 msgstr "No entries yet."
 
@@ -365,139 +421,159 @@ msgstr "Create widget"
 msgid "Externe Bewertung übernehmen"
 msgstr "Import external review"
 
-#: src/Admin/DashboardPage.php:174
+#: src/Admin/DashboardPage.php:176
 msgid "In Review Captain Pro"
 msgstr "In Review Captain Pro"
 
-#: src/Admin/DashboardPage.php:184
+#: src/Admin/DashboardPage.php:186
 msgid "Alle Kernfunktionen bleiben ohne Pro vollständig nutzbar."
 msgstr "All core features remain fully usable without Pro."
 
-#: src/Admin/DiagnosticsPage.php:310 src/Admin/ReviewsPage.php:483 src/Privacy/PersonalData.php:294
+#: src/Admin/DiagnosticsPage.php:344 src/Admin/ReviewsPage.php:487 src/Privacy/PersonalData.php:297
 msgid "ja"
 msgstr "yes"
 
-#: src/Admin/DiagnosticsPage.php:311 src/Admin/ReviewsPage.php:483 src/Privacy/PersonalData.php:294
+#: src/Admin/DiagnosticsPage.php:345 src/Admin/ReviewsPage.php:487 src/Privacy/PersonalData.php:297
 msgid "nein"
 msgstr "no"
 
-#: src/Admin/DiagnosticsPage.php:314
+#: src/Admin/DiagnosticsPage.php:348
 msgid "PHP"
 msgstr "PHP"
 
-#: src/Admin/DiagnosticsPage.php:315
+#: src/Admin/DiagnosticsPage.php:349
 msgid "WordPress"
 msgstr "WordPress"
 
-#: src/Admin/DiagnosticsPage.php:316
+#: src/Admin/DiagnosticsPage.php:350
 msgid "Datenbank-Schema"
 msgstr "Database schema"
 
-#: src/Admin/DiagnosticsPage.php:316
+#: src/Admin/DiagnosticsPage.php:350
 msgid "nicht installiert"
 msgstr "not installed"
 
-#: src/Admin/DiagnosticsPage.php:316 src/Admin/DiagnosticsPage.php:317
+#: src/Admin/DiagnosticsPage.php:350 src/Admin/DiagnosticsPage.php:351
 msgid "erwartet"
 msgstr "expected"
 
-#: src/Admin/DiagnosticsPage.php:317
+#: src/Admin/DiagnosticsPage.php:351
 msgid "Einstellungen-Version"
 msgstr "Settings version"
 
-#: src/Admin/DiagnosticsPage.php:318
+#: src/Admin/DiagnosticsPage.php:352
 msgid "Multisite"
 msgstr "Multisite"
 
-#: src/Admin/DiagnosticsPage.php:319
+#: src/Admin/DiagnosticsPage.php:353
 msgid "WP-Cron deaktiviert"
 msgstr "WP-Cron disabled"
 
-#: src/Admin/DiagnosticsPage.php:320
+#: src/Admin/DiagnosticsPage.php:354
 msgid "Action Scheduler verfügbar"
 msgstr "Action Scheduler available"
 
-#: src/Admin/DiagnosticsPage.php:321
+#: src/Admin/DiagnosticsPage.php:355
 msgid "Sprache / Zeitzone"
 msgstr "Language / time zone"
 
-#: src/Admin/DiagnosticsPage.php:325
+#: src/Admin/DiagnosticsPage.php:359
 msgid "Das Datenbank-Schema entspricht nicht der erwarteten Version. Es wird beim nächsten Aufruf im Admin automatisch aktualisiert; bleibt die Meldung, deaktiviere und aktiviere das Plugin erneut."
 msgstr "The database schema does not match the expected version. It will be updated automatically the next time an admin page loads; if the message persists, deactivate and reactivate the plugin."
 
-#: src/Admin/DiagnosticsPage.php:338
+#: src/Admin/DiagnosticsPage.php:372
 msgid "Profile"
 msgstr "Profiles"
 
-#: src/Admin/DiagnosticsPage.php:366
+#: src/Admin/DiagnosticsPage.php:400
 msgid "ID"
 msgstr "ID"
 
-#: src/Admin/DiagnosticsPage.php:366 src/Admin/QuestionsPage.php:89 src/Admin/ReviewsListTable.php:114 src/Admin/ReviewsPage.php:284 src/Admin/ReviewsPage.php:440 src/Admin/SourcesPage.php:67 src/Connectors/ConnectorsModule.php:91 src/ImportExport/ImportExportModule.php:288 src/ImportExport/ImportExportModule.php:317 src/Privacy/PersonalData.php:97
+#: src/Admin/DiagnosticsPage.php:400 src/Admin/QuestionsPage.php:89 src/Admin/ReviewsListTable.php:114 src/Admin/ReviewsPage.php:284 src/Admin/ReviewsPage.php:440 src/Admin/SourcesPage.php:67 src/Connectors/ConnectorsModule.php:91 src/ImportExport/ImportExportModule.php:288 src/ImportExport/ImportExportModule.php:317 src/Privacy/PersonalData.php:98
 msgid "Status"
 msgstr "Status"
 
-#: src/Admin/DiagnosticsPage.php:366
+#: src/Admin/DiagnosticsPage.php:400
 msgid "Versuche"
 msgstr "Attempts"
 
-#: src/Admin/DiagnosticsPage.php:366
+#: src/Admin/DiagnosticsPage.php:400
 msgid "Fehlercode"
 msgstr "Error code"
 
-#: src/Admin/DiagnosticsPage.php:366 src/Admin/DiagnosticsPage.php:409 src/Admin/ReviewsPage.php:509
+#: src/Admin/DiagnosticsPage.php:400 src/Admin/DiagnosticsPage.php:442 src/Admin/DiagnosticsPage.php:472 src/Admin/ReviewsPage.php:513
 msgid "Zeit"
 msgstr "Time"
 
-#: src/Admin/DiagnosticsPage.php:281
+#: src/Admin/DiagnosticsPage.php:315
 msgid "Nur lesend. Hier wird nichts verändert. Der Diagnosebericht enthält keine Zugangsdaten, E-Mail-Adressen oder Reviewtexte."
 msgstr "Read-only. Nothing is changed here. The diagnostics report contains no credentials, email addresses, or review texts."
 
-#: src/Admin/DiagnosticsPage.php:284
+#: src/Admin/DiagnosticsPage.php:318
 msgid "Diagnosebericht herunterladen (JSON)"
 msgstr "Download diagnostics report (JSON)"
 
-#: src/Admin/DiagnosticsPage.php:297
+#: src/Admin/DiagnosticsPage.php:331
 msgid "Dieser Abschnitt konnte nicht geladen werden."
 msgstr "This section could not be loaded."
 
-#: src/Admin/DiagnosticsPage.php:323
+#: src/Admin/DiagnosticsPage.php:357
 msgid "Umgebung"
 msgstr "Environment"
 
-#: src/Admin/DiagnosticsPage.php:347 src/Admin/SettingsFields.php:144
+#: src/Admin/DiagnosticsPage.php:381 src/Admin/SettingsFields.php:193
 msgid "Hintergrundaufgaben"
 msgstr "Background tasks"
 
-#: src/Admin/DiagnosticsPage.php:349
+#: src/Admin/DiagnosticsPage.php:383
 msgid "Die Aufgabenverwaltung ist nicht geladen."
 msgstr "The task manager is not loaded."
 
-#: src/Admin/DiagnosticsPage.php:362
+#: src/Admin/DiagnosticsPage.php:396
 msgid "Noch keine Hintergrundaufgaben gelaufen."
 msgstr "No background tasks have run yet."
 
-#: src/Admin/DiagnosticsPage.php:381
+#: src/Admin/DiagnosticsPage.php:415
 msgid "SEO & strukturierte Daten"
 msgstr "SEO & structured data"
 
-#: src/Admin/DiagnosticsPage.php:383
+#: src/Admin/DiagnosticsPage.php:417
 msgid "Der SEO-Status ist nicht verfügbar."
 msgstr "SEO status is not available."
 
-#: src/Admin/DiagnosticsPage.php:404
-msgid "Letzte Protokolleinträge"
-msgstr "Recent log entries"
+#: src/Admin/DiagnosticsPage.php:439
+msgid "Noch keine Änderungen an Einstellungen oder Rollen protokolliert."
+msgstr "No changes to settings or roles logged yet."
 
-#: src/Admin/DiagnosticsPage.php:409
+#: src/Admin/DiagnosticsPage.php:442 src/Admin/DiagnosticsPage.php:472
 msgid "Ereignis"
 msgstr "Event"
 
-#: src/Admin/DiagnosticsPage.php:409
+#: src/Admin/DiagnosticsPage.php:442 src/Admin/SettingsPage.php:1126
+msgid "Bereich"
+msgstr "Section"
+
+#: src/Admin/DiagnosticsPage.php:442
+msgid "Änderungen (alt → neu)"
+msgstr "Changes (old → new)"
+
+#: src/Admin/DiagnosticsPage.php:457
+msgid "Letzte Protokolleinträge"
+msgstr "Recent log entries"
+
+#: src/Admin/DiagnosticsPage.php:458
+msgid "Anzeigen:"
+msgstr "Show:"
+
+#: src/Admin/DiagnosticsPage.php:459 src/Admin/ReviewsListTable.php:162 src/ImportExport/ImportExportModule.php:429 src/Integrations/Elementor/ReviewsWidget.php:66
+msgid "Alle"
+msgstr "All"
+
+#: src/Admin/DiagnosticsPage.php:472
 msgid "Objekt"
 msgstr "Object"
 
-#: src/Admin/DiagnosticsPage.php:409
+#: src/Admin/DiagnosticsPage.php:472
 msgid "Angaben"
 msgstr "Details"
 
@@ -537,7 +613,7 @@ msgstr "Delete"
 msgid "Neuen Feedback-Link anlegen"
 msgstr "Create new feedback link"
 
-#: src/Admin/FeedbackPage.php:71 src/Admin/SourcesPage.php:67 src/Admin/SourcesPage.php:129 src/Connectors/ConnectorsModule.php:91
+#: src/Admin/FeedbackPage.php:71 src/Admin/SourcesPage.php:67 src/Admin/SourcesPage.php:131 src/Connectors/ConnectorsModule.php:91
 msgid "Bezeichnung"
 msgstr "Label"
 
@@ -589,9 +665,9 @@ msgstr "Profile"
 msgid "Einstellungen gespeichert."
 msgstr "Settings saved."
 
-#: src/Admin/Notices.php:49
-msgid "Einstellungen gespeichert. Einige Werte waren ungültig und wurden auf den bisherigen bzw. erlaubten Wert gesetzt:"
-msgstr "Settings saved. Some values were invalid and were set to the previous or allowed value:"
+#: src/Admin/Notices.php:49 src/Admin/SettingsPage.php:805
+msgid "Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:"
+msgstr "Some values were not saved because they are invalid. All other changes are saved. Please check:"
 
 #: src/Admin/Notices.php:50
 msgid "Keine Änderungen – es wurde nichts gespeichert."
@@ -617,7 +693,7 @@ msgstr "Preview created. Check the changes and confirm the import."
 msgid "Die Datei konnte nicht importiert werden: kein gültiger Review-Captain-Konfigurationsexport oder nicht unterstützte Version."
 msgstr "The file could not be imported: not a valid Review Captain configuration export or unsupported version."
 
-#: src/Admin/Notices.php:56
+#: src/Admin/Notices.php:56 src/Cli/Commands.php:664
 msgid "Der Import enthält keine Änderungen gegenüber den aktuellen Einstellungen."
 msgstr "The import contains no changes compared to the current settings."
 
@@ -857,11 +933,11 @@ msgstr "Questions are separate from reviews: no stars, not counted in review sum
 msgid "Keine Fragen in dieser Ansicht."
 msgstr "No questions in this view."
 
-#: src/Admin/QuestionsPage.php:79 src/Privacy/PersonalData.php:81
+#: src/Admin/QuestionsPage.php:79 src/Privacy/PersonalData.php:82
 msgid "Frage"
 msgstr "Question"
 
-#: src/Admin/QuestionsPage.php:79 src/Admin/ReviewsPage.php:595 src/Admin/WidgetsPage.php:183
+#: src/Admin/QuestionsPage.php:79 src/Admin/ReviewsPage.php:599 src/Admin/WidgetsPage.php:183
 msgid "Bezug"
 msgstr "Reference"
 
@@ -889,11 +965,11 @@ msgstr "Site testimonial (text testimonial)"
 msgid "Externe Bewertung manuell übernehmen (Auszug mit Quelle)"
 msgstr "Add external review manually (excerpt with source)"
 
-#: src/Admin/ReviewsListTable.php:108 src/Admin/ReviewsPage.php:117 src/Admin/ReviewsPage.php:256 src/Admin/ReviewsPage.php:350 src/Domain/Kind.php:23 src/Privacy/PersonalData.php:285
+#: src/Admin/ReviewsListTable.php:108 src/Admin/ReviewsPage.php:117 src/Admin/ReviewsPage.php:256 src/Admin/ReviewsPage.php:350 src/Domain/Kind.php:23 src/Privacy/PersonalData.php:288
 msgid "Bewertung"
 msgstr "Rating"
 
-#: src/Admin/ReviewsListTable.php:109 src/Admin/ReviewsPage.php:266 src/Admin/ReviewsPage.php:359 src/Admin/ReviewsPage.php:329 src/Privacy/PersonalData.php:287
+#: src/Admin/ReviewsListTable.php:109 src/Admin/ReviewsPage.php:266 src/Admin/ReviewsPage.php:359 src/Admin/ReviewsPage.php:329 src/Moderation/CorrectionHandler.php:146 src/Privacy/PersonalData.php:290
 msgid "Text"
 msgstr "Text"
 
@@ -901,17 +977,9 @@ msgstr "Text"
 msgid "Plattform / Quelle"
 msgstr "Platform / source"
 
-#: src/Admin/ReviewsListTable.php:113 src/Admin/ReviewsPage.php:479 src/Admin/ReviewsPage.php:278 src/Privacy/PersonalData.php:292
+#: src/Admin/ReviewsListTable.php:113 src/Admin/ReviewsPage.php:483 src/Admin/ReviewsPage.php:278 src/Privacy/PersonalData.php:295
 msgid "Verifizierung"
 msgstr "Verification"
-
-#: src/Admin/ReviewsListTable.php:141 src/Admin/ReviewsListTable.php:284
-msgid "Freigeben"
-msgstr "Approve"
-
-#: src/Admin/ReviewsListTable.php:142
-msgid "Ablehnen"
-msgstr "Reject"
 
 #: src/Admin/ReviewsListTable.php:143
 msgid "Archivieren"
@@ -925,17 +993,13 @@ msgstr "(no text)"
 msgid "Bearbeiten"
 msgstr "Edit"
 
-#: src/Admin/ReviewsListTable.php:304 src/Privacy/PersonalData.php:186 src/Questions/QuestionRepository.php:228
+#: src/Admin/ReviewsListTable.php:304 src/Privacy/PersonalData.php:187 src/Questions/QuestionRepository.php:236
 msgid "Anonym"
 msgstr "Anonymous"
 
 #: src/Admin/ReviewsListTable.php:315
 msgid "Profil gelöscht"
 msgstr "Profile deleted"
-
-#: src/Admin/ReviewsListTable.php:162 src/ImportExport/ImportExportModule.php:429
-msgid "Alle"
-msgstr "All"
 
 #: src/Admin/ReviewsListTable.php:222
 msgid "Keine Reviews für diese Filter."
@@ -973,7 +1037,7 @@ msgstr "Archive …"
 msgid "Quelle öffnen"
 msgstr "Open source"
 
-#: src/Admin/ReviewsListTable.php:293 src/Admin/SourcesPage.php:101 src/Security/EmbedPolicy.php:94 templates/cta.php:16
+#: src/Admin/ReviewsListTable.php:293 src/Admin/SourcesPage.php:103 src/Security/EmbedPolicy.php:94 templates/cta.php:16 templates/review-card.php:65
 msgid "(öffnet in neuem Tab)"
 msgstr "(opens in a new tab)"
 
@@ -1037,7 +1101,7 @@ msgstr "No reference"
 msgid "Veranstaltung"
 msgstr "Event"
 
-#: src/Admin/ReviewsPage.php:206 src/Admin/SettingsFields.php:122
+#: src/Admin/ReviewsPage.php:206 src/Admin/SettingsFields.php:163
 msgid "Formular"
 msgstr "Form"
 
@@ -1069,7 +1133,7 @@ msgstr "– no profile –"
 msgid "%d von 5"
 msgstr "%d out of 5"
 
-#: src/Admin/ReviewsPage.php:265 src/Admin/ReviewsPage.php:328 src/Admin/ReviewsPage.php:358 src/Privacy/PersonalData.php:286
+#: src/Admin/ReviewsPage.php:265 src/Admin/ReviewsPage.php:328 src/Admin/ReviewsPage.php:358 src/Moderation/CorrectionHandler.php:145 src/Privacy/PersonalData.php:289
 msgid "Titel"
 msgstr "Title"
 
@@ -1081,7 +1145,7 @@ msgstr "Permitted text (excerpt)"
 msgid "Name der Person"
 msgstr "Person's name"
 
-#: src/Admin/ReviewsPage.php:268 src/Admin/ReviewsPage.php:330 src/Admin/ReviewsPage.php:360 src/Privacy/PersonalData.php:85 src/Privacy/PersonalData.php:288
+#: src/Admin/ReviewsPage.php:268 src/Admin/ReviewsPage.php:330 src/Admin/ReviewsPage.php:360 src/Privacy/PersonalData.php:86 src/Privacy/PersonalData.php:291
 msgid "Name"
 msgstr "Name"
 
@@ -1113,11 +1177,11 @@ msgstr "Source note"
 msgid "z. B. „Auszug aus Google, übernommen am 14.11.2026“."
 msgstr "e.g. “Excerpt from Google, added on 11/14/2026”."
 
-#: src/Admin/ReviewsPage.php:279 src/Domain/Verification.php:29
+#: src/Admin/ReviewsPage.php:279 src/Domain/Verification.php:29 src/Frontend/PublicTexts.php:51
 msgid "Externe Plattformbewertung"
 msgstr "External platform review"
 
-#: src/Admin/ReviewsPage.php:279 src/Domain/Verification.php:26
+#: src/Admin/ReviewsPage.php:279 src/Domain/Verification.php:26 src/Frontend/PublicTexts.php:50
 msgid "Ungeprüft"
 msgstr "Unverified"
 
@@ -1141,51 +1205,51 @@ msgstr "Content comes from %s and cannot be changed here. You can change the vis
 msgid "Originalbewertung"
 msgstr "Original rating"
 
-#: src/Admin/ReviewsPage.php:468
+#: src/Admin/ReviewsPage.php:472
 msgid "Formular auf dieser Website"
 msgstr "Form on this site"
 
-#: src/Admin/ReviewsPage.php:469
+#: src/Admin/ReviewsPage.php:473
 msgid "Manuell angelegt"
 msgstr "Created manually"
 
-#: src/Admin/ReviewsPage.php:470
+#: src/Admin/ReviewsPage.php:474
 msgid "CSV-Import"
 msgstr "CSV import"
 
-#: src/Admin/ReviewsPage.php:471
+#: src/Admin/ReviewsPage.php:475
 msgid "Synchronisierung"
 msgstr "Sync"
 
-#: src/Admin/ReviewsPage.php:472
+#: src/Admin/ReviewsPage.php:476
 msgid "Connector"
 msgstr "Connector"
 
-#: src/Admin/ReviewsPage.php:477
+#: src/Admin/ReviewsPage.php:481
 msgid "Ursprung"
 msgstr "Origin"
 
-#: src/Admin/ReviewsPage.php:480
+#: src/Admin/ReviewsPage.php:484
 msgid "Angelegt"
 msgstr "Created"
 
-#: src/Admin/ReviewsPage.php:483 src/Admin/SettingsFields.php:123
+#: src/Admin/ReviewsPage.php:487 src/Admin/SettingsFields.php:165
 msgid "Einwilligung"
 msgstr "Consent"
 
-#: src/Admin/ReviewsPage.php:485
+#: src/Admin/ReviewsPage.php:489
 msgid "Kontakt (privat)"
 msgstr "Contact (private)"
 
-#: src/Admin/ReviewsPage.php:489
+#: src/Admin/ReviewsPage.php:493
 msgid "Import-Batch"
 msgstr "Import batch"
 
-#: src/Admin/ReviewsPage.php:513
+#: src/Admin/ReviewsPage.php:517
 msgid "erstellt"
 msgstr "created"
 
-#: src/Admin/ReviewsPage.php:515
+#: src/Admin/ReviewsPage.php:519
 msgid "System"
 msgstr "System"
 
@@ -1229,7 +1293,7 @@ msgstr "Create entry"
 msgid "Original-Link"
 msgstr "Original link"
 
-#: src/Admin/ReviewsPage.php:366 src/Admin/SettingsPage.php:536
+#: src/Admin/ReviewsPage.php:366 src/Admin/SettingsPage.php:750
 msgid "Änderungen speichern"
 msgstr "Save changes"
 
@@ -1241,7 +1305,7 @@ msgstr "Open reports"
 msgid "Mit einer Statusentscheidung (z. B. wieder freigeben oder ablehnen) werden die Meldungen geschlossen. Über Meldende wird nichts gespeichert."
 msgstr "A status decision (e.g. approving again or rejecting) closes the reports. Nothing is stored about the reporters."
 
-#: src/Admin/ReviewsPage.php:407 src/Admin/SettingsFields.php:56
+#: src/Admin/ReviewsPage.php:407 src/Admin/SettingsFields.php:58
 msgid "Interne Tags"
 msgstr "Internal tags"
 
@@ -1257,7 +1321,7 @@ msgstr "Visible internally only. Do not enter personal data."
 msgid "Tags speichern"
 msgstr "Save tags"
 
-#: src/Admin/ReviewsPage.php:425 src/Privacy/PersonalData.php:297
+#: src/Admin/ReviewsPage.php:425 src/Privacy/PersonalData.php:300
 msgid "Foto"
 msgstr "Photo"
 
@@ -1281,47 +1345,47 @@ msgstr "This entry was removed by the source and can no longer be moderated."
 msgid "Neuer Status"
 msgstr "New status"
 
-#: src/Admin/ReviewsPage.php:455 src/Admin/ReviewsPage.php:509
+#: src/Admin/ReviewsPage.php:453
+msgid "Freigegeben lassen, Meldungen schließen"
+msgstr "Keep approved, close reports"
+
+#: src/Admin/ReviewsPage.php:459 src/Admin/ReviewsPage.php:513
 msgid "Grund"
 msgstr "Reason"
 
-#: src/Admin/ReviewsPage.php:456
+#: src/Admin/ReviewsPage.php:460
 msgid "Pflicht bei „Abgelehnt“ und „Archiviert“. Wird im Verlauf gespeichert – keine personenbezogenen Daten eintragen."
 msgstr "Required for “Rejected” and “Archived”. Stored in the history – do not enter personal data."
 
-#: src/Admin/ReviewsPage.php:457
+#: src/Admin/ReviewsPage.php:461
 msgid "Status ändern"
 msgstr "Change status"
 
-#: src/Admin/ReviewsPage.php:474
+#: src/Admin/ReviewsPage.php:478
 msgid "Herkunft"
 msgstr "Source"
 
-#: src/Admin/ReviewsPage.php:494
+#: src/Admin/ReviewsPage.php:498
 msgid "„Kauf verifiziert“ und „Teilnahme bestätigt“ setzt nur eine angebundene Quelle; manuell ist das nicht möglich."
 msgstr "“Verified purchase” and “Attendance confirmed” are set only by a connected source; this is not possible manually."
 
-#: src/Admin/ReviewsPage.php:504
+#: src/Admin/ReviewsPage.php:508
 msgid "Änderungsverlauf"
 msgstr "Change history"
 
-#: src/Admin/ReviewsPage.php:509 src/ImportExport/ImportExportModule.php:317
-msgid "Aktion"
-msgstr "Action"
-
-#: src/Admin/ReviewsPage.php:509
+#: src/Admin/ReviewsPage.php:513
 msgid "Benutzer"
 msgstr "User"
 
-#: src/Admin/ReviewsPage.php:580 src/Admin/SourcesPage.php:123
+#: src/Admin/ReviewsPage.php:584 src/Admin/SourcesPage.php:125
 msgid "– bitte wählen –"
 msgstr "– please select –"
 
-#: src/Admin/ReviewsPage.php:600 src/Admin/WidgetsPage.php:184
+#: src/Admin/ReviewsPage.php:604 src/Admin/WidgetsPage.php:184
 msgid "Bezugs-ID"
 msgstr "Reference ID"
 
-#: src/Admin/ReviewsPage.php:602
+#: src/Admin/ReviewsPage.php:606
 msgid "Optional: Ordnet den Eintrag einer Seite, einem Produkt oder einer Veranstaltung zu (für Widgets mit Filter)."
 msgstr "Optional: Assigns the entry to a page, product, or event (for widgets with filters)."
 
@@ -1329,761 +1393,1269 @@ msgstr "Optional: Assigns the entry to a page, product, or event (for widgets wi
 msgid "Foto zur Bewertung (Moderationsvorschau)"
 msgstr "Review photo (moderation preview)"
 
-#: src/Admin/ReviewsPage.php:601
+#: src/Admin/ReviewsPage.php:605
 msgid "ID, z. B. Beitrags- oder Produkt-ID"
 msgstr "ID, e.g. post or product ID"
 
-#: src/Admin/SettingsFields.php:26
+#: src/Admin/SettingsFields.php:29
 msgid "Marken- bzw. Firmenname"
 msgstr "Brand or company name"
 
-#: src/Admin/SettingsFields.php:26
-msgid "Erscheint in Hinweisen und Formularen. Leer = Titel deiner Website."
-msgstr "Appears in notices and forms. Empty = your site title."
+#: src/Admin/SettingsFields.php:29
+msgid "Erscheint in E-Mails an Bewertende (z. B. Korrektur-Link) und mit Review Captain Pro als Absender der Einladungen. Leer = Titel deiner Website."
+msgstr "Appears in e-mails to reviewers (e.g. the correction link) and, with Review Captain Pro, as the sender of invitations. Empty = your site title."
 
-#: src/Admin/SettingsFields.php:27
-msgid "Standardsprache"
-msgstr "Default language"
-
-#: src/Admin/SettingsFields.php:27
-msgid "Sprachkürzel für Plugin-Texte im Frontend, z. B. de_DE. Leer = Sprache der Website. Reviewtexte werden nie übersetzt."
-msgstr "Language code for plugin texts on the frontend, e.g. de_DE. Empty = site language. Review texts are never translated."
-
-#: src/Admin/SettingsFields.php:28
+#: src/Admin/SettingsFields.php:30
 msgid "Datumsformat"
 msgstr "Date format"
 
-#: src/Admin/SettingsFields.php:28
+#: src/Admin/SettingsFields.php:30
 msgid "PHP-Datumsformat, z. B. d.m.Y. Leer = WordPress-Datumsformat. Es gilt die WordPress-Zeitzone."
 msgstr "PHP date format, e.g. d.m.Y. Empty = WordPress date format. The WordPress time zone applies."
 
-#: src/Admin/SettingsFields.php:29
+#: src/Admin/SettingsFields.php:31
 msgid "Status neuer Reviews"
 msgstr "Status of new reviews"
 
-#: src/Admin/SettingsFields.php:29
+#: src/Admin/SettingsFields.php:31
 msgid "Gilt für Einreichungen über das Formular. „Sofort freigeben“ veröffentlicht ungeprüfte Texte – empfohlen nur mit aktiver Moderation."
 msgstr "Applies to submissions via the form. “Approve immediately” publishes unverified texts – recommended only with active moderation."
 
 #: src/Admin/SettingsFields.php:32
+msgid "Pro-Hinweise zeigen"
+msgstr "Show Pro hints"
+
+#: src/Admin/SettingsFields.php:32
+msgid "Zeigt am Ende einzelner Einstellungsbereiche graue Hinweiszeilen zu Funktionen von Review Captain Pro und den Kasten „In Review Captain Pro“ in der Übersicht. Aus = keine Hinweise. Am Funktionsumfang ändert das nichts."
+msgstr "Shows grey hint lines about Review Captain Pro features at the end of some settings sections and the box “In Review Captain Pro” on the dashboard. Off = no hints. This does not change any features."
+
+#: src/Admin/SettingsFields.php:35
 msgid "Synchronisierung ab"
 msgstr "Sync from"
 
-#: src/Admin/SettingsFields.php:32
+#: src/Admin/SettingsFields.php:35
 msgid "Beginn des Zeitfensters für automatische Abgleiche (Website-Zeit)."
 msgstr "Start of the time window for automatic syncs (site time)."
 
-#: src/Admin/SettingsFields.php:33
+#: src/Admin/SettingsFields.php:36
 msgid "Synchronisierung bis"
 msgstr "Sync until"
 
-#: src/Admin/SettingsFields.php:33
+#: src/Admin/SettingsFields.php:36
 msgid "Ende des Zeitfensters. Ende vor Beginn = Fenster über Mitternacht."
 msgstr "End of the time window. End before start = window spans midnight."
 
-#: src/Admin/SettingsFields.php:34
+#: src/Admin/SettingsFields.php:37
 msgid "Bei der Quelle gelöschte Reviews"
 msgstr "Reviews deleted at the source"
 
-#: src/Admin/SettingsFields.php:34
-msgid "Was passiert, wenn ein Review bei der Plattform gelöscht wurde oder nicht mehr abrufbar ist."
-msgstr "What happens when a review has been deleted on the platform or can no longer be retrieved."
+#: src/Admin/SettingsFields.php:37
+msgid "Was passiert, wenn die Plattform meldet, dass ein Review gelöscht wurde. In beiden Fällen ist es sofort nicht mehr sichtbar und wird nach der Frist für externe Reviews (Datenschutz) endgültig gelöscht."
+msgstr "What happens when the platform reports that a review was deleted. In both cases it is no longer visible right away and is deleted for good after the retention period for external reviews (Privacy)."
 
-#: src/Admin/SettingsFields.php:35
+#: src/Admin/SettingsFields.php:38
 msgid "Seiten je Abruf"
 msgstr "Pages per fetch"
 
-#: src/Admin/SettingsFields.php:35
+#: src/Admin/SettingsFields.php:38
 msgid "Höhere Werte holen große Bestände schneller, belasten aber Server und Anbieterkontingent."
 msgstr "Higher values fetch large collections faster but put more load on the server and provider quota."
 
-#: src/Admin/SettingsFields.php:36
+#: src/Admin/SettingsFields.php:39
 msgid "Pause nach Anmeldefehlern"
 msgstr "Pause after sign-in errors"
 
-#: src/Admin/SettingsFields.php:36
+#: src/Admin/SettingsFields.php:39
 msgid "Nach so vielen aufeinanderfolgenden Anmeldefehlern wird die Quelle pausiert. Vorhandene Reviews bleiben sichtbar."
 msgstr "After this many consecutive sign-in errors, the source is paused. Existing reviews remain visible."
 
-#: src/Admin/SettingsFields.php:39
-msgid "Absendername"
-msgstr "Sender name"
-
-#: src/Admin/SettingsFields.php:39
-msgid "Name im Absender von Einladungen. Leer = Markenname."
-msgstr "Name shown as the sender of invitations. Empty = brand name."
-
-#: src/Admin/SettingsFields.php:40
-msgid "Absenderadresse"
-msgstr "Sender address"
-
-#: src/Admin/SettingsFields.php:40
-msgid "Ohne Absenderadresse wird nichts versendet. Die Domain muss für deinen Versanddienst eingerichtet sein."
-msgstr "Nothing is sent without a sender address. The domain must be set up with your email delivery service."
-
-#: src/Admin/SettingsFields.php:41
-msgid "Versand ab"
-msgstr "Send from"
-
-#: src/Admin/SettingsFields.php:41
-msgid "Einladungen werden nur in diesem Zeitfenster verschickt (Website-Zeit)."
-msgstr "Invitations are sent only within this time window (site time)."
-
 #: src/Admin/SettingsFields.php:42
-msgid "Versand bis"
-msgstr "Send until"
-
-#: src/Admin/SettingsFields.php:43
-msgid "Tageslimit"
-msgstr "Daily limit"
-
-#: src/Admin/SettingsFields.php:43
-msgid "Höchstzahl Einladungen pro Tag über alle Kampagnen."
-msgstr "Maximum number of invitations per day across all campaigns."
-
-#: src/Admin/SettingsFields.php:44
-msgid "Mindestabstand je Empfänger (Tage)"
-msgstr "Minimum interval per recipient (days)"
-
-#: src/Admin/SettingsFields.php:44
-msgid "Innerhalb dieser Zeit erhält dieselbe Person keine weitere Einladung."
-msgstr "Within this period, the same person will not receive another invitation."
-
-#: src/Admin/SettingsFields.php:45
-msgid "Erinnerungen erlauben"
-msgstr "Allow reminders"
-
-#: src/Admin/SettingsFields.php:45
-msgid "Kampagnen dürfen eine einzelne Erinnerung senden. Abmeldung stoppt jede Erinnerung."
-msgstr "Campaigns may send a single reminder. Unsubscribing stops all reminders."
-
-#: src/Admin/SettingsFields.php:48
 msgid "Einreichungen aktiv"
 msgstr "Submissions enabled"
 
-#: src/Admin/SettingsFields.php:48
+#: src/Admin/SettingsFields.php:42
 msgid "Hauptschalter für das Bewertungsformular. Aus = Formulare zeigen einen neutralen Hinweis."
 msgstr "Master switch for the review form. Off = forms show a neutral notice."
 
-#: src/Admin/SettingsFields.php:49
+#: src/Admin/SettingsFields.php:43
 msgid "Titelfeld anbieten"
 msgstr "Offer title field"
 
-#: src/Admin/SettingsFields.php:50
+#: src/Admin/SettingsFields.php:43
+msgid "Zeigt im Formular ein optionales Feld „Titel“. Gilt für alle Formulare der Website."
+msgstr "Shows an optional “Title” field in the form. Applies to all forms on the site."
+
+#: src/Admin/SettingsFields.php:44
 msgid "Mindestlänge des Textes"
 msgstr "Minimum text length"
 
-#: src/Admin/SettingsFields.php:50
+#: src/Admin/SettingsFields.php:44
 msgid "Zeichen. Muss kleiner als die Höchstlänge sein."
 msgstr "Characters. Must be less than the maximum length."
 
-#: src/Admin/SettingsFields.php:51
+#: src/Admin/SettingsFields.php:45
 msgid "Höchstlänge des Textes"
 msgstr "Maximum text length"
 
-#: src/Admin/SettingsFields.php:51
+#: src/Admin/SettingsFields.php:45
 msgid "Zeichen."
 msgstr "Characters."
 
-#: src/Admin/SettingsFields.php:52
+#: src/Admin/SettingsFields.php:46
 msgid "Einwilligung zur Veröffentlichung abfragen"
 msgstr "Ask for consent to publish"
 
-#: src/Admin/SettingsFields.php:52
+#: src/Admin/SettingsFields.php:46
 msgid "Pflicht-Kontrollkästchen im Formular. Aus = du musst die Veröffentlichungsgrundlage anders sicherstellen."
 msgstr "Required checkbox in the form. Off = you must ensure the legal basis for publishing another way."
 
-#: src/Admin/SettingsFields.php:53
-msgid "Admin benachrichtigen"
-msgstr "Notify admin"
+#: src/Admin/SettingsFields.php:47
+msgid "Bei neuen Bewertungen benachrichtigen"
+msgstr "Notify about new reviews"
 
-#: src/Admin/SettingsFields.php:53
+#: src/Admin/SettingsFields.php:47
 msgid "E-Mail mit Link zur Moderation – ohne Reviewtext und ohne Kontaktdaten."
 msgstr "Email with a link to moderation – without review text and without contact details."
 
+#: src/Admin/SettingsFields.php:48 src/Admin/SettingsFields.php:246
+msgid "Empfänger der Benachrichtigungen"
+msgstr "Notification recipients"
+
+#: src/Admin/SettingsFields.php:48
+msgid "Eine E-Mail-Adresse je Zeile (oder durch Komma getrennt), höchstens 10. Leer = Administrator-Adresse der Website. Gilt für neue Bewertungen, Meldungen und Fragen."
+msgstr "One email address per line (or separated by commas), at most 10. Empty = the site’s administration email address. Applies to new reviews, reports and questions."
+
+#: src/Admin/SettingsFields.php:49
+msgid "Betreff der Benachrichtigung"
+msgstr "Notification subject"
+
+#: src/Admin/SettingsFields.php:49
+msgid "Für neue Bewertungen. Platzhalter: {site}, {moderation_url}, {status}. Leer = „[Website] Neue Bewertung eingegangen“."
+msgstr "For new reviews. Placeholders: {site}, {moderation_url}, {status}. Empty = “[Site] New review received”."
+
+#: src/Admin/SettingsFields.php:50
+msgid "Text der Benachrichtigung"
+msgstr "Notification text"
+
+#: src/Admin/SettingsFields.php:50
+msgid "Für neue Bewertungen. Platzhalter: {site}, {moderation_url}, {status}. Leer = Standardtext. Reviewtext und Kontaktdaten werden nie eingefügt."
+msgstr "For new reviews. Placeholders: {site}, {moderation_url}, {status}. Empty = default text. Review text and contact details are never included."
+
+#: src/Admin/SettingsFields.php:51
+msgid "Bei neuen Fragen benachrichtigen"
+msgstr "Notify about new questions"
+
+#: src/Admin/SettingsFields.php:51
+msgid "Wirkt nur mit aktiven Produktfragen (Q&A). E-Mail mit Link zur Moderation, ohne Fragetext und ohne Kontaktdaten."
+msgstr "Only takes effect with product questions (Q&A) switched on. Email with a link to moderation, without question text or contact details."
+
+#: src/Admin/SettingsFields.php:52
+msgid "Text der Einwilligung"
+msgstr "Consent text"
+
+#: src/Admin/SettingsFields.php:52
+msgid "Rechtstext – bitte prüfen lassen. Steht neben dem Pflicht-Kontrollkästchen. Platzhalter {privacy_link} = Link zu deiner Datenschutzseite. Leer = Standardtext."
+msgstr "Legal text – please have it reviewed. Shown next to the required checkbox. Placeholder {privacy_link} = link to your privacy page. Empty = default text."
+
+#: src/Admin/SettingsFields.php:53
+msgid "Beschriftung Namensfeld"
+msgstr "Name field label"
+
+#: src/Admin/SettingsFields.php:53
+msgid "Leer = „Name (wird veröffentlicht)“. Mach deutlich, dass der Name öffentlich erscheint."
+msgstr "Empty = “Name (will be published)”. Make clear that the name appears publicly."
+
 #: src/Admin/SettingsFields.php:54
+msgid "Hinweis unter dem E-Mail-Feld"
+msgstr "Hint below the email field"
+
+#: src/Admin/SettingsFields.php:54
+msgid "Rechtstext – bitte prüfen lassen. Leer = „Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.“"
+msgstr "Legal text – please have it reviewed. Empty = “Never published. We only use it for questions and privacy requests.”"
+
+#: src/Admin/SettingsFields.php:55
+msgid "Beschriftung der Absende-Schaltfläche"
+msgstr "Submit button label"
+
+#: src/Admin/SettingsFields.php:55
+msgid "Leer = „Bewertung senden“."
+msgstr "Empty = “Submit review”."
+
+#: src/Admin/SettingsFields.php:56
 msgid "Spam-Falle"
 msgstr "Spam trap"
 
-#: src/Admin/SettingsFields.php:54
+#: src/Admin/SettingsFields.php:56
 msgid "Unsichtbares Feld, das automatisierte Einsendungen erkennt. Nonce-Prüfung und Rate-Limit bleiben immer aktiv."
 msgstr "Invisible field that detects automated submissions. Nonce check and rate limit always remain active."
 
-#: src/Admin/SettingsFields.php:55
+#: src/Admin/SettingsFields.php:57
 msgid "Einreichungen pro Stunde"
 msgstr "Submissions per hour"
 
-#: src/Admin/SettingsFields.php:55
+#: src/Admin/SettingsFields.php:57
 msgid "Je Absender. Zur Zählung wird kurzzeitig ein gehashter Wert gespeichert, keine Klar-IP."
 msgstr "Per sender. A hashed value is stored briefly for counting, never the plain IP."
 
-#: src/Admin/SettingsFields.php:56
+#: src/Admin/SettingsFields.php:58
 msgid "Moderierende können Reviews mit internen Schlagwörtern versehen und danach filtern. Tags werden nie öffentlich angezeigt oder exportiert."
 msgstr "Moderators can add internal tags to reviews and filter by them. Tags are never displayed publicly or exported."
 
-#: src/Admin/SettingsFields.php:57
+#: src/Admin/SettingsFields.php:59
 msgid "Öffentliches Melden"
 msgstr "Public reporting"
 
-#: src/Admin/SettingsFields.php:57
+#: src/Admin/SettingsFields.php:59
 msgid "Zeigt unter jeder Bewertung einen Link „Melden“. Gemeldete Reviews werden bis zur Prüfung ausgeblendet. Über Meldende wird nichts gespeichert."
 msgstr "Shows a “Report” link below each review. Reported reviews are hidden until checked. Nothing is stored about the people reporting."
 
-#: src/Admin/SettingsFields.php:58
+#: src/Admin/SettingsFields.php:60
 msgid "Meldungen bis zum Ausblenden"
 msgstr "Reports before hiding"
 
-#: src/Admin/SettingsFields.php:58
+#: src/Admin/SettingsFields.php:60
 msgid "Ab so vielen offenen Meldungen wird ein Review auf „Gemeldet“ gesetzt."
 msgstr "A review is set to “Reported” once it has this many open reports."
 
-#: src/Admin/SettingsFields.php:59
+#: src/Admin/SettingsFields.php:61
 msgid "Meldungen pro Stunde"
 msgstr "Reports per hour"
 
-#: src/Admin/SettingsFields.php:59
+#: src/Admin/SettingsFields.php:61
 msgid "Je Absender (gehashter Wert, keine Klar-IP)."
 msgstr "Per sender (hashed value, no plain IP)."
 
-#: src/Admin/SettingsFields.php:60
+#: src/Admin/SettingsFields.php:62
 msgid "Foto-Upload im Formular"
 msgstr "Photo upload in form"
 
-#: src/Admin/SettingsFields.php:60
+#: src/Admin/SettingsFields.php:62
 msgid "Optional ein Foto (JPG, PNG, WebP) je Bewertung. Bilder werden neu kodiert (Metadaten wie GPS werden entfernt) und erst nach Freigabe angezeigt."
 msgstr "Optionally one photo (JPG, PNG, WebP) per review. Images are re-encoded (metadata such as GPS is removed) and only shown after approval."
 
-#: src/Admin/SettingsFields.php:61
+#: src/Admin/SettingsFields.php:63
 msgid "Maximale Fotogröße (KB)"
 msgstr "Maximum photo size (KB)"
 
-#: src/Admin/SettingsFields.php:61
+#: src/Admin/SettingsFields.php:63
 msgid "Größere Dateien werden abgelehnt. Das Limit des Servers (upload_max_filesize) gilt zusätzlich."
 msgstr "Larger files are rejected. The server limit (upload_max_filesize) also applies."
 
-#: src/Admin/SettingsFields.php:62
+#: src/Admin/SettingsFields.php:64
 msgid "Formular für mehrere Produkte"
 msgstr "Multi-product form"
 
-#: src/Admin/SettingsFields.php:62
+#: src/Admin/SettingsFields.php:64
 msgid "Ein Formular mit context_ids bewertet mehrere Produkte auf einmal. Je Person und Produkt ist dann nur eine Bewertung möglich."
 msgstr "A form with context_ids rates several products at once. Each person can then leave only one review per product."
 
-#: src/Admin/SettingsFields.php:63
+#: src/Admin/SettingsFields.php:65
 msgid "Produktfragen (Q&A)"
 msgstr "Product questions (Q&A)"
 
-#: src/Admin/SettingsFields.php:63
+#: src/Admin/SettingsFields.php:65
 msgid "Fragen und Antworten über [review_captain_qa]. Getrennt von Bewertungen, moderiert, ohne Schema-Markup."
 msgstr "Questions and answers via [review_captain_qa]. Separate from reviews, moderated, without schema markup."
 
-#: src/Admin/SettingsFields.php:64
+#: src/Admin/SettingsFields.php:66
 msgid "Feedback-Links und QR-Codes"
 msgstr "Feedback links and QR codes"
 
-#: src/Admin/SettingsFields.php:64
+#: src/Admin/SettingsFields.php:66
 msgid "Erzeugt Feedback-Links mit QR-Code (SVG) und optionalem WhatsApp-Click-to-Chat-Link."
 msgstr "Generates feedback links with a QR code (SVG) and an optional WhatsApp click-to-chat link."
 
 #: src/Admin/SettingsFields.php:67
+msgid "Meldegründe"
+msgstr "Report reasons"
+
+#: src/Admin/SettingsFields.php:67
+msgid "Diese Gründe stehen im Formular „Melden“ zur Auswahl. Mindestens ein Grund bleibt immer aktiv."
+msgstr "These reasons can be chosen in the “Report” form. At least one reason always stays active."
+
+#: src/Admin/SettingsFields.php:68
+msgid "Bei Meldungen benachrichtigen"
+msgstr "Notify about reports"
+
+#: src/Admin/SettingsFields.php:68
+msgid "E-Mail an die Empfänger der Benachrichtigungen je angenommener Meldung, mit Grund und Link zur Moderation – ohne Angaben zur meldenden Person."
+msgstr "Email to the notification recipients for each accepted report, with reason and link to moderation – without details about the reporting person."
+
+#: src/Admin/SettingsFields.php:69
+msgid "Rückmeldung an Meldende"
+msgstr "Message to reporters"
+
+#: src/Admin/SettingsFields.php:69
+msgid "Erscheint nach dem Absenden einer Meldung. Leer = „Danke für Ihre Meldung. Wir prüfen die Bewertung.“"
+msgstr "Appears after a report is sent. Empty = “Thank you for your report. We will review it.”"
+
+#: src/Admin/SettingsFields.php:70
+msgid "Korrekturen durch Verfasser"
+msgstr "Corrections by authors"
+
+#: src/Admin/SettingsFields.php:70
+msgid "Wer eine Bewertung abgegeben hat, kann sie über einen Einmal-Link per E-Mail (oder angemeldet) korrigieren oder zurückziehen. Korrekturen werden erst nach deiner Freigabe sichtbar; die Karte zeigt dann „bearbeitet am …“."
+msgstr "Whoever wrote a review can correct or withdraw it through a one-time link by email (or while logged in). Corrections become visible only after you approve them; the card then shows “edited on …”."
+
+#: src/Admin/SettingsFields.php:71
+msgid "Gültigkeit des Korrektur-Links (Stunden)"
+msgstr "Correction link validity (hours)"
+
+#: src/Admin/SettingsFields.php:71
+msgid "Der Link funktioniert einmal und verfällt danach automatisch."
+msgstr "The link works once and then expires automatically."
+
+#: src/Admin/SettingsFields.php:72
+msgid "Mindest-Ausfüllzeit (Sekunden)"
+msgstr "Minimum time to fill in (seconds)"
+
+#: src/Admin/SettingsFields.php:72
+msgid "Schneller abgeschickte Formulare gelten als automatisiert und werden mit einem neutralen Hinweis abgewiesen."
+msgstr "Forms sent faster are treated as automated and rejected with a neutral message."
+
+#: src/Admin/SettingsFields.php:73
+msgid "Wörter, die zur Prüfung zurückhalten"
+msgstr "Words that hold a review for moderation"
+
+#: src/Admin/SettingsFields.php:73
+msgid "Ein Wort oder eine Wortgruppe je Zeile, Groß-/Kleinschreibung egal. Enthält eine Bewertung einen Eintrag, wartet sie auf Moderation – auch wenn neue Reviews sofort freigegeben werden. Es wird nie etwas gelöscht."
+msgstr "One word or phrase per line, not case-sensitive. A review containing an entry waits for moderation – even if new reviews are approved immediately. Nothing is ever deleted."
+
+#: src/Admin/SettingsFields.php:74
+msgid "Bewertungen mit Links zurückhalten"
+msgstr "Hold reviews with links"
+
+#: src/Admin/SettingsFields.php:74
+msgid "Bewertungen mit Webadresse (http, www.) im Titel oder Text warten auf Moderation."
+msgstr "Reviews with a web address (http, www.) in the title or text wait for moderation."
+
+#: src/Admin/SettingsFields.php:75
+msgid "Gesperrte E-Mail-Domains"
+msgstr "Blocked email domains"
+
+#: src/Admin/SettingsFields.php:75
+msgid "Eine Domain je Zeile, z. B. wegwerfmail.example. Einreichungen mit Adressen dieser Domains (auch Subdomains) werden mit einem neutralen Hinweis abgelehnt und nicht gespeichert."
+msgstr "One domain per line, e.g. throwaway.example. Submissions with addresses at these domains (including subdomains) are rejected with a neutral message and not stored."
+
+#: src/Admin/SettingsFields.php:76
+msgid "Längste Fotokante (Pixel)"
+msgstr "Longest photo edge (pixels)"
+
+#: src/Admin/SettingsFields.php:76
+msgid "Größere Fotos werden beim Neukodieren verkleinert. Je Bewertung bleibt es bei einem Foto."
+msgstr "Larger photos are scaled down when re-encoded. Each review keeps a single photo."
+
+#: src/Admin/SettingsFields.php:77
+msgid "Spam-Schutz (Captcha)"
+msgstr "Spam protection (captcha)"
+
+#: src/Admin/SettingsFields.php:77
+msgid "„Eingebaute Rechenprüfung“ lässt den Browser im Hintergrund kurz rechnen (Proof of Work), bevor Bewertungen, Meldungen und Fragen angenommen werden. Kein Rätsel, keine Cookies, keine Anfrage an Dritte, keine personenbezogenen Daten. Ohne JavaScript kann das Formular dann nicht abgeschickt werden; Besucher sehen einen Hinweis. Externe Anbieter nur per Filter und nur nach Rechtsprüfung."
+msgstr "“Built-in computation check” lets the browser compute briefly in the background (proof of work) before reviews, reports and questions are accepted. No puzzle, no cookies, no request to third parties, no personal data. Without JavaScript the form cannot be submitted; visitors see a notice. External providers only via filter and only after a legal review."
+
+#: src/Admin/SettingsFields.php:78
+msgid "Absenderadresse hinter einem Proxy"
+msgstr "Sender address behind a proxy"
+
+#: src/Admin/SettingsFields.php:78
+msgid "Nur einstellen, wenn deine Website hinter einem Reverse Proxy oder CDN liegt, der diese Kopfzeile selbst setzt. Sonst können Absender die Sendebegrenzung umgehen. Verwendet wird die letzte Adresse der Kopfzeile, gespeichert nur als Hash."
+msgstr "Only set this if your site sits behind a reverse proxy or CDN that sets this header itself. Otherwise senders can bypass the rate limit. The last address in the header is used and stored only as a hash."
+
+#: src/Admin/SettingsFields.php:81
 msgid "Sterne anzeigen"
 msgstr "Show stars"
 
-#: src/Admin/SettingsFields.php:67
+#: src/Admin/SettingsFields.php:81
 msgid "Sterne werden immer zusätzlich als Text für Screenreader ausgegeben."
 msgstr "Stars are always also output as text for screen readers."
 
-#: src/Admin/SettingsFields.php:68 src/Admin/WidgetsPage.php:192
+#: src/Admin/SettingsFields.php:82 src/Admin/WidgetsPage.php:192
 msgid "Datum anzeigen"
 msgstr "Show date"
 
-#: src/Admin/SettingsFields.php:69
+#: src/Admin/SettingsFields.php:82
+msgid "Zeigt das Veröffentlichungsdatum, sonst das Eingangsdatum. Einzelne Widgets können abweichen."
+msgstr "Shows the publication date, otherwise the date received. Individual widgets may differ."
+
+#: src/Admin/SettingsFields.php:83
 msgid "Datumsstil"
 msgstr "Date style"
 
-#: src/Admin/SettingsFields.php:69
+#: src/Admin/SettingsFields.php:83
 msgid "Relativ („vor 3 Tagen“) veraltet in zwischengespeicherten Seiten schneller."
 msgstr "Relative (“3 days ago”) goes stale faster on cached pages."
 
-#: src/Admin/SettingsFields.php:70
+#: src/Admin/SettingsFields.php:84
 msgid "Autor anzeigen"
 msgstr "Show author"
 
-#: src/Admin/SettingsFields.php:70
+#: src/Admin/SettingsFields.php:84
 msgid "Personenbezogen."
 msgstr "Personal data."
 
-#: src/Admin/SettingsFields.php:71
+#: src/Admin/SettingsFields.php:85
 msgid "Profilbild anzeigen"
 msgstr "Show profile picture"
 
-#: src/Admin/SettingsFields.php:71
+#: src/Admin/SettingsFields.php:85
 msgid "Personenbezogen; je nach WordPress-Einstellung wird dabei Gravatar kontaktiert."
 msgstr "Personal data; depending on your WordPress settings, Gravatar is contacted."
 
-#: src/Admin/SettingsFields.php:72
+#: src/Admin/SettingsFields.php:86
 msgid "Text bei leerer Liste"
 msgstr "Empty list text"
 
-#: src/Admin/SettingsFields.php:72
+#: src/Admin/SettingsFields.php:86
 msgid "Leer = „Noch keine Bewertungen vorhanden.“"
 msgstr "Empty = “No reviews yet.”"
 
-#: src/Admin/SettingsFields.php:73
+#: src/Admin/SettingsFields.php:87
 msgid "Bewegung reduzieren"
 msgstr "Reduce motion"
 
-#: src/Admin/SettingsFields.php:73
+#: src/Admin/SettingsFields.php:87
 msgid "Keine automatischen Animationen oder Karussell-Rotation. Die Systemeinstellung der Besucher wird immer beachtet."
 msgstr "No automatic animations or carousel rotation. The visitor’s system setting is always respected."
 
-#: src/Admin/SettingsFields.php:74
+#: src/Admin/SettingsFields.php:88
 msgid "Plugin-CSS laden"
 msgstr "Load plugin CSS"
 
-#: src/Admin/SettingsFields.php:74
+#: src/Admin/SettingsFields.php:88
 msgid "Aus = dein Theme muss die Ausgabe selbst gestalten (Klassen rc-…)."
 msgstr "Off = your theme must style the output itself (rc-… classes)."
 
-#: src/Admin/SettingsFields.php:75
+#: src/Admin/SettingsFields.php:89
 msgid "Fotos anzeigen"
 msgstr "Show photos"
 
-#: src/Admin/SettingsFields.php:75
+#: src/Admin/SettingsFields.php:89
 msgid "Zeigt Fotos freigegebener Bewertungen in den Karten. Personenbezogen möglich."
 msgstr "Shows photos of approved reviews in the cards. May contain personal data."
 
-#: src/Admin/SettingsFields.php:78
+#: src/Admin/SettingsFields.php:90
+msgid "Bewertungs-Markup ausgeben (schema.org)"
+msgstr "Output review markup (schema.org)"
+
+#: src/Admin/SettingsFields.php:90
+msgid "Strukturierte Daten für eigene, auf dieser Website abgegebene und freigegebene Bewertungen. Externe Bewertungen erhalten nie Markup. Aus = kein Bewertungs-Markup; die sichtbare Ausgabe bleibt gleich."
+msgstr "Structured data for approved reviews submitted on this site. External reviews never get markup. Off = no review markup; the visible output stays the same."
+
+#: src/Admin/SettingsFields.php:91
+msgid "Hinweis „So prüfen wir Bewertungen“ anzeigen"
+msgstr "Show the notice “How we check reviews”"
+
+#: src/Admin/SettingsFields.php:91
+msgid "Aufklappbarer Hinweis an jedem Bewertungs-Widget und am Formular. Informiert, ob und wie Bewertungen geprüft werden."
+msgstr "Expandable notice on every review widget and on the form. Explains whether and how reviews are checked."
+
+#: src/Admin/SettingsFields.php:92
+msgid "Überschrift des Hinweises"
+msgstr "Notice heading"
+
+#: src/Admin/SettingsFields.php:92
+msgid "Text des aufklappbaren Links, z. B. „So prüfen wir Bewertungen“. Leer = dieser Standardtext."
+msgstr "Text of the expandable link, e.g. “How we check reviews”. Empty = this default text."
+
+#: src/Admin/SettingsFields.php:93
+msgid "Text „So prüfen wir Bewertungen“"
+msgstr "Text “How we check reviews”"
+
+#: src/Admin/SettingsFields.php:93
+msgid "Rechtstext – bitte prüfen lassen (Transparenzpflicht, je Land). Leer = neutraler Entwurf, der nur die Prüfstufen beschreibt, die auf deiner Website vorkommen. Beschreibe nur, was du wirklich prüfst."
+msgstr "Legal text – please have it reviewed (transparency duty, per country). Empty = neutral draft that only describes the check levels that occur on your site. Only describe what you actually check."
+
+#: src/Admin/SettingsFields.php:94
+msgid "Position des Hinweises"
+msgstr "Position of the notice"
+
+#: src/Admin/SettingsFields.php:94
+msgid "Über oder unter der Liste bzw. dem Formular."
+msgstr "Above or below the list or form."
+
+#: src/Admin/SettingsFields.php:95
+msgid "Kennzeichen „Kauf verifiziert“"
+msgstr "Label “Purchase verified”"
+
+#: src/Admin/SettingsFields.php:95
+msgid "Leer = „Verifizierter Kauf“. Nur der Text ist einstellbar; die Stufe setzt allein eine angebundene, vertrauenswürdige Quelle."
+msgstr "Empty = “Verified purchase”. Only the text can be changed; the level is set only by a connected, trusted source."
+
+#: src/Admin/SettingsFields.php:96
+msgid "Kennzeichen „Teilnahme bestätigt“"
+msgstr "Label “Attendance confirmed”"
+
+#: src/Admin/SettingsFields.php:96
+msgid "Leer = „Teilnahme bestätigt“. Nur der Text ist einstellbar; die Stufe setzt allein eine angebundene, vertrauenswürdige Quelle."
+msgstr "Empty = “Attendance confirmed”. Only the text can be changed; the level is set only by a connected, trusted source."
+
+#: src/Admin/SettingsFields.php:97
+msgid "Kennzeichen „Externe Plattform“"
+msgstr "Label “External platform”"
+
+#: src/Admin/SettingsFields.php:97
+msgid "Leer = „Externe Plattformbewertung“. Quelle und Link zum Original bleiben immer sichtbar."
+msgstr "Empty = “External platform review”. Source and link to the original always stay visible."
+
+#: src/Admin/SettingsFields.php:98
+msgid "Kennzeichen „Erfahrungsbericht“"
+msgstr "Label “Testimonial”"
+
+#: src/Admin/SettingsFields.php:98
+msgid "Leer = „Erfahrungsbericht dieser Website“."
+msgstr "Empty = “Testimonial from this site”."
+
+#: src/Admin/SettingsFields.php:99
+msgid "Kennzeichen „Ungeprüft“"
+msgstr "Label “Unverified”"
+
+#: src/Admin/SettingsFields.php:99
+msgid "Leer = „Ungeprüft“. Erscheint nur, wenn „Ungeprüfte Bewertungen kennzeichnen“ aktiv ist."
+msgstr "Empty = “Unverified”. Only appears when “Label unverified reviews” is on."
+
+#: src/Admin/SettingsFields.php:100
+msgid "Ungeprüfte Bewertungen kennzeichnen"
+msgstr "Label unverified reviews"
+
+#: src/Admin/SettingsFields.php:100
+msgid "Zeigt bei Bewertungen ohne Kauf- oder Teilnahmenachweis sichtbar das Kennzeichen „Ungeprüft“."
+msgstr "Visibly shows the label “Unverified” on reviews without proof of purchase or attendance."
+
+#: src/Admin/SettingsFields.php:101
+msgid "Sternfarbe"
+msgstr "Star colour"
+
+#: src/Admin/SettingsFields.php:101
+msgid "Hex-Farbwert, z. B. #e0a800. Leer = Farbe aus Theme bzw. Plugin-CSS. Achte auf ausreichenden Kontrast."
+msgstr "Hex colour value, e.g. #e0a800. Empty = colour from the theme or plugin CSS. Make sure the contrast is sufficient."
+
+#: src/Admin/SettingsFields.php:102
+msgid "Akzentfarbe"
+msgstr "Accent colour"
+
+#: src/Admin/SettingsFields.php:102
+msgid "Für Schaltflächen, Links und Fokusrahmen. Hex-Farbwert; leer = Theme-Farbe."
+msgstr "For buttons, links and focus outlines. Hex colour value; empty = theme colour."
+
+#: src/Admin/SettingsFields.php:103
+msgid "Bewertung anzeigen als"
+msgstr "Show rating as"
+
+#: src/Admin/SettingsFields.php:103
+msgid "Für Screenreader steht die Bewertung immer als Text da. Andere Skalen als 1–5 werden nie in Sterne umgerechnet."
+msgstr "Screen readers always get the rating as text. Scales other than 1–5 are never converted into stars."
+
+#: src/Admin/SettingsFields.php:104
+msgid "Nachkommastellen bei Durchschnitten"
+msgstr "Decimal places for averages"
+
+#: src/Admin/SettingsFields.php:104
+msgid "Gilt für Durchschnittswerte in der Zusammenfassung. Eigene Bewertungen bleiben ganze Sterne von 1 bis 5."
+msgstr "Applies to averages in the summary. Reviews from this site stay whole stars from 1 to 5."
+
+#: src/Admin/SettingsFields.php:105
+msgid "Markup für"
+msgstr "Markup for"
+
+#: src/Admin/SettingsFields.php:105
+msgid "Nur für diese Inhaltstypen werden strukturierte Daten ausgegeben."
+msgstr "Structured data is output only for these content types."
+
+#: src/Admin/SettingsFields.php:106
+msgid "Mindestzahl Bewertungen für Markup"
+msgstr "Minimum number of reviews for markup"
+
+#: src/Admin/SettingsFields.php:106
+msgid "Strukturierte Daten erst ab so vielen geeigneten, sichtbaren Bewertungen auf der Seite."
+msgstr "Structured data only from this many eligible, visible reviews on the page."
+
+#: src/Admin/SettingsFields.php:107
+msgid "Anzahl Bewertungen"
+msgstr "Number of reviews"
+
+#: src/Admin/SettingsFields.php:107
+msgid "Vorgabe, wenn ein Widget, Block oder Shortcode keine eigene Anzahl hat (höchstens 50)."
+msgstr "Default when a widget, block or shortcode has no number of its own (at most 50)."
+
+#: src/Admin/SettingsFields.php:108
+msgid "Raster zeigt die Bewertungen als Karten nebeneinander, Liste untereinander. Gilt, wenn ein Widget, Block oder Shortcode keine eigene Darstellung hat."
+msgstr "Grid shows reviews as cards side by side, list shows them one below the other. Applies when a widget, block or shortcode has no layout of its own."
+
+#: src/Admin/SettingsFields.php:109
+msgid "Spalten im Raster"
+msgstr "Grid columns"
+
+#: src/Admin/SettingsFields.php:109
+msgid "Auf schmalen Bildschirmen werden es automatisch weniger."
+msgstr "Narrow screens automatically show fewer."
+
+#: src/Admin/SettingsFields.php:110 src/Integrations/Elementor/ReviewsWidget.php:70
+msgid "Überschriftenebene der Karten"
+msgstr "Heading level of the cards"
+
+#: src/Admin/SettingsFields.php:110
+msgid "h2 bis h6. Wähle die Ebene passend zur Gliederung deiner Seite."
+msgstr "h2 to h6. Choose the level that fits the outline of your page."
+
+#: src/Admin/SettingsFields.php:111
+msgid "Links zum Original in neuem Tab"
+msgstr "Links to the original in a new tab"
+
+#: src/Admin/SettingsFields.php:111
+msgid "Öffnet Links zur Bewertung bei der Plattform in einem neuen Tab. Der Link kündigt das für Screenreader an."
+msgstr "Opens links to the review on the platform in a new tab. The link announces this to screen readers."
+
+#: src/Admin/SettingsFields.php:114
 msgid "Externe Reviews ohne Bestätigung (Tage)"
 msgstr "Unconfirmed external reviews (days)"
 
-#: src/Admin/SettingsFields.php:78
+#: src/Admin/SettingsFields.php:114
 msgid "Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde."
 msgstr "How long a platform review stays stored once the source no longer confirms it."
 
-#: src/Admin/SettingsFields.php:79
+#: src/Admin/SettingsFields.php:115
 msgid "Abgelehnte Reviews (Tage)"
 msgstr "Rejected reviews (days)"
 
-#: src/Admin/SettingsFields.php:79
+#: src/Admin/SettingsFields.php:115
 msgid "Danach endgültige Löschung inklusive Verlauf."
 msgstr "Then permanently deleted, including history."
 
-#: src/Admin/SettingsFields.php:80
+#: src/Admin/SettingsFields.php:116
 msgid "Datenschutzhinweis im Formular"
 msgstr "Privacy notice in form"
 
-#: src/Admin/SettingsFields.php:80
+#: src/Admin/SettingsFields.php:116
 msgid "Leer = kurzer Standardtext mit Link zu deiner Datenschutzseite."
 msgstr "Empty = short default text with a link to your privacy page."
 
-#: src/Admin/SettingsFields.php:81
+#: src/Admin/SettingsFields.php:117
 msgid "Verhalten bei Löschanfragen"
 msgstr "Erasure request behavior"
 
-#: src/Admin/SettingsFields.php:81
+#: src/Admin/SettingsFields.php:117
 msgid "Was „Personenbezogene Daten löschen“ (Werkzeuge) mit Reviews dieser E-Mail-Adresse macht."
 msgstr "What “Erase Personal Data” (Tools) does with reviews from this email address."
 
-#: src/Admin/SettingsFields.php:82
+#: src/Admin/SettingsFields.php:118
 msgid "Protokolle (Tage)"
 msgstr "Logs (days)"
 
-#: src/Admin/SettingsFields.php:82
+#: src/Admin/SettingsFields.php:118
 msgid "Protokolle enthalten keine Reviewtexte oder Zugangsdaten."
 msgstr "Logs contain no review texts or credentials."
 
-#: src/Admin/SettingsFields.php:83
+#: src/Admin/SettingsFields.php:119
 msgid "Erledigte Hintergrundaufgaben (Tage)"
 msgstr "Completed background tasks (days)"
 
-#: src/Admin/SettingsFields.php:84
-msgid "Daten beim Deinstallieren löschen"
-msgstr "Delete data on uninstall"
-
-#: src/Admin/SettingsFields.php:84
-msgid "An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert."
-msgstr "On = when the plugin is deleted, all Review Captain data on this site is removed. Data on Google, Trustpilot, etc. is never changed."
-
-#: src/Admin/SettingsFields.php:87
-msgid "Wer darf moderieren"
-msgstr "Who can moderate"
-
-#: src/Admin/SettingsFields.php:87
-msgid "Moderierende sehen eingereichte Reviews inklusive Kontaktadresse. Administratoren behalten immer alle Rechte."
-msgstr "Moderators see submitted reviews, including the contact address. Administrators always keep all permissions."
-
-#: src/Admin/SettingsFields.php:88
-msgid "Wer darf Einstellungen ändern"
-msgstr "Who can change settings"
-
-#: src/Admin/SettingsFields.php:88
-msgid "Administratoren behalten immer alle Rechte."
-msgstr "Administrators always keep all permissions."
-
-#: src/Admin/SettingsFields.php:91
-msgid "Action Scheduler verwenden"
-msgstr "Use Action Scheduler"
-
-#: src/Admin/SettingsFields.php:91
-msgid "Falls verfügbar (z. B. durch WooCommerce), sonst WP-Cron. Bei wenig Besucherverkehr empfehlen wir einen Server-Cron."
-msgstr "If available (e.g. via WooCommerce), otherwise WP-Cron. For low-traffic sites we recommend a server cron."
-
-#: src/Admin/SettingsFields.php:92
-msgid "Zeitbudget je Lauf (Sekunden)"
-msgstr "Time budget per run (seconds)"
-
-#: src/Admin/SettingsFields.php:92
-msgid "Nur ändern, wenn die Diagnose Zeitüberschreitungen meldet."
-msgstr "Only change if diagnostics report timeouts."
-
-#: src/Admin/SettingsFields.php:93
-msgid "Freigabe hängender Aufgaben (Sekunden)"
-msgstr "Release stuck tasks after (seconds)"
-
-#: src/Admin/SettingsFields.php:93
-msgid "Muss länger als das Zeitbudget sein."
-msgstr "Must be longer than the time budget."
-
-#: src/Admin/SettingsFields.php:94
-msgid "Fehlerprotokoll"
-msgstr "Error log"
-
-#: src/Admin/SettingsFields.php:94
-msgid "Enthält keine Zugangsdaten, Reviewtexte oder E-Mail-Adressen."
-msgstr "Contains no credentials, review texts, or email addresses."
-
-#: src/Admin/SettingsFields.php:107
-msgid "Identität"
-msgstr "Identity"
-
-#: src/Admin/SettingsFields.php:108
-msgid "Sprache & Datum"
-msgstr "Language & date"
-
-#: src/Admin/SettingsFields.php:109
-msgid "Neue Reviews"
-msgstr "New reviews"
-
-#: src/Admin/SettingsFields.php:112
-msgid "Zeitfenster"
-msgstr "Time window"
-
-#: src/Admin/SettingsFields.php:113
-msgid "Gelöschte Reviews"
-msgstr "Deleted reviews"
-
-#: src/Admin/SettingsFields.php:116
-msgid "Absender"
-msgstr "Sender"
-
-#: src/Admin/SettingsFields.php:117
-msgid "Versandzeiten"
-msgstr "Sending times"
-
-#: src/Admin/SettingsFields.php:118
-msgid "Grenzen"
-msgstr "Limits"
-
 #: src/Admin/SettingsFields.php:119
-msgid "Erinnerungen"
-msgstr "Reminders"
+msgid "Danach werden abgeschlossene Hintergrundaufgaben gelöscht. Sie enthalten keine Reviewtexte."
+msgstr "Completed background tasks are deleted after this. They contain no review texts."
+
+#: src/Admin/SettingsFields.php:120
+msgid "Änderungsprotokoll der Einstellungen (Tage)"
+msgstr "Settings change log (days)"
+
+#: src/Admin/SettingsFields.php:120
+msgid "Wie lange Einträge zu Einstellungen und Rollenrechten mit altem und neuem Wert aufbewahrt werden. Texte sind gekürzt, E-Mail-Adressen maskiert, Zugangsdaten nie enthalten."
+msgstr "How long entries about settings and role rights are kept with old and new value. Texts are shortened, email addresses masked, credentials never included."
+
+#: src/Admin/SettingsFields.php:121
+msgid "Kontaktadresse zu Bewertungen (Tage)"
+msgstr "Contact address of reviews (days)"
+
+#: src/Admin/SettingsFields.php:121
+msgid "Danach wird die E-Mail-Adresse zur Bewertung entfernt; die Bewertung bleibt. 0 = unbegrenzt. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen."
+msgstr "After this the email address of the review is removed; the review stays. 0 = unlimited. Without an address, correction links are no longer possible for this review. Please have the period legally reviewed."
+
+#: src/Admin/SettingsFields.php:122
+msgid "Freigegebene eigene Bewertungen (Tage)"
+msgstr "Approved reviews from this site (days)"
+
+#: src/Admin/SettingsFields.php:122
+msgid "Danach werden Bewertungen dieser Website endgültig gelöscht (gerechnet ab Eingang). 0 = unbegrenzt. Plattform-Bewertungen sind nicht betroffen. Frist bitte rechtlich prüfen lassen."
+msgstr "After this, reviews from this site are deleted for good (counted from receipt). 0 = unlimited. Platform reviews are not affected. Please have the period legally reviewed."
+
+#: src/Admin/SettingsFields.php:123
+msgid "Entschiedene Korrekturfassungen (Tage)"
+msgstr "Decided correction versions (days)"
+
+#: src/Admin/SettingsFields.php:123
+msgid "Frühere und abgelehnte Fassungen korrigierter Bewertungen werden danach gelöscht."
+msgstr "Earlier and rejected versions of corrected reviews are deleted after this."
 
 #: src/Admin/SettingsFields.php:124
-msgid "Benachrichtigung"
-msgstr "Notification"
+msgid "Beim Löschen des Plugins alle Daten entfernen"
+msgstr "Remove all data when the plugin is deleted"
+
+#: src/Admin/SettingsFields.php:124
+msgid "Aus (Standard) = alle Daten bleiben erhalten. An = beim Löschen des Plugins werden auf dieser Website entfernt: alle Bewertungen mit Fotos, Antworten, Korrekturfassungen, Meldungen und Schlagwörtern, Profile und Quellen, Fragen, Importe, Hintergrundaufgaben, Protokolle, alle Einstellungen und die Review-Captain-Rechte der Rollen. Zum Einschalten tippst du LÖSCHEN (oder DELETE) ein; der Zeitpunkt der Bestätigung wird gespeichert. Die Einstellung wird nicht exportiert. Geplante Aufgaben werden beim Löschen immer entfernt. Daten bei Google, Trustpilot usw. werden nie verändert."
+msgstr "Off (default) = all data is kept. On = when the plugin is deleted, the following is removed from this site: all reviews with photos, replies, correction versions, reports and tags, profiles and sources, questions, imports, background tasks, logs, all settings and the Review Captain capabilities of the roles. To switch it on, type DELETE (or LÖSCHEN); the time of the confirmation is stored. The setting is not exported. Scheduled tasks are always removed on deletion. Data at Google, Trustpilot etc. is never changed."
 
 #: src/Admin/SettingsFields.php:125
-msgid "Erweiterte Funktionen (nach 1.0)"
-msgstr "Advanced features (after 1.0)"
+msgid "Löschung bestätigt am (UTC)"
+msgstr "Deletion confirmed on (UTC)"
+
+#: src/Admin/SettingsFields.php:125
+msgid "Wird beim Bestätigen mit LÖSCHEN gesetzt und lässt sich nicht direkt ändern."
+msgstr "Set when confirming with LÖSCHEN and cannot be changed directly."
 
 #: src/Admin/SettingsFields.php:128
-msgid "Inhalte"
-msgstr "Content"
-
-#: src/Admin/SettingsFields.php:129
-msgid "Leerer Zustand"
-msgstr "Empty state"
-
-#: src/Admin/SettingsFields.php:130
-msgid "Barrierefreiheit"
-msgstr "Accessibility"
-
-#: src/Admin/SettingsFields.php:131
-msgid "Fotos"
-msgstr "Photos"
-
-#: src/Admin/SettingsFields.php:134
-msgid "Aufbewahrung"
-msgstr "Retention"
-
-#: src/Admin/SettingsFields.php:135 src/Admin/SetupChecklist.php:65
-msgid "Datenschutzhinweis"
-msgstr "Privacy notice"
-
-#: src/Admin/SettingsFields.php:136
-msgid "Löschanfragen"
-msgstr "Erasure requests"
-
-#: src/Admin/SettingsFields.php:137
-msgid "Deinstallation"
-msgstr "Uninstall"
-
-#: src/Admin/SettingsFields.php:140
-msgid "Moderation"
-msgstr "Moderation"
-
-#: src/Admin/SettingsFields.php:145
-msgid "Fehlersuche"
-msgstr "Debugging"
-
-#: src/Admin/SettingsFields.php:160
-msgid "Prüfung ausstehend (empfohlen)"
-msgstr "Pending review (recommended)"
-
-#: src/Admin/SettingsFields.php:161
-msgid "Sofort freigeben"
-msgstr "Approve immediately"
-
-#: src/Admin/SettingsFields.php:164
-msgid "Inhalt entfernen, Platzhalter behalten"
-msgstr "Remove content, keep placeholder"
-
-#: src/Admin/SettingsFields.php:165
-msgid "Nur ausblenden (Inhalt bis Fristablauf speichern)"
-msgstr "Hide only (keep content until retention period ends)"
-
-#: src/Admin/SettingsFields.php:168
-msgid "Absolut (12.11.2026)"
-msgstr "Absolute (12.11.2026)"
-
-#: src/Admin/SettingsFields.php:169
-msgid "Relativ (vor 3 Tagen)"
-msgstr "Relative (3 days ago)"
-
-#: src/Admin/SettingsFields.php:172
-msgid "Anonymisieren (Text und Bewertung bleiben)"
-msgstr "Anonymize (text and rating remain)"
-
-#: src/Admin/SettingsFields.php:173
-msgid "Review vollständig löschen"
-msgstr "Delete review completely"
-
-#: src/Admin/SettingsPage.php:495
-msgid "Rollen kann nur ändern, wer selbst Benutzerrollen vergeben darf."
-msgstr "Only users who can assign user roles can change roles."
-
-#: src/Admin/SettingsPage.php:495
-msgid "Diese Einstellungen darf nur ändern, wer das Recht „Datenschutz verwalten“ hat."
-msgstr "Only users with the “Manage privacy” permission can change these settings."
-
-#: src/Admin/SettingsPage.php:520
-msgid "Weitere Optionen"
-msgstr "More options"
-
-#: src/Admin/SettingsPage.php:575
-msgid "Diese Einstellungen benötigen Review Captain Pro. Sie sind sichtbar, aber gesperrt; gespeicherte Werte bleiben unverändert erhalten."
-msgstr "These settings require Review Captain Pro. They are visible but locked; saved values remain unchanged."
-
-#: src/Admin/SettingsPage.php:578
-msgid "Immer gilt: höchstens eine Einladung je tatsächlichem Erlebnis und Empfänger, kein Versand ohne bekannte Versanderlaubnis, Abmeldungen sperren jede weitere Einladung, keine Filterung nach Zufriedenheit."
-msgstr "Always applies: at most one invitation per actual experience and recipient, no sending without known consent, unsubscribes block any further invitation, no filtering by satisfaction."
-
-#: src/Admin/SettingsPage.php:581
-msgid "Diese Werte wirken erst, wenn eine Quelle automatisch abgeglichen wird (Review Captain Pro oder ein Connector). Profile und Links verwaltest du unter „Quellen & Profile“."
-msgstr "These values only take effect when a source is synced automatically (Review Captain Pro or a connector). Manage profiles and links under “Sources & profiles”."
-
-#: src/Admin/SettingsPage.php:584
-msgid "Voreinstellung für neue Widgets. Die Quellenangabe externer Bewertungen wird immer angezeigt und lässt sich nicht abschalten."
-msgstr "Default for new widgets. Source attribution for external reviews is always shown and cannot be turned off."
-
-#: src/Admin/SettingsPage.php:587
-msgid "Die Einwilligung zur Veröffentlichung wird nicht abgefragt. Stelle die Rechtsgrundlage anders sicher."
-msgstr "Consent to publication is not requested. Make sure the legal basis is covered another way."
-
-#: src/Admin/SettingsPage.php:590
-msgid "WP-Cron ist deaktiviert. Richte einen Server-Cron ein, z. B. „wp cron event run --due-now“ alle 5 Minuten."
-msgstr "WP-Cron is disabled. Set up a server cron, e.g. “wp cron event run --due-now” every 5 minutes."
-
-#: src/Admin/SettingsPage.php:593
-msgid "Multisite: Diese Einstellungen gelten nur für diese Website. Jede Website des Netzwerks hat eigene Einstellungen, Rollen und Daten; Netzwerkadministratoren ändern sie je Website."
-msgstr "Multisite: These settings apply only to this site. Each site in the network has its own settings, roles, and data; network administrators change them per site."
-
-#: src/Admin/SettingsPage.php:683
-msgid "Benötigt Review Captain Pro"
-msgstr "Requires Review Captain Pro"
-
-#: src/Admin/SettingsPage.php:737
 msgid "Reviews moderieren"
 msgstr "Moderate reviews"
 
-#: src/Admin/SettingsPage.php:738
+#: src/Admin/SettingsFields.php:128
+msgid "Eingereichte Reviews, Fragen und Korrekturen prüfen. Moderierende sehen eingereichte Reviews inklusive Kontaktadresse."
+msgstr "Check submitted reviews, questions and corrections. Moderators see submitted reviews including the contact address."
+
+#: src/Admin/SettingsFields.php:129
 msgid "Quellen verwalten"
 msgstr "Manage sources"
 
-#: src/Admin/SettingsPage.php:739
-msgid "Anfragen verwalten (Pro)"
-msgstr "Manage requests (Pro)"
+#: src/Admin/SettingsFields.php:129
+msgid "Profile und Plattform-Quellen anlegen, verbinden und synchronisieren."
+msgstr "Create, connect and sync profiles and platform sources."
 
-#: src/Admin/SettingsPage.php:740
+#: src/Admin/SettingsFields.php:130
+msgid "Anfragen verwalten"
+msgstr "Manage requests"
+
+#: src/Admin/SettingsFields.php:130
+msgid "Feedback-Links und (mit Review Captain Pro) Bewertungsanfragen verwalten."
+msgstr "Manage feedback links and (with Review Captain Pro) review requests."
+
+#: src/Admin/SettingsFields.php:131
 msgid "Berichte & Diagnose ansehen"
 msgstr "View reports & diagnostics"
 
-#: src/Admin/SettingsPage.php:741
-msgid "Vertrauenssignale verwalten (Pro)"
-msgstr "Manage trust signals (Pro)"
+#: src/Admin/SettingsFields.php:131
+msgid "Diagnose, Protokolle und Auswertungen ansehen."
+msgstr "View diagnostics, logs and analytics."
 
-#: src/Admin/SettingsPage.php:742
+#: src/Admin/SettingsFields.php:132
+msgid "Vertrauenszeichen verwalten"
+msgstr "Manage trust badges"
+
+#: src/Admin/SettingsFields.php:132
+msgid "Vertrauenszeichen und Badges verwalten (Review Captain Pro)."
+msgstr "Manage trust signs and badges (Review Captain Pro)."
+
+#: src/Admin/SettingsFields.php:133
 msgid "Datenschutz verwalten"
 msgstr "Manage privacy"
 
-#: src/Admin/SettingsPage.php:743
+#: src/Admin/SettingsFields.php:133
+msgid "Den Reiter „Datenschutz & Aufbewahrung“ ändern: Fristen, Löschanfragen, Deinstallation."
+msgstr "Change the tab “Privacy & retention”: periods, erasure requests, uninstall."
+
+#: src/Admin/SettingsFields.php:134
 msgid "Einstellungen ändern"
 msgstr "Change settings"
 
-#: src/Admin/SettingsPage.php:821
+#: src/Admin/SettingsFields.php:134
+msgid "Die Einstellungen von Review Captain ändern, exportieren und importieren."
+msgstr "Change, export and import the Review Captain settings."
+
+#: src/Admin/SettingsFields.php:137
+msgid "Action Scheduler verwenden"
+msgstr "Use Action Scheduler"
+
+#: src/Admin/SettingsFields.php:137
+msgid "Falls verfügbar (z. B. durch WooCommerce), sonst WP-Cron. Bei wenig Besucherverkehr empfehlen wir einen Server-Cron."
+msgstr "If available (e.g. via WooCommerce), otherwise WP-Cron. For low-traffic sites we recommend a server cron."
+
+#: src/Admin/SettingsFields.php:138
+msgid "Zeitbudget je Lauf (Sekunden)"
+msgstr "Time budget per run (seconds)"
+
+#: src/Admin/SettingsFields.php:138
+msgid "Nur ändern, wenn die Diagnose Zeitüberschreitungen meldet."
+msgstr "Only change if diagnostics report timeouts."
+
+#: src/Admin/SettingsFields.php:139
+msgid "Freigabe hängender Aufgaben (Sekunden)"
+msgstr "Release stuck tasks after (seconds)"
+
+#: src/Admin/SettingsFields.php:139
+msgid "Muss länger als das Zeitbudget sein."
+msgstr "Must be longer than the time budget."
+
+#: src/Admin/SettingsFields.php:140
+msgid "Fehlerprotokoll"
+msgstr "Error log"
+
+#: src/Admin/SettingsFields.php:140
+msgid "Schreibt fehlgeschlagene Hintergrundaufgaben (Nummer, Typ, Fehlercode) zusätzlich ins PHP-Fehlerprotokoll des Servers. Enthält keine Zugangsdaten, Reviewtexte oder E-Mail-Adressen."
+msgstr "Also writes failed background tasks (number, type, error code) to the server’s PHP error log. Contains no credentials, review texts or email addresses."
+
+#: src/Admin/SettingsFields.php:153
+msgid "Identität"
+msgstr "Identity"
+
+#: src/Admin/SettingsFields.php:155
+msgid "Neue Reviews"
+msgstr "New reviews"
+
+#: src/Admin/SettingsFields.php:156
+msgid "Hinweise"
+msgstr "Hints"
+
+#: src/Admin/SettingsFields.php:159
+msgid "Zeitfenster"
+msgstr "Time window"
+
+#: src/Admin/SettingsFields.php:160
+msgid "Gelöschte Reviews"
+msgstr "Deleted reviews"
+
+#: src/Admin/SettingsFields.php:164
+msgid "Formulartexte"
+msgstr "Form texts"
+
+#: src/Admin/SettingsFields.php:166
+msgid "Benachrichtigung"
+msgstr "Notification"
+
+#: src/Admin/SettingsFields.php:167
+msgid "Moderationsregeln"
+msgstr "Moderation rules"
+
+#: src/Admin/SettingsFields.php:168
+msgid "Schutz vor Missbrauch"
+msgstr "Abuse protection"
+
+#: src/Admin/SettingsFields.php:170
+msgid "Erweiterte Funktionen (nach 1.0)"
+msgstr "Advanced features (after 1.0)"
+
+#: src/Admin/SettingsFields.php:171
+msgid "Meldungen"
+msgstr "Reports"
+
+#: src/Admin/SettingsFields.php:174
+msgid "Inhalte"
+msgstr "Content"
+
+#: src/Admin/SettingsFields.php:175
+msgid "Prüfung & Transparenz"
+msgstr "Verification & transparency"
+
+#: src/Admin/SettingsFields.php:176
+msgid "Bewertung und Farben"
+msgstr "Rating and colours"
+
+#: src/Admin/SettingsFields.php:177
+msgid "Widget-Vorgaben"
+msgstr "Widget defaults"
+
+#: src/Admin/SettingsFields.php:178
+msgid "Strukturierte Daten"
+msgstr "Structured data"
+
+#: src/Admin/SettingsFields.php:179
+msgid "Leerer Zustand"
+msgstr "Empty state"
+
+#: src/Admin/SettingsFields.php:180
+msgid "Barrierefreiheit"
+msgstr "Accessibility"
+
+#: src/Admin/SettingsFields.php:181
+msgid "Fotos"
+msgstr "Photos"
+
+#: src/Admin/SettingsFields.php:184
+msgid "Aufbewahrung"
+msgstr "Retention"
+
+#: src/Admin/SettingsFields.php:185 src/Admin/SetupChecklist.php:65
+msgid "Datenschutzhinweis"
+msgstr "Privacy notice"
+
+#: src/Admin/SettingsFields.php:186
+msgid "Löschanfragen"
+msgstr "Erasure requests"
+
+#: src/Admin/SettingsFields.php:187
+msgid "Deinstallation"
+msgstr "Uninstall"
+
+#: src/Admin/SettingsFields.php:190 src/Admin/SettingsPage.php:824 src/Admin/SettingsPage.php:826
+msgid "Rechte je Rolle"
+msgstr "Rights per role"
+
+#: src/Admin/SettingsFields.php:194
+msgid "Fehlersuche"
+msgstr "Debugging"
+
+#: src/Admin/SettingsFields.php:209
+msgid "Prüfung ausstehend (empfohlen)"
+msgstr "Pending review (recommended)"
+
+#: src/Admin/SettingsFields.php:210
+msgid "Sofort freigeben"
+msgstr "Approve immediately"
+
+#: src/Admin/SettingsFields.php:213
+msgid "Inhalt sofort entfernen, nur Platzhalter behalten (empfohlen)"
+msgstr "Remove content immediately, keep only a placeholder (recommended)"
+
+#: src/Admin/SettingsFields.php:214
+msgid "Nur ausblenden, Inhalt bis Fristablauf speichern"
+msgstr "Only hide, keep content until the period ends"
+
+#: src/Admin/SettingsFields.php:217
+msgid "Keine – direkte Verbindungsadresse (empfohlen)"
+msgstr "None – direct connection address (recommended)"
+
+#: src/Admin/SettingsFields.php:223
+msgid "Keiner"
+msgstr "None"
+
+#: src/Admin/SettingsFields.php:224
+msgid "Eingebaute Rechenprüfung (ohne Dritte)"
+msgstr "Built-in computation check (no third parties)"
+
+#: src/Admin/SettingsFields.php:227
+msgid "Sterne und Zahl"
+msgstr "Stars and number"
+
+#: src/Admin/SettingsFields.php:228
+msgid "Nur Sterne"
+msgstr "Stars only"
+
+#: src/Admin/SettingsFields.php:229
+msgid "Nur Zahl"
+msgstr "Number only"
+
+#: src/Admin/SettingsFields.php:236
+msgid "Absolut (12.11.2026)"
+msgstr "Absolute (12.11.2026)"
+
+#: src/Admin/SettingsFields.php:237
+msgid "Relativ (vor 3 Tagen)"
+msgstr "Relative (3 days ago)"
+
+#: src/Admin/SettingsFields.php:241 src/Seo/SeoStatus.php:80
+msgid "Produkte"
+msgstr "Products"
+
+#: src/Admin/SettingsFields.php:242 src/Seo/SeoStatus.php:81
+msgid "Beiträge"
+msgstr "Posts"
+
+#: src/Admin/SettingsFields.php:243 src/Seo/SeoStatus.php:82
+msgid "Veranstaltungen"
+msgstr "Events"
+
+#: src/Admin/SettingsFields.php:247
+msgid "Niemand"
+msgstr "Nobody"
+
+#: src/Admin/SettingsFields.php:250
+msgid "Unter der Liste bzw. dem Formular"
+msgstr "Below the list or form"
+
+#: src/Admin/SettingsFields.php:251
+msgid "Über der Liste bzw. dem Formular"
+msgstr "Above the list or form"
+
+#: src/Admin/SettingsFields.php:254
+msgid "Anonymisieren (Text und Bewertung bleiben)"
+msgstr "Anonymize (text and rating remain)"
+
+#: src/Admin/SettingsFields.php:255
+msgid "Review vollständig löschen"
+msgstr "Delete review completely"
+
+#: src/Admin/SettingsHints.php:53
+msgid "Auswertungen"
+msgstr "Analytics"
+
+#: src/Admin/SettingsHints.php:53
+msgid "Auswertungen zu Bewertungen, Quellen und Einladungen. Verfügbar mit Review Captain Pro."
+msgstr "Analytics for reviews, sources and invitations. Available with Review Captain Pro."
+
+#: src/Admin/SettingsHints.php:54
+msgid "Automatischer Abgleich"
+msgstr "Automatic sync"
+
+#: src/Admin/SettingsHints.php:54
+msgid "Bewertungen von Google, Trustpilot und anderen Plattformen automatisch übernehmen. Verfügbar mit Review Captain Pro."
+msgstr "Import reviews from Google, Trustpilot and other platforms automatically. Available with Review Captain Pro."
+
+#: src/Admin/SettingsHints.php:55
+msgid "Bewertungs-Einladungen"
+msgstr "Review invitations"
+
+#: src/Admin/SettingsHints.php:55
+msgid "Bewertungs-Einladungen automatisch nach Kauf oder Besuch senden. Verfügbar mit Review Captain Pro."
+msgstr "Send review invitations automatically after a purchase or visit. Available with Review Captain Pro."
+
+#: src/Admin/SettingsHints.php:56
+msgid "Absender"
+msgstr "Sender"
+
+#: src/Admin/SettingsHints.php:56
+msgid "Absendername und -adresse der Einladungen. Verfügbar mit Review Captain Pro."
+msgstr "Sender name and address of invitations. Available with Review Captain Pro."
+
+#: src/Admin/SettingsHints.php:57
+msgid "Versandzeiten"
+msgstr "Sending times"
+
+#: src/Admin/SettingsHints.php:57
+msgid "Einladungen nur zu bestimmten Tageszeiten senden. Verfügbar mit Review Captain Pro."
+msgstr "Send invitations only at certain times of day. Available with Review Captain Pro."
+
+#: src/Admin/SettingsHints.php:58
+msgid "Grenzen"
+msgstr "Limits"
+
+#: src/Admin/SettingsHints.php:58
+msgid "Tageslimit und Mindestabstand je Empfänger. Verfügbar mit Review Captain Pro."
+msgstr "Daily limit and minimum interval per recipient. Available with Review Captain Pro."
+
+#: src/Admin/SettingsHints.php:59
+msgid "Erinnerungen"
+msgstr "Reminders"
+
+#: src/Admin/SettingsHints.php:59
+msgid "Eine Erinnerung für unbeantwortete Einladungen senden. Verfügbar mit Review Captain Pro."
+msgstr "Send one reminder for unanswered invitations. Available with Review Captain Pro."
+
+#: src/Admin/SettingsHints.php:60
+msgid "Weitere Widgets"
+msgstr "More widgets"
+
+#: src/Admin/SettingsHints.php:60
+msgid "Karussell, Plattformleiste und schwebendes Badge. Verfügbar mit Review Captain Pro."
+msgstr "Carousel, platform bar and floating badge. Available with Review Captain Pro."
+
+#: src/Admin/SettingsHints.php:177
+msgid "Mehr erfahren: %s"
+msgstr "Learn more: %s"
+
+#: src/Admin/SettingsHints.php:174
+msgid "Pro"
+msgstr "Pro"
+
+#: src/Admin/SettingsHints.php:177
+msgid "Mehr erfahren"
+msgstr "Learn more"
+
+#: src/Admin/SettingsHints.php:172
+msgid "Weitere Funktionen in Review Captain Pro"
+msgstr "More features in Review Captain Pro"
+
+#: src/Admin/SettingsPage.php:686
+msgid "Rollen kann nur ändern, wer selbst Benutzerrollen vergeben darf."
+msgstr "Only users who can assign user roles can change roles."
+
+#: src/Admin/SettingsPage.php:686
+msgid "Diese Einstellungen darf nur ändern, wer das Recht „Datenschutz verwalten“ hat."
+msgstr "Only users with the “Manage privacy” permission can change these settings."
+
+#: src/Admin/SettingsPage.php:734
+msgid "Weitere Optionen"
+msgstr "More options"
+
+#: src/Admin/SettingsPage.php:848 src/Cli/Commands.php:495
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+#: src/Admin/SettingsPage.php:878
+msgid "Immer gilt: höchstens eine Einladung je tatsächlichem Erlebnis und Empfänger, kein Versand ohne bekannte Versanderlaubnis, Abmeldungen sperren jede weitere Einladung, keine Filterung nach Zufriedenheit."
+msgstr "Always applies: at most one invitation per actual experience and recipient, no sending without known consent, unsubscribes block any further invitation, no filtering by satisfaction."
+
+#: src/Admin/SettingsPage.php:881
+msgid "Diese Werte wirken erst, wenn eine Quelle automatisch abgeglichen wird (Review Captain Pro oder ein Connector). Profile und Links verwaltest du unter „Quellen & Profile“."
+msgstr "These values only take effect when a source is synced automatically (Review Captain Pro or a connector). Manage profiles and links under “Sources & profiles”."
+
+#: src/Admin/SettingsPage.php:884
+msgid "Voreinstellung für neue Widgets. Die Quellenangabe externer Bewertungen wird immer angezeigt und lässt sich nicht abschalten."
+msgstr "Default for new widgets. Source attribution for external reviews is always shown and cannot be turned off."
+
+#: src/Admin/SettingsPage.php:887
+msgid "Die Einwilligung zur Veröffentlichung wird nicht abgefragt. Stelle die Rechtsgrundlage anders sicher."
+msgstr "Consent to publication is not requested. Make sure the legal basis is covered another way."
+
+#: src/Admin/SettingsPage.php:890
+msgid "WP-Cron ist deaktiviert. Richte einen Server-Cron ein, z. B. „wp cron event run --due-now“ alle 5 Minuten."
+msgstr "WP-Cron is disabled. Set up a server cron, e.g. “wp cron event run --due-now” every 5 minutes."
+
+#: src/Admin/SettingsPage.php:907
+msgid "Multisite: Diese Einstellungen gelten nur für diese Website. Jede Website des Netzwerks hat eigene Einstellungen, Rollen und Daten; Netzwerkadministratoren ändern sie je Website."
+msgstr "Multisite: These settings apply only to this site. Each site in the network has its own settings, roles, and data; network administrators change them per site."
+
+#: src/Admin/SettingsPage.php:1018
+msgid "Von einer Erweiterung verwaltet; derzeit nicht änderbar."
+msgstr "Managed by an extension; cannot be changed right now."
+
+#: src/Admin/SettingsPage.php:1077
+msgid "Bestätigt am %s. Beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt."
+msgstr "Confirmed on %s. Deleting the plugin removes all Review Captain data of this site."
+
+#: src/Admin/SettingsPage.php:1124 src/Cli/Commands.php:652
+msgid "Nicht übernommen, bisherige Werte bleiben: %1$s. %2$s"
+msgstr "Not applied, previous values are kept: %1$s. %2$s"
+
+#: src/Admin/SettingsPage.php:1152
 msgid "Sicherung vom %s. Beim Wiederherstellen wird der aktuelle Stand seinerseits gesichert."
 msgstr "Backup from %s. Restoring backs up the current state first."
 
-#: src/Admin/SettingsPage.php:485
-msgid "(Review Captain Pro)"
-msgstr "(Review Captain Pro)"
+#: src/Admin/SettingsPage.php:693
+msgid "Hier erscheinen Einstellungen von Erweiterungen."
+msgstr "Settings of extensions appear here."
 
-#: src/Admin/SettingsPage.php:529
+#: src/Admin/SettingsPage.php:743
 msgid "Erweitert anzeigen"
 msgstr "Show advanced"
 
-#: src/Admin/SettingsPage.php:648
-msgid "Aktiv"
-msgstr "Active"
+#: src/Admin/SettingsPage.php:825
+msgid "Hake an, welche Rolle welches Recht bekommt. Administratoren behalten immer alle Rechte. Rechte, die du selbst nicht hast, kannst du weder vergeben noch entziehen; jede Änderung wird protokolliert."
+msgstr "Tick which role gets which right. Administrators always keep all rights. You can neither grant nor revoke rights you do not hold yourself; every change is logged."
 
-#: src/Admin/SettingsPage.php:722
+#: src/Admin/SettingsPage.php:826
+msgid "Rolle"
+msgstr "Role"
+
+#: src/Admin/SettingsPage.php:831
+msgid "(nur lesen)"
+msgstr "(read only)"
+
+#: src/Admin/SettingsPage.php:850 src/Admin/SettingsPage.php:1060
 msgid "(immer)"
 msgstr "(always)"
 
-#: src/Admin/SettingsPage.php:745
-msgid "Alle Rechte und Rollen anzeigen"
-msgstr "Show all permissions and roles"
+#: src/Admin/SettingsPage.php:974
+msgid "Aktiv"
+msgstr "Active"
 
-#: src/Admin/SettingsPage.php:746
-msgid "Recht"
-msgstr "Permission"
+#: src/Admin/SettingsPage.php:1010
+msgid "Fehler:"
+msgstr "Error:"
 
-#: src/Admin/SettingsPage.php:746
-msgid "Rollen"
-msgstr "Roles"
+#: src/Admin/SettingsPage.php:1081
+msgid "Eingeschaltet, aber noch nicht bestätigt: Beim Deinstallieren bleiben die Daten erhalten, bis du LÖSCHEN eintippst und speicherst."
+msgstr "Switched on but not confirmed yet: the data is kept on uninstall until you type LÖSCHEN and save."
 
-#: src/Admin/SettingsPage.php:764 src/Admin/SettingsPage.php:773
+#: src/Admin/SettingsPage.php:1083
+msgid "Zur Bestätigung LÖSCHEN eintippen (nur nötig beim Einschalten)"
+msgstr "Type LÖSCHEN to confirm (only needed when switching on)"
+
+#: src/Admin/SettingsPage.php:1091 src/Admin/SettingsPage.php:1100
 msgid "Einstellungen zurücksetzen"
 msgstr "Reset settings"
 
-#: src/Admin/SettingsPage.php:765
+#: src/Admin/SettingsPage.php:1092
 msgid "Setzt Einstellungen auf die Standardwerte zurück. Reviews, Profile, Verlauf und Protokolle bleiben erhalten. Der vorherige Stand wird gesichert und kann unter „Erweitert“ wiederhergestellt werden."
 msgstr "Resets settings to their defaults. Reviews, profiles, history, and logs are kept. The previous state is backed up and can be restored under “Advanced”."
 
-#: src/Admin/SettingsPage.php:769
+#: src/Admin/SettingsPage.php:1096
 msgid "Umfang"
 msgstr "Scope"
 
-#: src/Admin/SettingsPage.php:770
+#: src/Admin/SettingsPage.php:1097
 msgid "Nur „Datenschutz & Aufbewahrung“"
 msgstr "Only “Privacy & retention”"
 
-#: src/Admin/SettingsPage.php:771
+#: src/Admin/SettingsPage.php:1098
 msgid "Alle Einstellungen (Pro-Einstellungen bleiben unverändert)"
 msgstr "All settings (Pro settings remain unchanged)"
 
-#: src/Admin/SettingsPage.php:772
+#: src/Admin/SettingsPage.php:1099
 msgid "Ich möchte die Einstellungen zurücksetzen."
 msgstr "I want to reset the settings."
 
-#: src/Admin/SettingsPage.php:775
+#: src/Admin/SettingsPage.php:1102
 msgid "Alle Plugin-Daten löschen"
 msgstr "Delete all plugin data"
 
-#: src/Admin/SettingsPage.php:776
-msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Daten beim Deinstallieren löschen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
-msgstr "Reviews, profiles, history, and settings are not deleted here. All Review Captain data on this site is only fully deleted if “Delete data on uninstall” is enabled and you then deactivate and delete the plugin under “Plugins”. Export your reviews first."
+#: src/Admin/SettingsPage.php:1103
+msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
+msgstr "Reviews, profiles, history, and settings are not deleted here. All Review Captain data on this site is only fully deleted if “Remove all data when the plugin is deleted” is enabled and you then deactivate and delete the plugin under “Plugins”. Export your reviews first."
 
-#: src/Admin/SettingsPage.php:777
+#: src/Admin/SettingsPage.php:1104
 msgid "Einzelne Personen betreffende Löschanfragen bearbeitest du unter"
 msgstr "Handle erasure requests for individual people under"
 
-#: src/Admin/SettingsPage.php:777
+#: src/Admin/SettingsPage.php:1104
 msgid "Werkzeuge › Personenbezogene Daten löschen"
 msgstr "Tools › Erase Personal Data"
 
-#: src/Admin/SettingsPage.php:784
+#: src/Admin/SettingsPage.php:1111
 msgid "Konfiguration exportieren"
 msgstr "Export configuration"
 
-#: src/Admin/SettingsPage.php:785
+#: src/Admin/SettingsPage.php:1112
 msgid "Lädt die Einstellungen als JSON-Datei herunter – ohne Zugangsdaten und ohne personenbezogene Angaben. Reviews sind nicht enthalten."
 msgstr "Downloads the settings as a JSON file – without credentials or personal data. Reviews are not included."
 
-#: src/Admin/SettingsPage.php:788
+#: src/Admin/SettingsPage.php:1115
 msgid "Konfiguration herunterladen"
 msgstr "Download configuration"
 
-#: src/Admin/SettingsPage.php:792
+#: src/Admin/SettingsPage.php:1119
 msgid "Konfiguration importieren"
 msgstr "Import configuration"
 
-#: src/Admin/SettingsPage.php:794
+#: src/Admin/SettingsPage.php:1121
 msgid "Folgende Werte werden geändert. Alle anderen Einstellungen bleiben unverändert."
 msgstr "The following values will be changed. All other settings remain unchanged."
 
-#: src/Admin/SettingsPage.php:795
-msgid "Bereich"
-msgstr "Section"
-
-#: src/Admin/SettingsPage.php:795 src/Seo/SeoStatus.php:71
+#: src/Admin/SettingsPage.php:1126 src/Seo/SeoStatus.php:71
 msgid "Einstellung"
 msgstr "Setting"
 
-#: src/Admin/SettingsPage.php:795
-msgid "Bisher"
-msgstr "Current"
-
-#: src/Admin/SettingsPage.php:795
-msgid "Neu"
-msgstr "New"
-
-#: src/Admin/SettingsPage.php:803
+#: src/Admin/SettingsPage.php:1134
 msgid "Import übernehmen"
 msgstr "Apply import"
 
-#: src/Admin/SettingsPage.php:804
+#: src/Admin/SettingsPage.php:1135
 msgid "Verwerfen"
 msgstr "Discard"
 
-#: src/Admin/SettingsPage.php:806
+#: src/Admin/SettingsPage.php:1137
 msgid "Lade einen Export hoch oder füge den Inhalt ein. Vor dem Übernehmen siehst du eine Vorschau aller Änderungen; ungültige Werte werden wie beim Speichern korrigiert."
 msgstr "Upload an export or paste its contents. Before applying, you’ll see a preview of all changes; invalid values are corrected as when saving."
 
-#: src/Admin/SettingsPage.php:809
+#: src/Admin/SettingsPage.php:1140
 msgid "Datei (JSON)"
 msgstr "File (JSON)"
 
-#: src/Admin/SettingsPage.php:810
+#: src/Admin/SettingsPage.php:1141
 msgid "oder Inhalt einfügen"
 msgstr "or paste contents"
 
-#: src/Admin/SettingsPage.php:811
+#: src/Admin/SettingsPage.php:1142
 msgid "Vorschau anzeigen"
 msgstr "Show preview"
 
-#: src/Admin/SettingsPage.php:815 src/Admin/SettingsPage.php:824
+#: src/Admin/SettingsPage.php:1146 src/Admin/SettingsPage.php:1155
 msgid "Sicherung wiederherstellen"
 msgstr "Restore backup"
 
-#: src/Admin/SettingsPage.php:817
+#: src/Admin/SettingsPage.php:1148
 msgid "Es ist noch keine Sicherung vorhanden. Sie wird automatisch vor jedem Import und jedem Zurücksetzen angelegt."
 msgstr "No backup yet. One is created automatically before every import and reset."
 
-#: src/Admin/SettingsPage.php:479
+#: src/Admin/SettingsPage.php:675
 msgid "Einstellungsbereiche"
 msgstr "Settings sections"
+
+#: src/Admin/SettingsPage.php:899
+msgid "Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertung. Die Bewertung bleibt."
+msgid_plural "Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertungen. Die Bewertungen bleiben."
+msgstr[0] "Contact address: the next clean-up removes the email address from %s review. The review stays."
+msgstr[1] "Contact address: the next clean-up removes the email address from %s reviews. The reviews stay."
+
+#: src/Admin/SettingsPage.php:903
+msgid "Freigegebene Bewertungen: Die nächste Bereinigung löscht %s Bewertung endgültig."
+msgid_plural "Freigegebene Bewertungen: Die nächste Bereinigung löscht %s Bewertungen endgültig."
+msgstr[0] "Approved reviews: the next clean-up deletes %s review for good."
+msgstr[1] "Approved reviews: the next clean-up deletes %s reviews for good."
 
 #: src/Admin/SetupChecklist.php:41
 msgid "Marke & Sprache"
@@ -2105,7 +2677,7 @@ msgstr "First profile / review link"
 msgid "Profil-Link einer Plattform hinterlegen, damit Besucher dich dort bewerten können."
 msgstr "Add a platform’s profile link so visitors can review you there."
 
-#: src/Admin/SetupChecklist.php:50 src/Admin/SourcesPage.php:57 src/Admin/SourcesPage.php:114 src/Admin/SourcesPage.php:64
+#: src/Admin/SetupChecklist.php:50 src/Admin/SourcesPage.php:57 src/Admin/SourcesPage.php:116 src/Admin/SourcesPage.php:64
 msgid "Profil hinzufügen"
 msgstr "Add profile"
 
@@ -2117,7 +2689,7 @@ msgstr "Review form active"
 msgid "Formular per Block oder Shortcode [review_captain_form v=\"1\"] einbinden und Einreichungen aktiviert lassen."
 msgstr "Embed the form via block or shortcode [review_captain_form v=\"1\"] and keep submissions enabled."
 
-#: src/Admin/SetupChecklist.php:56 src/Settings/SettingsSchema.php:34
+#: src/Admin/SetupChecklist.php:56 src/Settings/SettingsSchema.php:46
 msgid "Einreichungen & Moderation"
 msgstr "Submissions & moderation"
 
@@ -2133,7 +2705,7 @@ msgstr "Display reviews on a page using the block or a shortcode."
 msgid "Datenschutzhinweis im Formular und Aufbewahrungsfristen prüfen."
 msgstr "Check the privacy notice in the form and the retention periods."
 
-#: src/Admin/SetupChecklist.php:68 src/Settings/SettingsSchema.php:36
+#: src/Admin/SetupChecklist.php:68 src/Settings/SettingsSchema.php:48
 msgid "Datenschutz & Aufbewahrung"
 msgstr "Privacy & retention"
 
@@ -2173,11 +2745,11 @@ msgstr "Skip"
 msgid "Wieder öffnen"
 msgstr "Reopen"
 
-#: src/Admin/SourcesPage.php:67 src/Admin/SourcesPage.php:130
+#: src/Admin/SourcesPage.php:67 src/Admin/SourcesPage.php:132
 msgid "Profil-Link"
 msgstr "Profile link"
 
-#: src/Admin/SourcesPage.php:67 src/Admin/SourcesPage.php:131
+#: src/Admin/SourcesPage.php:67 src/Admin/SourcesPage.php:133
 msgid "Link „Bewertung abgeben“"
 msgstr "“Write a review” link"
 
@@ -2185,35 +2757,35 @@ msgstr "“Write a review” link"
 msgid "Manuell / Nur Link"
 msgstr "Manual / link only"
 
-#: src/Admin/SourcesPage.php:89 src/Admin/SourcesPage.php:139
+#: src/Admin/SourcesPage.php:90 src/Admin/SourcesPage.php:141
 msgid "API-Verbindung in Review Captain Pro"
 msgstr "API connection in Review Captain Pro"
 
-#: src/Admin/SourcesPage.php:114
+#: src/Admin/SourcesPage.php:116
 msgid "Profil bearbeiten"
 msgstr "Edit profile"
 
-#: src/Admin/SourcesPage.php:114
+#: src/Admin/SourcesPage.php:116
 msgid "← Zur Übersicht"
 msgstr "← Back to overview"
 
-#: src/Admin/SourcesPage.php:129
+#: src/Admin/SourcesPage.php:131
 msgid "z. B. „Filiale Innenstadt“ – nur intern und in Widgets sichtbar."
 msgstr "E.g. “Downtown branch” – only visible internally and in widgets."
 
-#: src/Admin/SourcesPage.php:130
+#: src/Admin/SourcesPage.php:132
 msgid "Öffentliche Profilseite (https). Wird als Quelle verlinkt."
 msgstr "Public profile page (https). Linked as the source."
 
-#: src/Admin/SourcesPage.php:131
+#: src/Admin/SourcesPage.php:133
 msgid "Direktlink zum Bewertungsformular der Plattform (https), für Buttons auf deiner Website."
 msgstr "Direct link to the platform’s review form (https), for buttons on your website."
 
-#: src/Admin/SourcesPage.php:151
+#: src/Admin/SourcesPage.php:154
 msgid "Profil löschen"
 msgstr "Delete profile"
 
-#: src/Admin/SourcesPage.php:153
+#: src/Admin/SourcesPage.php:156
 msgid "Soll das Profil „%1$s“ gelöscht werden? %2$s zugeordnete Reviews bleiben erhalten und werden nicht gelöscht."
 msgstr "Delete the profile “%1$s”? %2$s assigned reviews are kept and will not be deleted."
 
@@ -2225,35 +2797,35 @@ msgstr "Add public profile links for your review platforms. Visitors can review 
 msgid "Noch keine Quelle. Füge einen Profil-Link hinzu, damit Besucher dich auf Google & Co. bewerten können."
 msgstr "No sources yet. Add a profile link so visitors can review you on Google and other platforms."
 
-#: src/Admin/SourcesPage.php:87
+#: src/Admin/SourcesPage.php:88
 msgid "API-Verbindung"
 msgstr "API connection"
 
-#: src/Admin/SourcesPage.php:88
+#: src/Admin/SourcesPage.php:89
 msgid "Automatischer Abgleich über offizielle Schnittstellen (z. B. Google Business Profile, Trustpilot) setzt ein berechtigtes Eigentümerkonto voraus."
 msgstr "Automatic sync via official APIs (e.g. Google Business Profile, Trustpilot) requires an authorized owner account."
 
-#: src/Admin/SourcesPage.php:139
+#: src/Admin/SourcesPage.php:142
 msgid "Verbindung"
 msgstr "Connection"
 
-#: src/Admin/SourcesPage.php:139
+#: src/Admin/SourcesPage.php:142
 msgid "Manuell (nur Link)"
 msgstr "Manual (link only)"
 
-#: src/Admin/SourcesPage.php:141
+#: src/Admin/SourcesPage.php:144
 msgid "Profil speichern"
 msgstr "Save profile"
 
-#: src/Admin/SourcesPage.php:157
+#: src/Admin/SourcesPage.php:160
 msgid "Ja, Profil löschen"
 msgstr "Yes, delete profile"
 
-#: src/Admin/SourcesPage.php:158
+#: src/Admin/SourcesPage.php:161
 msgid "Endgültig löschen"
 msgstr "Delete permanently"
 
-#: src/Admin/SourcesPage.php:158 src/ImportExport/ImportExportModule.php:371
+#: src/Admin/SourcesPage.php:161 src/ImportExport/ImportExportModule.php:371
 msgid "Abbrechen"
 msgstr "Cancel"
 
@@ -2265,7 +2837,7 @@ msgstr "No approved reviews yet – a widget will then show the empty state text
 msgid "Karussell, Badge und Trustbar gibt es in Review Captain Pro."
 msgstr "Carousel, badge, and trust bar are available in Review Captain Pro."
 
-#: src/Admin/WidgetsPage.php:167
+#: src/Admin/WidgetsPage.php:167 src/Integrations/Elementor/ReviewsWidget.php:50
 msgid "Art"
 msgstr "Type"
 
@@ -2385,95 +2957,243 @@ msgstr "Generate test data (development only)."
 msgid "Datenbankschema installieren/aktualisieren."
 msgstr "Install/update database schema."
 
+#: src/Cli/CliModule.php:183
+msgid "Einstellungen mit aktuellem Wert und Standard auflisten."
+msgstr "List settings with current value and default."
+
+#: src/Cli/CliModule.php:189
+msgid "Nur diesen Bereich zeigen, z. B. privacy."
+msgstr "Only show this section, e.g. privacy."
+
+#: src/Cli/CliModule.php:196
+msgid "Wert einer Einstellung ausgeben (Bereich.Schlüssel)."
+msgstr "Print the value of a setting (section.key)."
+
+#: src/Cli/CliModule.php:201
+msgid "Bereich.Schlüssel, z. B. submissions.min_text_length."
+msgstr "section.key, e.g. submissions.min_text_length."
+
+#: src/Cli/CliModule.php:214
+msgid "Eine Einstellung ändern (wie auf der Einstellungsseite geprüft und protokolliert; braucht --user)."
+msgstr "Change a setting (validated and logged as on the settings page; needs --user)."
+
+#: src/Cli/CliModule.php:223
+msgid "Neuer Wert. Ja/Nein: 1/0, true/false, on/off. Listen (Rollen): durch Komma getrennt."
+msgstr "New value. Yes/no: 1/0, true/false, on/off. Lists (roles): separated by commas."
+
+#: src/Cli/CliModule.php:229
+msgid "Bestätigungswort (LÖSCHEN), nötig beim Einschalten von privacy.delete_data_on_uninstall."
+msgstr "Confirmation word (LÖSCHEN), needed when switching on privacy.delete_data_on_uninstall."
+
+#: src/Cli/CliModule.php:235
+msgid "Alias für --confirm."
+msgstr "Alias for --confirm."
+
+#: src/Cli/CliModule.php:241
+msgid "Bereiche oder alle Einstellungen auf den Standard zurücksetzen (Sicherung wird angelegt; braucht --user)."
+msgstr "Reset sections or all settings to the defaults (a backup is created; needs --user)."
+
+#: src/Cli/CliModule.php:263
+msgid "Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten)."
+msgstr "Print the configuration as JSON or write it to a file (without credentials)."
+
+#: src/Cli/CliModule.php:274
+msgid "Konfiguration aus einer JSON-Datei importieren; --dry-run zeigt nur die Vorschau (braucht --user)."
+msgstr "Import the configuration from a JSON file; --dry-run only shows the preview (needs --user)."
+
 #. translators: 1: processed, 2: succeeded, 3: failed
-#: src/Cli/Commands.php:62
+#: src/Cli/Commands.php:67
 msgid "%1$d Jobs verarbeitet, %2$d erfolgreich, %3$d fehlgeschlagen."
 msgstr "%1$d jobs processed, %2$d succeeded, %3$d failed."
 
-#: src/Cli/Commands.php:80
+#: src/Cli/Commands.php:85
 msgid "Unbekannter Status."
 msgstr "Unknown status."
 
-#: src/Cli/Commands.php:107
+#: src/Cli/Commands.php:112
 msgid "Job nicht gefunden oder nicht wiederholbar."
 msgstr "Job not found or not retryable."
 
-#: src/Cli/Commands.php:110
+#: src/Cli/Commands.php:115
 msgid "Job erneut eingereiht."
 msgstr "Job requeued."
 
 #. translators: 1: rejected, 2: external, 3: logs, 4: jobs
-#: src/Cli/Commands.php:146
+#: src/Cli/Commands.php:151
 msgid "Aufbewahrung: %1$d abgelehnte Reviews, %2$d externe Snapshots, %3$d Logeinträge, %4$d Jobs gelöscht."
 msgstr "Retention: deleted %1$d rejected reviews, %2$d external snapshots, %3$d log entries, %4$d jobs."
 
-#: src/Cli/Commands.php:154
+#: src/Cli/Commands.php:159
 msgid "Nicht alle fälligen Daten wurden in diesem Lauf bereinigt; der nächste Lauf setzt fort."
 msgstr "Not all due data was cleaned up in this run; the next run will continue."
 
-#: src/Cli/Commands.php:179
+#: src/Cli/Commands.php:184
 msgid "Schema veraltet oder unvollständig: zuerst „wp review-captain schema upgrade“ ausführen."
 msgstr "Schema outdated or incomplete: run “wp review-captain schema upgrade” first."
 
 #. translators: 1: installed, 2: expected
-#: src/Cli/Commands.php:199
+#: src/Cli/Commands.php:204
 msgid "Schema-Version %1$d (erwartet %2$d)."
 msgstr "Schema version %1$d (expected %2$d)."
 
-#: src/Cli/Commands.php:210
+#: src/Cli/Commands.php:215
 msgid "Job-Takt ist eingeplant."
 msgstr "Job tick is scheduled."
 
-#: src/Cli/Commands.php:210
+#: src/Cli/Commands.php:215
 msgid "Job-Takt ist nicht eingeplant (Adminbereich einmal aufrufen oder Plugin reaktivieren)."
 msgstr "Job tick is not scheduled (visit the admin area once or reactivate the plugin)."
 
-#: src/Cli/Commands.php:217
+#: src/Cli/Commands.php:222
 msgid "DISABLE_WP_CRON gesetzt – System-Cron muss „wp review-captain jobs run“ ausführen."
 msgstr "DISABLE_WP_CRON is set – system cron must run “wp review-captain jobs run”."
 
-#: src/Cli/Commands.php:218
+#: src/Cli/Commands.php:223
 msgid "WP-Cron aktiv: Ausführung nur bei Seitenaufrufen, Zeiten ungenau. System-Cron empfohlen."
 msgstr "WP-Cron active: runs only on page views, timing is imprecise. System cron recommended."
 
-#: src/Cli/Commands.php:227
+#: src/Cli/Commands.php:232
 msgid "Eigener Schlüssel REVIEW_CAPTAIN_ENCRYPTION_KEY ist gesetzt."
 msgstr "Custom key REVIEW_CAPTAIN_ENCRYPTION_KEY is set."
 
-#: src/Cli/Commands.php:228
+#: src/Cli/Commands.php:233
 msgid "Zugangsdaten werden mit einem aus den WordPress-Salts abgeleiteten Schlüssel verschlüsselt. Empfehlung: REVIEW_CAPTAIN_ENCRYPTION_KEY setzen."
 msgstr "Credentials are encrypted with a key derived from the WordPress salts. Recommendation: set REVIEW_CAPTAIN_ENCRYPTION_KEY."
 
-#: src/Cli/Commands.php:229
+#: src/Cli/Commands.php:234
 msgid "REVIEW_CAPTAIN_ENCRYPTION_KEY ist ungültig (Base64 von genau 32 Byte erwartet)."
 msgstr "REVIEW_CAPTAIN_ENCRYPTION_KEY is invalid (expected Base64 of exactly 32 bytes)."
 
-#: src/Cli/Commands.php:230
+#: src/Cli/Commands.php:235
 msgid "libsodium ist nicht verfügbar."
 msgstr "libsodium is not available."
 
-#: src/Cli/Commands.php:240
+#: src/Cli/Commands.php:245
 msgid "Datenbankversion nicht ermittelbar."
 msgstr "Unable to determine database version."
 
 #. translators: 1: vendor, 2: installed version, 3: minimum version
-#: src/Cli/Commands.php:243
+#: src/Cli/Commands.php:248
 msgid "Datenbank %1$s %2$s (empfohlen mindestens %3$s)."
 msgstr "Database %1$s %2$s (recommended minimum %3$s)."
 
-#: src/Cli/Commands.php:264
+#: src/Cli/Commands.php:269
 msgid "Testdaten nur mit WP_DEBUG oder --yes erzeugen."
 msgstr "Generate test data only with WP_DEBUG or --yes."
 
 #. translators: 1: reviews, 2: jobs
-#: src/Cli/Commands.php:280
+#: src/Cli/Commands.php:285
 msgid "%1$d Test-Reviews und %2$d Test-Jobs angelegt."
 msgstr "Created %1$d test reviews and %2$d test jobs."
 
 #. translators: %d: schema version
-#: src/Cli/Commands.php:299
+#: src/Cli/Commands.php:304
 msgid "Schema ist auf Version %d."
 msgstr "Schema is at version %d."
+
+#: src/Cli/Commands.php:336
+msgid "Unbekannte Einstellung „%s“. Format: Bereich.Schlüssel, siehe „wp review-captain settings list“."
+msgstr "Unknown setting “%s”. Format: section.key, see “wp review-captain settings list”."
+
+#: src/Cli/Commands.php:349
+msgid "Bitte gib mit --user=<ID|Login> einen Benutzer an, der die Einstellungen ändern darf (Recht review_captain_manage_settings)."
+msgstr "Please name a user with --user=<ID|login> who may change the settings (capability review_captain_manage_settings)."
+
+#: src/Cli/Commands.php:355
+msgid "Für den Bereich „%s“ fehlt dem Benutzer die Berechtigung (Datenschutz: review_captain_manage_privacy, Zugriff: promote_users)."
+msgstr "The user lacks the permission for section “%s” (privacy: review_captain_manage_privacy, access: promote_users)."
+
+#: src/Cli/Commands.php:386
+msgid "Unbekannter Bereich."
+msgstr "Unknown section."
+
+#: src/Cli/Commands.php:449
+msgid "Dieser Wert wird vom Plugin gesetzt und lässt sich nicht direkt ändern."
+msgstr "This value is set by the plugin and cannot be changed directly."
+
+#: src/Cli/Commands.php:453
+msgid "Diese Einstellung gehört zu einer Erweiterung und ist derzeit nicht änderbar."
+msgstr "This setting belongs to an extension and cannot be changed right now."
+
+#: src/Cli/Commands.php:463
+msgid "Bitte gib 1 oder 0 (true/false, on/off, ja/nein) an."
+msgstr "Please give 1 or 0 (true/false, on/off, yes/no)."
+
+#: src/Cli/Commands.php:500
+msgid "%1$s wurde nicht gespeichert: %2$s"
+msgstr "%1$s was not saved: %2$s"
+
+#: src/Cli/Commands.php:505
+msgid "%s ist unverändert."
+msgstr "%s is unchanged."
+
+#: src/Cli/Commands.php:509
+msgid "%1$s gespeichert: %2$s"
+msgstr "%1$s saved: %2$s"
+
+#: src/Cli/Commands.php:543
+msgid "Gib einen oder mehrere Bereiche an oder --all."
+msgstr "Give one or more sections or --all."
+
+#: src/Cli/Commands.php:549
+msgid "Unbekannter Bereich: %s"
+msgstr "Unknown section: %s"
+
+#: src/Cli/Commands.php:554
+msgid "Zurücksetzen nur mit --yes. Reviews, Profile und Verlauf bleiben unverändert; der vorherige Stand wird gesichert."
+msgstr "Reset only with --yes. Reviews, profiles and history stay unchanged; the previous state is backed up."
+
+#: src/Cli/Commands.php:565
+msgid "Nur Einstellungen von Erweiterungen, die beim Zurücksetzen erhalten bleiben: %s"
+msgstr "Add-on settings only, which are kept on reset: %s"
+
+#: src/Cli/Commands.php:570
+msgid "Ohne Berechtigung übersprungen: %s"
+msgstr "Skipped without permission: %s"
+
+#: src/Cli/Commands.php:573
+msgid "Es wurde nichts zurückgesetzt."
+msgstr "Nothing was reset."
+
+#: src/Cli/Commands.php:577
+msgid "Zurückgesetzt: %s. Der vorherige Stand wurde gesichert."
+msgstr "Reset: %s. The previous state was backed up."
+
+#: src/Cli/Commands.php:599
+msgid "Datei %s konnte nicht geschrieben werden."
+msgstr "File %s could not be written."
+
+#: src/Cli/Commands.php:603
+msgid "Konfiguration nach %s exportiert (ohne Zugangsdaten)."
+msgstr "Configuration exported to %s (without credentials)."
+
+#: src/Cli/Commands.php:622
+msgid "Importdatei nicht gefunden oder nicht lesbar."
+msgstr "Import file not found or not readable."
+
+#: src/Cli/Commands.php:629
+msgid "Die Datei ist leer oder größer als 200 KB."
+msgstr "The file is empty or larger than 200 KB."
+
+#: src/Cli/Commands.php:633
+msgid "Import nur mit --yes übernehmen oder mit --dry-run als Vorschau anzeigen."
+msgstr "Apply the import only with --yes, or show a preview with --dry-run."
+
+#: src/Cli/Commands.php:643
+msgid "Kein gültiger Review-Captain-Konfigurationsexport oder nicht unterstützte Version."
+msgstr "Not a valid Review Captain configuration export, or unsupported version."
+
+#: src/Cli/Commands.php:671
+msgid "Ohne Berechtigung nicht berücksichtigt: %s"
+msgstr "Ignored without permission: %s"
+
+#: src/Cli/Commands.php:675
+msgid "Probelauf: %d Änderungen, nichts gespeichert."
+msgstr "Dry run: %d changes, nothing saved."
+
+#: src/Cli/Commands.php:684
+msgid "%d Einstellungen importiert. Der vorherige Stand wurde gesichert."
+msgstr "%d settings imported. The previous state was backed up."
 
 #: src/Connectors/ConnectorsModule.php:60
 msgid "Connectoren"
@@ -2649,197 +3369,241 @@ msgstr "Removed (source deleted)"
 msgid "Kauf verifiziert"
 msgstr "Verified purchase"
 
-#: src/Domain/Verification.php:28
+#: src/Domain/Verification.php:28 src/Frontend/PublicTexts.php:49
 msgid "Teilnahme bestätigt"
 msgstr "Attendance confirmed"
 
-#: src/Feedback/CampaignStore.php:182
+#: src/Feedback/CampaignStore.php:203
 msgid "Feedback geben"
 msgstr "Give feedback"
 
-#: src/Feedback/CampaignStore.php:183
+#: src/Feedback/CampaignStore.php:204
 msgid "Kein Ticket – kein Einlasscode"
 msgstr "No ticket – no admission code"
 
 #. translators: %s: campaign label
-#: src/Feedback/CampaignStore.php:188
+#: src/Feedback/CampaignStore.php:209
 msgid "QR-Code für Feedback: %s"
 msgstr "QR code for feedback: %s"
 
-#: src/Frontend/FormHandler.php:424
+#: src/Frontend/FormHandler.php:602
 msgid "Danke! Ihre Bewertung ist jetzt sichtbar."
 msgstr "Thank you! Your review is now visible."
 
-#: src/Frontend/FormHandler.php:425
+#: src/Frontend/FormHandler.php:603
 msgid "Danke! Ihre Bewertung wird nach Prüfung veröffentlicht."
 msgstr "Thank you! Your review will be published after moderation."
 
-#: src/Frontend/FormHandler.php:449 src/Frontend/Renderer.php:390
+#: src/Frontend/FormHandler.php:627 src/Frontend/Renderer.php:481
 msgid "Bewertungen können derzeit nicht abgegeben werden."
 msgstr "Reviews cannot be submitted at this time."
 
-#: src/Frontend/FormHandler.php:450
+#: src/Frontend/FormHandler.php:628
 msgid "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und senden Sie das Formular erneut."
 msgstr "Your session has expired. Please reload the page and submit the form again."
 
-#: src/Frontend/FormHandler.php:451 src/Questions/QuestionHandler.php:157
+#: src/Frontend/FormHandler.php:629 src/Questions/QuestionHandler.php:172
 msgid "Das Formular wurde zu schnell abgeschickt. Bitte versuchen Sie es erneut."
 msgstr "The form was submitted too quickly. Please try again."
 
-#: src/Frontend/FormHandler.php:452 src/Questions/QuestionHandler.php:158
+#: src/Frontend/FormHandler.php:630 src/Questions/QuestionHandler.php:173
 msgid "Das Formular ist abgelaufen. Bitte laden Sie die Seite neu."
 msgstr "The form has expired. Please reload the page."
 
-#: src/Frontend/FormHandler.php:453 src/Questions/QuestionHandler.php:159
+#: src/Frontend/FormHandler.php:631 src/Questions/QuestionHandler.php:174
 msgid "Das Formular ist ungültig. Bitte laden Sie die Seite neu."
 msgstr "The form is invalid. Please reload the page."
 
-#: src/Frontend/FormHandler.php:454
+#: src/Frontend/FormHandler.php:632
 msgid "Sie haben bereits mehrere Bewertungen gesendet. Bitte versuchen Sie es später erneut."
 msgstr "You have already submitted several reviews. Please try again later."
 
-#: src/Frontend/FormHandler.php:455
+#: src/Frontend/FormHandler.php:633
 msgid "Bitte wählen Sie eine Bewertung von 1 bis 5 Sternen."
 msgstr "Please select a rating from 1 to 5 stars."
 
-#: src/Frontend/FormHandler.php:456
+#: src/Frontend/FormHandler.php:634
 msgid "Der Titel ist zu lang (höchstens 150 Zeichen)."
 msgstr "The title is too long (maximum 150 characters)."
 
-#: src/Frontend/FormHandler.php:457
+#: src/Frontend/FormHandler.php:635
 msgid "Der Bewertungstext ist zu kurz."
 msgstr "The review text is too short."
 
-#: src/Frontend/FormHandler.php:458
+#: src/Frontend/FormHandler.php:636
 msgid "Der Bewertungstext ist zu lang."
 msgstr "The review text is too long."
 
-#: src/Frontend/FormHandler.php:459 src/Questions/QuestionHandler.php:163
+#: src/Frontend/FormHandler.php:637 src/Questions/QuestionHandler.php:178
 msgid "Bitte geben Sie Ihren Namen an (höchstens 100 Zeichen)."
 msgstr "Please enter your name (maximum 100 characters)."
 
-#: src/Frontend/FormHandler.php:460
+#: src/Frontend/FormHandler.php:638
 msgid "Bitte geben Sie eine gültige E-Mail-Adresse an."
 msgstr "Please enter a valid email address."
 
-#: src/Frontend/FormHandler.php:461 src/Questions/QuestionHandler.php:165
+#: src/Frontend/FormHandler.php:639
+msgid "Mit dieser E-Mail-Adresse kann keine Bewertung abgegeben werden. Bitte verwenden Sie eine andere Adresse."
+msgstr "A review cannot be submitted with this email address. Please use a different address."
+
+#: src/Frontend/FormHandler.php:640 src/Questions/QuestionHandler.php:180
 msgid "Bitte bestätigen Sie die Einwilligung zur Veröffentlichung."
 msgstr "Please confirm your consent to publication."
 
-#: src/Frontend/FormHandler.php:462
+#: src/Frontend/FormHandler.php:641
 msgid "Ihre Bewertung konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut."
 msgstr "Your review could not be saved. Please try again later."
 
-#: src/Frontend/FormHandler.php:463
+#: src/Frontend/FormHandler.php:642
 msgid "Sie haben dieses Produkt bereits bewertet."
 msgstr "You have already reviewed this product."
 
-#: src/Frontend/FormHandler.php:464
+#: src/Frontend/FormHandler.php:643
 msgid "Bitte bewerten Sie mindestens ein Produkt."
 msgstr "Please review at least one product."
 
-#: src/Frontend/FormHandler.php:465
+#: src/Frontend/FormHandler.php:644
 msgid "Bitte wählen Sie für jedes bewertete Produkt 1 bis 5 Sterne."
 msgstr "Please select 1 to 5 stars for each reviewed product."
 
-#: src/Frontend/FormHandler.php:466
+#: src/Frontend/FormHandler.php:645
 msgid "Der Text zu einem bewerteten Produkt ist zu kurz."
 msgstr "The text for a reviewed product is too short."
 
-#: src/Frontend/FormHandler.php:467
+#: src/Frontend/FormHandler.php:646
 msgid "Der Text zu einem bewerteten Produkt ist zu lang."
 msgstr "The text for a reviewed product is too long."
 
-#: src/Frontend/FormHandler.php:620
-msgid "[%s] Neue Bewertung eingegangen"
-msgstr "[%s] New review received"
+#: src/Frontend/PublicTexts.php:42 templates/review-form.php:189
+msgid "Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. Meine E-Mail-Adresse wird nicht veröffentlicht. Die Einwilligung kann ich jederzeit widerrufen."
+msgstr "I consent to my review being published with my name on this website. My email address will not be published. I can withdraw my consent at any time."
 
-#: src/Frontend/FormHandler.php:623
-msgid "Auf Ihrer Website wurde eine neue Bewertung abgegeben und automatisch freigegeben.\n\nZur Übersicht: %s"
-msgstr "A new review was submitted on your website and approved automatically.\n\nView overview: %s"
+#: src/Frontend/PublicTexts.php:43 templates/questions.php:59 templates/review-form.php:155
+msgid "Name (wird veröffentlicht)"
+msgstr "Name (will be published)"
 
-#: src/Frontend/FormHandler.php:625
-msgid "Auf Ihrer Website wurde eine neue Bewertung abgegeben. Sie wartet auf Moderation.\n\nJetzt prüfen: %s"
-msgstr "A new review was submitted on your website. It is awaiting moderation.\n\nReview now: %s"
+#: src/Frontend/PublicTexts.php:44 templates/review-form.php:165
+msgid "Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte."
+msgstr "Will never be published. We only use it for follow-up questions and privacy requests."
 
-#: src/Frontend/Renderer.php:78
-msgid "Bewertungen (Raster/Liste)"
-msgstr "Reviews (grid/list)"
+#: src/Frontend/PublicTexts.php:45 templates/review-form.php:205
+msgid "Bewertung senden"
+msgstr "Submit review"
 
-#: src/Frontend/Renderer.php:79
-msgid "Bewertungsformular"
-msgstr "Review form"
-
-#: src/Frontend/Renderer.php:80
-msgid "Bewertungs-Aufruf (CTA)"
-msgstr "Review call to action (CTA)"
-
-#: src/Frontend/Renderer.php:183
-msgid "Es sind noch keine Bewertungen vorhanden."
-msgstr "There are no reviews yet."
-
-#: src/Frontend/Renderer.php:210
-msgid "Erfahrungsbericht dieser Website"
-msgstr "Testimonial from this website"
-
-#: src/Frontend/Renderer.php:216
-msgid "Verifizierter Kauf"
-msgstr "Verified purchase"
-
-#: src/Frontend/Renderer.php:228
-msgid "via %s"
-msgstr "via %s"
-
-#: src/Frontend/Renderer.php:229
-msgid "Bewertung auf dieser Website"
-msgstr "Review on this website"
-
-#: src/Frontend/Renderer.php:232
-msgid "Original auf %s ansehen"
-msgstr "View original on %s"
-
-#: src/Frontend/Renderer.php:263
-msgid "Foto zur Bewertung von %s"
-msgstr "Photo for review by %s"
-
-#: src/Frontend/Renderer.php:264
-msgid "Foto zur Bewertung"
-msgstr "Photo for review"
-
-#: src/Frontend/Renderer.php:324
-msgid "%1$s von %2$s Sternen"
-msgstr "%1$s out of %2$s stars"
-
-#: src/Frontend/Renderer.php:334
-msgid "%1$s von %2$s Punkten"
-msgstr "%1$s out of %2$s points"
-
-#: src/Frontend/Renderer.php:482
-msgid "Produkt %s"
-msgstr "Product %s"
-
-#: src/Frontend/Renderer.php:492
+#: src/Frontend/PublicTexts.php:46 src/Frontend/Renderer.php:600
 msgid "Danke für Ihre Meldung. Wir prüfen die Bewertung."
 msgstr "Thank you for your report. We will review it."
 
-#: src/Frontend/Renderer.php:495
+#: src/Frontend/PublicTexts.php:47
+msgid "So prüfen wir Bewertungen"
+msgstr "How we check reviews"
+
+#: src/Frontend/PublicTexts.php:48
+msgid "Verifizierter Kauf"
+msgstr "Verified purchase"
+
+#: src/Frontend/PublicTexts.php:52
+msgid "Erfahrungsbericht dieser Website"
+msgstr "Testimonial from this website"
+
+#: src/Frontend/PublicTexts.php:187
+msgid "%s: Der Kauf wurde von einem an diese Website angebundenen System (zum Beispiel dem Bestellsystem) bestätigt."
+msgstr "%s: the purchase was confirmed by a system connected to this site (for example the order system)."
+
+#: src/Frontend/PublicTexts.php:191
+msgid "%s: Die Teilnahme wurde von einem an diese Website angebundenen System (zum Beispiel der Ticketverwaltung) bestätigt."
+msgstr "%s: attendance was confirmed by a system connected to this site (for example the ticketing system)."
+
+#: src/Frontend/PublicTexts.php:196
+msgid "%s: Ein Kauf oder eine Nutzung ist bei dieser Bewertung nicht nachgewiesen."
+msgstr "%s: no purchase or use has been verified for this review."
+
+#: src/Frontend/PublicTexts.php:197
+msgid "Bewertungen ohne Prüfkennzeichen: Ein Kauf oder eine Nutzung ist nicht nachgewiesen."
+msgstr "Reviews without a verification label: no purchase or use has been verified."
+
+#: src/Frontend/PublicTexts.php:201
+msgid "%s: Die Bewertung stammt von einer externen Plattform und ist mit Quelle und Link zum Original gekennzeichnet. Ob und wie sie dort geprüft wurde, richtet sich nach den Regeln der Plattform."
+msgstr "%s: the review comes from an external platform and is labelled with its source and a link to the original. Whether and how it was checked there depends on the platform’s rules."
+
+#: src/Frontend/PublicTexts.php:205
+msgid "%s: Erfahrungsbericht, den diese Website selbst ausgewählt und veröffentlicht hat."
+msgstr "%s: testimonial selected and published by this site itself."
+
+#: src/Frontend/PublicTexts.php:116
+msgid "Datenschutzerklärung"
+msgstr "Privacy policy"
+
+#: src/Frontend/Renderer.php:79
+msgid "Bewertungen (Raster/Liste)"
+msgstr "Reviews (grid/list)"
+
+#: src/Frontend/Renderer.php:80 src/Integrations/Elementor/ReviewsWidget.php:55
+msgid "Bewertungsformular"
+msgstr "Review form"
+
+#: src/Frontend/Renderer.php:81
+msgid "Bewertungs-Aufruf (CTA)"
+msgstr "Review call to action (CTA)"
+
+#: src/Frontend/Renderer.php:184
+msgid "Es sind noch keine Bewertungen vorhanden."
+msgstr "There are no reviews yet."
+
+#: src/Frontend/Renderer.php:285
+msgid "via %s"
+msgstr "via %s"
+
+#: src/Frontend/Renderer.php:286
+msgid "Bewertung auf dieser Website"
+msgstr "Review on this website"
+
+#: src/Frontend/Renderer.php:289
+msgid "Original auf %s ansehen"
+msgstr "View original on %s"
+
+#: src/Frontend/Renderer.php:322
+msgid "Foto zur Bewertung von %s"
+msgstr "Photo for review by %s"
+
+#: src/Frontend/Renderer.php:323
+msgid "Foto zur Bewertung"
+msgstr "Photo for review"
+
+#: src/Frontend/Renderer.php:334
+msgid "bearbeitet am %s"
+msgstr "edited on %s"
+
+#: src/Frontend/Renderer.php:401
+msgid "%1$s von %2$s Sternen"
+msgstr "%1$s out of %2$s stars"
+
+#: src/Frontend/Renderer.php:411
+msgid "%1$s von %2$s Punkten"
+msgstr "%1$s out of %2$s points"
+
+#: src/Frontend/Renderer.php:588
+msgid "Produkt %s"
+msgstr "Product %s"
+
+#: src/Frontend/Renderer.php:603
 msgid "Die Meldung konnte nicht übermittelt werden. Bitte versuchen Sie es später erneut."
 msgstr "The report could not be submitted. Please try again later."
 
-#: src/Frontend/Renderer.php:522
+#: src/Frontend/Renderer.php:630
 msgid "Bewerte uns auf %s"
 msgstr "Rate us on %s"
 
-#: src/Frontend/Renderer.php:588
+#: src/Frontend/Renderer.php:696
 msgid "vor %s"
 msgstr "%s ago"
 
-#: src/Frontend/Renderer.php:509
+#: src/Frontend/Renderer.php:617
 msgid "Review Captain: Das Bewertungsprofil für diesen Aufruf wurde nicht gefunden oder hat keine gültige https-Adresse."
 msgstr "Review Captain: The review profile for this call to action was not found or has no valid https URL."
 
 #. translators: 1: platform name, 2: average, 3: scale max, 4: number of reviews
-#: src/Frontend/Renderer.php:364
+#: src/Frontend/Renderer.php:455
 msgid "%1$s: %2$s von %3$s (%4$s Bewertung)"
 msgid_plural "%1$s: %2$s von %3$s (%4$s Bewertungen)"
 msgstr[0] "%1$s: %2$s out of %3$s (%4$s review)"
@@ -2949,7 +3713,7 @@ msgstr "Testimonials are only allowed with platform local."
 msgid "Ungültiger Kontexttyp."
 msgstr "Invalid context type."
 
-#: src/ImportExport/CsvImporter.php:602
+#: src/ImportExport/CsvImporter.php:602 src/Settings/SettingsSchema.php:539 src/Settings/SettingsSchema.php:559
 msgid "Ungültiger Wert."
 msgstr "Invalid value."
 
@@ -3109,7 +3873,7 @@ msgstr "Row"
 msgid "Code"
 msgstr "Code"
 
-#: src/ImportExport/ImportExportModule.php:355 src/Seo/SeoStatus.php:78
+#: src/ImportExport/ImportExportModule.php:355 src/Seo/SeoStatus.php:106
 msgid "Hinweis"
 msgstr "Note"
 
@@ -3140,6 +3904,54 @@ msgstr "The file is empty."
 #: src/ImportExport/UploadStore.php:195
 msgid "Der Upload ist fehlgeschlagen."
 msgstr "The upload failed."
+
+#: src/Integrations/Elementor/ReviewsWidget.php:46
+msgid "Inhalt"
+msgstr "Content"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:54
+msgid "Bewertungen anzeigen"
+msgstr "Show reviews"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:56
+msgid "Bewertungsprofil-Button"
+msgstr "Review profile button"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:62 src/Integrations/Elementor/ReviewsWidget.php:66 src/Integrations/Elementor/ReviewsWidget.php:70
+msgid "Standard"
+msgstr "Default"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:63
+msgid "Spalten (leer = Standard)"
+msgstr "Columns (empty = default)"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:64
+msgid "Anzahl (leer = Standard)"
+msgstr "Number (empty = default)"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:65
+msgid "Plattform (leer = alle)"
+msgstr "Platform (empty = all)"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:66
+msgid "Bewertungen"
+msgstr "Reviews"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:66 src/Seo/SeoStatus.php:100
+msgid "Erfahrungsberichte"
+msgstr "Testimonials"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:69
+msgid "Kontext-ID (current = aktuelle Seite)"
+msgstr "Context ID (current = current page)"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:71
+msgid "Seitenweise"
+msgstr "Paginate"
+
+#: src/Integrations/Elementor/ReviewsWidget.php:72
+msgid "Profil-ID"
+msgstr "Profile ID"
 
 #: src/Jobs/Diagnostics.php:61
 msgid "Wartend"
@@ -3245,11 +4057,11 @@ msgid "Connector „%1$s“ ist nicht aktiv (%2$s); Job wartet."
 msgstr "Connector “%1$s” is not active (%2$s); job is waiting."
 
 #. translators: %s: job type
-#: src/Jobs/Runner.php:347
+#: src/Jobs/Runner.php:348
 msgid "Kein Handler für Jobtyp „%s“ registriert."
 msgstr "No handler registered for job type “%s”."
 
-#: src/Jobs/Runner.php:390
+#: src/Jobs/Runner.php:393
 msgid "Ungültiges Handler-Ergebnis."
 msgstr "Invalid handler result."
 
@@ -3257,113 +4069,276 @@ msgstr "Invalid handler result."
 msgid "Nach Wiederherstellung erneut prüfen."
 msgstr "Check again after recovery."
 
-#: src/Media/PhotoStore.php:402
+#: src/Media/PhotoStore.php:418
 msgid "Das Foto ist zu groß."
 msgstr "The photo is too large."
 
-#: src/Media/PhotoStore.php:403
+#: src/Media/PhotoStore.php:419
 msgid "Bitte laden Sie ein Foto im Format JPG, PNG oder WebP hoch."
 msgstr "Please upload a photo in JPG, PNG, or WebP format."
 
-#: src/Media/PhotoStore.php:404
+#: src/Media/PhotoStore.php:420
 msgid "Das Foto konnte nicht gelesen werden."
 msgstr "The photo could not be read."
 
-#: src/Media/PhotoStore.php:405
+#: src/Media/PhotoStore.php:421
 msgid "Fotos können auf dieser Website derzeit nicht verarbeitet werden."
 msgstr "Photos cannot currently be processed on this website."
 
-#: src/Media/PhotoStore.php:406
+#: src/Media/PhotoStore.php:422
 msgid "Das Foto konnte nicht hochgeladen werden."
 msgstr "The photo could not be uploaded."
 
-#: src/Moderation/ReportStore.php:29
+#. translators: %s: validity, e.g. "eine Stunde" or "24 Stunden"
+#: src/Moderation/CorrectionHandler.php:163
+msgid "Wenn zu dieser Adresse veröffentlichte Bewertungen existieren, haben wir Ihnen einen Link geschickt. Er ist %s gültig."
+msgstr "If published reviews exist for this address, we have sent you a link. It is valid for %s."
+
+#: src/Moderation/CorrectionHandler.php:166
+msgid "Danke! Ihre Korrektur wird geprüft und danach veröffentlicht."
+msgstr "Thank you! Your correction will be reviewed and then published."
+
+#: src/Moderation/CorrectionHandler.php:167
+msgid "Ihre Bewertung wurde zurückgezogen und wird nicht mehr angezeigt."
+msgstr "Your review has been withdrawn and is no longer shown."
+
+#: src/Moderation/CorrectionHandler.php:168
+msgid "Der Link ist abgelaufen oder ungültig. Bitte fordern Sie einen neuen an."
+msgstr "The link has expired or is invalid. Please request a new one."
+
+#: src/Moderation/CorrectionHandler.php:169
+msgid "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
+msgstr "Too many requests. Please try again later."
+
+#: src/Moderation/CorrectionHandler.php:170
+msgid "Es wurde nichts geändert."
+msgstr "Nothing was changed."
+
+#: src/Moderation/CorrectionHandler.php:171
+msgid "Das hat nicht geklappt. Bitte prüfen Sie Ihre Angaben."
+msgstr "That did not work. Please check your entries."
+
+#: src/Moderation/CorrectionHandler.php:181
+msgid "eine Stunde"
+msgstr "one hour"
+
+#: src/Moderation/CorrectionHandler.php:194
+msgid "Ihre Bewertung bei %s bearbeiten"
+msgstr "Edit your review on %s"
+
+#: src/Moderation/CorrectionHandler.php:196
+msgid "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist %3$s gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."
+msgstr "Hello,\n\nwith this link you can correct or withdraw your review at %1$s. The link is valid for %3$s and works once:\n\n%2$s\n\nIf you did not request this, please ignore this email."
+
+#: src/Moderation/CorrectionHandler.php:140
+msgid "E-Mail-Adresse, mit der Sie bewertet haben"
+msgstr "Email address you used for your review"
+
+#: src/Moderation/CorrectionHandler.php:141
+msgid "Link zum Bearbeiten senden"
+msgstr "Send edit link"
+
+#: src/Moderation/CorrectionHandler.php:144
+msgid "Bewertung (1–5)"
+msgstr "Rating (1–5)"
+
+#: src/Moderation/CorrectionHandler.php:147
+msgid "Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt die bisherige Fassung sichtbar."
+msgstr "The change is only published after review. Until then the previous version stays visible."
+
+#: src/Moderation/CorrectionHandler.php:148
+msgid "Korrektur einreichen"
+msgstr "Submit correction"
+
+#: src/Moderation/CorrectionHandler.php:149
+msgid "Bewertung zurückziehen"
+msgstr "Withdraw review"
+
+#: src/Moderation/CorrectionHandler.php:181
+msgid "%s Stunde"
+msgid_plural "%s Stunden"
+msgstr[0] "%s hour"
+msgstr[1] "%s hours"
+
+#: src/Moderation/Notifier.php:135
+msgid "[%s] Bewertung gemeldet"
+msgstr "[%s] Review reported"
+
+#: src/Moderation/Notifier.php:138
+msgid "Auf Ihrer Website wurde eine Bewertung gemeldet (Grund: %1$s). Sie ist bis zur Prüfung ausgeblendet.\n\nJetzt prüfen: %2$s"
+msgstr "A review on your site was reported (reason: %1$s). It is hidden until it has been checked.\n\nCheck now: %2$s"
+
+#: src/Moderation/Notifier.php:140
+msgid "Auf Ihrer Website wurde eine Bewertung gemeldet (Grund: %1$s).\n\nJetzt prüfen: %2$s"
+msgstr "A review on your site was reported (reason: %1$s).\n\nCheck now: %2$s"
+
+#: src/Moderation/Notifier.php:146
+msgid "[%s] Neue Produktfrage eingegangen"
+msgstr "[%s] New product question received"
+
+#: src/Moderation/Notifier.php:148
+msgid "Auf Ihrer Website wurde eine neue Frage gestellt. Sie wartet auf Moderation.\n\nJetzt prüfen: %s"
+msgstr "A new question was asked on your site. It is waiting for moderation.\n\nCheck now: %s"
+
+#: src/Moderation/Notifier.php:158
+msgid "freigegeben"
+msgstr "approved"
+
+#: src/Moderation/Notifier.php:158
+msgid "wartet auf Moderation"
+msgstr "waiting for moderation"
+
+#: src/Moderation/Notifier.php:164
+msgid "[%s] Neue Bewertung eingegangen"
+msgstr "[%s] New review received"
+
+#: src/Moderation/Notifier.php:169
+msgid "Auf Ihrer Website wurde eine neue Bewertung abgegeben und automatisch freigegeben.\n\nZur Übersicht: %s"
+msgstr "A new review was submitted on your website and approved automatically.\n\nView overview: %s"
+
+#: src/Moderation/Notifier.php:171
+msgid "Auf Ihrer Website wurde eine neue Bewertung abgegeben. Sie wartet auf Moderation.\n\nJetzt prüfen: %s"
+msgstr "A new review was submitted on your website. It is awaiting moderation.\n\nReview now: %s"
+
+#: src/Moderation/ReportStore.php:30
 msgid "Spam oder Werbung"
 msgstr "Spam or advertising"
 
-#: src/Moderation/ReportStore.php:30
+#: src/Moderation/ReportStore.php:31
 msgid "Beleidigend oder unangemessen"
 msgstr "Offensive or inappropriate"
 
-#: src/Moderation/ReportStore.php:31
+#: src/Moderation/ReportStore.php:32
 msgid "Enthält personenbezogene Daten"
 msgstr "Contains personal data"
 
-#: src/Moderation/ReportStore.php:32
+#: src/Moderation/ReportStore.php:33
 msgid "Vermutlich keine echte Erfahrung"
 msgstr "Probably not a genuine experience"
 
-#: src/Moderation/ReportStore.php:33
+#: src/Moderation/ReportStore.php:34
 msgid "Anderer Grund"
 msgstr "Other reason"
 
-#: src/Privacy/PersonalData.php:65
+#: src/Privacy/PersonalData.php:66
 msgid "Bewertungen und Erfahrungsberichte, die mit dieser E-Mail-Adresse oder diesem Benutzerkonto abgegeben wurden."
 msgstr "Reviews and testimonials submitted with this email address or user account."
 
-#: src/Privacy/PersonalData.php:74
+#: src/Privacy/PersonalData.php:75
 msgid "Review Captain – Produktfragen"
 msgstr "Review Captain – Product questions"
 
-#: src/Privacy/PersonalData.php:75
+#: src/Privacy/PersonalData.php:76
 msgid "Fragen, die mit dieser E-Mail-Adresse gestellt wurden."
 msgstr "Questions asked with this email address."
 
-#: src/Privacy/PersonalData.php:89 src/Privacy/PersonalData.php:289 templates/review-form.php:157
+#: src/Privacy/PersonalData.php:90 src/Privacy/PersonalData.php:292 templates/review-form.php:163
 msgid "E-Mail-Adresse"
 msgstr "Email address"
 
-#: src/Privacy/PersonalData.php:101 src/Privacy/PersonalData.php:296
+#: src/Privacy/PersonalData.php:102 src/Privacy/PersonalData.php:299
 msgid "Erstellt am (UTC)"
 msgstr "Created on (UTC)"
 
-#: src/Privacy/PersonalData.php:159
+#: src/Privacy/PersonalData.php:160
 msgid "Einige Bewertungen konnten nicht anonymisiert werden und wurden beibehalten."
 msgstr "Some reviews could not be anonymized and were retained."
 
-#: src/Privacy/PersonalData.php:290
+#: src/Privacy/PersonalData.php:293
 msgid "Benutzerkonto-ID"
 msgstr "User account ID"
 
-#: src/Privacy/PersonalData.php:294
+#: src/Privacy/PersonalData.php:297
 msgid "Einwilligung zur Veröffentlichung"
 msgstr "Consent to publication"
 
-#: src/Privacy/PersonalData.php:295
+#: src/Privacy/PersonalData.php:298
 msgid "Veröffentlicht am"
 msgstr "Published on"
 
-#: src/Privacy/PersonalData.php:297
+#: src/Privacy/PersonalData.php:300
 msgid "ja (wird bei Löschung oder Anonymisierung entfernt)"
 msgstr "yes (removed upon deletion or anonymization)"
 
-#: src/Privacy/PrivacyModule.php:88
-msgid "Vorschlag – bitte an Ihre tatsächliche Nutzung anpassen."
-msgstr "Suggestion – please adapt to your actual usage."
+#: src/Privacy/PersonalData.php:302
+msgid "Fassungen (Korrekturen)"
+msgstr "Versions (corrections)"
 
-#: src/Privacy/PrivacyModule.php:89
-msgid "Wenn Sie auf dieser Website eine Bewertung oder einen Erfahrungsbericht abgeben, speichern wir Ihre Bewertung, den Text, den von Ihnen angegebenen Namen sowie Ihre E-Mail-Adresse und – falls Sie angemeldet sind – die Kennung Ihres Benutzerkontos. Die E-Mail-Adresse wird nicht veröffentlicht; sie dient der Rückfrage, der Missbrauchsabwehr und der Zuordnung bei Auskunfts- und Löschanfragen."
-msgstr "When you submit a review or testimonial on this website, we store your rating, the text, the name you provide, and your email address and – if you are logged in – your user account ID. The email address is not published; it is used for follow-up questions, abuse prevention, and matching data access and erasure requests."
+#: src/Privacy/PrivacyModule.php:46
+msgid "Review Captain: Aufbewahrung der Kontaktadressen"
+msgstr "Review Captain: retention of contact addresses"
 
-#: src/Privacy/PrivacyModule.php:90
+#: src/Privacy/PrivacyModule.php:62
+msgid "Für die Kontaktadressen zu Bewertungen ist eine Aufbewahrungsfrist eingestellt"
+msgstr "A retention period is set for the contact addresses of reviews"
+
+#: src/Privacy/PrivacyModule.php:65
+msgid "Datenschutz"
+msgstr "Privacy"
+
+#: src/Privacy/PrivacyModule.php:69
+msgid "Review Captain entfernt die E-Mail-Adresse zu einer Bewertung %s Tage nach Eingang. Die Bewertung bleibt."
+msgstr "Review Captain removes the email address of a review %s days after it was received. The review stays."
+
+#: src/Privacy/PrivacyModule.php:77
+msgid "Review Captain speichert Kontaktadressen zu Bewertungen unbegrenzt"
+msgstr "Review Captain stores the contact addresses of reviews indefinitely"
+
+#: src/Privacy/PrivacyModule.php:141
 msgid "Ihre Bewertung wird erst nach Prüfung und nur dann veröffentlicht, wenn Sie der Veröffentlichung zugestimmt haben. Den Zeitpunkt Ihrer Einwilligung speichern wir als Nachweis."
 msgstr "Your review will only be published after moderation and only if you have consented to publication. We store the time of your consent as proof."
 
-#: src/Privacy/PrivacyModule.php:91
+#: src/Privacy/PrivacyModule.php:143
+msgid "Ihre Bewertung wird nur veröffentlicht, wenn Sie der Veröffentlichung zugestimmt haben. Den Zeitpunkt Ihrer Einwilligung speichern wir als Nachweis."
+msgstr "Your review is only published if you have agreed to its publication. We store the time of your consent as proof."
+
+#: src/Privacy/PrivacyModule.php:145
+msgid "Ihre Bewertung wird erst nach Prüfung veröffentlicht."
+msgstr "Your review is published only after it has been checked."
+
+#: src/Privacy/PrivacyModule.php:150
+msgid "Vorschlag – bitte an Ihre tatsächliche Nutzung anpassen."
+msgstr "Suggestion – please adapt to your actual usage."
+
+#: src/Privacy/PrivacyModule.php:151
+msgid "Wenn Sie auf dieser Website eine Bewertung oder einen Erfahrungsbericht abgeben, speichern wir Ihre Bewertung, den Text, den von Ihnen angegebenen Namen sowie Ihre E-Mail-Adresse und – falls Sie angemeldet sind – die Kennung Ihres Benutzerkontos. Die E-Mail-Adresse wird nicht veröffentlicht; sie dient der Rückfrage, der Missbrauchsabwehr und der Zuordnung bei Auskunfts- und Löschanfragen."
+msgstr "When you submit a review or testimonial on this website, we store your rating, the text, the name you provide, and your email address and – if you are logged in – your user account ID. The email address is not published; it is used for follow-up questions, abuse prevention, and matching data access and erasure requests."
+
+#: src/Privacy/PrivacyModule.php:153
 msgid "Bewertungen von externen Plattformen (z. B. Google oder Trustpilot) werden nur mit dem dort sichtbaren Anzeigenamen, Datum, Text und einem Link zur Quelle angezeigt und regelmäßig mit der Quelle abgeglichen; wird eine Bewertung dort gelöscht, entfernen wir sie auch hier."
 msgstr "Reviews from external platforms (e.g. Google or Trustpilot) are only displayed with the display name, date, text visible there, and a link to the source, and are regularly synced with the source; if a review is deleted there, we remove it here as well."
 
-#: src/Privacy/PrivacyModule.php:92
+#: src/Privacy/PrivacyModule.php:154
 msgid "Sie können über die Datenschutz-Werkzeuge dieser Website Auskunft über Ihre gespeicherten Bewertungen verlangen sowie deren Löschung oder Anonymisierung beantragen. Bei einer Anonymisierung wird Ihr Name durch „Anonym“ ersetzt und Ihre E-Mail-Adresse entfernt; der Bewertungstext bleibt nur erhalten, wenn Sie seiner Veröffentlichung zugestimmt hatten."
 msgstr "You can use this website's privacy tools to request information about your stored reviews and to request their deletion or anonymization. With anonymization, your name is replaced with “Anonymous” and your email address is removed; the review text is only retained if you had consented to its publication."
 
-#: src/Privacy/PrivacyModule.php:93
+#: src/Privacy/PrivacyModule.php:156
 msgid "Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird erst nach Prüfung angezeigt und mit der Bewertung gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person."
 msgstr "If enabled: A photo uploaded with a review is re-encoded before storage, removing image metadata such as the location where it was taken; it is only displayed after moderation and is deleted along with the review. We store product questions with a name and optionally an email address; we store review reports without any information about the reporting person."
 
-#: src/Privacy/PrivacyModule.php:94
+#: src/Privacy/PrivacyModule.php:157
+msgid "Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird mit der Bewertung angezeigt und mit ihr gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person."
+msgstr "If enabled: a photo uploaded with the review is re-encoded before it is stored, which removes image metadata such as the location where it was taken; it is shown with the review and deleted with it. We store product questions with a name and, optionally, an email address; we store reports of reviews without any details about the person reporting."
+
+#: src/Privacy/PrivacyModule.php:158
 msgid "Abgelehnte Einreichungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht."
 msgstr "Rejected submissions and technical logs are automatically deleted according to the configured retention periods."
+
+#: src/Privacy/PrivacyModule.php:164
+msgid "Die E-Mail-Adresse zu einer Bewertung löschen wir %s Tage nach Eingang der Bewertung; die Bewertung selbst bleibt erhalten."
+msgstr "We delete the email address of a review %s days after the review was received; the review itself is kept."
+
+#: src/Privacy/PrivacyModule.php:170
+msgid "Bewertungen, die Sie auf dieser Website abgegeben haben, löschen wir %s Tage nach Eingang vollständig."
+msgstr "We completely delete reviews you have submitted on this website %s days after they were received."
+
+#: src/Privacy/PrivacyModule.php:79
+msgid "Für die E-Mail-Adressen zu Bewertungen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; die Bewertungen bleiben. Welche Frist für deine Website passt, lass bitte rechtlich prüfen."
+msgstr "No retention period is set for the email addresses of reviews. Set in the Privacy tab after how many days they are removed; the reviews stay. Please have the period that suits your website checked legally."
+
+#: src/Privacy/PrivacyModule.php:80
+msgid "Aufbewahrung einstellen"
+msgstr "Set retention"
 
 #: src/Providers/FixtureProvider.php:88
 msgid "Demo-Bewertungen (Fixture)"
@@ -3426,31 +4401,31 @@ msgstr "Supported provider contract: %s (hook review_captain_providers_v1)."
 msgid "Es sind keine Provider registriert."
 msgstr "No providers are registered."
 
-#: src/Questions/QuestionHandler.php:155
+#: src/Questions/QuestionHandler.php:170
 msgid "Fragen können derzeit nicht gestellt werden."
 msgstr "Questions cannot be submitted at this time."
 
-#: src/Questions/QuestionHandler.php:156
+#: src/Questions/QuestionHandler.php:171
 msgid "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu."
 msgstr "Your session has expired. Please reload the page."
 
-#: src/Questions/QuestionHandler.php:160
+#: src/Questions/QuestionHandler.php:175
 msgid "Sie haben bereits mehrere Fragen gesendet. Bitte versuchen Sie es später erneut."
 msgstr "You have already submitted several questions. Please try again later."
 
-#: src/Questions/QuestionHandler.php:162
+#: src/Questions/QuestionHandler.php:177
 msgid "Bitte formulieren Sie Ihre Frage mit %1$d bis %2$d Zeichen."
 msgstr "Please write your question using %1$d to %2$d characters."
 
-#: src/Questions/QuestionHandler.php:164
+#: src/Questions/QuestionHandler.php:179
 msgid "Die E-Mail-Adresse ist ungültig."
 msgstr "The email address is invalid."
 
-#: src/Questions/QuestionHandler.php:166
+#: src/Questions/QuestionHandler.php:181
 msgid "Ihre Frage konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut."
 msgstr "Your question could not be saved. Please try again later."
 
-#: src/Questions/QuestionHandler.php:191
+#: src/Questions/QuestionHandler.php:206
 msgid "Danke! Ihre Frage wird nach Prüfung veröffentlicht."
 msgstr "Thank you! Your question will be published after moderation."
 
@@ -3472,47 +4447,83 @@ msgstr "Load content: %s"
 msgid "Beim Anbieter öffnen"
 msgstr "Open on provider's site"
 
-#: src/Seo/SchemaEligibility.php:143
+#: src/Security/PowCaptcha.php:266
+msgid "Ihre Eingabe konnte nicht überprüft werden. Bitte laden Sie die Seite neu und senden Sie das Formular erneut."
+msgstr "Your input could not be verified. Please reload the page and submit the form again."
+
+#: src/Security/PowCaptcha.php:268
+msgid "Das Formular konnte nicht überprüft werden. Bitte aktivieren Sie JavaScript und senden Sie das Formular erneut – die Prüfung läuft unbemerkt in Ihrem Browser, ohne Daten an Dritte."
+msgstr "The form could not be verified. Please enable JavaScript and submit the form again – the check runs unnoticed in your browser, without sending data to third parties."
+
+#: src/Security/PowCaptcha.php:288
+msgid "Spam-Schutz: Prüfung läuft im Hintergrund …"
+msgstr "Spam protection: check running in the background …"
+
+#: src/Security/PowCaptcha.php:289
+msgid "Spam-Schutz: bereit zum Absenden."
+msgstr "Spam protection: ready to submit."
+
+#: src/Security/PowCaptcha.php:290
+msgid "Spam-Schutz: Prüfung wird abgeschlossen, das Formular wird gleich gesendet …"
+msgstr "Spam protection: finishing the check, the form will be sent shortly …"
+
+#: src/Security/PowCaptcha.php:291
+msgid "Spam-Schutz: Die Prüfung konnte nicht geladen werden. Bitte prüfen Sie Ihre Verbindung und senden Sie das Formular erneut."
+msgstr "Spam protection: the check could not be loaded. Please check your connection and submit the form again."
+
+#: src/Security/PowCaptcha.php:314
+msgid "Zum Absenden wird JavaScript benötigt: Ein unsichtbarer Spam-Schutz rechnet kurz in Ihrem Browser. Es werden keine Daten an Dritte übertragen und keine Cookies gesetzt."
+msgstr "JavaScript is required to submit: an invisible spam protection computes briefly in your browser. No data is sent to third parties and no cookies are set."
+
+#: src/Seo/SchemaEligibility.php:160
 msgid "Geeignet für Bewertungs-Markup."
 msgstr "Eligible for review markup."
 
-#: src/Seo/SchemaEligibility.php:144
+#: src/Seo/SchemaEligibility.php:161
 msgid "Externe Plattformbewertung – wird angezeigt, aber nie ausgezeichnet."
 msgstr "External platform review – displayed but never marked up."
 
-#: src/Seo/SchemaEligibility.php:145
+#: src/Seo/SchemaEligibility.php:162
 msgid "Erfahrungsbericht (Testimonial) – kein Bewertungs-Markup."
 msgstr "Testimonial – no review markup."
 
-#: src/Seo/SchemaEligibility.php:146
+#: src/Seo/SchemaEligibility.php:163
 msgid "Nicht freigegeben."
 msgstr "Not approved."
 
-#: src/Seo/SchemaEligibility.php:147
+#: src/Seo/SchemaEligibility.php:164
 msgid "Bewertung über das eigene Unternehmen – selbstbezogen, kein Markup."
 msgstr "Review of your own business – self-serving, no markup."
 
-#: src/Seo/SchemaEligibility.php:148
+#: src/Seo/SchemaEligibility.php:165
 msgid "Kontext wird für Bewertungs-Markup nicht unterstützt."
 msgstr "Context is not supported for review markup."
 
-#: src/Seo/SchemaEligibility.php:149
+#: src/Seo/SchemaEligibility.php:166
+msgid "Markup für diesen Inhaltstyp ist in den Einstellungen abgeschaltet."
+msgstr "Markup for this content type is switched off in the settings."
+
+#: src/Seo/SchemaEligibility.php:167
+msgid "Weniger geeignete Bewertungen auf der Seite als die eingestellte Mindestzahl."
+msgstr "Fewer eligible reviews on the page than the minimum set."
+
+#: src/Seo/SchemaEligibility.php:168
 msgid "Nicht sichtbar auf der Seite gerendert."
 msgstr "Not visibly rendered on the page."
 
-#: src/Seo/SchemaEligibility.php:150
+#: src/Seo/SchemaEligibility.php:169
 msgid "WooCommerce besitzt das Produkt-Schema."
 msgstr "WooCommerce owns the product schema."
 
-#: src/Seo/SchemaEligibility.php:151
+#: src/Seo/SchemaEligibility.php:170
 msgid "Ein anderes SEO-/Schema-Plugin verantwortet strukturierte Daten."
 msgstr "Another SEO/schema plugin is responsible for structured data."
 
-#: src/Seo/SchemaEligibility.php:152
+#: src/Seo/SchemaEligibility.php:171
 msgid "Yoast-Version nicht kompatibel – Reviews sichtbar, Markup gesperrt."
 msgstr "Yoast version not compatible – reviews visible, markup blocked."
 
-#: src/Seo/SchemaEligibility.php:153
+#: src/Seo/SchemaEligibility.php:172
 msgid "Durch Einstellung oder Filter gesperrt."
 msgstr "Blocked by setting or filter."
 
@@ -3572,61 +4583,147 @@ msgstr "WooCommerce owns the product schema – reviews of WooCommerce products 
 msgid "„Review-Markup ausgeben“ ist deaktiviert."
 msgstr "“Output review markup” is disabled."
 
-#: src/Seo/SeoStatus.php:74
+#: src/Seo/SeoStatus.php:77 src/Seo/SeoStatus.php:85
+msgid "Inhaltstypen"
+msgstr "Content types"
+
+#: src/Seo/SeoStatus.php:77
+msgid "Für keinen Inhaltstyp ist Markup eingeschaltet – es werden keine strukturierten Daten ausgegeben."
+msgstr "Markup is switched on for no content type – no structured data is output."
+
+#: src/Seo/SeoStatus.php:88
+msgid "Markup nur für: %s. Bewertungen zu anderen Inhalten erhalten kein Markup."
+msgstr "Markup only for: %s. Reviews of other content get no markup."
+
+#: src/Seo/SeoStatus.php:94
+msgid "Mindestzahl"
+msgstr "Minimum number"
+
+#: src/Seo/SeoStatus.php:100
+msgid "Erfahrungsberichte der Website (Testimonials) erhalten nie Bewertungs-Markup."
+msgstr "Testimonials of the site never get review markup."
+
+#: src/Seo/SeoStatus.php:102
 msgid "Externe Bewertungen"
 msgstr "External reviews"
 
-#: src/Seo/SeoStatus.php:74
+#: src/Seo/SeoStatus.php:102
 msgid "Bewertungen von Google, Trustpilot, Trusted Shops, App Store, Google Play und anderen Plattformen werden angezeigt, aber nie ausgezeichnet."
 msgstr "Reviews from Google, Trustpilot, Trusted Shops, App Store, Google Play, and other platforms are displayed but never marked up."
 
-#: src/Seo/SeoStatus.php:75
+#: src/Seo/SeoStatus.php:103
 msgid "Unternehmensbewertungen"
 msgstr "Business reviews"
 
-#: src/Seo/SeoStatus.php:75
+#: src/Seo/SeoStatus.php:103
 msgid "Bewertungen ohne Produkt-, Beitrags- oder Event-Bezug gelten als selbstbezogen und erhalten kein Markup."
 msgstr "Reviews not related to a product, post, or event are considered self-serving and receive no markup."
 
-#: src/Seo/SeoStatus.php:76
+#: src/Seo/SeoStatus.php:104
 msgid "Gesamtbewertung"
 msgstr "Overall rating"
 
-#: src/Seo/SeoStatus.php:76
+#: src/Seo/SeoStatus.php:104
 msgid "Es wird kein AggregateRating ausgegeben (Entscheidung offen)."
 msgstr "No AggregateRating is output (decision pending)."
 
-#: src/Seo/SeoStatus.php:77
+#: src/Seo/SeoStatus.php:105
 msgid "Indexierung"
 msgstr "Indexing"
 
-#: src/Seo/SeoStatus.php:77
+#: src/Seo/SeoStatus.php:105
 msgid "Seiten mit Review-Captain-Parametern (z. B. rc_page) erhalten noindex, follow. Titel, Beschreibung, Canonical und Sitemaps bleiben unverändert."
 msgstr "Pages with Review Captain parameters (e.g. rc_page) receive noindex, follow. Title, description, canonical, and sitemaps remain unchanged."
 
-#: src/Seo/SeoStatus.php:78
+#: src/Seo/SeoStatus.php:106
 msgid "Strukturierte Daten ermöglichen Rich Results, garantieren sie aber nicht."
 msgstr "Structured data enables rich results but does not guarantee them."
 
-#: src/Settings/SettingsSchema.php:31
+#: src/Seo/SeoStatus.php:97
+msgid "Markup erst ab %d geeigneten Bewertung auf der Seite."
+msgid_plural "Markup erst ab %d geeigneten Bewertungen auf der Seite; darunter wird nichts ausgegeben."
+msgstr[0] "Markup only from %d eligible review on the page."
+msgstr[1] "Markup only from %d eligible reviews on the page; below that nothing is output."
+
+#: src/Settings/SettingsSchema.php:43
 msgid "Allgemein"
 msgstr "General"
 
-#: src/Settings/SettingsSchema.php:32
+#: src/Settings/SettingsSchema.php:44
 msgid "Quellen & Synchronisierung"
 msgstr "Sources & sync"
 
-#: src/Settings/SettingsSchema.php:33
+#: src/Settings/SettingsSchema.php:45
 msgid "Anfragen & Zustellung"
 msgstr "Requests & delivery"
 
-#: src/Settings/SettingsSchema.php:37
+#: src/Settings/SettingsSchema.php:49
 msgid "Zugriff & Rollen"
 msgstr "Access & roles"
 
-#: src/Settings/SettingsSchema.php:38
+#: src/Settings/SettingsSchema.php:50
 msgid "Erweitert"
 msgstr "Advanced"
+
+#: src/Settings/SettingsSchema.php:505
+msgid "Bitte gib eine ganze Zahl ein."
+msgstr "Please enter a whole number."
+
+#: src/Settings/SettingsSchema.php:521
+msgid "Bitte wähle einen der angebotenen Werte."
+msgstr "Please choose one of the offered values."
+
+#: src/Settings/SettingsSchema.php:525
+msgid "Bitte gib eine Uhrzeit im Format HH:MM ein, z. B. 09:30."
+msgstr "Please enter a time in the format HH:MM, e.g. 09:30."
+
+#: src/Settings/SettingsSchema.php:534
+msgid "Bitte gib eine gültige E-Mail-Adresse ein oder lass das Feld leer."
+msgstr "Please enter a valid email address or leave the field empty."
+
+#: src/Settings/SettingsSchema.php:545
+msgid "Bitte gib einen Hex-Farbwert wie #e0a800 ein oder lass das Feld leer."
+msgstr "Please enter a hex colour value like #e0a800 or leave the field empty."
+
+#: src/Settings/SettingsSchema.php:554
+msgid "Bitte gib nur gültige E-Mail-Adressen ein, höchstens %s."
+msgstr "Please enter only valid email addresses, at most %s."
+
+#: src/Settings/SettingsSchema.php:567
+msgid "Bitte kürze den Text auf höchstens %1$s Zeichen (derzeit %2$s)."
+msgstr "Please shorten the text to at most %1$s characters (currently %2$s)."
+
+#: src/Settings/SettingsSchema.php:583
+msgid "Erlaubt sind Werte von %1$s bis %2$s."
+msgstr "Allowed values are %1$s to %2$s."
+
+#: src/Settings/SettingsSchema.php:587
+msgid "Der Wert muss mindestens %s sein."
+msgstr "The value must be at least %s."
+
+#: src/Settings/SettingsSchema.php:590
+msgid "Der Wert darf höchstens %s sein."
+msgstr "The value may be at most %s."
+
+#: src/Settings/SettingsSchema.php:606
+msgid "Die Mindestlänge muss kleiner als die Höchstlänge sein."
+msgstr "The minimum length must be smaller than the maximum length."
+
+#: src/Settings/SettingsSchema.php:612
+msgid "Beginn und Ende des Versandfensters dürfen nicht gleich sein."
+msgstr "Start and end of the sending window must not be the same."
+
+#: src/Settings/SettingsSchema.php:618
+msgid "Beginn und Ende des Synchronisierungsfensters dürfen nicht gleich sein."
+msgstr "Start and end of the sync window must not be the same."
+
+#: src/Settings/SettingsSchema.php:624
+msgid "Die Freigabe hängender Aufgaben muss länger dauern als das Zeitbudget je Lauf."
+msgstr "The release of stuck tasks must take longer than the time budget per run."
+
+#: src/Settings/SettingsSchema.php:673
+msgid "Tippe zur Bestätigung LÖSCHEN in das Feld unter dem Schalter. Ohne Bestätigung bleiben die Daten beim Deinstallieren erhalten."
+msgstr "Type LÖSCHEN into the field below the switch to confirm. Without confirmation the data is kept on uninstall."
 
 #: src/Support/ErrorCode.php:92
 msgid "Verbindung neu autorisieren bzw. Schlüssel prüfen."
@@ -3676,19 +4773,15 @@ msgstr "No questions have been asked about this product yet."
 msgid "Ihre Frage zum Produkt"
 msgstr "Your question about the product"
 
-#: templates/questions.php:55 templates/questions.php:59 templates/review-form.php:72 templates/review-form.php:121 templates/review-form.php:149 templates/review-form.php:157 templates/review-form.php:181
+#: templates/questions.php:55 templates/questions.php:59 templates/review-form.php:78 templates/review-form.php:127 templates/review-form.php:155 templates/review-form.php:163 templates/review-form.php:192
 msgid "(Pflichtfeld)"
 msgstr "(required)"
-
-#: templates/questions.php:59 templates/review-form.php:149
-msgid "Name (wird veröffentlicht)"
-msgstr "Name (will be published)"
 
 #: templates/questions.php:63
 msgid "E-Mail-Adresse (optional, wird nie veröffentlicht)"
 msgstr "Email address (optional, never published)"
 
-#: templates/questions.php:68 templates/review-form.php:167
+#: templates/questions.php:68 templates/review-form.php:173
 msgid "Dieses Feld bitte leer lassen"
 msgstr "Please leave this field empty"
 
@@ -3696,191 +4789,77 @@ msgstr "Please leave this field empty"
 msgid "Ich willige ein, dass meine Frage mit meinem Namen auf dieser Website veröffentlicht wird. Die Einwilligung kann ich jederzeit widerrufen."
 msgstr "I consent to my question being published with my name on this website. I can withdraw my consent at any time."
 
-#: templates/questions.php:79
+#: templates/questions.php:82
 msgid "Frage senden"
 msgstr "Submit question"
 
-#: templates/review-card.php:66
+#: templates/review-card.php:71
 msgid "Melden"
 msgstr "Report"
 
-#: templates/review-card.php:72
+#: templates/review-card.php:77
 msgid "Warum soll diese Bewertung geprüft werden?"
 msgstr "Why should this review be checked?"
 
-#: templates/review-card.php:78
+#: templates/review-card.php:86
 msgid "Meldung senden"
 msgstr "Submit report"
 
 #. translators: %s: product name
-#: templates/review-form.php:91
+#: templates/review-form.php:97
 msgid "Bewertung für %s"
 msgstr "Review for %s"
 
-#: templates/review-form.php:126
+#: templates/review-form.php:132
 msgid "Zwischen %1$d und %2$d Zeichen."
 msgstr "Between %1$d and %2$d characters."
 
-#: templates/review-form.php:142
+#: templates/review-form.php:148
 msgid "JPG, PNG oder WebP, höchstens %d KB. Das Foto wird erst nach Prüfung angezeigt; Bildmetadaten (z. B. Standort) werden entfernt."
 msgstr "JPG, PNG, or WebP, max. %d KB. The photo is only displayed after moderation; image metadata (e.g. location) is removed."
 
-#: templates/review-form.php:56
+#: templates/review-form.php:59
 msgid "Bitte prüfen Sie Ihre Angaben:"
 msgstr "Please check your entries:"
 
-#: templates/review-form.php:72
+#: templates/review-form.php:78
 msgid "Ihre Bewertung"
 msgstr "Your rating"
 
-#: templates/review-form.php:102
+#: templates/review-form.php:108
 msgid "Ihre Erfahrung mit diesem Produkt"
 msgstr "Your experience with this product"
 
-#: templates/review-form.php:106
+#: templates/review-form.php:112
 msgid "Sie können auch nur einzelne Produkte bewerten. Je Produkt ist eine Bewertung möglich."
 msgstr "You can also review only some of the products. One review is possible per product."
 
-#: templates/review-form.php:111
+#: templates/review-form.php:117
 msgid "Titel (optional)"
 msgstr "Title (optional)"
 
-#: templates/review-form.php:121
+#: templates/review-form.php:127
 msgid "Ihre Erfahrung"
 msgstr "Your experience"
 
-#: templates/review-form.php:137
+#: templates/review-form.php:143
 msgid "Foto (optional)"
 msgstr "Photo (optional)"
 
-#: templates/review-form.php:159
-msgid "Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte."
-msgstr "Will never be published. We only use it for follow-up questions and privacy requests."
-
-#: templates/review-form.php:179
-msgid "Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. Meine E-Mail-Adresse wird nicht veröffentlicht. Die Einwilligung kann ich jederzeit widerrufen."
-msgstr "I consent to my review being published with my name on this website. My email address will not be published. I can withdraw my consent at any time."
-
-#: templates/review-form.php:190
-msgid "Bewertung senden"
-msgstr "Submit review"
-
-#: templates/review-form.php:78 templates/review-form.php:97
+#: templates/review-form.php:84 templates/review-form.php:103
 msgid "%d Stern"
 msgid_plural "%d Sterne"
 msgstr[0] "%d star"
 msgstr[1] "%d stars"
 
-#: templates/reviews-grid.php:41
+#: templates/reviews-grid.php:45
 msgid "Vorherige Seite"
 msgstr "Previous page"
 
-#: templates/reviews-grid.php:44
+#: templates/reviews-grid.php:48
 msgid "Nächste Seite"
 msgstr "Next page"
 
-#: templates/reviews-grid.php:39
+#: templates/reviews-grid.php:43
 msgid "Weitere Bewertungen"
 msgstr "More reviews"
-
-msgid "Inhalt"
-msgstr "Content"
-
-msgid "Bewertungen anzeigen"
-msgstr "Show reviews"
-
-msgid "Bewertungsprofil-Button"
-msgstr "Review profile button"
-
-msgid "Plattform (leer = alle)"
-msgstr "Platform (empty = all)"
-
-msgid "Standard"
-msgstr "Default"
-
-msgid "Bewertungen"
-msgstr "Reviews"
-
-msgid "Erfahrungsberichte"
-msgstr "Testimonials"
-
-msgid "Kontext-ID (current = aktuelle Seite)"
-msgstr "Context ID (current = current page)"
-
-msgid "Überschriftenebene der Karten"
-msgstr "Heading level of the cards"
-
-msgid "Seitenweise"
-msgstr "Paginate"
-
-msgid "Profil-ID"
-msgstr "Profile ID"
-
-msgid "Korrekturen"
-msgstr "Corrections"
-
-msgid "Korrektur freigegeben und veröffentlicht."
-msgstr "Correction approved and published."
-
-msgid "Keine offenen Korrekturen."
-msgstr "No open corrections."
-
-msgid "bearbeitet am %s"
-msgstr "edited on %s"
-
-msgid "Danke! Ihre Korrektur wird geprüft und danach veröffentlicht."
-msgstr "Thank you! Your correction will be reviewed and then published."
-
-msgid "Ihre Bewertung wurde zurückgezogen und wird nicht mehr angezeigt."
-msgstr "Your review has been withdrawn and is no longer shown."
-
-msgid "Der Link ist abgelaufen oder ungültig. Bitte fordern Sie einen neuen an."
-msgstr "The link has expired or is invalid. Please request a new one."
-
-msgid "Zu viele Anfragen. Bitte versuchen Sie es später erneut."
-msgstr "Too many requests. Please try again later."
-
-msgid "Es wurde nichts geändert."
-msgstr "Nothing was changed."
-
-msgid "Das hat nicht geklappt. Bitte prüfen Sie Ihre Angaben."
-msgstr "That did not work. Please check your entries."
-
-msgid "Ihre Bewertung bei %s bearbeiten"
-msgstr "Edit your review on %s"
-
-msgid "E-Mail-Adresse, mit der Sie bewertet haben"
-msgstr "Email address you used for your review"
-
-msgid "Link zum Bearbeiten senden"
-msgstr "Send edit link"
-
-msgid "Bewertung (1–5)"
-msgstr "Rating (1–5)"
-
-msgid "Korrektur einreichen"
-msgstr "Submit correction"
-
-msgid "Bewertung zurückziehen"
-msgstr "Withdraw review"
-
-msgid "Fassungen (Korrekturen)"
-msgstr "Versions (corrections)"
-
-msgid "Korrektur abgelehnt. Die bisherige Fassung bleibt veröffentlicht."
-msgstr "Correction rejected. The previous version remains published."
-
-msgid "Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden."
-msgstr "The review has been changed in the meantime or the correction is no longer open. Please reload."
-
-msgid "Von Autorinnen und Autoren eingereichte Änderungen an bereits freigegebenen Bewertungen. Die bisherige Fassung bleibt sichtbar, bis du die neue freigibst."
-msgstr "Changes to already approved reviews submitted by their authors. The previous version stays visible until you approve the new one."
-
-msgid "Wenn zu dieser Adresse veröffentlichte Bewertungen existieren, haben wir Ihnen einen Link geschickt. Er ist eine Stunde gültig."
-msgstr "If published reviews exist for this address, we have sent you a link. It is valid for one hour."
-
-msgid "Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt die bisherige Fassung sichtbar."
-msgstr "The change is only published after review. Until then the previous version stays visible."
-
-msgid "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail."
-msgstr "Hello,\n\nwith this link you can correct or withdraw your review on %1$s. The link is valid for one hour and works once:\n\n%2$s\n\nIf you did not request this, please ignore this email."

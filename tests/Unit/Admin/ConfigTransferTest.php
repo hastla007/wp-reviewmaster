@@ -104,17 +104,63 @@ final class ConfigTransferTest extends AdminTestCase {
 		$page->apply_import( $preview['values'], $preview['tabs'] );
 		$this->assertSame( $requests, get_option( Settings::OPTION )['requests'] );
 
-		// With the add-on active: exported with the other settings; a re-import keeps them unchanged.
-		ProRequestsFields::register( true );
+		// Add-on registered but not writable (e.g. no license): exported, a re-import keeps them unchanged.
+		ProRequestsFields::register( false );
 		$transfer = new ConfigTransfer( new Settings() );
 		$doc      = $transfer->export();
 		$this->assertEquals( $requests, $doc['settings']['requests'] );
 		$doc['settings']['requests']['daily_limit'] = 1;
 		$doc['settings']['display']['show_avatar']  = false;
-		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ), null, SettingsPage::pro_writable() );
 		$page->apply_import( $preview['values'], $preview['tabs'] );
-		$this->assertEquals( $requests, get_option( Settings::OPTION )['requests'], 'add-on fields are never imported' );
+		$this->assertEquals( $requests, get_option( Settings::OPTION )['requests'], 'add-on fields are not imported while the add-on refuses writes' );
 		$this->assertFalse( ( new Settings() )->get( 'display', 'show_avatar' ) );
+
+		// SET-RC-P1: add-on writable – the export/import round trip carries its fields like the settings page does.
+		add_filter( 'review_captain_pro_settings_writable', '__return_true' );
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ), null, SettingsPage::pro_writable() );
+		$this->assertContains( array( 'tab' => 'requests', 'key' => 'daily_limit', 'old' => 50, 'new' => 1 ), $preview['diff'] );
+		// The add-on stops allowing writes between preview and apply: its stored value stays.
+		remove_all_filters( 'review_captain_pro_settings_writable' );
+		$page->apply_import( $preview['values'], $preview['tabs'] );
+		$this->assertSame( 50, get_option( Settings::OPTION )['requests']['daily_limit'] );
+		add_filter( 'review_captain_pro_settings_writable', '__return_true' );
+		$page->apply_import( $preview['values'], $preview['tabs'] );
+		$this->assertSame( 1, get_option( Settings::OPTION )['requests']['daily_limit'] );
+		$this->assertSame( 'shop@example.test', get_option( Settings::OPTION )['requests']['sender_email'] );
+	}
+
+	public function test_import_keeps_values_of_a_failed_cross_check(): void {
+		// SET-RC-P1: an import could store minimum ≥ maximum text length (every submission refused).
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		$transfer = new ConfigTransfer( new Settings() );
+		$doc      = $transfer->export();
+		$doc['settings']['submissions']['min_text_length'] = 900;
+		$doc['settings']['submissions']['max_text_length'] = 100;
+		$doc['settings']['submissions']['photo_max_kb']    = 4096;
+		$doc['settings']['sources']['sync_window_start']   = '03:00';
+		$doc['settings']['sources']['sync_window_end']     = '03:00';
+		$doc['settings']['advanced']['lease_seconds']      = 60;
+		$doc['settings']['advanced']['job_time_budget']    = 120;
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$this->assertSame( array( 'submissions.photo_max_kb' ), array_map( static fn( $row ) => $row['tab'] . '.' . $row['key'], $preview['diff'] ) );
+		$this->assertCount( 3, $preview['kept'] );
+		$this->assertSame( array( 'min_text_length', 'max_text_length' ), $preview['kept'][1]['fields'] );
+		$this->assertSame( 'Die Mindestlänge muss kleiner als die Höchstlänge sein.', $preview['kept'][1]['message'] );
+		( new SettingsPage( $this->plugin() ) )->apply_import( $preview['values'], $preview['tabs'] );
+		$s = new Settings();
+		$this->assertSame( 20, $s->get( 'submissions', 'min_text_length' ) );
+		$this->assertSame( 5000, $s->get( 'submissions', 'max_text_length' ) );
+		$this->assertSame( 4096, $s->get( 'submissions', 'photo_max_kb' ) );
+		$this->assertSame( '02:00', $s->get( 'sources', 'sync_window_start' ) );
+		$this->assertSame( 300, $s->get( 'advanced', 'lease_seconds' ) );
+
+		// A valid pair is taken.
+		$doc['settings']['submissions']['min_text_length'] = 50;
+		$doc['settings']['submissions']['max_text_length'] = 800;
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$this->assertCount( 2, $preview['kept'] );
+		$this->assertSame( 800, $preview['values']['submissions']['max_text_length'] );
 	}
 
 	public function test_preview_respects_allowed_tabs(): void {
@@ -172,5 +218,31 @@ final class ConfigTransferTest extends AdminTestCase {
 
 		$this->post( 'import_settings', array( 'config_json' => '{}' ), false );
 		$this->assertSame( 'nonce_failed', $this->run_handler( array( $page, 'handle_import_preview' ) ) );
+	}
+
+	public function test_uninstall_switch_is_never_exported_or_imported(): void {
+		// Suite uninstall standard S10: the switch and its confirmation time stay on the site.
+		update_option( Settings::OPTION, array( 'privacy' => array( 'delete_data_on_uninstall' => true, 'delete_data_confirmed_at' => '2026-11-01 10:00:00' ) ) );
+		$transfer = new ConfigTransfer( new Settings() );
+		$doc      = $transfer->export();
+		$this->assertArrayNotHasKey( 'delete_data_on_uninstall', $doc['settings']['privacy'] );
+		$this->assertArrayNotHasKey( 'delete_data_confirmed_at', $doc['settings']['privacy'] );
+		$this->assertArrayHasKey( 'erase_mode', $doc['settings']['privacy'] );
+
+		// A file that says "off" does not switch a confirmed deletion off …
+		$doc['settings']['privacy']['delete_data_on_uninstall'] = false;
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$this->assertTrue( $preview['values']['privacy']['delete_data_on_uninstall'] );
+		$this->assertSame( '2026-11-01 10:00:00', $preview['values']['privacy']['delete_data_confirmed_at'] );
+		$this->assertSame( array(), $preview['diff'] );
+
+		// … and a file that says "on" (with a forged time) never switches it on.
+		update_option( Settings::OPTION, array() );
+		$transfer = new ConfigTransfer( new Settings() );
+		$doc['settings']['privacy']['delete_data_on_uninstall'] = true;
+		$doc['settings']['privacy']['delete_data_confirmed_at'] = '2026-11-01 10:00:00';
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$this->assertFalse( $preview['values']['privacy']['delete_data_on_uninstall'] );
+		$this->assertSame( '', $preview['values']['privacy']['delete_data_confirmed_at'] );
 	}
 }

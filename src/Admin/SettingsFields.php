@@ -26,7 +26,7 @@ final class SettingsFields {
 	public static function texts(): array {
 		return array(
 			'general'     => array(
-				'brand_name'        => array( __( 'Marken- bzw. Firmenname', 'review-captain' ), __( 'Erscheint in Hinweisen und Formularen. Leer = Titel deiner Website.', 'review-captain' ) ),
+				'brand_name'        => array( __( 'Marken- bzw. Firmenname', 'review-captain' ), __( 'Erscheint in E-Mails an Bewertende (z. B. Korrektur-Link) und mit Review Captain Pro als Absender der Einladungen. Leer = Titel deiner Website.', 'review-captain' ) ),
 				'date_format'       => array( __( 'Datumsformat', 'review-captain' ), __( 'PHP-Datumsformat, z. B. d.m.Y. Leer = WordPress-Datumsformat. Es gilt die WordPress-Zeitzone.', 'review-captain' ) ),
 				'new_review_status' => array( __( 'Status neuer Reviews', 'review-captain' ), __( 'Gilt für Einreichungen über das Formular. „Sofort freigeben“ veröffentlicht ungeprüfte Texte – empfohlen nur mit aktiver Moderation.', 'review-captain' ) ),
 				'show_pro_hints'    => array( __( 'Pro-Hinweise zeigen', 'review-captain' ), __( 'Zeigt am Ende einzelner Einstellungsbereiche graue Hinweiszeilen zu Funktionen von Review Captain Pro und den Kasten „In Review Captain Pro“ in der Übersicht. Aus = keine Hinweise. Am Funktionsumfang ändert das nichts.', 'review-captain' ) ),
@@ -89,6 +89,7 @@ final class SettingsFields {
 				'show_photos'    => array( __( 'Fotos anzeigen', 'review-captain' ), __( 'Zeigt Fotos freigegebener Bewertungen in den Karten. Personenbezogen möglich.', 'review-captain' ) ),
 				'schema_enabled' => array( __( 'Bewertungs-Markup ausgeben (schema.org)', 'review-captain' ), __( 'Strukturierte Daten für eigene, auf dieser Website abgegebene und freigegebene Bewertungen. Externe Bewertungen erhalten nie Markup. Aus = kein Bewertungs-Markup; die sichtbare Ausgabe bleibt gleich.', 'review-captain' ) ),
 				'verification_notice_show'     => array( __( 'Hinweis „So prüfen wir Bewertungen“ anzeigen', 'review-captain' ), __( 'Aufklappbarer Hinweis an jedem Bewertungs-Widget und am Formular. Informiert, ob und wie Bewertungen geprüft werden.', 'review-captain' ) ),
+				'verification_notice_title'    => array( __( 'Überschrift des Hinweises', 'review-captain' ), __( 'Text des aufklappbaren Links, z. B. „So prüfen wir Bewertungen“. Leer = dieser Standardtext.', 'review-captain' ) ),
 				'verification_notice'          => array( __( 'Text „So prüfen wir Bewertungen“', 'review-captain' ), __( 'Rechtstext – bitte prüfen lassen (Transparenzpflicht, je Land). Leer = neutraler Entwurf, der nur die Prüfstufen beschreibt, die auf deiner Website vorkommen. Beschreibe nur, was du wirklich prüfst.', 'review-captain' ) ),
 				'verification_notice_position' => array( __( 'Position des Hinweises', 'review-captain' ), __( 'Über oder unter der Liste bzw. dem Formular.', 'review-captain' ) ),
 				'label_purchase_verified'      => array( __( 'Kennzeichen „Kauf verifiziert“', 'review-captain' ), __( 'Leer = „Verifizierter Kauf“. Nur der Text ist einstellbar; die Stufe setzt allein eine angebundene, vertrauenswürdige Quelle.', 'review-captain' ) ),
@@ -104,10 +105,10 @@ final class SettingsFields {
 				'schema_contexts'    => array( __( 'Markup für', 'review-captain' ), __( 'Nur für diese Inhaltstypen werden strukturierte Daten ausgegeben.', 'review-captain' ) ),
 				'schema_min_reviews' => array( __( 'Mindestzahl Bewertungen für Markup', 'review-captain' ), __( 'Strukturierte Daten erst ab so vielen geeigneten, sichtbaren Bewertungen auf der Seite.', 'review-captain' ) ),
 				'widget_limit'         => array( __( 'Anzahl Bewertungen', 'review-captain' ), __( 'Vorgabe, wenn ein Widget, Block oder Shortcode keine eigene Anzahl hat (höchstens 50).', 'review-captain' ) ),
-				'widget_layout'        => array( __( 'Darstellung', 'review-captain' ), '' ),
+				'widget_layout'        => array( __( 'Darstellung', 'review-captain' ), __( 'Raster zeigt die Bewertungen als Karten nebeneinander, Liste untereinander. Gilt, wenn ein Widget, Block oder Shortcode keine eigene Darstellung hat.', 'review-captain' ) ),
 				'widget_columns'       => array( __( 'Spalten im Raster', 'review-captain' ), __( 'Auf schmalen Bildschirmen werden es automatisch weniger.', 'review-captain' ) ),
 				'widget_heading_level' => array( __( 'Überschriftenebene der Karten', 'review-captain' ), __( 'h2 bis h6. Wähle die Ebene passend zur Gliederung deiner Seite.', 'review-captain' ) ),
-				'widget_new_tab'       => array( __( 'Links zum Original in neuem Tab', 'review-captain' ), '' ),
+				'widget_new_tab'       => array( __( 'Links zum Original in neuem Tab', 'review-captain' ), __( 'Öffnet Links zur Bewertung bei der Plattform in einem neuen Tab. Der Link kündigt das für Screenreader an.', 'review-captain' ) ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( __( 'Externe Reviews ohne Bestätigung (Tage)', 'review-captain' ), __( 'Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde.', 'review-captain' ) ),
@@ -120,7 +121,7 @@ final class SettingsFields {
 				'retention_contact_days'   => array( __( 'Kontaktadresse zu Bewertungen (Tage)', 'review-captain' ), __( 'Danach wird die E-Mail-Adresse zur Bewertung entfernt; die Bewertung bleibt. 0 = unbegrenzt. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen.', 'review-captain' ) ),
 				'retention_approved_days'  => array( __( 'Freigegebene eigene Bewertungen (Tage)', 'review-captain' ), __( 'Danach werden Bewertungen dieser Website endgültig gelöscht (gerechnet ab Eingang). 0 = unbegrenzt. Plattform-Bewertungen sind nicht betroffen. Frist bitte rechtlich prüfen lassen.', 'review-captain' ) ),
 				'retention_corrections_days' => array( __( 'Entschiedene Korrekturfassungen (Tage)', 'review-captain' ), __( 'Frühere und abgelehnte Fassungen korrigierter Bewertungen werden danach gelöscht.', 'review-captain' ) ),
-				'delete_data_on_uninstall' => array( __( 'Daten beim Deinstallieren löschen', 'review-captain' ), __( 'An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Zum Einschalten tippst du LÖSCHEN ein; der Zeitpunkt der Bestätigung wird gespeichert. Daten bei Google, Trustpilot usw. werden nie verändert.', 'review-captain' ) ),
+				'delete_data_on_uninstall' => array( __( 'Beim Löschen des Plugins alle Daten entfernen', 'review-captain' ), __( 'Aus (Standard) = alle Daten bleiben erhalten. An = beim Löschen des Plugins werden auf dieser Website entfernt: alle Bewertungen mit Fotos, Antworten, Korrekturfassungen, Meldungen und Schlagwörtern, Profile und Quellen, Fragen, Importe, Hintergrundaufgaben, Protokolle, alle Einstellungen und die Review-Captain-Rechte der Rollen. Zum Einschalten tippst du LÖSCHEN (oder DELETE) ein; der Zeitpunkt der Bestätigung wird gespeichert. Die Einstellung wird nicht exportiert. Geplante Aufgaben werden beim Löschen immer entfernt. Daten bei Google, Trustpilot usw. werden nie verändert.', 'review-captain' ) ),
 				'delete_data_confirmed_at' => array( __( 'Löschung bestätigt am (UTC)', 'review-captain' ), __( 'Wird beim Bestätigen mit LÖSCHEN gesetzt und lässt sich nicht direkt ändern.', 'review-captain' ) ),
 			),
 			'access'      => array(
@@ -171,7 +172,7 @@ final class SettingsFields {
 			),
 			'display'     => array(
 				__( 'Inhalte', 'review-captain' )          => array( 'show_stars', 'show_date', 'date_style', 'show_author', 'show_avatar' ),
-				__( 'Prüfung & Transparenz', 'review-captain' ) => array( 'verification_notice_show', 'verification_notice', 'verification_notice_position', 'show_unverified_label', 'label_purchase_verified', 'label_attendance_confirmed', 'label_external', 'label_testimonial', 'label_unverified' ),
+				__( 'Prüfung & Transparenz', 'review-captain' ) => array( 'verification_notice_show', 'verification_notice_title', 'verification_notice', 'verification_notice_position', 'show_unverified_label', 'label_purchase_verified', 'label_attendance_confirmed', 'label_external', 'label_testimonial', 'label_unverified' ),
 				__( 'Bewertung und Farben', 'review-captain' ) => array( 'rating_display', 'decimal_places', 'star_color', 'accent_color' ),
 				__( 'Widget-Vorgaben', 'review-captain' )  => array( 'widget_limit', 'widget_layout', 'widget_columns', 'widget_heading_level', 'widget_new_tab' ),
 				__( 'Strukturierte Daten', 'review-captain' ) => array( 'schema_enabled', 'schema_contexts', 'schema_min_reviews' ),
@@ -236,6 +237,11 @@ final class SettingsFields {
 				'relative' => __( 'Relativ (vor 3 Tagen)', 'review-captain' ),
 			),
 			'submissions.report_reasons'      => ReportStore::reason_labels(),
+			'display.schema_contexts'         => array(
+				'product' => __( 'Produkte', 'review-captain' ),
+				'post'    => __( 'Beiträge', 'review-captain' ),
+				'event'   => __( 'Veranstaltungen', 'review-captain' ),
+			),
 			'submissions.report_notify'       => array(
 				'recipients' => __( 'Empfänger der Benachrichtigungen', 'review-captain' ),
 				'none'       => __( 'Niemand', 'review-captain' ),
