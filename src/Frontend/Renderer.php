@@ -331,7 +331,7 @@ class Renderer {
 			$edited = false === $ts ? null : array(
 				'iso'  => gmdate( 'c', $ts ),
 				/* translators: %s: date */
-				'text' => sprintf( __( 'bearbeitet am %s', 'review-captain' ), wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts ) ),
+				'text' => sprintf( __( 'bearbeitet am %s', 'review-captain' ), wp_date( $this->date_format(), $ts ) ),
 			);
 		}
 
@@ -545,8 +545,8 @@ class Renderer {
 				'submit_label'    => PublicTexts::get( $settings, 'submissions', 'submit_label' ),
 				'verification'    => $this->verification_notice( 'form' ),
 				'privacy_notice'  => (string) $settings->get( 'privacy', 'privacy_notice', '' ),
-				'min_length'      => (int) $settings->get( 'submissions', 'min_text_length', 20 ),
-				'max_length'      => (int) $settings->get( 'submissions', 'max_text_length', 5000 ),
+				'min_length'      => FormHandler::text_limits( $settings )[0],
+				'max_length'      => FormHandler::text_limits( $settings )[1],
 				'success'         => $state['success'],
 				'errors'          => $errors,
 				'pow'             => PowCaptcha::field(
@@ -695,11 +695,19 @@ class Renderer {
 			/* translators: %s: human readable time difference */
 			return sprintf( __( 'vor %s', 'review-captain' ), human_time_diff( $ts, time() ) );
 		}
-		$format = trim( (string) $settings->get( 'general', 'date_format', '' ) );
+		return (string) wp_date( $this->date_format(), $ts );
+	}
+
+	/**
+	 * Absolute date format: general.date_format, else the WordPress date format (also for the
+	 * "bearbeitet am" line, which never uses the relative style, review P2).
+	 */
+	private function date_format(): string {
+		$format = trim( (string) $this->plugin->settings()->get( 'general', 'date_format', '' ) );
 		if ( '' === $format ) {
 			$format = (string) get_option( 'date_format', 'j. F Y' );
 		}
-		return (string) wp_date( '' !== $format ? $format : 'j. F Y', $ts );
+		return '' !== $format ? $format : 'j. F Y';
 	}
 
 	/**

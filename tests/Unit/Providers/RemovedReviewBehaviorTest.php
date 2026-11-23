@@ -123,4 +123,29 @@ final class RemovedReviewBehaviorTest extends TestCase {
 		$this->assertStringNotContainsString( 'secret', $lines[0] );
 		$this->assertStringNotContainsString( '@', $lines[0] );
 	}
+
+	public function test_removed_rows_with_content_are_scrubbed_when_reported_again(): void {
+		// Removed under "hide" (or by a version before SET-RC-05, or a run that stopped between
+		// status change and scrub): the content is still there.
+		$this->settings( array( 'sources' => array( 'removed_review_behavior' => 'hide' ) ) );
+		$this->apply_removal( new SyncService( Plugin::instance()->reviews(), 3600 ) );
+		$this->assertNotSame( '', $this->find( 'demo-rev-1001' )->body );
+
+		$this->settings( array( 'sources' => array( 'removed_review_behavior' => 'tombstone' ) ) );
+		$s      = new SyncService( Plugin::instance()->reviews(), 3600 );
+		$p      = new FixtureProvider( self::DIR );
+		$counts = $s->apply( $p->with_pages( array( 'sync_page_removed' ) )->sync_page( array( 'id' => self::PROFILE ), null, 20 ), self::PROFILE );
+		$after  = $this->find( 'demo-rev-1001' );
+		$this->assertSame( ReviewStatus::REMOVED, $after->status );
+		$this->assertSame( '', $after->body );
+		$this->assertNull( $after->rating_value );
+		$this->assertSame( 0, $counts['removed'], 'not counted as a new removal' );
+		$events = array_column( Plugin::instance()->reviews()->history( (int) $after->id ), 'action' );
+		$this->assertSame( 1, count( array_keys( $events, 'content_removed', true ) ) );
+
+		// Reported once more: nothing to do, no second history entry.
+		$s->apply( $p->with_pages( array( 'sync_page_removed' ) )->sync_page( array( 'id' => self::PROFILE ), null, 20 ), self::PROFILE );
+		$events = array_column( Plugin::instance()->reviews()->history( (int) $after->id ), 'action' );
+		$this->assertSame( 1, count( array_keys( $events, 'content_removed', true ) ) );
+	}
 }

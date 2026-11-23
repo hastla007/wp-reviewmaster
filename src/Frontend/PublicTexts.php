@@ -124,8 +124,8 @@ final class PublicTexts {
 	 * @param Settings $settings Settings.
 	 */
 	public static function brand_name( Settings $settings ): string {
-		$name = trim( (string) $settings->get( 'general', 'brand_name', '' ) );
-		return '' !== $name ? $name : wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
+		// One rule for mails and texts (P1-7, P2-06): brand name, otherwise the site title, as plain text.
+		return \ReviewCaptain\Moderation\Notifier::site_name( $settings );
 	}
 
 	/**

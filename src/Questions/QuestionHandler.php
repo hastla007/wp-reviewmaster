@@ -134,17 +134,24 @@ class QuestionHandler {
 		if ( $errors ) {
 			return $out( false, $errors );
 		}
-		$row = $this->repository()->insert(
+		// Double click / resent POST (review P2): the same rendered form with the same content gets
+		// the same ID, the UNIQUE uuid key stores it once.
+		$key  = FormHandler::replay_key( (string) ( $post['rc_ts'] ?? '' ), $email, $type, $cid, 'question|' . $name . '|' . $question );
+		$uuid = substr( $key, 0, 8 ) . '-' . substr( $key, 8, 4 ) . '-4' . substr( $key, 13, 3 ) . '-a' . substr( $key, 17, 3 ) . '-' . substr( $key, 20, 12 );
+		$row  = $this->repository()->insert(
 			array(
 				'context_type' => $type,
 				'context_id'   => $cid,
 				'question'     => $question,
 				'author_name'  => $name,
 				'author_email' => '' !== $email ? $email : null,
+				'uuid'         => $uuid,
 			)
 		);
 		if ( null === $row ) {
-			return $out( false, array( 'save' ) );
+			$existing = $this->repository()->find_by_uuid( $uuid );
+			// Replay of a stored question: answer like the first request, store and notify nothing.
+			return null !== $existing ? $out( true, array(), $existing ) : $out( false, array( 'save' ) );
 		}
 		$limiter->hit();
 		$this->plugin->audit()->record( 'question.created', 'question', (int) $row['id'], array( 'status' => 'pending' ) );

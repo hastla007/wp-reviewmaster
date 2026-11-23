@@ -202,7 +202,7 @@ function is_admin() { return RC_Test_State::$is_admin; }
 function wp_doing_cron() { return false; }
 function wp_doing_ajax() { return false; }
 function is_ssl() { return true; }
-function get_bloginfo( $show = '' ) { return match ( $show ) { 'version' => '6.7', 'name' => 'Testsite', 'charset' => 'UTF-8', default => '' }; }
+function get_bloginfo( $show = '' ) { return match ( $show ) { 'version' => '6.7', 'name' => (string) ( RC_Test_State::$options['blogname'] ?? 'Testsite' ), 'charset' => 'UTF-8', default => '' }; }
 function get_locale() { return 'de_DE'; }
 function determine_locale() { return 'de_DE'; }
 function get_user_locale( $u = 0 ) { return 'de_DE'; }

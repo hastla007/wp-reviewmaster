@@ -33,14 +33,19 @@ class QuestionRepository {
 	/**
 	 * Insert a question. Returns the stored row.
 	 *
-	 * @param array{context_type: string, context_id: string, question: string, author_name: string, author_email: ?string} $data Data.
+	 * Optional `uuid` (UUID format): a caller-derived ID makes a repeated insert fail on the UNIQUE
+	 * key instead of storing the question twice (double click, review P2).
+	 *
+	 * @param array{context_type: string, context_id: string, question: string, author_name: string, author_email: ?string, uuid?: string} $data Data.
 	 * @return array<string, mixed>|null
 	 */
 	public function insert( array $data ): ?array {
 		global $wpdb;
 		$now  = gmdate( 'Y-m-d H:i:s' );
-		$uuid = Uuid::v4();
-		$ok   = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$uuid = isset( $data['uuid'] ) && preg_match( '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', (string) $data['uuid'] ) ? (string) $data['uuid'] : Uuid::v4();
+		// A duplicate uuid is an expected replay; keep it out of the output and the error log.
+		$suppress = method_exists( $wpdb, 'suppress_errors' ) ? $wpdb->suppress_errors( true ) : null;
+		$ok       = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$this->table(),
 			array_filter(
 				array(
@@ -57,6 +62,9 @@ class QuestionRepository {
 				static fn( $v ) => null !== $v
 			)
 		);
+		if ( null !== $suppress ) {
+			$wpdb->suppress_errors( $suppress );
+		}
 		return false === $ok ? null : $this->find_by_uuid( $uuid );
 	}
 

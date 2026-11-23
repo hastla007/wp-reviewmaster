@@ -197,9 +197,8 @@ class PersonalData {
 		$r->meta['anonymized_at'] = gmdate( 'c' );
 		if ( null !== $r->id ) {
 			PhotoStore::delete_for_review( $r->id ); // A photo may show the person (RC-121).
-			// Correction versions (RC-125A) hold the person's earlier and proposed texts verbatim (P4-3).
-			global $wpdb;
-			$wpdb->delete( \ReviewCaptain\Install\Schema::table( 'review_revisions' ), array( 'review_id' => $r->id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			// Correction versions (RC-125A) hold the person's earlier and proposed texts verbatim (P4-3, P2-12).
+			\ReviewCaptain\Moderation\CorrectionService::delete_for_review( $r->id );
 		}
 		$r->submission_key        = null; // Derived from the e-mail (HMAC) – personal.
 		try {

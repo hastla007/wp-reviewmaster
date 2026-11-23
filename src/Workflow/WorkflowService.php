@@ -118,9 +118,10 @@ class WorkflowService {
 		if ( $rating < 1 || $rating > 5 ) {
 			return self::result( false, 'rejected', ErrorCode::DATA_INVALID_PAYLOAD, array( 'field' => 'rating' ) );
 		}
-		$text = sanitize_textarea_field( is_scalar( $draft['review_text'] ?? null ) ? (string) $draft['review_text'] : '' );
-		$len  = mb_strlen( $text );
-		if ( $len < max( 1, (int) $settings->get( 'submissions', 'min_text_length', 20 ) ) || $len > (int) $settings->get( 'submissions', 'max_text_length', 5000 ) ) {
+		$text   = sanitize_textarea_field( is_scalar( $draft['review_text'] ?? null ) ? (string) $draft['review_text'] : '' );
+		$len    = mb_strlen( $text );
+		$limits = \ReviewCaptain\Frontend\FormHandler::text_limits( $settings );
+		if ( $len < $limits[0] || $len > $limits[1] ) {
 			return self::result( false, 'rejected', ErrorCode::DATA_INVALID_PAYLOAD, array( 'field' => 'review_text' ) );
 		}
 		$name = sanitize_text_field( is_scalar( $draft['display_name'] ?? null ) ? (string) $draft['display_name'] : '' );
