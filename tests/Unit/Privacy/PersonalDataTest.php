@@ -110,6 +110,25 @@ final class PersonalDataTest extends TestCase {
 		$this->assertSame( array(), $this->service()->export( 'max@example.test' )['data'], 'nothing left to find' );
 	}
 
+	public function test_erase_anonymize_removes_correction_versions(): void {
+		// P4-3: the versions of an author correction kept the original text after anonymisation.
+		$r     = $this->review( array( 'status' => \ReviewCaptain\Domain\ReviewStatus::APPROVED ) );
+		$table = \ReviewCaptain\Install\Schema::table( 'review_revisions' );
+		$this->db->insert(
+			$table,
+			array(
+				'review_id'  => $r->id,
+				'status'     => 'proposed',
+				'title'      => 'Neuer Titel',
+				'body'       => 'Ich, Max aus der Hauptstraße 5, korrigiere',
+				'created_at' => gmdate( 'Y-m-d H:i:s' ),
+			)
+		);
+		$this->assertStringContainsString( 'Hauptstraße 5', wp_json_encode( $this->service()->export( 'max@example.test' ) ), 'versions are exported' );
+		$this->service()->erase( 'max@example.test' );
+		$this->assertSame( 0, $this->rows( 'review_revisions' ) );
+	}
+
 	public function test_erase_delete_mode(): void {
 		update_option( Settings::OPTION, array( 'privacy' => array( 'erase_mode' => 'delete' ) ) );
 		$this->review();

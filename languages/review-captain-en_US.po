@@ -1698,8 +1698,8 @@ msgid "Erledigte Hintergrundaufgaben (Tage)"
 msgstr "Completed background tasks (days)"
 
 #: src/Admin/SettingsFields.php:84
-msgid "Daten beim Deinstallieren löschen"
-msgstr "Delete data on uninstall"
+msgid "Beim Löschen des Plugins alle Daten entfernen"
+msgstr "Remove all data when the plugin is deleted"
 
 #: src/Admin/SettingsFields.php:84
 msgid "An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert."
@@ -2002,8 +2002,8 @@ msgid "Alle Plugin-Daten löschen"
 msgstr "Delete all plugin data"
 
 #: src/Admin/SettingsPage.php:776
-msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Daten beim Deinstallieren löschen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
-msgstr "Reviews, profiles, history, and settings are not deleted here. All Review Captain data on this site is only fully deleted if “Delete data on uninstall” is enabled and you then deactivate and delete the plugin under “Plugins”. Export your reviews first."
+msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
+msgstr "Reviews, profiles, history, and settings are not deleted here. All Review Captain data on this site is only fully deleted if “Remove all data when the plugin is deleted” is enabled and you then deactivate and delete the plugin under “Plugins”. Export your reviews first."
 
 #: src/Admin/SettingsPage.php:777
 msgid "Einzelne Personen betreffende Löschanfragen bearbeitest du unter"

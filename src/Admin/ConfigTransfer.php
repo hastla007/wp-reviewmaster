@@ -14,7 +14,8 @@ use ReviewCaptain\Settings\SettingsSchema;
 
 /**
  * Pure logic, no output. Export never contains secrets or personal data:
- * fields with privacy 'personal' and keys that look like secrets are omitted.
+ * fields with privacy 'personal', fields with 'export' => false (the uninstall switch, S10) and
+ * keys that look like secrets are omitted; an import never touches them either.
  */
 final class ConfigTransfer {
 
@@ -36,7 +37,7 @@ final class ConfigTransfer {
 	 * @param array<string, mixed> $field Field definition.
 	 */
 	public static function exportable( string $key, array $field ): bool {
-		if ( 'personal' === ( $field['privacy'] ?? 'none' ) || ! empty( $field['internal'] ) ) {
+		if ( 'personal' === ( $field['privacy'] ?? 'none' ) || ! empty( $field['internal'] ) || false === ( $field['export'] ?? true ) ) {
 			return false;
 		}
 		if ( preg_match( self::SECRET_PATTERN, $key ) ) {

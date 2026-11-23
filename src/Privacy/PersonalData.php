@@ -20,7 +20,8 @@ use ReviewCaptain\Settings\Settings;
  * Finds reviews of a person by author_email or by the WordPress user with that e-mail
  * (author_user_id) and exports or erases them.
  *
- * Also covered: review photos (deleted on anonymisation/deletion, RC-121) and product questions
+ * Also covered: review photos and correction versions (deleted on anonymisation/deletion, RC-121,
+ * RC-125A) and product questions
  * (table questions, RC-122: exported; anonymised or deleted according to the erase mode).
  *
  * Limits (documented): beyond that only the reviews table is covered. Review texts of external platforms are
@@ -196,6 +197,9 @@ class PersonalData {
 		$r->meta['anonymized_at'] = gmdate( 'c' );
 		if ( null !== $r->id ) {
 			PhotoStore::delete_for_review( $r->id ); // A photo may show the person (RC-121).
+			// Correction versions (RC-125A) hold the person's earlier and proposed texts verbatim (P4-3).
+			global $wpdb;
+			$wpdb->delete( \ReviewCaptain\Install\Schema::table( 'review_revisions' ), array( 'review_id' => $r->id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		}
 		$r->submission_key        = null; // Derived from the e-mail (HMAC) – personal.
 		try {

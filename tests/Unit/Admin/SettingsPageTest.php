@@ -337,7 +337,7 @@ final class SettingsPageTest extends AdminTestCase {
 			}
 			if ( 'privacy' === $tab ) {
 				$this->assertStringContainsString( 'review_captain_reset_settings', $html );
-				$this->assertStringContainsString( 'Deinstallieren', $html );
+				$this->assertStringContainsString( 'Beim Löschen des Plugins alle Daten entfernen', $html );
 			}
 			if ( 'advanced' === $tab ) {
 				$this->assertStringContainsString( 'review_captain_export_settings', $html );

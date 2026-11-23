@@ -43,6 +43,8 @@ final class RemovedReviewBehaviorTest extends TestCase {
 		$s->apply( $p->sync_page( array( 'id' => self::PROFILE ), null, 20 ), self::PROFILE );
 		$before = $this->find( 'demo-rev-1001' );
 		$this->assertNotSame( '', $before->body );
+		// E.g. from a CSV import of the same platform review: contact data must not survive the scrub (P4-4).
+		$this->db->update( Plugin::instance()->reviews()->table(), array( 'author_email' => 'kunde@example.test', 'author_user_id' => 12 ), array( 'id' => $before->id ) );
 
 		$this->apply_removal( $s );
 		$after = $this->find( 'demo-rev-1001' );
@@ -50,6 +52,8 @@ final class RemovedReviewBehaviorTest extends TestCase {
 		$this->assertSame( '', $after->body );
 		$this->assertSame( '', $after->title );
 		$this->assertSame( '', $after->author_name );
+		$this->assertNull( $after->author_email );
+		$this->assertNull( $after->author_user_id );
 		$this->assertNull( $after->rating_value );
 		$this->assertSame( 'remote_removed', $after->meta['tombstone']['reason'] );
 		$this->assertSame( $before->uuid, $after->uuid, 'identity and dedupe key stay' );

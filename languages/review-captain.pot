@@ -1727,7 +1727,7 @@ msgid "Erledigte Hintergrundaufgaben (Tage)"
 msgstr ""
 
 #: src/Admin/SettingsFields.php:84
-msgid "Daten beim Deinstallieren löschen"
+msgid "Beim Löschen des Plugins alle Daten entfernen"
 msgstr ""
 
 #: src/Admin/SettingsFields.php:84
@@ -2031,7 +2031,7 @@ msgid "Alle Plugin-Daten löschen"
 msgstr ""
 
 #: src/Admin/SettingsPage.php:776
-msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Daten beim Deinstallieren löschen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
+msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
 msgstr ""
 
 #: src/Admin/SettingsPage.php:777

@@ -146,6 +146,13 @@ final class SettingsCommandsTest extends TestCase {
 		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm-word' => 'LÖSCHEN' ) );
 		$this->assertTrue( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
 		$this->assertNotSame( '', $this->settings()->get( 'privacy', 'delete_data_confirmed_at' ) );
+
+		// S10 suite standard: --confirm is the documented flag (case-insensitive word).
+		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '0' ), array() );
+		$this->assertFalse( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
+		$this->expect_error( fn() => $c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm' => 'ja' ) ), 'LÖSCHEN' );
+		$c->settings_set( array( 'privacy.delete_data_on_uninstall', '1' ), array( 'confirm' => 'löschen' ) );
+		$this->assertTrue( $this->settings()->get( 'privacy', 'delete_data_on_uninstall' ) );
 	}
 
 	public function test_reset_per_tab_and_all(): void {
@@ -206,5 +213,6 @@ final class SettingsCommandsTest extends TestCase {
 		$json = json_decode( $this->out->lines[0][1], true );
 		$this->assertSame( ConfigTransfer::SCHEMA, $json['schema'] );
 		$this->assertArrayNotHasKey( 'delete_data_confirmed_at', $json['settings']['privacy'] );
+		$this->assertArrayNotHasKey( 'delete_data_on_uninstall', $json['settings']['privacy'] );
 	}
 }

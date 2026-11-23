@@ -431,7 +431,7 @@ class Commands {
 	}
 
 	/**
-	 * `settings set <tab.key> <value> [--confirm-word=<word>]` – goes through the settings page's
+	 * `settings set <tab.key> <value> [--confirm=<word>]` (alias `--confirm-word`) – goes through the settings page's
 	 * save logic: validation with error instead of correction, cross-checks, Pro lock, role rules,
 	 * confirmation word, audit with old and new value.
 	 *
@@ -480,8 +480,10 @@ class Commands {
 			}
 		}
 		$input[ $key ] = $value;
-		if ( isset( $assoc['confirm-word'] ) ) {
-			$input['uninstall_confirm_word'] = (string) $assoc['confirm-word'];
+		// S10 suite standard: --confirm=LÖSCHEN; --confirm-word stays as an alias.
+		$word = $assoc['confirm'] ?? $assoc['confirm-word'] ?? null;
+		if ( null !== $word ) {
+			$input['uninstall_confirm_word'] = (string) $word;
 		}
 		$result = $this->settings_page()->save_tab( $tab, array( $tab => $input ) );
 		$this->plugin->settings()->flush();

@@ -4,7 +4,7 @@
 
 Erfasst sind alle Aufrufe von `do_action()`/`apply_filters()` (inkl. `_ref_array`/`_deprecated`) mit Hook-Namen, die mit `review_captain_` beginnen, in `src/`, `templates/`, `blocks/`, `review-captain.php` und `uninstall.php`. Als Klassenkonstante angegebene Namen sind aufgelöst. Parameter stammen aus dem Docblock direkt über dem Aufruf, sonst aus den Argumenten. Welche Hooks öffentliche, versionierte Verträge sind, regelt [ADR-0007](adr/0007-oeffentliche-hooks-v1.md) bzw. die Hook-Tabelle in [conventions.md](architecture/conventions.md); alle übrigen sind Erweiterungspunkte ohne Stabilitätszusage ([ADR-0002](adr/0002-hook-praefix-review-captain.md)). Interne Cron-Hooks (`review_captain_run_jobs`, `review_captain_daily_maintenance`) werden von WP-Cron/Action Scheduler ausgelöst und erscheinen hier daher nicht.
 
-Anzahl: 56 Aufrufstellen, 54 Hooks.
+Anzahl: 57 Aufrufstellen, 55 Hooks.
 
 | Name | Typ | Parameter | Datei:Zeile |
 |---|---|---|---|
@@ -29,7 +29,7 @@ Anzahl: 56 Aufrufstellen, 54 Hooks.
 | `review_captain_notify_recipients` | filter | `list<string> $list` – Addresses<br>`string $event` – review\|report\|question | `src/Moderation/Notifier.php:68` |
 | `review_captain_photo_max_edge` | filter | `int $edge` – Edge from the setting | `src/Media/PhotoStore.php:63` |
 | `review_captain_pow_max_number_v1` | filter | `int $max_number` – Upper bound | `src/Security/PowCaptcha.php:88` |
-| `review_captain_privacy_personal_meta_keys` | filter | `list<string> $keys` – Keys | `src/Privacy/PersonalData.php:244` |
+| `review_captain_privacy_personal_meta_keys` | filter | `list<string> $keys` – Keys | `src/Privacy/PersonalData.php:248` |
 | `review_captain_privacy_policy_url` | filter | `string $url` – URL ('' = no link) | `src/Frontend/PublicTexts.php:124` |
 | `review_captain_pro_settings_writable` | filter | `bool $writable` – Default false | `src/Admin/SettingsPage.php:91` |
 | `review_captain_process_job_v1` | filter | `array\|null $result` – null = not handled<br>`string $type` – Job type<br>`array $payload` – Payload | `src/Jobs/Runner.php:326` |
@@ -49,10 +49,10 @@ Anzahl: 56 Aufrufstellen, 54 Hooks.
 | `review_captain_schema_eligible` | filter | `bool $eligible` – Always true here<br>`Review $r` – Review<br>`array<string, mixed> $ctx` – Context | `src/Seo/SchemaEligibility.php:134` |
 | `review_captain_schema_min_reviews` | filter | `int $min` – Minimum from the setting | `src/Seo/SeoModule.php:143` |
 | `review_captain_schema_post_item_type` | filter | `$type`<br>`$r` | `src/Seo/SchemaBuilder.php:126` |
-| `review_captain_settings_cross_check` | filter | `list<array{fields: list<string>, message: string}> $out` – Failed checks<br>`string $tab` – Tab<br>`array<string, mixed> $values` – Tab values | `src/Settings/SettingsSchema.php:616` |
+| `review_captain_settings_cross_check` | filter | `list<array{fields: list<string>, message: string}> $out` – Failed checks<br>`string $tab` – Tab<br>`array<string, mixed> $values` – Tab values | `src/Settings/SettingsSchema.php:619` |
 | `review_captain_settings_hint_link` | filter | `string $link` – Default ''<br>`string $id` – Hint id | `src/Admin/SettingsHints.php:70` |
 | `review_captain_settings_hints` | filter | `list<array{id: string, tab: string, title: string, text: string, link: string}> $hints` – Hint lines | `src/Admin/SettingsHints.php:94` |
-| `review_captain_settings_schema` | filter | `array $core` – Schema | `src/Settings/SettingsSchema.php:343` |
+| `review_captain_settings_schema` | filter | `array $core` – Schema | `src/Settings/SettingsSchema.php:346` |
 | `review_captain_setup_checklist_detected` | filter | `array<string, bool> $detected` – Detected steps | `src/Admin/SetupChecklist.php:112` |
 | `review_captain_show_pro_info` | filter | `bool $show` – Default: setting general.show_pro_hints (on); the Pro add-on returns false | `src/Admin/DashboardPage.php:173` |
 | `review_captain_side_effect_free_job_prefixes` | filter | `self::SIDE_EFFECT_FREE_PREFIXES` | `src/Jobs/Runner.php:235` |
@@ -60,6 +60,7 @@ Anzahl: 56 Aufrufstellen, 54 Hooks.
 | `review_captain_submission_hold_reasons` | filter | `list<string> $reasons` – Reasons found by the settings<br>`Review $review` – Review (not yet stored) | `src/Frontend/FormHandler.php:407` |
 | `review_captain_sync_initial_status` | filter | `ReviewStatus $status` – Status (pending by default) | `src/Providers/SyncService.php:151` |
 | `review_captain_template` | filter | `string $file` – Absolute path<br>`string $name` – Template name | `src/Frontend/TemplateLoader.php:45` |
+| `review_captain_trusted_proxies` | filter | `list<string> $proxies` – Proxy addresses | `src/Security/RateLimiter.php:58` |
 | `review_captain_trusted_proxy_header` | filter | `string $header` – Header from the setting | `src/Security/RateLimiter.php:45` |
 | `review_captain_verification_notice` | filter | `string $text` – Plain text (paragraphs separated by blank lines)<br>`string $context` – widget\|form<br>`list<string> $levels` – Levels occurring on this site (Verification values, "testimonial") | `src/Frontend/Renderer.php:226` |
 | `review_captain_widget_defaults` | filter | `array $values` – limit, layout, columns, heading_level, new_tab | `src/Widgets/WidgetDefinition.php:271` |

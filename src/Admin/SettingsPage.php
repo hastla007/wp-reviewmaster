@@ -1030,7 +1030,7 @@ final class SettingsPage {
 	}
 
 	/**
-	 * Confirmation for "Daten beim Deinstallieren löschen" (SET-RC-20): a typed word, stored as time.
+	 * Confirmation for "Beim Löschen des Plugins alle Daten entfernen" (SET-RC-20, S10): a typed word, stored as time.
 	 *
 	 * @param bool $on       Switch state.
 	 * @param bool $disabled Read-only.
@@ -1065,7 +1065,7 @@ final class SettingsPage {
 		echo '<p><button type="submit" class="button">' . esc_html__( 'Einstellungen zurücksetzen', 'review-captain' ) . '</button></p></form>';
 
 		echo '<div class="rc-admin-danger"><h2>' . esc_html__( 'Alle Plugin-Daten löschen', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Daten beim Deinstallieren löschen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews.', 'review-captain' ) . '</p>';
+		echo '<p>' . esc_html__( 'Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews.', 'review-captain' ) . '</p>';
 		echo '<p>' . esc_html__( 'Einzelne Personen betreffende Löschanfragen bearbeitest du unter', 'review-captain' ) . ' <a href="' . esc_url( admin_url( 'erase-personal-data.php' ) ) . '">' . esc_html__( 'Werkzeuge › Personenbezogene Daten löschen', 'review-captain' ) . '</a>.</p></div>';
 	}
 

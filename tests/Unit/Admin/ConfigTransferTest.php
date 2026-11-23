@@ -173,4 +173,30 @@ final class ConfigTransferTest extends AdminTestCase {
 		$this->post( 'import_settings', array( 'config_json' => '{}' ), false );
 		$this->assertSame( 'nonce_failed', $this->run_handler( array( $page, 'handle_import_preview' ) ) );
 	}
+
+	public function test_uninstall_switch_is_never_exported_or_imported(): void {
+		// Suite uninstall standard S10: the switch and its confirmation time stay on the site.
+		update_option( Settings::OPTION, array( 'privacy' => array( 'delete_data_on_uninstall' => true, 'delete_data_confirmed_at' => '2026-11-01 10:00:00' ) ) );
+		$transfer = new ConfigTransfer( new Settings() );
+		$doc      = $transfer->export();
+		$this->assertArrayNotHasKey( 'delete_data_on_uninstall', $doc['settings']['privacy'] );
+		$this->assertArrayNotHasKey( 'delete_data_confirmed_at', $doc['settings']['privacy'] );
+		$this->assertArrayHasKey( 'erase_mode', $doc['settings']['privacy'] );
+
+		// A file that says "off" does not switch a confirmed deletion off …
+		$doc['settings']['privacy']['delete_data_on_uninstall'] = false;
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$this->assertTrue( $preview['values']['privacy']['delete_data_on_uninstall'] );
+		$this->assertSame( '2026-11-01 10:00:00', $preview['values']['privacy']['delete_data_confirmed_at'] );
+		$this->assertSame( array(), $preview['diff'] );
+
+		// … and a file that says "on" (with a forged time) never switches it on.
+		update_option( Settings::OPTION, array() );
+		$transfer = new ConfigTransfer( new Settings() );
+		$doc['settings']['privacy']['delete_data_on_uninstall'] = true;
+		$doc['settings']['privacy']['delete_data_confirmed_at'] = '2026-11-01 10:00:00';
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$this->assertFalse( $preview['values']['privacy']['delete_data_on_uninstall'] );
+		$this->assertSame( '', $preview['values']['privacy']['delete_data_confirmed_at'] );
+	}
 }

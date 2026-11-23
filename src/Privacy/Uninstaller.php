@@ -15,6 +15,7 @@ use ReviewCaptain\Media\PhotoStore;
 use ReviewCaptain\Security\Capabilities;
 
 /**
+ * Only the core's own data is touched; names of the add-on (ADDON_PREFIX) stay for its own uninstaller.
  * Data is kept by default. Only sites whose setting privacy.delete_data_on_uninstall is true and
  * confirmed (privacy.delete_data_confirmed_at) lose their tables, options and capabilities. Scheduled hooks are always removed (they contain no data
  * and would point to missing code). Temporary CSV import uploads are always removed as well: they
@@ -44,6 +45,27 @@ final class Uninstaller {
 	 * Cron hooks known to the core.
 	 */
 	public const CRON_HOOKS = array( 'review_captain_run_jobs', 'review_captain_daily_maintenance' );
+
+	/**
+	 * Name prefix of the add-on (options, transients, network options, cron hooks). The core never
+	 * deletes them: the add-on has its own uninstaller and decision (suite uninstall standard S10, P4-5).
+	 */
+	public const ADDON_PREFIX = 'review_captain_pro_';
+
+	/**
+	 * Whether a stored name (option, transient, cron hook) belongs to the add-on.
+	 *
+	 * @param string $name Name, optionally with a _transient_ / _transient_timeout_ prefix.
+	 */
+	public static function is_addon_name( string $name ): bool {
+		foreach ( array( '_transient_timeout_', '_transient_', '_site_transient_timeout_', '_site_transient_' ) as $prefix ) {
+			if ( str_starts_with( $name, $prefix ) ) {
+				$name = substr( $name, strlen( $prefix ) );
+				break;
+			}
+		}
+		return str_starts_with( $name, self::ADDON_PREFIX );
+	}
 
 	/**
 	 * Run for the current site or, on multisite, for every site.
@@ -113,6 +135,9 @@ final class Uninstaller {
 			}
 		}
 		foreach ( array_unique( $names ) as $name ) {
+			if ( self::is_addon_name( $name ) ) {
+				continue;
+			}
 			if ( str_starts_with( $name, '_transient_timeout_' ) ) {
 				continue;
 			}
@@ -135,7 +160,9 @@ final class Uninstaller {
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 		$names = $wpdb->get_col( $wpdb->prepare( "SELECT meta_key FROM {$wpdb->sitemeta} WHERE meta_key LIKE %s", 'review\_captain\_%' ) );
 		foreach ( (array) $names as $name ) {
-			delete_site_option( (string) $name );
+			if ( ! self::is_addon_name( (string) $name ) ) {
+				delete_site_option( (string) $name );
+			}
 		}
 	}
 
@@ -147,7 +174,7 @@ final class Uninstaller {
 		if ( function_exists( '_get_cron_array' ) ) {
 			foreach ( (array) _get_cron_array() as $events ) {
 				foreach ( array_keys( (array) $events ) as $hook ) {
-					if ( is_string( $hook ) && str_starts_with( $hook, 'review_captain_' ) ) {
+					if ( is_string( $hook ) && str_starts_with( $hook, 'review_captain_' ) && ! self::is_addon_name( $hook ) ) {
 						$hooks[] = $hook;
 					}
 				}

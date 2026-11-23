@@ -308,7 +308,8 @@ class ReviewRepository {
 
 	/**
 	 * Tombstone content scrub (SET-RC-05, docs/contracts/review-schema-v1.md "Tombstone"): clears
-	 * title, text, author name, rating, avatar/reply and personal meta and deletes the photo of a
+	 * title, text, author name, contact address and account link (P4-4), rating, avatar/reply and
+	 * personal meta and deletes the photo of a
 	 * review that already has status `removed`. Identity (uuid, platform, profile, external_id,
 	 * dedupe_key), source link and dates stay so a later sync hits the same row and retention can
 	 * delete it. Written directly (no validation: an empty review is intended here).
@@ -334,7 +335,7 @@ class ReviewRepository {
 		$updated = $wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"UPDATE {$this->table()} SET title = '', body = '', author_name = '', rating_value = NULL, meta = %s, updated_at = %s, revision = revision + 1 WHERE id = %d AND status = %s",
+				"UPDATE {$this->table()} SET title = '', body = '', author_name = '', author_email = NULL, author_user_id = NULL, submission_key = NULL, rating_value = NULL, meta = %s, updated_at = %s, revision = revision + 1 WHERE id = %d AND status = %s",
 				(string) wp_json_encode( (object) $meta ),
 				gmdate( 'Y-m-d H:i:s' ),
 				$id,

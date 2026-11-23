@@ -189,6 +189,8 @@ final class SettingsValidationTest extends AdminTestCase {
 		$this->page()->render();
 		$html = (string) ob_get_clean();
 		$this->assertStringContainsString( 'name="review_captain_settings[privacy][uninstall_confirm_word]"', $html );
+		$this->assertStringContainsString( 'Beim Löschen des Plugins alle Daten entfernen', $html, 'S10 suite label' );
+		$this->assertStringContainsString( 'Fotos', \ReviewCaptain\Admin\SettingsFields::description( 'privacy', 'delete_data_on_uninstall' ), 'help text names what is deleted' );
 		$this->assertStringNotContainsString( 'name="review_captain_settings[privacy][delete_data_confirmed_at]"', $html, 'internal field is not rendered' );
 		$this->assertStringContainsString( 'name="review_captain_settings[privacy][retention_audit_days]"', $html );
 
