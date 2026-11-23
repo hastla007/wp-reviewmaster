@@ -427,6 +427,31 @@ class ReviewRepository {
 	}
 
 	/**
+	 * Verification levels of publicly visible reviews (SET-RC-01). Testimonials count as the
+	 * pseudo level "testimonial" instead of their verification state.
+	 *
+	 * @return list<string>
+	 */
+	public function levels_in_use(): array {
+		return CacheGeneration::remember(
+			'v',
+			array( 'levels' => 1 ),
+			5 * MINUTE_IN_SECONDS,
+			function (): array {
+				global $wpdb;
+				$sql = "SELECT DISTINCT kind, verification FROM {$this->table()} WHERE status = %s AND removed_at IS NULL";
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery
+				$rows = $wpdb->get_results( $wpdb->prepare( $sql, ReviewStatus::APPROVED->value ), ARRAY_A );
+				$out  = array();
+				foreach ( (array) $rows as $row ) {
+					$out[] = 'testimonial' === (string) $row['kind'] ? 'testimonial' : (string) $row['verification'];
+				}
+				return array_values( array_unique( $out ) );
+			}
+		);
+	}
+
+	/**
 	 * Uncached aggregate (see summary_by_platform()).
 	 *
 	 * @param array<string, mixed> $args Filters incl. status.

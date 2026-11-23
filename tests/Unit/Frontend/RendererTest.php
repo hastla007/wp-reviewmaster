@@ -88,8 +88,9 @@ final class RendererTest extends FrontendTestCase {
 		$this->review( array( 'verification' => Verification::PURCHASE_VERIFIED, 'author_name' => 'K' ) );
 		$this->review( array( 'author_name' => 'U' ) );
 		$out = $this->shortcode();
-		$this->assertSame( 1, substr_count( $out, 'Erfahrungsbericht dieser Website' ) );
-		$this->assertSame( 1, substr_count( $out, 'Verifizierter Kauf' ) );
+		// Count the badges only (the verification notice quotes the labels, SET-RC-01).
+		$this->assertSame( 1, substr_count( $out, '<span class="rc-badge rc-badge--testimonial">Erfahrungsbericht dieser Website</span>' ) );
+		$this->assertSame( 1, substr_count( $out, '<span class="rc-verified">Verifizierter Kauf</span>' ) );
 		$this->assertStringContainsString( 'rc-card--testimonial', $out );
 
 		$only = $this->shortcode( array( 'kind' => 'testimonial' ) );

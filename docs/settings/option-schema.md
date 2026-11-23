@@ -26,7 +26,9 @@ Tab-Schlüssel (= URL-Parameter `tab` der Einstellungsseite): `general`, `source
   - `int`: nicht numerisch → **Default**; sonst auf `min`/`max` **begrenzt** (Clamp, kein Zurückweisen);
   - `enum`: nicht in `choices` → Default; `time`: Muster `^([01]\d|2[0-3]):[0-5]\d$`, sonst Default; `email`: leer → `''`, ungültig → Default;
   - `array`: Liste aus `sanitize_key`-Werten, leere entfernt, Duplikate entfernt; kein Array → Default;
-  - `textarea`: `sanitize_textarea_field`; `string`: `sanitize_text_field` (keine Längengrenze im Schema).
+  - `array` mit `choices`: nur erlaubte Werte; mit `min_items`: weniger Einträge → Default; `max_items` kürzt;
+  - `email_list` (SET-RC-09): Array oder durch Zeilenumbruch/Komma/Semikolon getrennter Text → Liste gültiger, eindeutiger Adressen, höchstens `max_items`; verworfene Einträge meldet die Seite als `invalid`;
+  - `textarea`: `sanitize_textarea_field`; `string`: `sanitize_text_field`; mit `max_length` auf so viele Zeichen gekürzt.
   Weicht der gespeicherte Wert eines `int`/`enum`/`time`/`email`-Feldes vom eingegebenen ab, meldet die Seite das Feld als korrigiert (`invalid`). Geänderte Felder werden als Audit-Ereignis `settings.changed` protokolliert. Speichern verlangt Capability `review_captain_manage_settings` und Nonce; Tab `privacy` zusätzlich `review_captain_manage_privacy`, Tab `access` zusätzlich `promote_users` (`SettingsPage::can_write_tab()`).
 - **Pro-Felder ohne aktives Pro/Entitlement:** werden angezeigt (gesperrt), beim Speichern **nicht** verändert, beim Lesen **nicht** entfernt.
 - **Booleans** werden als `true`/`false` gespeichert (nicht `'1'`/`''`). Ein nicht angehakter Checkbox-Wert im abgeschickten Tab bedeutet `false`.
@@ -111,11 +113,25 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `multi_product_enabled` | bool | `false` | bool | site | P1 | — |
 | `qa_enabled` | bool | `false` | bool | site | P2 | — |
 | `feedback_campaigns_enabled` | bool | `false` | bool | site | P0 | — |
+| `corrections_enabled` | bool | `false` | bool | site | P2 | — |
+| `consent_text` | textarea | `''` (= heutiger Einwilligungstext) | `max_length` 2000; Platzhalter `{privacy_link}` | site | P2 | — |
+| `name_label` | string | `''` (= „Name (wird veröffentlicht)“) | `max_length` 100 | site | P0 | — |
+| `email_hint` | string | `''` (= heutiger Hinweis) | `max_length` 300 | site | P2 | — |
+| `submit_label` | string | `''` (= „Bewertung senden“) | `max_length` 60 | site | P0 | — |
+| `notify_recipients` | email_list | `[]` (= `admin_email`) | gültige Adressen, `max_items` 10; `privacy = config` | site | P1 | — |
+| `notify_subject` | string | `''` (= Standardbetreff) | `max_length` 200; `{site}`, `{moderation_url}`, `{status}` | site | P0 | — |
+| `notify_body` | textarea | `''` (= Standardtext) | `max_length` 2000; `{site}`, `{moderation_url}`, `{status}` | site | P0 | — |
+| `notify_questions` | bool | `true` | bool | site | P0 | — |
+| `report_reasons` | array | alle 5 Gründe | `choices` = `ReportStore::REASONS`, `min_items` 1 | site | P0 | — |
+| `report_notify` | enum `none`\|`recipients` | `recipients` | Enum | site | P0 | — |
+| `report_confirmation` | string | `''` (= „Danke für Ihre Meldung. …“) | `max_length` 300 | site | P0 | — |
 
 - `enabled = false`: Formular-Block/-Shortcode rendert einen neutralen Hinweis statt des Formulars; `admin-post.php`-Handler lehnt ab.
 - `require_consent = true`: Pflicht-Checkbox „Veröffentlichung erlauben“, setzt `consent_publish`/`consent_at`. Bei `false` wird `consent_publish = 0` gespeichert und **das Review kann trotzdem nur nach Moderation veröffentlicht werden**; der Tab zeigt eine Warnung.
 - `honeypot = false` zeigt eine Warnung; Nonce und Rate-Limit bleiben immer aktiv.
-- `notify_admin`: E-Mail an `admin_email` ohne Reviewtext und ohne Autor-E-Mail, nur Link zur Moderation.
+- `notify_admin`: E-Mail an `notify_recipients` (leer = `admin_email`) ohne Reviewtext und ohne Autor-E-Mail, nur Link zur Moderation (`Moderation\Notifier`). Dieselben Empfänger erhalten bei `report_notify = recipients` eine Mail je angenommener Meldung und bei `notify_questions` eine Mail je neuer Frage. Filter: `review_captain_notify_recipients`, `review_captain_notification`, `review_captain_moderation_url`.
+- `consent_text`, `name_label`, `email_hint`, `submit_label`, `report_confirmation` (SET-RC-04/-26): leer = übersetzter Standardtext; Filter `review_captain_public_text` (`$text`, `"tab.key"`) gewinnt. `consent_text` und `email_hint` sind Rechtstexte (Rechtsprüfung offen).
+- `report_reasons`: Gründe außerhalb der Auswahl lehnt `ReportHandler` als `invalid` ab; Filter `review_captain_report_reasons`.
 - **M7 / Post-MVP (Schema v2), alle standardmäßig aus** – sie verändern den 1.0-Umfang nicht:
   - `tags_enabled` (RC-124): interne Tags im Review-Editor und Tag-Filter in der Liste; nie öffentlich.
   - `reports_enabled` (RC-124): Link „Melden“ (`<details>`-Formular, ohne JavaScript) unter freigegebenen Reviews; admin-post `review_captain_report` mit Nonce, Grund aus fester Liste, Rate-Limit `report_rate_limit_per_hour` (und eine Meldung je Adresse/Review/Stunde). Ab `report_threshold` offenen Meldungen wird das Review `flagged` (ausgeblendet). Filter „Nur mit offenen Meldungen“ in der Liste.
@@ -139,12 +155,23 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `schema_enabled` | bool | `true` | bool; `false` schaltet die gesamte Schema-Ausgabe des SEO-Moduls ab | site | P0 | — |
 | `load_css` | bool (erweitert) | `true` | bool | site | P0 | — |
 | `show_photos` | bool | `false` | bool | site | P2 | — |
+| `verification_notice_show` | bool | `true` | bool | site | P0 | — |
+| `verification_notice` | textarea | `''` (= neutraler Entwurf je vorkommender Prüfstufe) | `max_length` 3000 | site | P0 | — |
+| `verification_notice_position` | enum `below`\|`above` | `below` | Enum | site | P0 | — |
+| `label_purchase_verified` | string | `''` (= „Verifizierter Kauf“) | `max_length` 60 | site | P0 | — |
+| `label_attendance_confirmed` | string | `''` (= „Teilnahme bestätigt“) | `max_length` 60 | site | P0 | — |
+| `label_unverified` | string | `''` (= „Ungeprüft“) | `max_length` 60 | site | P0 | — |
+| `label_external` | string | `''` (= „Externe Plattformbewertung“) | `max_length` 60 | site | P0 | — |
+| `label_testimonial` | string | `''` (= „Erfahrungsbericht dieser Website“) | `max_length` 60 | site | P0 | — |
+| `show_unverified_label` | bool | `false` | bool | site | P0 | — |
 
 - Quellenlabel/-link externer Reviews ist **nicht abschaltbar** und hat daher keinen Schalter.
 - `show_avatar = true` nutzt für lokale Reviews `get_avatar()`; ob dabei Gravatar kontaktiert wird, folgt der WP-Einstellung „Avatare anzeigen“. Der Tab weist darauf hin. Externe Avatar-URLs werden in 1.0 nicht geladen (OFFEN für Pro).
 - `reduced_motion = true`: keine automatischen Animationen/Auto-Rotation; zusätzlich gilt immer `@media (prefers-reduced-motion: reduce)`.
 - `load_css = false`: `assets/css/frontend.css` wird nicht eingereiht; Markup und Klassen bleiben gleich (Theme stylt selbst).
 - `show_photos` (RC-121, Schema v2): Fotos nur bei `status = approved` und diesem Schalter; Moderierende sehen sie immer im Editor.
+- `verification_notice*` (SET-RC-01): `<details class="rc-verification">` (Vorlage `verification-notice.php`) in `reviews-grid.php` und `review-form.php`, über oder unter dem Inhalt. Der Entwurf nennt nur Stufen aus `ReviewRepository::levels_in_use()` (freigegebene, nicht entfernte Reviews; zwischengespeichert je Cache-Generation), am Formular zusätzlich `unverified`. Filter `review_captain_verification_notice` gewinnt. Rechtstext, Rechtsprüfung offen.
+- `label_*`, `show_unverified_label` (SET-RC-02): nur Anzeige-Texte der Badges `rc-verified`, `rc-verified--attendance`, `rc-badge--external`, `rc-badge--testimonial`, `rc-badge--unverified`; die Stufe (`reviews.verification`) bleibt unverändert und wird nie aus Einstellungen gesetzt.
 
 ### 4.6 `privacy` – Datenschutz & Aufbewahrung
 

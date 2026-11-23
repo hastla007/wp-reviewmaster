@@ -180,6 +180,19 @@
 	color: var(--rc-color-success);
 }
 
+/* Verification notice "So prüfen wir Bewertungen" (SET-RC-01) */
+.rc-verification {
+	margin: var(--rc-space-3) 0;
+	font-size: var(--rc-font-size-sm);
+	color: var(--rc-color-muted);
+}
+
+.rc-verification__toggle {
+	cursor: pointer;
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+
 .rc-source {
 	font-weight: 600;
 }

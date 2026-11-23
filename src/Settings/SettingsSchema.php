@@ -13,9 +13,10 @@ namespace ReviewCaptain\Settings;
  * Declarative definition of all core settings. Pro can extend via the
  * `review_captain_settings_schema` filter (fields with 'owner' => 'pro').
  *
- * Field keys: type (string|int|bool|enum|array|time|email|textarea), default, choices (enum),
- * min/max (int), owner (core|pro), entitlement (pro only), privacy (none|personal|config),
- * advanced (bool, progressive disclosure), scope (site|network).
+ * Field keys: type (string|int|bool|enum|array|time|email|email_list|textarea), default, choices
+ * (enum; for array: allowed values), min/max (int), max_length (string/textarea, characters),
+ * max_items (array/email_list), min_items (array: fewer → default), owner (core|pro), entitlement
+ * (pro only), privacy (none|personal|config), advanced (bool, progressive disclosure), scope (site|network).
  */
 final class SettingsSchema {
 
@@ -109,6 +110,65 @@ final class SettingsSchema {
 				'feedback_campaigns_enabled' => array( 'type' => 'bool', 'default' => false ),
 				// RC-125A (owner decision: part of 1.0) – off by default, the operator enables it.
 				'corrections_enabled'        => array( 'type' => 'bool', 'default' => false ),
+				// SET-RC-04: public form texts. Empty = translated default (consent text = legal text, review pending).
+				'consent_text'               => array(
+					'type'       => 'textarea',
+					'default'    => '',
+					'max_length' => 2000,
+				),
+				'name_label'                 => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 100,
+				),
+				'email_hint'                 => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 300,
+				),
+				'submit_label'               => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 60,
+				),
+				// SET-RC-09: notifications. Empty recipients = admin_email; empty subject/body = default text.
+				'notify_recipients'          => array(
+					'type'      => 'email_list',
+					'default'   => array(),
+					'max_items' => 10,
+					'privacy'   => 'config',
+				),
+				'notify_subject'             => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 200,
+				),
+				'notify_body'                => array(
+					'type'       => 'textarea',
+					'default'    => '',
+					'max_length' => 2000,
+				),
+				'notify_questions'           => array(
+					'type'    => 'bool',
+					'default' => true,
+				),
+				// SET-RC-26: public reports (reasons from the fixed list, who is notified, confirmation text).
+				'report_reasons'             => array(
+					'type'      => 'array',
+					'default'   => array( 'spam', 'offensive', 'personal_data', 'fake', 'other' ),
+					'choices'   => array( 'spam', 'offensive', 'personal_data', 'fake', 'other' ),
+					'min_items' => 1,
+				),
+				'report_notify'              => array(
+					'type'    => 'enum',
+					'default' => 'recipients',
+					'choices' => array( 'none', 'recipients' ),
+				),
+				'report_confirmation'        => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 300,
+				),
 			),
 			'display'     => array(
 				'show_stars'     => array( 'type' => 'bool', 'default' => true ),
@@ -125,6 +185,51 @@ final class SettingsSchema {
 				'schema_enabled' => array( 'type' => 'bool', 'default' => true ),
 				'load_css'       => array( 'type' => 'bool', 'default' => true, 'advanced' => true ),
 				'show_photos'    => array( 'type' => 'bool', 'default' => false ),
+				// SET-RC-01: "So prüfen wir Bewertungen" (legal text, review pending). Empty text = neutral draft.
+				'verification_notice_show' => array(
+					'type'    => 'bool',
+					'default' => true,
+				),
+				'verification_notice' => array(
+					'type'       => 'textarea',
+					'default'    => '',
+					'max_length' => 3000,
+				),
+				'verification_notice_position' => array(
+					'type'    => 'enum',
+					'default' => 'below',
+					'choices' => array( 'below', 'above' ),
+				),
+				// SET-RC-02: texts of the verification levels (the level itself is never configurable).
+				'label_purchase_verified' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 60,
+				),
+				'label_attendance_confirmed' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 60,
+				),
+				'label_unverified' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 60,
+				),
+				'label_external' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 60,
+				),
+				'label_testimonial' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 60,
+				),
+				'show_unverified_label' => array(
+					'type'    => 'bool',
+					'default' => false,
+				),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),
@@ -232,12 +337,60 @@ final class SettingsSchema {
 				if ( ! is_array( $value ) ) {
 					return $default;
 				}
-				return array_values( array_unique( array_filter( array_map( 'sanitize_key', array_map( 'strval', $value ) ) ) ) );
+				$list = array_values( array_unique( array_filter( array_map( 'sanitize_key', array_map( 'strval', array_filter( $value, 'is_scalar' ) ) ) ) ) );
+				if ( isset( $field['choices'] ) && is_array( $field['choices'] ) ) {
+					$list = array_values( array_intersect( $list, array_map( 'strval', $field['choices'] ) ) );
+				}
+				if ( isset( $field['max_items'] ) ) {
+					$list = array_slice( $list, 0, max( 0, (int) $field['max_items'] ) );
+				}
+				return count( $list ) < (int) ( $field['min_items'] ?? 0 ) ? $default : $list;
+			case 'email_list':
+				return self::sanitize_email_list( $field, $value );
 			case 'textarea':
-				return is_scalar( $value ) ? sanitize_textarea_field( (string) $value ) : $default;
+				return is_scalar( $value ) ? self::limit_length( $field, sanitize_textarea_field( (string) $value ) ) : $default;
 			case 'string':
 			default:
-				return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : $default;
+				return is_scalar( $value ) ? self::limit_length( $field, sanitize_text_field( (string) $value ) ) : $default;
 		}
+	}
+
+	/**
+	 * List of e-mail addresses from an array or a comma/semicolon/line separated string.
+	 * Invalid entries and duplicates are dropped; at most `max_items` addresses are kept.
+	 *
+	 * @param array<string, mixed> $field Field definition.
+	 * @param mixed                $value Raw value.
+	 * @return list<string>
+	 */
+	public static function sanitize_email_list( array $field, mixed $value ): array {
+		if ( is_array( $value ) ) {
+			$parts = array_map( 'strval', array_filter( $value, 'is_scalar' ) );
+		} elseif ( is_scalar( $value ) ) {
+			$parts = (array) preg_split( '/[\s,;]+/', (string) $value );
+		} else {
+			return is_array( $field['default'] ) ? array_values( $field['default'] ) : array();
+		}
+		$out = array();
+		foreach ( $parts as $part ) {
+			$email = sanitize_email( trim( (string) $part ) );
+			if ( '' !== $email && is_email( $email ) && ! in_array( strtolower( $email ), array_map( 'strtolower', $out ), true ) ) {
+				$out[] = $email;
+			}
+		}
+		return array_slice( $out, 0, max( 1, (int) ( $field['max_items'] ?? 10 ) ) );
+	}
+
+	/**
+	 * Cut a text to the field's `max_length` (characters).
+	 *
+	 * @param array<string, mixed> $field Field definition.
+	 * @param string               $text  Sanitized text.
+	 */
+	private static function limit_length( array $field, string $text ): string {
+		if ( isset( $field['max_length'] ) && mb_strlen( $text ) > (int) $field['max_length'] ) {
+			return trim( mb_substr( $text, 0, max( 0, (int) $field['max_length'] ) ) );
+		}
+		return $text;
 	}
 }
