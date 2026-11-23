@@ -15,7 +15,7 @@ Anzahl: 57 Aufrufstellen, 55 Hooks.
 | `review_captain_connectors_v1` | action | `Registry $registry` – Registry | `src/Connectors/Registry.php:82` |
 | `review_captain_debug_log_line` | filter | `string $line` – Line without personal data | `src/Jobs/Runner.php:424` |
 | `review_captain_diagnostics_sections` | filter | `array()` | `src/Admin/DiagnosticsPage.php:239` |
-| `review_captain_embed_hosts` | filter | `list<string> $hosts` – Hosts | `src/Security/EmbedPolicy.php:46` |
+| `review_captain_embed_hosts` | filter | `list<string> $hosts` – Hosts | `src/Security/EmbedPolicy.php:48` |
 | `review_captain_form_max_items` | filter | `int $max` – Maximum | `src/Frontend/FormHandler.php:495` |
 | `review_captain_form_min_seconds` | filter | `int $value` – Seconds from the setting | `src/Frontend/FormHandler.php:508` |
 | `review_captain_installed` | action | `int $from` – Previous schema version<br>`int $to` – New schema version | `src/Install/Installer.php:115` |
