@@ -94,7 +94,7 @@ class Settings {
 			}
 			$tab_input = isset( $input[ $tab ] ) && is_array( $input[ $tab ] ) ? $input[ $tab ] : array();
 			foreach ( $fields as $key => $field ) {
-				if ( 'pro' === $field['owner'] && ! $allow_pro ) {
+				if ( ( 'pro' === $field['owner'] && ! $allow_pro ) || ! empty( $field['internal'] ) ) {
 					continue;
 				}
 				if ( 'bool' === $field['type'] ) {

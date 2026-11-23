@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace ReviewCaptain\Cli;
 
+use ReviewCaptain\Admin\ConfigTransfer;
+use ReviewCaptain\Admin\SettingsPage;
+use ReviewCaptain\Audit\SettingsChanges;
 use ReviewCaptain\Install\Installer;
 use ReviewCaptain\Install\Schema;
 use ReviewCaptain\Jobs\Diagnostics;
@@ -19,7 +22,9 @@ use ReviewCaptain\Maintenance\DevSeeder;
 use ReviewCaptain\Maintenance\Maintenance;
 use ReviewCaptain\Maintenance\Reconciler;
 use ReviewCaptain\Plugin;
+use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Security\Crypto;
+use ReviewCaptain\Settings\SettingsSchema;
 use ReviewCaptain\Support\Requirements;
 
 /**
@@ -299,6 +304,375 @@ class Commands {
 				__( 'Schema ist auf Version %d.', 'review-captain' ),
 				(int) get_option( Schema::OPTION_VERSION, 0 )
 			)
+		);
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// Settings (SET-RC-18). Same schema, checks, rights and audit as the settings page.
+
+	/**
+	 * Max size of an import file in bytes (same limit as the upload on the settings page).
+	 */
+	private const IMPORT_MAX_BYTES = 200000;
+
+	/**
+	 * Settings page logic (no output).
+	 */
+	private function settings_page(): SettingsPage {
+		return new SettingsPage( $this->plugin );
+	}
+
+	/**
+	 * Resolve "tab.key" to its field definition or stop with an error.
+	 *
+	 * @param string $name Tab.key.
+	 * @return array{0: string, 1: string, 2: array<string, mixed>}|null
+	 */
+	private function settings_field( string $name ): ?array {
+		[ $tab, $key ] = array_pad( explode( '.', $name, 2 ), 2, '' );
+		$fields        = SettingsSchema::fields();
+		if ( ! isset( $fields[ $tab ][ $key ] ) ) {
+			/* translators: %s: setting key */
+			$this->out->error( sprintf( __( 'Unbekannte Einstellung „%s“. Format: Bereich.Schlüssel, siehe „wp review-captain settings list“.', 'review-captain' ), $name ) );
+			return null;
+		}
+		return array( $tab, $key, $fields[ $tab ][ $key ] );
+	}
+
+	/**
+	 * Writes need a user with the same rights as on the settings page (`--user=<id|login>`).
+	 *
+	 * @param list<string> $tabs Tabs to write.
+	 */
+	private function settings_require_writer( array $tabs ): bool {
+		if ( get_current_user_id() <= 0 || ! current_user_can( Capabilities::MANAGE_SETTINGS ) ) {
+			$this->out->error( __( 'Bitte gib mit --user=<ID|Login> einen Benutzer an, der die Einstellungen ändern darf (Recht review_captain_manage_settings).', 'review-captain' ) );
+			return false;
+		}
+		foreach ( $tabs as $tab ) {
+			if ( ! SettingsPage::can_write_tab( $tab ) ) {
+				/* translators: %s: tab */
+				$this->out->error( sprintf( __( 'Für den Bereich „%s“ fehlt dem Benutzer die Berechtigung (Datenschutz: review_captain_manage_privacy, Zugriff: promote_users).', 'review-captain' ), $tab ) );
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Value for output; secrets are never printed.
+	 *
+	 * @param string               $key   Key.
+	 * @param array<string, mixed> $field Field.
+	 * @param mixed                $value Value.
+	 */
+	private static function settings_output_value( string $key, array $field, mixed $value ): mixed {
+		if ( 'secret' === ( $field['type'] ?? '' ) || preg_match( ConfigTransfer::SECRET_PATTERN, $key ) ) {
+			return SettingsChanges::HIDDEN;
+		}
+		return $value;
+	}
+
+	/**
+	 * `settings list [--tab=<tab>] [--format=<f>]`.
+	 *
+	 * @param list<string>          $args  Args.
+	 * @param array<string, string> $assoc Assoc args.
+	 * @return list<array<string, mixed>>
+	 */
+	public function settings_list( array $args, array $assoc ): array {
+		$only = isset( $assoc['tab'] ) ? (string) $assoc['tab'] : null;
+		if ( null !== $only && ! array_key_exists( $only, SettingsSchema::tabs() ) ) {
+			$this->out->error( __( 'Unbekannter Bereich.', 'review-captain' ) );
+			return array();
+		}
+		$format = (string) ( $assoc['format'] ?? 'table' );
+		$raw    = in_array( $format, array( 'json', 'yaml' ), true );
+		$values = $this->plugin->settings()->all();
+		$rows   = array();
+		foreach ( SettingsSchema::fields() as $tab => $fields ) {
+			if ( null !== $only && $only !== $tab ) {
+				continue;
+			}
+			foreach ( $fields as $key => $field ) {
+				$value  = self::settings_output_value( (string) $key, $field, $values[ $tab ][ $key ] ?? $field['default'] );
+				$rows[] = array(
+					'key'     => $tab . '.' . $key,
+					'value'   => $raw ? $value : ConfigTransfer::display_value( $value ),
+					'default' => $raw ? $field['default'] : ConfigTransfer::display_value( $field['default'] ),
+					'type'    => (string) $field['type'],
+					'owner'   => (string) $field['owner'] . ( ! empty( $field['internal'] ) ? ' (intern)' : '' ),
+				);
+			}
+		}
+		$this->out->table( $rows, array( 'key', 'value', 'default', 'type', 'owner' ), $format );
+		return $rows;
+	}
+
+	/**
+	 * `settings get <tab.key> [--format=plain|json]`.
+	 *
+	 * @param list<string>          $args  Args.
+	 * @param array<string, string> $assoc Assoc args.
+	 */
+	public function settings_get( array $args, array $assoc ): mixed {
+		$found = $this->settings_field( (string) ( $args[0] ?? '' ) );
+		if ( null === $found ) {
+			return null;
+		}
+		[ $tab, $key, $field ] = $found;
+		$value                 = self::settings_output_value( $key, $field, $this->plugin->settings()->get( $tab, $key, $field['default'] ) );
+		if ( 'json' === ( $assoc['format'] ?? 'plain' ) ) {
+			$this->out->log( (string) wp_json_encode( $value ) );
+		} else {
+			$this->out->log( is_bool( $value ) ? ( $value ? 'true' : 'false' ) : ( is_array( $value ) ? implode( ',', array_map( 'strval', $value ) ) : (string) $value ) );
+		}
+		return $value;
+	}
+
+	/**
+	 * `settings set <tab.key> <value> [--confirm-word=<word>]` – goes through the settings page's
+	 * save logic: validation with error instead of correction, cross-checks, Pro lock, role rules,
+	 * confirmation word, audit with old and new value.
+	 *
+	 * @param list<string>          $args  Args.
+	 * @param array<string, string> $assoc Assoc args.
+	 * @return array{changed: list<string>, invalid: list<string>, errors: array<string, string>, given: array<string, string>}|null
+	 */
+	public function settings_set( array $args, array $assoc ): ?array {
+		$found = $this->settings_field( (string) ( $args[0] ?? '' ) );
+		if ( null === $found ) {
+			return null;
+		}
+		[ $tab, $key, $field ] = $found;
+		if ( ! empty( $field['internal'] ) ) {
+			$this->out->error( __( 'Dieser Wert wird vom Plugin gesetzt und lässt sich nicht direkt ändern.', 'review-captain' ) );
+			return null;
+		}
+		if ( 'pro' === $field['owner'] && ! SettingsPage::pro_writable() ) {
+			$this->out->error( __( 'Diese Einstellung benötigt Review Captain Pro.', 'review-captain' ) );
+			return null;
+		}
+		if ( ! $this->settings_require_writer( array( $tab ) ) ) {
+			return null;
+		}
+		$given = (string) ( $args[1] ?? '' );
+		if ( 'bool' === $field['type'] ) {
+			$bool = self::parse_bool( $given );
+			if ( null === $bool ) {
+				$this->out->error( __( 'Bitte gib 1 oder 0 (true/false, on/off, ja/nein) an.', 'review-captain' ) );
+				return null;
+			}
+			$value = $bool;
+		} elseif ( 'array' === $field['type'] ) {
+			$value = array_values( array_filter( array_map( 'trim', explode( ',', $given ) ), 'strlen' ) );
+		} else {
+			$value = $given;
+		}
+
+		// Booleans of the tab are sent with their current value (a missing checkbox means "off").
+		$input  = array();
+		$fields = SettingsSchema::fields()[ $tab ];
+		$all    = $this->plugin->settings()->all();
+		foreach ( $fields as $k => $f ) {
+			if ( 'bool' === $f['type'] ) {
+				$input[ $k ] = (bool) ( $all[ $tab ][ $k ] ?? $f['default'] );
+			}
+		}
+		$input[ $key ] = $value;
+		if ( isset( $assoc['confirm-word'] ) ) {
+			$input['uninstall_confirm_word'] = (string) $assoc['confirm-word'];
+		}
+		$result = $this->settings_page()->save_tab( $tab, array( $tab => $input ) );
+		$this->plugin->settings()->flush();
+
+		$own = $result['errors'][ $tab . '-' . $key ] ?? null;
+		foreach ( $result['errors'] as $id => $message ) {
+			if ( $id !== $tab . '-' . $key ) {
+				/* translators: 1: field, 2: message */
+				$this->out->warning( sprintf( __( '%1$s: %2$s', 'review-captain' ), str_replace( '-', '.', $id ), $message ) );
+			}
+		}
+		if ( null !== $own ) {
+			/* translators: 1: setting key, 2: message */
+			$this->out->error( sprintf( __( '%1$s wurde nicht gespeichert: %2$s', 'review-captain' ), $tab . '.' . $key, $own ) );
+			return $result;
+		}
+		if ( ! in_array( $tab . '.' . $key, $result['changed'], true ) ) {
+			/* translators: %s: setting key */
+			$this->out->success( sprintf( __( '%s ist unverändert.', 'review-captain' ), $tab . '.' . $key ) );
+			return $result;
+		}
+		/* translators: 1: setting key, 2: value */
+		$this->out->success( sprintf( __( '%1$s gespeichert: %2$s', 'review-captain' ), $tab . '.' . $key, ConfigTransfer::display_value( self::settings_output_value( $key, $field, $this->plugin->settings()->get( $tab, $key ) ) ) ) );
+		return $result;
+	}
+
+	/**
+	 * Strict yes/no parser for CLI values.
+	 *
+	 * @param string $value Value.
+	 */
+	private static function parse_bool( string $value ): ?bool {
+		$value = strtolower( trim( $value ) );
+		if ( in_array( $value, array( '1', 'true', 'on', 'yes', 'ja' ), true ) ) {
+			return true;
+		}
+		if ( in_array( $value, array( '0', 'false', 'off', 'no', 'nein' ), true ) ) {
+			return false;
+		}
+		return null;
+	}
+
+	/**
+	 * `settings reset [<tab>...] [--all] --yes`.
+	 *
+	 * @param list<string>          $args  Args.
+	 * @param array<string, string> $assoc Assoc args.
+	 * @return list<string> Reset tabs.
+	 */
+	public function settings_reset( array $args, array $assoc ): array {
+		$known = array_keys( SettingsSchema::tabs() );
+		if ( ! empty( $assoc['all'] ) ) {
+			$tabs = $known;
+		} else {
+			$tabs = array_values( array_unique( array_map( 'strval', $args ) ) );
+			if ( ! $tabs ) {
+				$this->out->error( __( 'Gib einen oder mehrere Bereiche an oder --all.', 'review-captain' ) );
+				return array();
+			}
+			$unknown = array_diff( $tabs, $known );
+			if ( $unknown ) {
+				/* translators: %s: tabs */
+				$this->out->error( sprintf( __( 'Unbekannter Bereich: %s', 'review-captain' ), implode( ', ', $unknown ) ) );
+				return array();
+			}
+		}
+		if ( empty( $assoc['yes'] ) ) {
+			$this->out->error( __( 'Zurücksetzen nur mit --yes. Reviews, Profile und Verlauf bleiben unverändert; der vorherige Stand wird gesichert.', 'review-captain' ) );
+			return array();
+		}
+		if ( ! $this->settings_require_writer( empty( $assoc['all'] ) ? $tabs : array() ) ) {
+			return array();
+		}
+		$done = $this->settings_page()->reset_tabs( $tabs );
+		$this->plugin->settings()->flush();
+		$skipped = array_diff( $tabs, $done );
+		if ( $skipped ) {
+			/* translators: %s: tabs */
+			$this->out->warning( sprintf( __( 'Ohne Berechtigung übersprungen: %s', 'review-captain' ), implode( ', ', $skipped ) ) );
+		}
+		if ( ! $done ) {
+			$this->out->error( __( 'Es wurde nichts zurückgesetzt.', 'review-captain' ) );
+			return array();
+		}
+		/* translators: %s: tabs */
+		$this->out->success( sprintf( __( 'Zurückgesetzt: %s. Der vorherige Stand wurde gesichert.', 'review-captain' ), implode( ', ', $done ) ) );
+		return $done;
+	}
+
+	/**
+	 * `settings export [--file=<path>]`.
+	 *
+	 * @param list<string>          $args  Args.
+	 * @param array<string, string> $assoc Assoc args.
+	 * @return array<string, mixed>
+	 */
+	public function settings_export( array $args, array $assoc ): array {
+		$doc  = ( new ConfigTransfer( $this->plugin->settings() ) )->export();
+		$json = (string) wp_json_encode( $doc, JSON_PRETTY_PRINT );
+		$this->plugin->audit()->record( 'settings.exported', 'settings', 'cli', array( 'version' => SettingsSchema::VERSION ) );
+		if ( empty( $assoc['file'] ) ) {
+			$this->out->log( $json );
+			return $doc;
+		}
+		$file = (string) $assoc['file'];
+		if ( false === file_put_contents( $file, $json . "\n" ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			/* translators: %s: file */
+			$this->out->error( sprintf( __( 'Datei %s konnte nicht geschrieben werden.', 'review-captain' ), $file ) );
+			return $doc;
+		}
+		/* translators: %s: file */
+		$this->out->success( sprintf( __( 'Konfiguration nach %s exportiert (ohne Zugangsdaten).', 'review-captain' ), $file ) );
+		return $doc;
+	}
+
+	/**
+	 * `settings import <file> [--dry-run] [--yes] [--format=<f>]` – preview first (same as the
+	 * settings page), apply only with --yes; a backup is created before applying.
+	 *
+	 * @param list<string>          $args  Args.
+	 * @param array<string, string> $assoc Assoc args.
+	 * @return array{diff: list<array<string, mixed>>, changed: list<string>}
+	 */
+	public function settings_import( array $args, array $assoc ): array {
+		$none = array(
+			'diff'    => array(),
+			'changed' => array(),
+		);
+		$file = (string) ( $args[0] ?? '' );
+		if ( '' === $file || ! is_readable( $file ) || ! is_file( $file ) ) {
+			$this->out->error( __( 'Importdatei nicht gefunden oder nicht lesbar.', 'review-captain' ) );
+			return $none;
+		}
+		$size = (int) filesize( $file );
+		$json = $size > 0 && $size <= self::IMPORT_MAX_BYTES ? file_get_contents( $file ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$dry  = ! empty( $assoc['dry-run'] );
+		if ( ! is_string( $json ) ) {
+			$this->out->error( __( 'Die Datei ist leer oder größer als 200 KB.', 'review-captain' ) );
+			return $none;
+		}
+		if ( ! $dry && empty( $assoc['yes'] ) ) {
+			$this->out->error( __( 'Import nur mit --yes übernehmen oder mit --dry-run als Vorschau anzeigen.', 'review-captain' ) );
+			return $none;
+		}
+		if ( ! $this->settings_require_writer( array() ) ) {
+			return $none;
+		}
+		$tabs     = SettingsPage::writable_tabs();
+		$transfer = new ConfigTransfer( $this->plugin->settings() );
+		$preview  = $transfer->preview( $json, $tabs );
+		if ( null === $preview ) {
+			$this->out->error( __( 'Kein gültiger Review-Captain-Konfigurationsexport oder nicht unterstützte Version.', 'review-captain' ) );
+			return $none;
+		}
+		if ( SettingsPage::migrate_access( $this->plugin->settings() ) ) {
+			$preview = (array) $transfer->preview( $json, $tabs );
+		}
+		$rows = array();
+		foreach ( $preview['diff'] as $row ) {
+			$field  = SettingsSchema::fields()[ $row['tab'] ][ $row['key'] ] ?? array();
+			$rows[] = array(
+				'key' => $row['tab'] . '.' . $row['key'],
+				'old' => ConfigTransfer::display_value( self::settings_output_value( (string) $row['key'], $field, $row['old'] ) ),
+				'new' => ConfigTransfer::display_value( self::settings_output_value( (string) $row['key'], $field, $row['new'] ) ),
+			);
+		}
+		if ( ! $rows ) {
+			$this->out->success( __( 'Der Import enthält keine Änderungen gegenüber den aktuellen Einstellungen.', 'review-captain' ) );
+			return $none;
+		}
+		$this->out->table( $rows, array( 'key', 'old', 'new' ), (string) ( $assoc['format'] ?? 'table' ) );
+		$skipped = array_diff( array_keys( SettingsSchema::tabs() ), $tabs );
+		if ( $skipped ) {
+			/* translators: %s: tabs */
+			$this->out->warning( sprintf( __( 'Ohne Berechtigung nicht berücksichtigt: %s', 'review-captain' ), implode( ', ', $skipped ) ) );
+		}
+		if ( $dry ) {
+			/* translators: %d: number of changes */
+			$this->out->success( sprintf( __( 'Probelauf: %d Änderungen, nichts gespeichert.', 'review-captain' ), count( $rows ) ) );
+			return array(
+				'diff'    => $rows,
+				'changed' => array(),
+			);
+		}
+		$changed = $this->settings_page()->apply_import( $preview['values'], $preview['tabs'] );
+		$this->plugin->settings()->flush();
+		/* translators: %d: number of changes */
+		$this->out->success( sprintf( __( '%d Einstellungen importiert. Der vorherige Stand wurde gesichert.', 'review-captain' ), count( $changed ) ) );
+		return array(
+			'diff'    => $rows,
+			'changed' => $changed,
 		);
 	}
 }

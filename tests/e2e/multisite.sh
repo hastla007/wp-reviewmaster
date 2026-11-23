@@ -28,7 +28,7 @@ n="$(SQL "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name LIKE 'w
 wp --url=127.0.0.1:8898/zwei/ review-captain doctor 2>/dev/null | tee -a "$OUT"
 wp plugin activate review-captain-pro --network >/dev/null 2>&1 && pass "Pro netzwerkweit aktiviert" || fail "Pro netzwerkweit"
 wp --url=127.0.0.1:8898/zwei/ eval 'echo (int)\ReviewCaptainPro\addon()->is_entitled("review.analytics");' 2>/dev/null | grep -q 0 && pass "Pro ohne Lizenz auf Site 2: keine Rechte" || fail "Pro-Rechte auf Site 2"
-for s in "" "zwei/" "drei/"; do wp --url="127.0.0.1:8898/$s" eval '$s=get_option("review_captain_settings",array()); if(!is_array($s)){$s=array();} $s["privacy"]["delete_data_on_uninstall"]=true; update_option("review_captain_settings",$s);' >/dev/null 2>&1; done
+for s in "" "zwei/" "drei/"; do wp --url="127.0.0.1:8898/$s" eval '$s=get_option("review_captain_settings",array()); if(!is_array($s)){$s=array();} $s["privacy"]["delete_data_on_uninstall"]=true; $s["privacy"]["delete_data_confirmed_at"]=gmdate("Y-m-d H:i:s"); update_option("review_captain_settings",$s);' >/dev/null 2>&1; done
 wp plugin deactivate review-captain-pro --network >/dev/null 2>&1; wp plugin uninstall review-captain-pro --skip-delete >/dev/null 2>&1
 wp plugin deactivate review-captain --network >/dev/null 2>&1; wp plugin uninstall review-captain --skip-delete >/dev/null 2>&1
 n="$(SQL "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name LIKE 'wp_%review_captain_%'")"; [ "$n" -eq 0 ] && pass "Netzwerk-Deinstallation entfernt alle Tabellen" || fail "Nach Netzwerk-Deinstallation $n Tabellen übrig: $(SQL "SELECT name FROM sqlite_master WHERE name LIKE 'wp_%review_captain_%'" | tr '\n' ' ')"

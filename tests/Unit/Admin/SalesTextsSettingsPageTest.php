@@ -77,7 +77,8 @@ final class SalesTextsSettingsPageTest extends AdminTestCase {
 		);
 		$this->assertContains( 'submissions-notify_recipients', $result['invalid'] );
 		$s = new Settings();
-		$this->assertSame( array( 'ok@example.test' ), $s->get( 'submissions', 'notify_recipients' ) );
+		// SET-RC-19: an invalid list is reported and keeps its stored value (default: empty = admin_email).
+		$this->assertSame( array(), $s->get( 'submissions', 'notify_recipients' ) );
 		$this->assertSame( array( 'spam' ), $s->get( 'submissions', 'report_reasons' ) );
 		$this->assertSame( 'none', $s->get( 'submissions', 'report_notify' ) );
 		$this->assertSame( 'Eigener Text {privacy_link}', $s->get( 'submissions', 'consent_text' ) );

@@ -23,6 +23,20 @@ final class Capabilities {
 	public const MANAGE_SETTINGS = 'review_captain_manage_settings';
 
 	/**
+	 * Settings keys of the tab "Zugriff & Rollen" and the capability each one assigns (SET-RC-16).
+	 * `moderate_roles` and `settings_roles` predate the matrix and keep their names.
+	 */
+	public const ROLE_KEYS = array(
+		'moderate_roles' => self::MODERATE,
+		'sources_roles'  => self::MANAGE_SOURCES,
+		'requests_roles' => self::MANAGE_REQUESTS,
+		'reports_roles'  => self::VIEW_REPORTS,
+		'trust_roles'    => self::MANAGE_TRUST,
+		'privacy_roles'  => self::MANAGE_PRIVACY,
+		'settings_roles' => self::MANAGE_SETTINGS,
+	);
+
+	/**
 	 * Default role grants.
 	 *
 	 * @return array<string, list<string>>
@@ -90,6 +104,23 @@ final class Capabilities {
 				$role->remove_cap( $cap );
 			}
 		}
+	}
+
+	/**
+	 * Roles that currently hold a capability (administrator always first when present).
+	 *
+	 * @param string $cap Capability.
+	 * @return list<string>
+	 */
+	public static function holders( string $cap ): array {
+		$out = array();
+		foreach ( wp_roles()->role_objects as $name => $role ) {
+			if ( is_object( $role ) && method_exists( $role, 'has_cap' ) && $role->has_cap( $cap ) ) {
+				$out[] = (string) $name;
+			}
+		}
+		usort( $out, static fn( string $a, string $b ): int => (int) ( 'administrator' !== $a ) <=> (int) ( 'administrator' !== $b ) );
+		return $out;
 	}
 
 	/**

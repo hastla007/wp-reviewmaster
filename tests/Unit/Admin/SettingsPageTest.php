@@ -47,7 +47,8 @@ final class SettingsPageTest extends AdminTestCase {
 		$this->assertCount( 1, $audit );
 		$context = json_decode( $audit[0]['context'], true );
 		$this->assertSame( array( 'general.brand_name' ), $context['fields'] );
-		$this->assertStringNotContainsString( 'Musterladen', $audit[0]['context'], 'audit stores keys only' );
+		// SET-RC-17: old and new value are logged (short texts in full).
+		$this->assertSame( array( array( 'field' => 'general.brand_name', 'from' => '', 'to' => 'Musterladen' ) ), $context['changes'] );
 	}
 
 	public function test_pro_tab_cannot_be_written_without_pro(): void {
@@ -65,7 +66,10 @@ final class SettingsPageTest extends AdminTestCase {
 		$this->login_with( Capabilities::MANAGE_SETTINGS );
 		$result = $this->page()->save_tab( 'submissions', array( 'submissions' => array( 'rate_limit_per_hour' => '99999', 'min_text_length' => '30', 'enabled' => '1' ) ) );
 		$this->assertSame( array( 'submissions-rate_limit_per_hour' ), $result['invalid'] );
-		$this->assertSame( 1000, ( new Settings() )->get( 'submissions', 'rate_limit_per_hour' ) );
+		// SET-RC-19: not silently clamped – the stored value stays, the field reports the range.
+		$this->assertSame( 5, ( new Settings() )->get( 'submissions', 'rate_limit_per_hour' ) );
+		$this->assertStringContainsString( '1 bis 1.000', $result['errors']['submissions-rate_limit_per_hour'] );
+		$this->assertSame( '99999', $result['given']['rate_limit_per_hour'] );
 		$this->assertSame( 30, ( new Settings() )->get( 'submissions', 'min_text_length' ) );
 	}
 

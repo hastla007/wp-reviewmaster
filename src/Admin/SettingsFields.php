@@ -104,12 +104,19 @@ final class SettingsFields {
 				'privacy_notice'           => array( __( 'Datenschutzhinweis im Formular', 'review-captain' ), __( 'Leer = kurzer Standardtext mit Link zu deiner Datenschutzseite.', 'review-captain' ) ),
 				'erase_mode'               => array( __( 'Verhalten bei Löschanfragen', 'review-captain' ), __( 'Was „Personenbezogene Daten löschen“ (Werkzeuge) mit Reviews dieser E-Mail-Adresse macht.', 'review-captain' ) ),
 				'retention_logs_days'      => array( __( 'Protokolle (Tage)', 'review-captain' ), __( 'Protokolle enthalten keine Reviewtexte oder Zugangsdaten.', 'review-captain' ) ),
-				'retention_jobs_days'      => array( __( 'Erledigte Hintergrundaufgaben (Tage)', 'review-captain' ), __( 'Danach werden abgeschlossene Hintergrundaufgaben gelöscht. Sie enthalten keine Reviewtexte.', 'review-captain' ) ),
-				'delete_data_on_uninstall' => array( __( 'Daten beim Deinstallieren löschen', 'review-captain' ), __( 'An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert.', 'review-captain' ) ),
+								'retention_jobs_days'      => array( __( 'Erledigte Hintergrundaufgaben (Tage)', 'review-captain' ), __( 'Danach werden abgeschlossene Hintergrundaufgaben gelöscht. Sie enthalten keine Reviewtexte.', 'review-captain' ) ),
+				'retention_audit_days'     => array( __( 'Änderungsprotokoll der Einstellungen (Tage)', 'review-captain' ), __( 'Wie lange Einträge zu Einstellungen und Rollenrechten mit altem und neuem Wert aufbewahrt werden. Texte sind gekürzt, E-Mail-Adressen maskiert, Zugangsdaten nie enthalten.', 'review-captain' ) ),
+				'delete_data_on_uninstall' => array( __( 'Daten beim Deinstallieren löschen', 'review-captain' ), __( 'An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Zum Einschalten tippst du LÖSCHEN ein; der Zeitpunkt der Bestätigung wird gespeichert. Daten bei Google, Trustpilot usw. werden nie verändert.', 'review-captain' ) ),
+				'delete_data_confirmed_at' => array( __( 'Löschung bestätigt am (UTC)', 'review-captain' ), __( 'Wird beim Bestätigen mit LÖSCHEN gesetzt und lässt sich nicht direkt ändern.', 'review-captain' ) ),
 			),
 			'access'      => array(
-				'moderate_roles' => array( __( 'Wer darf moderieren', 'review-captain' ), __( 'Moderierende sehen eingereichte Reviews inklusive Kontaktadresse. Administratoren behalten immer alle Rechte.', 'review-captain' ) ),
-				'settings_roles' => array( __( 'Wer darf Einstellungen ändern', 'review-captain' ), __( 'Administratoren behalten immer alle Rechte.', 'review-captain' ) ),
+				'moderate_roles' => array( __( 'Reviews moderieren', 'review-captain' ), __( 'Eingereichte Reviews, Fragen und Korrekturen prüfen. Moderierende sehen eingereichte Reviews inklusive Kontaktadresse.', 'review-captain' ) ),
+				'sources_roles'  => array( __( 'Quellen verwalten', 'review-captain' ), __( 'Profile und Plattform-Quellen anlegen, verbinden und synchronisieren.', 'review-captain' ) ),
+				'requests_roles' => array( __( 'Anfragen verwalten', 'review-captain' ), __( 'Feedback-Links und (mit Review Captain Pro) Bewertungsanfragen verwalten.', 'review-captain' ) ),
+				'reports_roles'  => array( __( 'Berichte & Diagnose ansehen', 'review-captain' ), __( 'Diagnose, Protokolle und Auswertungen ansehen.', 'review-captain' ) ),
+				'trust_roles'    => array( __( 'Vertrauenszeichen verwalten', 'review-captain' ), __( 'Vertrauenszeichen und Badges verwalten (Review Captain Pro).', 'review-captain' ) ),
+				'privacy_roles'  => array( __( 'Datenschutz verwalten', 'review-captain' ), __( 'Den Reiter „Datenschutz & Aufbewahrung“ ändern: Fristen, Löschanfragen, Deinstallation.', 'review-captain' ) ),
+				'settings_roles' => array( __( 'Einstellungen ändern', 'review-captain' ), __( 'Die Einstellungen von Review Captain ändern, exportieren und importieren.', 'review-captain' ) ),
 			),
 			'advanced'    => array(
 				'use_action_scheduler' => array( __( 'Action Scheduler verwenden', 'review-captain' ), __( 'Falls verfügbar (z. B. durch WooCommerce), sonst WP-Cron. Bei wenig Besucherverkehr empfehlen wir einen Server-Cron.', 'review-captain' ) ),
@@ -166,8 +173,7 @@ final class SettingsFields {
 				__( 'Deinstallation', 'review-captain' )     => array( 'delete_data_on_uninstall' ),
 			),
 			'access'      => array(
-				__( 'Moderation', 'review-captain' )    => array( 'moderate_roles' ),
-				__( 'Einstellungen', 'review-captain' ) => array( 'settings_roles' ),
+				__( 'Rechte je Rolle', 'review-captain' ) => array( 'moderate_roles', 'sources_roles', 'requests_roles', 'reports_roles', 'trust_roles', 'privacy_roles', 'settings_roles' ),
 			),
 			'advanced'    => array(
 				__( 'Hintergrundaufgaben', 'review-captain' ) => array( 'use_action_scheduler', 'job_time_budget', 'lease_seconds' ),

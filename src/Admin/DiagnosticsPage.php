@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace ReviewCaptain\Admin;
 
+use ReviewCaptain\Audit\AuditLog;
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Install\Schema;
 use ReviewCaptain\Plugin;
@@ -178,12 +179,13 @@ final class DiagnosticsPage {
 	/**
 	 * Recent audit entries without personal data (no user IDs, only allowlisted context).
 	 *
-	 * @param int $limit Limit.
+	 * @param int  $limit         Limit.
+	 * @param bool $settings_only Only settings and role changes (SET-RC-17).
 	 * @return list<array<string, mixed>>
 	 */
-	public function audit( int $limit = 20 ): array {
+	public function audit( int $limit = 20, bool $settings_only = false ): array {
 		$out = array();
-		foreach ( $this->plugin->audit()->recent( $limit ) as $row ) {
+		foreach ( $this->plugin->audit()->recent( $limit, 0, $settings_only ? AuditLog::SETTINGS_OBJECT_TYPES : null ) as $row ) {
 			$context = json_decode( (string) ( $row['context'] ?? '' ), true );
 			$out[]   = array(
 				'event'       => (string) $row['event'],
@@ -191,6 +193,38 @@ final class DiagnosticsPage {
 				'object_id'   => (string) $row['object_id'],
 				'fields'      => is_array( $context ) ? array_keys( $context ) : array(),
 				'created_at'  => (string) $row['created_at'],
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Readable changes of a settings audit entry ("Feld: alt → neu"), already masked when written.
+	 *
+	 * @param int $limit Limit.
+	 * @return list<array{event: string, object_id: string, created_at: string, changes: list<string>}>
+	 */
+	public function settings_audit( int $limit = 20 ): array {
+		$out = array();
+		foreach ( $this->plugin->audit()->recent( $limit, 0, AuditLog::SETTINGS_OBJECT_TYPES ) as $row ) {
+			$context = json_decode( (string) ( $row['context'] ?? '' ), true );
+			$context = is_array( $context ) ? $context : array();
+			$changes = array();
+			foreach ( (array) ( $context['changes'] ?? array() ) as $change ) {
+				if ( ! is_array( $change ) || ! isset( $change['field'] ) ) {
+					continue;
+				}
+				[ $tab, $key ] = array_pad( explode( '.', (string) $change['field'], 2 ), 2, '' );
+				$changes[]     = SettingsFields::label( $tab, $key ) . ': ' . ConfigTransfer::display_value( $change['from'] ?? null ) . ' → ' . ConfigTransfer::display_value( $change['to'] ?? null );
+			}
+			if ( ! $changes && isset( $context['capability'] ) ) {
+				$changes[] = (string) $context['capability'] . ': ' . ConfigTransfer::display_value( $context['from'] ?? null ) . ' → ' . ConfigTransfer::display_value( $context['roles'] ?? null );
+			}
+			$out[] = array(
+				'event'      => (string) $row['event'],
+				'object_id'  => (string) $row['object_id'],
+				'created_at' => (string) $row['created_at'],
+				'changes'    => $changes,
 			);
 		}
 		return $out;
@@ -397,11 +431,40 @@ final class DiagnosticsPage {
 	}
 
 	/**
+	 * Settings and role changes with old and new value (SET-RC-17). Rendered inside the audit box.
+	 */
+	private function render_settings_audit(): void {
+		$rows = $this->settings_audit( 50 );
+		if ( ! $rows ) {
+			echo '<p>' . esc_html__( 'Noch keine Änderungen an Einstellungen oder Rollen protokolliert.', 'review-captain' ) . '</p></div></div>';
+			return;
+		}
+		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Zeit', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Ereignis', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Bereich', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Änderungen (alt → neu)', 'review-captain' ) . '</th></tr></thead><tbody>';
+		foreach ( $rows as $row ) {
+			echo '<tr><td>' . esc_html( View::date( $row['created_at'], true ) ) . '</td><td><code>' . esc_html( $row['event'] ) . '</code></td><td>' . esc_html( $row['object_id'] ) . '</td><td>';
+			echo $row['changes'] ? '<ul class="rc-admin-changes"><li>' . implode( '</li><li>', array_map( 'esc_html', $row['changes'] ) ) . '</li></ul>' : '–'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per item.
+			echo '</td></tr>';
+		}
+		echo '</tbody></table></div></div>';
+	}
+
+	/**
 	 * Audit section.
 	 */
 	private function render_audit(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display filter only.
+		$settings_only = 'settings' === View::req( $_GET, 'audit' );
+		echo '<div class="postbox" id="rc-audit"><div class="postbox-header"><h2>' . esc_html__( 'Letzte Protokolleinträge', 'review-captain' ) . '</h2></div><div class="inside">';
+		echo '<p class="rc-admin-filter">' . esc_html__( 'Anzeigen:', 'review-captain' ) . ' ';
+		echo $settings_only ? '<a href="' . esc_url( View::page_url( self::SLUG ) . '#rc-audit' ) . '">' . esc_html__( 'Alle', 'review-captain' ) . '</a>' : '<strong aria-current="true">' . esc_html__( 'Alle', 'review-captain' ) . '</strong>';
+		echo ' | ';
+		echo $settings_only ? '<strong aria-current="true">' . esc_html__( 'Einstellungen', 'review-captain' ) . '</strong>' : '<a href="' . esc_url( View::page_url( self::SLUG, array( 'audit' => 'settings' ) ) . '#rc-audit' ) . '">' . esc_html__( 'Einstellungen', 'review-captain' ) . '</a>';
+		echo '</p>';
+		if ( $settings_only ) {
+			$this->render_settings_audit();
+			return;
+		}
 		$rows = $this->audit( 20 );
-		echo '<div class="postbox"><div class="postbox-header"><h2>' . esc_html__( 'Letzte Protokolleinträge', 'review-captain' ) . '</h2></div><div class="inside">';
 		if ( ! $rows ) {
 			echo '<p>' . esc_html__( 'Noch keine Einträge.', 'review-captain' ) . '</p></div></div>';
 			return;

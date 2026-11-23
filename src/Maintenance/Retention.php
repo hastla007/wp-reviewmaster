@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace ReviewCaptain\Maintenance;
 
+use ReviewCaptain\Audit\AuditLog;
 use ReviewCaptain\Install\Schema;
 use ReviewCaptain\Jobs\JobQueue;
 use ReviewCaptain\Plugin;
@@ -52,6 +53,12 @@ class Retention {
 		$external_days = (int) $settings->get( 'privacy', 'retention_external_days', 30 );
 		$logs_days     = (int) $settings->get( 'privacy', 'retention_logs_days', 90 );
 		$jobs_days     = (int) $settings->get( 'privacy', 'retention_jobs_days', 30 );
+		/**
+		 * Filter the retention of settings and role change entries in the audit log (SET-RC-17).
+		 *
+		 * @param int $days Days (setting privacy.retention_audit_days, default 365).
+		 */
+		$audit_days = max( 1, (int) apply_filters( 'review_captain_retention_audit_days', (int) $settings->get( 'privacy', 'retention_audit_days', 365 ) ) );
 
 		global $wpdb;
 		$table = Schema::table( 'reviews' );
@@ -75,9 +82,11 @@ class Retention {
 			$out['complete'] = false;
 		}
 
-		// 3. Audit log.
+		// 3. Audit log; settings and role changes have their own retention (SET-RC-17).
 		if ( microtime( true ) < $deadline ) {
-			$out['logs_deleted'] = $this->plugin->audit()->purge_older_than( $logs_days );
+			$audit               = $this->plugin->audit();
+			$out['logs_deleted'] = $audit->purge_older_than( $logs_days, AuditLog::SETTINGS_OBJECT_TYPES )
+				+ $audit->purge_types_older_than( AuditLog::SETTINGS_OBJECT_TYPES, $audit_days );
 		} else {
 			$out['complete'] = false;
 		}

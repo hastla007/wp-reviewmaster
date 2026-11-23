@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace ReviewCaptain\Admin;
 
+use ReviewCaptain\Audit\SettingsChanges;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Settings\Settings;
@@ -37,12 +38,14 @@ final class SettingsPage {
 	private const IMPORT_MAX_BYTES = 200000;
 
 	/**
-	 * Role keys of the access tab and the capability each one grants.
+	 * Transient prefix for field errors of the last save (SET-RC-19).
 	 */
-	private const ROLE_CAPS = array(
-		'moderate_roles' => Capabilities::MODERATE,
-		'settings_roles' => Capabilities::MANAGE_SETTINGS,
-	);
+	private const ERRORS_TRANSIENT = 'review_captain_settings_errors_';
+
+	/**
+	 * Role keys of the access tab and the capability each one grants (SET-RC-16: all seven).
+	 */
+	private const ROLE_CAPS = Capabilities::ROLE_KEYS;
 
 	/**
 	 * Constructor.
@@ -50,6 +53,16 @@ final class SettingsPage {
 	 * @param Plugin $plugin Plugin.
 	 */
 	public function __construct( private Plugin $plugin ) {}
+
+	/**
+	 * Field errors of the last save of the rendered tab: errors and given values by key (SET-RC-19).
+	 *
+	 * @var array{errors: array<string, string>, given: array<string, string>}
+	 */
+	private array $field_errors = array(
+		'errors' => array(),
+		'given'  => array(),
+	);
 
 	/**
 	 * Settings service.
@@ -128,49 +141,107 @@ final class SettingsPage {
 	// Write logic.
 
 	/**
+	 * Fill role lists of the access tab that are not stored yet from the roles that hold the
+	 * capability today (SET-RC-16). Older versions stored only moderate_roles and settings_roles;
+	 * mapping the others from the real role state keeps later imports, resets and saves from
+	 * revoking a capability granted outside the plugin. Runs once per missing key; no audit entry,
+	 * because no right changes.
+	 *
+	 * @param Settings $settings Settings.
+	 * @return bool Whether the option was written.
+	 */
+	public static function migrate_access( Settings $settings ): bool {
+		$stored = get_option( Settings::OPTION, array() );
+		$stored = is_array( $stored ) ? $stored : array();
+		$access = isset( $stored['access'] ) && is_array( $stored['access'] ) ? $stored['access'] : array();
+		$filled = false;
+		foreach ( self::ROLE_CAPS as $key => $cap ) {
+			if ( array_key_exists( $key, $access ) ) {
+				continue;
+			}
+			$access[ $key ] = array_values( array_unique( array_merge( array( 'administrator' ), Capabilities::holders( $cap ) ) ) );
+			$filled         = true;
+		}
+		if ( ! $filled ) {
+			return false;
+		}
+		$stored['access'] = $access;
+		update_option( Settings::OPTION, $stored, true );
+		$settings->flush();
+		return true;
+	}
+
+	/**
 	 * Save one tab. Only the given tab is processed; Pro fields stay untouched unless Pro opts in.
+	 * Invalid values are not corrected but reported per field and keep their stored value
+	 * (SET-RC-19); fields of a failed cross-check keep their stored values together.
 	 *
 	 * @param string               $tab   Tab key.
 	 * @param array<string, mixed> $input Raw (unslashed) input keyed by tab.
-	 * @return array{changed: list<string>, invalid: list<string>}
+	 * @return array{changed: list<string>, invalid: list<string>, errors: array<string, string>, given: array<string, string>}
 	 */
 	public function save_tab( string $tab, array $input ): array {
+		if ( 'access' === $tab ) {
+			self::migrate_access( $this->settings() );
+		}
 		$fields  = SettingsSchema::fields()[ $tab ] ?? array();
 		$raw     = isset( $input[ $tab ] ) && is_array( $input[ $tab ] ) ? $input[ $tab ] : array();
 		$pro     = self::pro_writable();
-		$values  = $this->settings()->sanitize( $input, array( $tab ), $pro );
-		$invalid = array();
+		$current = $this->settings()->all();
+		$values  = $current;
+		$errors  = array();
+		$given   = array();
+		$open    = array();
 
 		foreach ( $fields as $key => $field ) {
-			if ( ( 'pro' === $field['owner'] && ! $pro ) || ! array_key_exists( $key, $raw ) || ! is_scalar( $raw[ $key ] ) ) {
+			if ( ( 'pro' === $field['owner'] && ! $pro ) || ! empty( $field['internal'] ) ) {
 				continue;
 			}
-			if ( 'email_list' === $field['type'] ) {
-				// Dropped (invalid, duplicate or surplus) addresses are reported.
-				$given = array_filter( array_map( 'trim', (array) preg_split( '/[\s,;]+/', (string) $raw[ $key ] ) ) );
-				if ( count( array_unique( array_map( 'strtolower', $given ) ) ) !== count( (array) $values[ $tab ][ $key ] ) ) {
-					$invalid[] = $tab . '-' . $key;
-				}
+			$open[] = $key;
+			if ( 'bool' === $field['type'] ) {
+				$values[ $tab ][ $key ] = SettingsSchema::sanitize_value( $field, $raw[ $key ] ?? false );
 				continue;
 			}
-			if ( in_array( $field['type'], array( 'int', 'enum', 'time', 'email' ), true ) ) {
-				$given = trim( (string) $raw[ $key ] );
-				if ( 'email' === $field['type'] && '' === $given ) {
-					continue;
+			if ( ! array_key_exists( $key, $raw ) ) {
+				continue;
+			}
+			[ $value, $error ] = SettingsSchema::validate_value( $field, $raw[ $key ] );
+			if ( null !== $error ) {
+				$errors[ $key ] = $error;
+				$given[ $key ]  = is_scalar( $raw[ $key ] ) ? mb_substr( (string) $raw[ $key ], 0, 500 ) : '';
+				continue;
+			}
+			$values[ $tab ][ $key ] = $value;
+		}
+
+		foreach ( SettingsSchema::cross_check( $tab, (array) ( $values[ $tab ] ?? array() ) ) as $check ) {
+			$involved = array_values( array_map( 'strval', (array) ( $check['fields'] ?? array() ) ) );
+			if ( ! $involved || array_diff( $involved, $open ) ) {
+				continue; // Never report on fields the user cannot change here.
+			}
+			foreach ( $involved as $key ) {
+				$values[ $tab ][ $key ] = $current[ $tab ][ $key ] ?? null;
+				$errors[ $key ]       ??= (string) ( $check['message'] ?? '' );
+				if ( ! isset( $given[ $key ] ) && array_key_exists( $key, $raw ) && is_scalar( $raw[ $key ] ) ) {
+					$given[ $key ] = mb_substr( (string) $raw[ $key ], 0, 500 );
 				}
-				if ( (string) $values[ $tab ][ $key ] !== $given ) {
-					$invalid[] = $tab . '-' . $key;
-				}
+			}
+		}
+
+		if ( 'privacy' === $tab ) {
+			[ $values['privacy'], $error ] = SettingsSchema::guard_uninstall( (array) $values['privacy'], (array) ( $current['privacy'] ?? array() ), $raw['uninstall_confirm_word'] ?? null );
+			if ( null !== $error ) {
+				$errors['delete_data_on_uninstall'] = $error;
 			}
 		}
 
 		if ( 'access' === $tab ) {
 			$existing = array_keys( wp_roles()->role_objects );
-			foreach ( array( 'moderate_roles', 'settings_roles' ) as $key ) {
-				$roles                   = array_values( array_intersect( (array) ( $values['access'][ $key ] ?? array() ), $existing ) );
+			foreach ( array_keys( self::ROLE_CAPS ) as $key ) {
+				$roles                    = array_values( array_intersect( (array) ( $values['access'][ $key ] ?? array() ), $existing ) );
 				$values['access'][ $key ] = array_values( array_unique( array_merge( array( 'administrator' ), $roles ) ) );
 			}
-			$values['access'] = self::keep_unheld_role_keys( $values['access'], $this->settings()->all()['access'] ?? array() );
+			$values['access'] = self::keep_unheld_role_keys( $values['access'], $current['access'] ?? array() );
 		}
 
 		$changed = $this->settings()->save( $values );
@@ -183,41 +254,56 @@ final class SettingsPage {
 				'settings',
 				$tab,
 				array(
-					'tab'    => $tab,
-					'fields' => $changed,
+					'tab'     => $tab,
+					'fields'  => $changed,
+					'changes' => SettingsChanges::between( $current, $values, $changed ),
 				)
 			);
 		}
+		$ids = array();
+		foreach ( $errors as $key => $message ) {
+			$ids[ $tab . '-' . $key ] = $message;
+		}
 		return array(
 			'changed' => $changed,
-			'invalid' => $invalid,
+			'invalid' => array_keys( $ids ),
+			'errors'  => $ids,
+			'given'   => $given,
 		);
 	}
 
 	/**
-	 * Apply role selections to capabilities (administrator always keeps everything).
+	 * Apply role selections to capabilities (administrator always keeps everything). Only
+	 * capabilities the acting user holds are touched; one audit entry per capability whose
+	 * holders actually changed (SET-RC-16).
 	 *
 	 * @param array<string, mixed> $access Access tab values.
 	 */
 	private function sync_roles( array $access ): void {
-		$map = array(
-			Capabilities::MODERATE        => (array) ( $access['moderate_roles'] ?? array() ),
-			Capabilities::MANAGE_SETTINGS => (array) ( $access['settings_roles'] ?? array() ),
-		);
-		foreach ( $map as $cap => $roles ) {
+		foreach ( self::ROLE_CAPS as $key => $cap ) {
 			if ( ! current_user_can( $cap ) ) {
 				// Only capabilities the acting user holds may be (re)assigned (capabilities.md §3).
 				continue;
 			}
-			$roles = array_values( array_map( 'strval', $roles ) );
+			$roles  = array_values( array_unique( array_merge( array( 'administrator' ), array_map( 'strval', (array) ( $access[ $key ] ?? array() ) ) ) ) );
+			$before = Capabilities::holders( $cap );
 			Capabilities::sync_roles( $cap, $roles );
+			$after = Capabilities::holders( $cap );
+			$a     = $before;
+			$b     = $after;
+			sort( $a );
+			sort( $b );
+			if ( $a === $b ) {
+				continue;
+			}
 			$this->plugin->audit()->record(
 				'roles.capabilities_changed',
 				'capability',
 				$cap,
 				array(
 					'capability' => $cap,
-					'roles'      => array_values( array_unique( array_merge( $roles, array( 'administrator' ) ) ) ),
+					'from'       => $before,
+					'roles'      => $after,
 				)
 			);
 		}
@@ -266,20 +352,45 @@ final class SettingsPage {
 		if ( ! $tabs ) {
 			return array();
 		}
+		self::migrate_access( $this->settings() );
 		$this->transfer()->backup();
-		$before = (array) ( $this->settings()->all()['access'] ?? array() );
+		$all    = $this->settings()->all();
+		$before = (array) ( $all['access'] ?? array() );
 		$this->settings()->reset( $tabs );
 		if ( in_array( 'access', $tabs, true ) ) {
 			$this->restore_unheld_role_keys( $before );
 			$this->sync_roles( $this->settings()->all()['access'] ?? array() );
 		}
+		$after = $this->settings()->all();
 		$this->plugin->audit()->record(
 			'settings.reset',
 			'settings',
 			implode( ',', $tabs ),
-			array( 'fields' => $tabs )
+			array(
+				'fields'  => $tabs,
+				'changes' => SettingsChanges::between( $all, $after, self::changed_keys( $all, $after ) ),
+			)
 		);
 		return $tabs;
+	}
+
+	/**
+	 * "tab.key" names whose value differs between two settings states.
+	 *
+	 * @param array<string, mixed> $before Before.
+	 * @param array<string, mixed> $after  After.
+	 * @return list<string>
+	 */
+	public static function changed_keys( array $before, array $after ): array {
+		$out = array();
+		foreach ( SettingsSchema::fields() as $tab => $fields ) {
+			foreach ( array_keys( $fields ) as $key ) {
+				if ( ( $before[ $tab ][ $key ] ?? null ) !== ( $after[ $tab ][ $key ] ?? null ) ) {
+					$out[] = $tab . '.' . $key;
+				}
+			}
+		}
+		return $out;
 	}
 
 	// ---------------------------------------------------------------------------------------------
@@ -303,6 +414,15 @@ final class SettingsPage {
 		}
 		$result = $this->save_tab( $tab, $input );
 		if ( $result['invalid'] ) {
+			set_transient(
+				self::ERRORS_TRANSIENT . get_current_user_id(),
+				array(
+					'tab'    => $tab,
+					'errors' => $result['errors'],
+					'given'  => $result['given'],
+				),
+				10 * MINUTE_IN_SECONDS
+			);
 			View::redirect( Notices::url( self::tab_url( $tab ), 'saved_invalid', $result['invalid'] ) );
 			return;
 		}
@@ -360,6 +480,10 @@ final class SettingsPage {
 			View::redirect( Notices::url( $back, 'import_invalid' ) );
 			return;
 		}
+		if ( self::migrate_access( $this->settings() ) ) {
+			// Role lists missing in the file must keep today's roles, not the defaults.
+			$preview = (array) $this->transfer()->preview( $json, self::writable_tabs() );
+		}
 		if ( ! $preview['diff'] ) {
 			View::redirect( Notices::url( $back, 'import_empty' ) );
 			return;
@@ -401,14 +525,16 @@ final class SettingsPage {
 	 * @return list<string> Changed keys.
 	 */
 	public function apply_import( array $values, array $tabs ): array {
-		$current = $this->settings()->all();
+		self::migrate_access( $this->settings() );
+		$before  = $this->settings()->all();
+		$current = $before;
 		foreach ( $tabs as $tab ) {
 			if ( isset( $values[ $tab ] ) && is_array( $values[ $tab ] ) ) {
 				$current[ $tab ] = $values[ $tab ];
 			}
 		}
 		if ( in_array( 'access', $tabs, true ) ) {
-			foreach ( array( 'moderate_roles', 'settings_roles' ) as $role_key ) {
+			foreach ( array_keys( self::ROLE_CAPS ) as $role_key ) {
 				$current['access'][ $role_key ] = array_values( array_unique( array_merge( array( 'administrator' ), (array) ( $current['access'][ $role_key ] ?? array() ) ) ) );
 			}
 			$current['access'] = self::keep_unheld_role_keys( $current['access'], $this->settings()->all()['access'] ?? array() );
@@ -417,7 +543,15 @@ final class SettingsPage {
 		if ( in_array( 'access', $tabs, true ) ) {
 			$this->sync_roles( $current['access'] );
 		}
-		$this->plugin->audit()->record( 'settings.imported', 'settings', '', array( 'fields' => $changed ) );
+		$this->plugin->audit()->record(
+			'settings.imported',
+			'settings',
+			'',
+			array(
+				'fields'  => $changed,
+				'changes' => SettingsChanges::between( $before, $current, $changed ),
+			)
+		);
 		return $changed;
 	}
 
@@ -432,16 +566,29 @@ final class SettingsPage {
 			View::redirect( Notices::url( $back, 'tab_forbidden' ) );
 			return;
 		}
-		$before  = (array) ( $this->settings()->all()['access'] ?? array() );
+		self::migrate_access( $this->settings() );
+		$all     = $this->settings()->all();
+		$before  = (array) ( $all['access'] ?? array() );
 		$changed = $this->transfer()->rollback();
 		if ( null === $changed ) {
 			View::redirect( Notices::url( $back, 'rollback_missing' ) );
 			return;
 		}
 		$this->settings()->flush();
+		// A backup from before the role matrix lacks some role lists: map them from today's roles.
+		self::migrate_access( $this->settings() );
 		$this->restore_unheld_role_keys( $before );
 		$this->sync_roles( $this->settings()->all()['access'] ?? array() );
-		$this->plugin->audit()->record( 'settings.restored', 'settings', '', array( 'fields' => $changed ) );
+		$after = $this->settings()->all();
+		$this->plugin->audit()->record(
+			'settings.restored',
+			'settings',
+			'',
+			array(
+				'fields'  => $changed,
+				'changes' => SettingsChanges::between( $all, $after, self::changed_keys( $all, $after ) ),
+			)
+		);
 		View::redirect( Notices::url( $back, 'rollback_done' ) );
 	}
 
@@ -474,15 +621,24 @@ final class SettingsPage {
 		if ( ! current_user_can( Capabilities::MANAGE_SETTINGS ) ) {
 			wp_die( esc_html__( 'Dafür fehlt dir die Berechtigung.', 'review-captain' ), '', array( 'response' => 403 ) );
 		}
-		$tab    = self::current_tab();
+		$tab = self::current_tab();
+		if ( 'access' === $tab ) {
+			self::migrate_access( $this->settings() );
+		}
 		$tabs   = SettingsSchema::tabs();
 		$schema = SettingsSchema::fields();
 		$values = $this->settings()->all();
 		$pro    = self::pro_writable();
 
+		$this->field_errors = $this->pending_errors( $tab );
+
 		echo '<div class="wrap rc-admin">';
 		echo View::header( __( 'Einstellungen', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( $this->field_errors['errors'] ) {
+			$this->render_error_summary( $tab );
+		} else {
+			echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 
 		echo '<nav class="nav-tab-wrapper" aria-label="' . esc_attr__( 'Einstellungsbereiche', 'review-captain' ) . '">';
 		foreach ( $tabs as $key => $label ) {
@@ -507,12 +663,15 @@ final class SettingsPage {
 		echo View::form_fields( 'save_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />';
 
-		$fields   = $schema[ $tab ] ?? array();
-		$sections = SettingsFields::sections()[ $tab ] ?? array();
+		$fields   = array_filter( $schema[ $tab ] ?? array(), static fn( $f ) => empty( $f['internal'] ) );
+		$sections = 'access' === $tab ? array() : ( SettingsFields::sections()[ $tab ] ?? array() );
 		$placed   = array();
 		$advanced = array();
+		if ( 'access' === $tab ) {
+			$placed = $this->render_access_matrix( $fields, (array) ( $values['access'] ?? array() ), $writable );
+		}
 		foreach ( $fields as $key => $field ) {
-			if ( ! empty( $field['advanced'] ) ) {
+			if ( ! empty( $field['advanced'] ) && ! in_array( $key, $placed, true ) ) {
 				$advanced[] = $key;
 			}
 		}
@@ -530,7 +689,7 @@ final class SettingsPage {
 		if ( $advanced ) {
 			$open = 'advanced' === $tab;
 			foreach ( $advanced as $key ) {
-				if ( ( $values[ $tab ][ $key ] ?? null ) !== $fields[ $key ]['default'] ) {
+				if ( ( $values[ $tab ][ $key ] ?? null ) !== $fields[ $key ]['default'] || isset( $this->field_errors['errors'][ $key ] ) ) {
 					$open = true;
 				}
 			}
@@ -552,6 +711,112 @@ final class SettingsPage {
 			$this->render_maintenance();
 		}
 		echo '</div>';
+	}
+
+	/**
+	 * Field errors stored by the last save of this tab, shown once (SET-RC-19).
+	 *
+	 * @param string $tab Tab.
+	 * @return array{errors: array<string, string>, given: array<string, string>}
+	 */
+	private function pending_errors( string $tab ): array {
+		$none = array(
+			'errors' => array(),
+			'given'  => array(),
+		);
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
+		if ( 'saved_invalid' !== View::req( $_GET, Notices::PARAM ) ) {
+			return $none;
+		}
+		$key     = self::ERRORS_TRANSIENT . get_current_user_id();
+		$pending = get_transient( $key );
+		delete_transient( $key );
+		if ( ! is_array( $pending ) || ( $pending['tab'] ?? '' ) !== $tab || empty( $pending['errors'] ) || ! is_array( $pending['errors'] ) ) {
+			return $none;
+		}
+		$out = $none;
+		foreach ( $pending['errors'] as $id => $message ) {
+			$prefix = $tab . '-';
+			if ( is_string( $id ) && str_starts_with( $id, $prefix ) ) {
+				$out['errors'][ substr( $id, strlen( $prefix ) ) ] = (string) $message;
+			}
+		}
+		foreach ( (array) ( $pending['given'] ?? array() ) as $field => $value ) {
+			$out['given'][ (string) $field ] = (string) $value;
+		}
+		return $out;
+	}
+
+	/**
+	 * Error list with jump links to the fields (SET-RC-19).
+	 *
+	 * @param string $tab Tab.
+	 */
+	private function render_error_summary( string $tab ): void {
+		$fields = SettingsSchema::fields()[ $tab ] ?? array();
+		echo '<div class="notice notice-error rc-admin-errors" id="rc-settings-errors" role="alert" tabindex="-1"><p>' . esc_html__( 'Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:', 'review-captain' ) . '</p><ul>';
+		foreach ( $this->field_errors['errors'] as $key => $message ) {
+			$anchor = 'access' === $tab ? 'rc-access-' . $key . '-col' : 'rc-' . $tab . '-' . $key;
+			echo '<li><a href="#' . esc_attr( $anchor ) . '">' . esc_html( SettingsFields::label( $tab, $key, $fields[ $key ] ?? array() ) ) . '</a>: ' . esc_html( $message ) . '</li>';
+		}
+		echo '</ul></div>';
+	}
+
+	/**
+	 * Access tab as a role × capability matrix (SET-RC-16). Administrators always keep every
+	 * capability; columns of capabilities the acting user does not hold are read-only.
+	 *
+	 * @param array<string, array<string, mixed>> $fields   Access fields.
+	 * @param array<string, mixed>                $access   Access values.
+	 * @param bool                                $writable Tab writable.
+	 * @return list<string> Keys rendered by the matrix.
+	 */
+	private function render_access_matrix( array $fields, array $access, bool $writable ): array {
+		$keys = array_values( array_filter( array_keys( self::ROLE_CAPS ), static fn( $k ) => isset( $fields[ $k ] ) ) );
+		echo '<h2>' . esc_html__( 'Rechte je Rolle', 'review-captain' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Hake an, welche Rolle welches Recht bekommt. Administratoren behalten immer alle Rechte. Rechte, die du selbst nicht hast, kannst du weder vergeben noch entziehen; jede Änderung wird protokolliert.', 'review-captain' ) . '</p>';
+		echo '<div class="rc-admin-matrix-wrap"><table class="widefat striped rc-admin-matrix"><caption class="screen-reader-text">' . esc_html__( 'Rechte je Rolle', 'review-captain' ) . '</caption><thead><tr><th scope="col">' . esc_html__( 'Rolle', 'review-captain' ) . '</th>';
+		foreach ( $keys as $key ) {
+			$held = current_user_can( self::ROLE_CAPS[ $key ] );
+			echo '<th scope="col" id="' . esc_attr( 'rc-access-' . $key . '-col' ) . '">' . esc_html( SettingsFields::label( 'access', $key, $fields[ $key ] ) );
+			if ( $writable && ! $held ) {
+				echo '<br /><span class="description">' . esc_html__( '(nur lesen)', 'review-captain' ) . '</span>';
+			}
+			echo '</th>';
+		}
+		echo '</tr></thead><tbody>';
+		foreach ( wp_roles()->role_names as $role => $role_label ) {
+			$role  = (string) $role;
+			$label = function_exists( 'translate_user_role' ) ? translate_user_role( (string) $role_label ) : (string) $role_label;
+			echo '<tr><th scope="row">' . esc_html( $label ) . '</th>';
+			foreach ( $keys as $key ) {
+				$name     = self::INPUT . '[access][' . $key . '][]';
+				$id       = 'rc-access-' . $key . '-' . sanitize_html_class( $role );
+				$disabled = ! $writable || ! current_user_can( self::ROLE_CAPS[ $key ] );
+				$locked   = 'administrator' === $role;
+				$on       = $locked || in_array( $role, array_map( 'strval', (array) ( $access[ $key ] ?? array() ) ), true );
+				echo '<td><input type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $role ) . '"' . checked( $on, true, false ) . ( $locked || $disabled ? ' disabled="disabled"' : '' ) . ' />';
+				/* translators: 1: role, 2: capability */
+				echo '<label for="' . esc_attr( $id ) . '" class="screen-reader-text">' . esc_html( sprintf( __( '%1$s: %2$s', 'review-captain' ), $label, SettingsFields::label( 'access', $key, $fields[ $key ] ) ) ) . '</label>';
+				if ( $locked ) {
+					echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="administrator"' . ( $disabled ? ' disabled="disabled"' : '' ) . ' /> <span class="description">' . esc_html__( '(immer)', 'review-captain' ) . '</span>';
+				}
+				echo '</td>';
+			}
+			echo '</tr>';
+		}
+		echo '</tbody></table></div>';
+		foreach ( $keys as $key ) {
+			// Empty marker so "nothing checked" is submitted as an empty list.
+			$disabled = ! $writable || ! current_user_can( self::ROLE_CAPS[ $key ] );
+			echo '<input type="hidden" name="' . esc_attr( self::INPUT . '[access][' . $key . '][]' ) . '" value=""' . ( $disabled ? ' disabled="disabled"' : '' ) . ' />';
+		}
+		echo '<dl class="rc-admin-matrix-help">';
+		foreach ( $keys as $key ) {
+			echo '<dt>' . esc_html( SettingsFields::label( 'access', $key, $fields[ $key ] ) ) . ' <code>' . esc_html( self::ROLE_CAPS[ $key ] ) . '</code></dt><dd>' . esc_html( SettingsFields::description( 'access', $key, $fields[ $key ] ) ) . '</dd>';
+		}
+		echo '</dl>';
+		return $keys;
 	}
 
 	/**
@@ -645,7 +910,18 @@ final class SettingsPage {
 		$label = SettingsFields::label( $tab, $key, $field );
 		$desc  = SettingsFields::description( $tab, $key, $field );
 		$dis   = $disabled ? ' disabled="disabled"' : '';
-		$descr = '' !== $desc || $pro_lock ? ' aria-describedby="' . esc_attr( $id . '-desc' ) . '"' : '';
+		$error = $this->field_errors['errors'][ $key ] ?? null;
+		$ids   = array();
+		if ( '' !== $desc || $pro_lock ) {
+			$ids[] = $id . '-desc';
+		}
+		if ( null !== $error ) {
+			$ids[] = $id . '-error';
+			if ( isset( $this->field_errors['given'][ $key ] ) && 'bool' !== $field['type'] ) {
+				$value = $this->field_errors['given'][ $key ]; // Show what was typed, so it can be fixed.
+			}
+		}
+		$descr = ( $ids ? ' aria-describedby="' . esc_attr( implode( ' ', $ids ) ) . '"' : '' ) . ( null !== $error ? ' aria-invalid="true"' : '' );
 
 		echo '<tr><th scope="row">';
 		echo in_array( $field['type'], array( 'bool', 'array' ), true ) ? esc_html( $label ) : '<label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
@@ -688,6 +964,12 @@ final class SettingsPage {
 				break;
 		}
 
+		if ( null !== $error ) {
+			echo '<p class="rc-admin-field-error" id="' . esc_attr( $id . '-error' ) . '"><strong>' . esc_html__( 'Fehler:', 'review-captain' ) . '</strong> ' . esc_html( $error ) . '</p>';
+		}
+		if ( 'privacy' === $tab && 'delete_data_on_uninstall' === $key ) {
+			$this->render_uninstall_confirmation( (bool) $value, $disabled );
+		}
 		if ( '' !== $desc || $pro_lock ) {
 			echo '<p class="description" id="' . esc_attr( $id . '-desc' ) . '">' . esc_html( $desc );
 			if ( $pro_lock ) {
@@ -736,37 +1018,26 @@ final class SettingsPage {
 			echo '<br />';
 		}
 		echo '</fieldset>';
-		if ( $roles && 'access' === $tab && 'settings_roles' === $key ) {
-			$this->render_capability_table();
-		}
 	}
 
 	/**
-	 * Read-only table of all plugin capabilities and the roles holding them.
+	 * Confirmation for "Daten beim Deinstallieren löschen" (SET-RC-20): a typed word, stored as time.
+	 *
+	 * @param bool $on       Switch state.
+	 * @param bool $disabled Read-only.
 	 */
-	private function render_capability_table(): void {
-		$labels = array(
-			Capabilities::MODERATE        => __( 'Reviews moderieren', 'review-captain' ),
-			Capabilities::MANAGE_SOURCES  => __( 'Quellen verwalten', 'review-captain' ),
-			Capabilities::MANAGE_REQUESTS => __( 'Anfragen verwalten (Pro)', 'review-captain' ),
-			Capabilities::VIEW_REPORTS    => __( 'Berichte & Diagnose ansehen', 'review-captain' ),
-			Capabilities::MANAGE_TRUST    => __( 'Vertrauenssignale verwalten (Pro)', 'review-captain' ),
-			Capabilities::MANAGE_PRIVACY  => __( 'Datenschutz verwalten', 'review-captain' ),
-			Capabilities::MANAGE_SETTINGS => __( 'Einstellungen ändern', 'review-captain' ),
-		);
-		echo '<details class="rc-admin-advanced"><summary>' . esc_html__( 'Alle Rechte und Rollen anzeigen', 'review-captain' ) . '</summary>';
-		echo '<table class="widefat striped"><thead><tr><th scope="col">' . esc_html__( 'Recht', 'review-captain' ) . '</th><th scope="col">' . esc_html__( 'Rollen', 'review-captain' ) . '</th></tr></thead><tbody>';
-		$roles = wp_roles()->role_objects;
-		foreach ( Capabilities::all() as $cap ) {
-			$holders = array();
-			foreach ( $roles as $name => $role ) {
-				if ( method_exists( $role, 'has_cap' ) && $role->has_cap( $cap ) ) {
-					$holders[] = (string) $name;
-				}
-			}
-			echo '<tr><td>' . esc_html( $labels[ $cap ] ?? $cap ) . '<br /><code>' . esc_html( $cap ) . '</code></td><td>' . esc_html( $holders ? implode( ', ', $holders ) : '–' ) . '</td></tr>';
+	private function render_uninstall_confirmation( bool $on, bool $disabled ): void {
+		$confirmed = (string) $this->settings()->get( 'privacy', 'delete_data_confirmed_at', '' );
+		if ( $on && '' !== $confirmed && ! isset( $this->field_errors['errors']['delete_data_on_uninstall'] ) ) {
+			/* translators: %s: date and time */
+			echo '<p class="rc-admin-confirmed">' . esc_html( sprintf( __( 'Bestätigt am %s. Beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt.', 'review-captain' ), View::date( $confirmed, true ) ) ) . '</p>';
+			return;
 		}
-		echo '</tbody></table></details>';
+		if ( $on ) {
+			echo '<p class="rc-admin-field-error">' . esc_html__( 'Eingeschaltet, aber noch nicht bestätigt: Beim Deinstallieren bleiben die Daten erhalten, bis du LÖSCHEN eintippst und speicherst.', 'review-captain' ) . '</p>';
+		}
+		echo '<p><label for="rc-privacy-uninstall-confirm">' . esc_html__( 'Zur Bestätigung LÖSCHEN eintippen (nur nötig beim Einschalten)', 'review-captain' ) . '</label><br />';
+		echo '<input type="text" class="regular-text" id="rc-privacy-uninstall-confirm" name="' . esc_attr( self::INPUT . '[privacy][uninstall_confirm_word]' ) . '" value="" autocomplete="off" spellcheck="false" placeholder="LÖSCHEN"' . ( $disabled ? ' disabled="disabled"' : '' ) . ' /></p>';
 	}
 
 	/**

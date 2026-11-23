@@ -36,7 +36,7 @@ final class ConfigTransfer {
 	 * @param array<string, mixed> $field Field definition.
 	 */
 	public static function exportable( string $key, array $field ): bool {
-		if ( 'personal' === ( $field['privacy'] ?? 'none' ) ) {
+		if ( 'personal' === ( $field['privacy'] ?? 'none' ) || ! empty( $field['internal'] ) ) {
 			return false;
 		}
 		if ( preg_match( self::SECRET_PATTERN, $key ) ) {
@@ -133,7 +133,11 @@ final class ConfigTransfer {
 		}
 
 		$values = $this->settings->sanitize( $input, $tabs );
-		$diff   = array();
+		if ( in_array( 'privacy', $tabs, true ) ) {
+			// SET-RC-20: an import can never switch on data deletion without the typed confirmation.
+			$values['privacy'] = SettingsSchema::guard_uninstall( (array) ( $values['privacy'] ?? array() ), (array) ( $current['privacy'] ?? array() ) )[0];
+		}
+		$diff = array();
 		foreach ( $tabs as $tab ) {
 			foreach ( $schema[ $tab ] as $key => $field ) {
 				$old = $current[ $tab ][ $key ] ?? null;

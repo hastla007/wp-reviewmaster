@@ -4,6 +4,10 @@ Status: an den implementierten Stand angeglichen (Standards und Wertebereiche ex
 
 Jeder Eintrag nennt: **Zweck** · **Gilt für** · **Standard** · **Folgen** · **Datenschutz** · **Voraussetzung**.
 
+**Prüfung beim Speichern (SET-RC-19):** Ungültige Eingaben werden nicht still korrigiert. Die Seite listet sie oben mit Sprunglinks zum Feld auf, markiert das Feld (auch für Screenreader) und zeigt Ihre Eingabe zum Korrigieren erneut an; das Feld behält seinen bisherigen Wert, alle gültigen Änderungen des Bereichs werden gespeichert. Zusätzlich geprüft: Mindestlänge < Höchstlänge, Beginn ≠ Ende bei Versand- und Synchronisierungsfenster, Freigabe hängender Aufgaben > Zeitbudget je Lauf. Beim Import einer Konfiguration werden Werte dagegen wie bisher auf den erlaubten Bereich gesetzt (die Vorschau zeigt das Ergebnis).
+
+**Änderungsprotokoll (SET-RC-17):** Jede Änderung wird mit Benutzer, Zeit, altem und neuem Wert protokolliert (Werkzeuge › Diagnose › Protokoll, Filter „Einstellungen“). Texte werden gekürzt, E-Mail-Adressen maskiert, Absendernamen und Zugangsdaten nie gespeichert.
+
 ---
 
 ## Allgemein
@@ -37,7 +41,7 @@ Diese Einstellungen wirken erst, wenn eine Quelle automatisch abgeglichen wird (
 
 ### Synchronisierungsfenster (`sync_window_start`, `sync_window_end`)
 - **Zweck:** Zeitraum, in dem automatische Abgleiche starten dürfen, in Website-Zeit. **Standard:** 02:00–05:00.
-- **Folgen:** außerhalb des Fensters startet kein automatischer Abgleich; „Jetzt synchronisieren“ auf der Quellen-Seite bleibt möglich. Ende vor Beginn = Fenster über Mitternacht. Format HH:MM (24 h); ungültige Eingaben werden auf den Standard zurückgesetzt.
+- **Folgen:** außerhalb des Fensters startet kein automatischer Abgleich; „Jetzt synchronisieren“ auf der Quellen-Seite bleibt möglich. Ende vor Beginn = Fenster über Mitternacht; Beginn und Ende dürfen nicht gleich sein. Format HH:MM (24 h); ungültige Eingaben werden gemeldet und nicht gespeichert.
 - **Datenschutz:** keiner. **Voraussetzung:** synchronisierende Quelle.
 
 ### Seiten je Abruf (`max_pages_per_run`)
@@ -70,7 +74,7 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 
 ### Versandzeitfenster (`send_window_start`, `send_window_end`)
 - **Zweck:** Uhrzeiten, zu denen Einladungen verschickt werden dürfen (Website-Zeit). **Standard:** 09:00–18:00. Ende vor Beginn = Fenster über Mitternacht.
-- **Folgen:** Einladungen außerhalb werden auf das nächste Fenster verschoben. Kampagnen dürfen das Fenster nur verkleinern.
+- **Folgen:** Einladungen außerhalb werden auf das nächste Fenster verschoben. Kampagnen dürfen das Fenster nur verkleinern. Beginn und Ende dürfen nicht gleich sein.
 
 ### Tageslimit (`daily_limit`)
 - **Zweck:** Höchstzahl Einladungen pro Tag über alle Kampagnen. **Standard:** 200, erlaubt 1–100 000.
@@ -104,7 +108,7 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Datenschutz:** zur Zählung wird ein gekürzter, gehashter Absenderwert kurzzeitig gespeichert (keine Klar-IP; bei IPv6 das /64-Netz).
 
 ### Mindest-/Höchstlänge des Textes (`min_text_length`, `max_text_length`)
-- **Standard:** 20 bzw. 5 000 Zeichen; erlaubt 0–1000 bzw. 50–20 000. Wählen Sie den Mindestwert kleiner als den Höchstwert (wird in v1 nicht automatisch geprüft). Abweichungen je Formular sind in v1 nicht vorgesehen.
+- **Standard:** 20 bzw. 5 000 Zeichen; erlaubt 0–1000 bzw. 50–20 000. Der Mindestwert muss kleiner als der Höchstwert sein (wird beim Speichern geprüft). Abweichungen je Formular sind in v1 nicht vorgesehen.
 
 ### Titelfeld anbieten (`allow_title`)
 - **Zweck:** optionales Feld „Titel“ im Formular. **Standard:** an. Gilt für alle Formulare der Website.
@@ -193,7 +197,12 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 - **Standard:** 90 Tage nach Ablehnung (erlaubt 1–3650), dann endgültige Löschung inklusive Verlauf.
 
 ### Protokolle (`retention_logs_days`) und erledigte Hintergrundjobs (`retention_jobs_days`)
-- **Standard:** 90 bzw. 30 Tage, jeweils erlaubt 1–3650. Danach werden Protokolleinträge bzw. abgeschlossene Hintergrundaufgaben gelöscht. Beide enthalten keine Reviewtexte oder Zugangsdaten.
+- **Standard:** 90 bzw. 30 Tage, jeweils erlaubt 1–3650. Protokolle enthalten keine Reviewtexte oder Zugangsdaten. Änderungen an Einstellungen und Rollen haben eine eigene Frist (nächster Eintrag).
+
+### Änderungsprotokoll der Einstellungen (`retention_audit_days`)
+- **Zweck:** Wie lange Einträge zu Einstellungs- und Rollenänderungen (mit altem und neuem Wert) aufbewahrt werden. **Standard:** 365 Tage, erlaubt 1–3650. Ein Filter `review_captain_retention_audit_days` hat Vorrang.
+- **Folgen:** Sie können länger nachvollziehen, wer wann was geändert hat, ohne die übrigen Protokolle länger zu speichern.
+- **Datenschutz:** enthält die Benutzer-ID; Texte gekürzt, E-Mail-Adressen maskiert, Absendernamen und Zugangsdaten nie.
 
 ### Verhalten bei Löschanfragen (`erase_mode`)
 - **Zweck:** Was das WordPress-Werkzeug „Personenbezogene Daten löschen“ mit Reviews dieser E-Mail-Adresse macht.
@@ -202,15 +211,20 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 
 ### Daten beim Deinstallieren löschen (`delete_data_on_uninstall`)
 - **Standard:** aus = Reviews und Einstellungen bleiben beim Löschen des Plugins erhalten. An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert.
+- **Bestätigung (SET-RC-20):** Zum Einschalten tippen Sie `LÖSCHEN` in das Feld unter dem Schalter (auch `LOESCHEN` oder `DELETE`). Der Zeitpunkt wird gespeichert und angezeigt („Bestätigt am …“). Gelöscht wird nur mit dieser Bestätigung; Ausschalten hebt sie auf. Ein Konfigurationsimport kann die Löschung nicht einschalten. War der Schalter schon vor dieser Version an, bleiben die Daten erhalten, bis Sie einmal bestätigen; die Seite weist darauf hin.
+- **WP-CLI:** `wp review-captain settings set privacy.delete_data_on_uninstall 1 --confirm-word=LÖSCHEN --user=<admin>`.
 
 ### Datenschutzhinweis im Formular (`privacy_notice`)
 - **Standard:** leer = kurzer Standardtext mit Link zu Ihrer WordPress-Datenschutzseite. Eigener Text wird als reiner Text gespeichert (Absätze bleiben erhalten, HTML wird entfernt).
 
 ## Zugriff & Rollen
 
-### Wer darf moderieren (`moderate_roles`) / Einstellungen ändern (`settings_roles`)
-- **Standard:** Moderation: Administrator, Redakteur; Einstellungen: Administrator. Administratoren behalten immer alle Rechte.
-- **Folgen:** Moderierende sehen eingereichte Reviews inklusive Kontaktadresse. Weitere Rechte (Quellen verbinden, Datenschutz, Berichte) haben standardmäßig nur Administratoren.
+### Rechte je Rolle (`moderate_roles`, `sources_roles`, `requests_roles`, `reports_roles`, `trust_roles`, `privacy_roles`, `settings_roles`)
+- **Zweck:** Eine Tabelle Rolle × Recht für alle sieben Rechte: Reviews moderieren, Quellen verwalten, Anfragen verwalten, Berichte & Diagnose ansehen, Vertrauenszeichen verwalten, Datenschutz verwalten, Einstellungen ändern.
+- **Standard:** Moderieren: Administrator, Redakteur; alle übrigen Rechte: nur Administrator. Administratoren behalten immer alle Rechte (das Kästchen ist fest angehakt).
+- **Folgen:** Moderierende sehen eingereichte Reviews inklusive Kontaktadresse. Wer „Datenschutz verwalten“ hat, ändert Aufbewahrungsfristen und die Löschung bei Deinstallation.
+- **Sicherheit:** Sie können nur Rechte vergeben oder entziehen, die Sie selbst haben; die übrigen Spalten sind „nur lesen“. Das gilt auch für Import, Zurücksetzen und Wiederherstellen. Jede tatsächliche Änderung eines Rechts wird mit den Rollen vorher und nachher protokolliert.
+- **Aktualisierung:** Ältere Versionen speicherten nur „Moderieren“ und „Einstellungen“. Die übrigen Spalten werden beim ersten Aufruf aus den Rollen übernommen, die das Recht heute haben (auch wenn es über ein Rollen-Plugin vergeben wurde); dabei ändert sich kein Recht.
 - **Voraussetzung:** Sie benötigen selbst das Recht, Benutzerrollen zu vergeben.
 
 ## Erweitert
@@ -219,10 +233,24 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 - **Standard:** an (erweiterte Einstellung); wirkt nur, falls Action Scheduler verfügbar ist (z. B. durch WooCommerce). Sonst WP-Cron. Bei wenig Besucherverkehr empfehlen wir einen Server-Cron.
 
 ### Zeitbudget je Lauf (`job_time_budget`) / Freigabe hängender Jobs (`lease_seconds`)
-- **Standard:** 20 bzw. 300 Sekunden; erlaubt 5–120 bzw. 60–3600 (erweiterte Einstellungen). Nur ändern, wenn die Diagnose Zeitüberschreitungen meldet. Wählen Sie die Freigabezeit länger als das Zeitbudget (wird in v1 nicht automatisch geprüft).
+- **Standard:** 20 bzw. 300 Sekunden; erlaubt 5–120 bzw. 60–3600 (erweiterte Einstellungen). Nur ändern, wenn die Diagnose Zeitüberschreitungen meldet. Die Freigabezeit muss länger als das Zeitbudget sein (wird beim Speichern geprüft).
 
 ### Fehlerprotokoll (`debug_logging`)
 - **Standard:** aus (erweiterte Einstellung). Schalten Sie es nach der Fehlersuche wieder aus (keine automatische Abschaltung in v1). Enthält keine Zugangsdaten, Reviewtexte oder E-Mail-Adressen.
+
+## WP-CLI
+
+Seit SET-RC-18 lassen sich alle Einstellungen auch auf der Kommandozeile verwalten. Es gelten dieselben Prüfungen und Rechte wie auf der Einstellungsseite; jede Änderung wird protokolliert. Lesen geht ohne Benutzer, Schreiben braucht `--user=<ID|Login>` mit dem Recht „Einstellungen ändern“ (für Datenschutz zusätzlich „Datenschutz verwalten“, für Rollen zusätzlich „Benutzerrollen vergeben“).
+
+| Befehl | Wirkung |
+|---|---|
+| `wp review-captain settings list [--tab=<bereich>] [--format=table\|json\|csv\|yaml]` | alle Einstellungen mit aktuellem Wert, Standard, Typ und Herkunft |
+| `wp review-captain settings get <bereich.schlüssel> [--format=plain\|json]` | einen Wert ausgeben, z. B. `submissions.min_text_length` |
+| `wp review-captain settings set <bereich.schlüssel> <wert> [--confirm-word=LÖSCHEN] --user=<admin>` | einen Wert setzen; Ja/Nein als `1`/`0` (auch `true`/`false`, `on`/`off`, `ja`/`nein`), Rollen durch Komma getrennt. Ungültige Werte brechen mit Fehlermeldung ab, nichts wird korrigiert. |
+| `wp review-captain settings reset <bereich>… \| --all --yes --user=<admin>` | Bereiche oder alles auf den Standard zurücksetzen; der vorherige Stand wird gesichert. Bereiche ohne Berechtigung werden übersprungen. |
+| `wp review-captain settings export [--file=<pfad>]` | Konfiguration als JSON (ohne Zugangsdaten, wie der Download auf der Seite) |
+| `wp review-captain settings import <datei> --dry-run --user=<admin>` | Vorschau „bisher/neu“ wie auf der Seite, nichts wird gespeichert |
+| `wp review-captain settings import <datei> --yes --user=<admin>` | übernehmen, vorher wird gesichert (wiederherstellbar unter Einstellungen › Erweitert) |
 
 ## Abnahme
 

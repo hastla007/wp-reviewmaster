@@ -3,7 +3,8 @@
  * Uninstall Review Captain (RC-048).
  *
  * Data is kept unless "Daten beim Löschen des Plugins entfernen" (privacy.delete_data_on_uninstall)
- * is enabled. Runs without the plugin bootstrap: only the autoloader is loaded.
+ * is enabled and confirmed with the typed word (privacy.delete_data_confirmed_at, SET-RC-20).
+ * Runs without the plugin bootstrap: only the autoloader is loaded.
  *
  * @package ReviewCaptain
  */

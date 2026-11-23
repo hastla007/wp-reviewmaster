@@ -15,8 +15,8 @@ use ReviewCaptain\Media\PhotoStore;
 use ReviewCaptain\Security\Capabilities;
 
 /**
- * Data is kept by default. Only sites whose setting privacy.delete_data_on_uninstall is true lose
- * their tables, options and capabilities. Scheduled hooks are always removed (they contain no data
+ * Data is kept by default. Only sites whose setting privacy.delete_data_on_uninstall is true and
+ * confirmed (privacy.delete_data_confirmed_at) lose their tables, options and capabilities. Scheduled hooks are always removed (they contain no data
  * and would point to missing code). Temporary CSV import uploads are always removed as well: they
  * may contain personal data, are only protected by .htaccess (not on nginx) and the maintenance purge
  * stops with the plugin (security review 2026-11).
@@ -70,12 +70,17 @@ final class Uninstaller {
 	}
 
 	/**
-	 * Whether the current site opted in to data deletion.
+	 * Whether the current site opted in to data deletion: the switch is on and was confirmed with
+	 * the typed word (SET-RC-20, privacy.delete_data_confirmed_at). A switch that was turned on
+	 * before the confirmation existed keeps the data until the operator confirms it.
 	 */
 	public static function should_delete(): bool {
 		$settings = get_option( self::SETTINGS_OPTION, array() );
-		$value    = is_array( $settings ) && isset( $settings['privacy'] ) && is_array( $settings['privacy'] ) ? ( $settings['privacy']['delete_data_on_uninstall'] ?? false ) : false;
-		return true === $value || 1 === $value || '1' === $value;
+		$privacy  = is_array( $settings ) && isset( $settings['privacy'] ) && is_array( $settings['privacy'] ) ? $settings['privacy'] : array();
+		$value    = $privacy['delete_data_on_uninstall'] ?? false;
+		$on       = true === $value || 1 === $value || '1' === $value;
+		$at       = $privacy['delete_data_confirmed_at'] ?? '';
+		return $on && is_string( $at ) && '' !== trim( $at );
 	}
 
 	/**
