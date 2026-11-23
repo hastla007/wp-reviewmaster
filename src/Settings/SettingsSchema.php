@@ -13,7 +13,7 @@ namespace ReviewCaptain\Settings;
  * Declarative definition of all core settings. Pro can extend via the
  * `review_captain_settings_schema` filter (fields with 'owner' => 'pro').
  *
- * Field keys: type (string|int|bool|enum|array|time|email|textarea), default, choices (enum),
+ * Field keys: type (string|int|bool|enum|array|time|email|textarea|color), default, choices (enum),
  * min/max (int), owner (core|pro), entitlement (pro only), privacy (none|personal|config),
  * advanced (bool, progressive disclosure), scope (site|network).
  */
@@ -48,7 +48,6 @@ final class SettingsSchema {
 		$core = array(
 			'general'     => array(
 				'brand_name'        => array( 'type' => 'string', 'default' => '' ),
-				'default_language'  => array( 'type' => 'string', 'default' => '' ),
 				'date_format'       => array( 'type' => 'string', 'default' => '' ),
 				'new_review_status' => array(
 					'type'    => 'enum',
@@ -109,6 +108,23 @@ final class SettingsSchema {
 				'feedback_campaigns_enabled' => array( 'type' => 'bool', 'default' => false ),
 				// RC-125A (owner decision: part of 1.0) – off by default, the operator enables it.
 				'corrections_enabled'        => array( 'type' => 'bool', 'default' => false ),
+				// SET-RC-21: validity of the one-time correction link.
+				'correction_link_hours'      => array( 'type' => 'int', 'default' => 1, 'min' => 1, 'max' => 72, 'advanced' => true ),
+				// SET-RC-10: moderation rules. They only ever hold a review for moderation (status pending);
+				// a blocked e-mail domain rejects the submission with a neutral message. Lists: one entry per line.
+				'min_seconds'                => array( 'type' => 'int', 'default' => 3, 'min' => 1, 'max' => 120, 'advanced' => true ),
+				'hold_words'                 => array( 'type' => 'textarea', 'default' => '' ),
+				'hold_links'                 => array( 'type' => 'bool', 'default' => false ),
+				'block_email_domains'        => array( 'type' => 'textarea', 'default' => '' ),
+				// SET-RC-27: longest edge of re-encoded photos (one photo per review, see docs/settings/reference.md).
+				'photo_max_edge'             => array( 'type' => 'int', 'default' => 1600, 'min' => 400, 'max' => 4000, 'advanced' => true ),
+				// SET-RC-29: client address for the rate limits behind a reverse proxy (off = REMOTE_ADDR).
+				'trusted_proxy_header'       => array(
+					'type'     => 'enum',
+					'default'  => 'none',
+					'choices'  => array( 'none', 'x-forwarded-for', 'x-real-ip', 'cf-connecting-ip' ),
+					'advanced' => true,
+				),
 			),
 			'display'     => array(
 				'show_stars'     => array( 'type' => 'bool', 'default' => true ),
@@ -125,12 +141,43 @@ final class SettingsSchema {
 				'schema_enabled' => array( 'type' => 'bool', 'default' => true ),
 				'load_css'       => array( 'type' => 'bool', 'default' => true, 'advanced' => true ),
 				'show_photos'    => array( 'type' => 'bool', 'default' => false ),
+				// SET-RC-22: colours as CSS custom properties (empty = theme/CSS default); own reviews keep the 1–5 scale.
+				'star_color'     => array( 'type' => 'color', 'default' => '' ),
+				'accent_color'   => array( 'type' => 'color', 'default' => '' ),
+				'rating_display' => array(
+					'type'    => 'enum',
+					'default' => 'both',
+					'choices' => array( 'stars', 'number', 'both' ),
+				),
+				'decimal_places' => array( 'type' => 'int', 'default' => 1, 'min' => 0, 'max' => 2 ),
+				// SET-RC-23: structured data can only be narrowed (testimonials never get markup).
+				'schema_contexts'    => array(
+					'type'    => 'array',
+					'default' => array( 'product', 'post', 'event' ),
+					'choices' => array( 'product', 'post', 'event' ),
+				),
+				'schema_min_reviews' => array( 'type' => 'int', 'default' => 1, 'min' => 1, 'max' => 50 ),
+				// SET-RC-28: global defaults for widgets, blocks and shortcodes without their own value.
+				'widget_limit'         => array( 'type' => 'int', 'default' => 6, 'min' => 1, 'max' => 50 ),
+				'widget_layout'        => array(
+					'type'    => 'enum',
+					'default' => 'grid',
+					'choices' => array( 'grid', 'list' ),
+				),
+				'widget_columns'       => array( 'type' => 'int', 'default' => 3, 'min' => 1, 'max' => 4 ),
+				'widget_heading_level' => array( 'type' => 'int', 'default' => 2, 'min' => 2, 'max' => 6 ),
+				'widget_new_tab'       => array( 'type' => 'bool', 'default' => false ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),
 				'retention_rejected_days'  => array( 'type' => 'int', 'default' => 90, 'min' => 1, 'max' => 3650 ),
 				'retention_logs_days'      => array( 'type' => 'int', 'default' => 90, 'min' => 1, 'max' => 3650 ),
 				'retention_jobs_days'      => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),
+				// SET-RC-08: 0 = unlimited (behaviour up to now). The future default awaits owner decision E5 and a legal review.
+				'retention_contact_days'   => array( 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 3650 ),
+				'retention_approved_days'  => array( 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 3650 ),
+				// SET-RC-21: decided author-correction versions.
+				'retention_corrections_days' => array( 'type' => 'int', 'default' => 90, 'min' => 1, 'max' => 3650 ),
 				'erase_mode'               => array(
 					'type'    => 'enum',
 					'default' => 'anonymize',
@@ -233,6 +280,10 @@ final class SettingsSchema {
 					return $default;
 				}
 				return array_values( array_unique( array_filter( array_map( 'sanitize_key', array_map( 'strval', $value ) ) ) ) );
+			case 'color':
+				// Hex colour (#rgb or #rrggbb); empty = theme/CSS default.
+				$v = is_scalar( $value ) ? strtolower( trim( (string) $value ) ) : '';
+				return '' === $v || preg_match( '/^#(?:[0-9a-f]{3}){1,2}$/', $v ) ? $v : $default;
 			case 'textarea':
 				return is_scalar( $value ) ? sanitize_textarea_field( (string) $value ) : $default;
 			case 'string':

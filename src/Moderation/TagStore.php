@@ -19,8 +19,25 @@ use ReviewCaptain\Install\Schema;
  */
 final class TagStore {
 
-	public const MAX_TAGS   = 20;
-	public const MAX_LENGTH = 40;
+	/**
+	 * Default maximum of tags per review; raisable with `review_captain_max_tags` up to
+	 * MAX_TAGS_LIMIT (SET-RC-31).
+	 */
+	public const MAX_TAGS       = 20;
+	public const MAX_TAGS_LIMIT = 50;
+	public const MAX_LENGTH     = 40;
+
+	/**
+	 * Effective maximum of tags per review.
+	 */
+	public static function max_tags(): int {
+		/**
+		 * Maximum number of internal tags per review (1–50, default 20).
+		 *
+		 * @param int $max Maximum.
+		 */
+		return max( 1, min( self::MAX_TAGS_LIMIT, (int) apply_filters( 'review_captain_max_tags', self::MAX_TAGS ) ) );
+	}
 
 	/**
 	 * Normalise user input ("Lieferung, Rückfrage") into tag keys.
@@ -39,7 +56,7 @@ final class TagStore {
 				$tags[ $tag ] = $tag;
 			}
 		}
-		return array_slice( array_values( $tags ), 0, self::MAX_TAGS );
+		return array_slice( array_values( $tags ), 0, self::max_tags() );
 	}
 
 	/**

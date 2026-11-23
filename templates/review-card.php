@@ -25,7 +25,9 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 						<?php endforeach; ?>
 					</span>
 				<?php endif; ?>
-				<span class="rc-rating__value" aria-hidden="true"><?php echo esc_html( $rc['rating']['value'] ); ?></span>
+				<?php if ( ! isset( $rc['rating']['show_value'] ) || $rc['rating']['show_value'] ) : ?>
+					<span class="rc-rating__value" aria-hidden="true"><?php echo esc_html( $rc['rating']['value'] ); ?></span>
+				<?php endif; ?>
 			</div>
 		<?php endif; ?>
 		<?php foreach ( $rc['badges'] as $rc_badge ) : ?>

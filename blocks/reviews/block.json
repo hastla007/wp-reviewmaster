@@ -34,12 +34,10 @@
 			"enum": [
 				"grid",
 				"list"
-			],
-			"default": "grid"
+			]
 		},
 		"columns": {
-			"type": "number",
-			"default": 3
+			"type": "number"
 		},
 		"platform": {
 			"type": "string",
@@ -59,8 +57,7 @@
 			"default": 0
 		},
 		"limit": {
-			"type": "number",
-			"default": 6
+			"type": "number"
 		},
 		"contextType": {
 			"type": "string",
@@ -89,8 +86,7 @@
 			"default": true
 		},
 		"headingLevel": {
-			"type": "integer",
-			"default": 2
+			"type": "integer"
 		},
 		"paginate": {
 			"type": "boolean",
@@ -101,8 +97,7 @@
 			"default": "reviews"
 		},
 		"newTab": {
-			"type": "boolean",
-			"default": false
+			"type": "boolean"
 		}
 	},
 	"editorScript": "file:./editor.js"

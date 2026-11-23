@@ -333,6 +333,7 @@ class Runner {
 			}
 			$retry_after = method_exists( $e, 'retry_after' ) ? $e->retry_after() : null;
 			$this->queue->fail( (int) $job['id'], $worker_id, $code, $e->getMessage(), is_numeric( $retry_after ) ? (int) $retry_after : null );
+			self::debug_log( $job, $code, get_class( $e ) );
 			return false;
 		}
 
@@ -379,16 +380,51 @@ class Runner {
 			$code = ErrorCode::is_known( $code ) ? $code : ErrorCode::TEMP_UNAVAILABLE;
 			$ra   = $outcome['retry_after'] ?? null;
 			$this->queue->fail( $id, $worker_id, $code, (string) ( $outcome['message'] ?? '' ), is_numeric( $ra ) ? (int) $ra : null );
+			self::debug_log( $job, $code, 'result' );
 			return false;
 		}
 		if ( is_object( $outcome ) && is_a( $outcome, 'WP_Error' ) ) {
 			$code = (string) $outcome->get_error_code();
 			$code = ErrorCode::is_known( $code ) ? $code : ErrorCode::TEMP_UNAVAILABLE;
 			$this->queue->fail( $id, $worker_id, $code, (string) $outcome->get_error_message() );
+			self::debug_log( $job, $code, 'WP_Error' );
 			return false;
 		}
 		$this->queue->fail( $id, $worker_id, ErrorCode::CONTRACT_INVALID, __( 'Ungültiges Handler-Ergebnis.', 'review-captain' ) );
+		self::debug_log( $job, ErrorCode::CONTRACT_INVALID, 'result' );
 		return false;
+	}
+
+	/**
+	 * Diagnostic line in the PHP error log for a failed job, only with `advanced.debug_logging`
+	 * (SET-RC-05). Contains job ID, type, attempt, error code and the kind of failure – never the
+	 * error message or payload, which may carry personal data or secrets.
+	 *
+	 * @param array<string, mixed> $job    Job.
+	 * @param string               $code   Error code (rc.*).
+	 * @param string               $source Exception class, 'WP_Error' or 'result'.
+	 */
+	private static function debug_log( array $job, string $code, string $source ): void {
+		if ( true !== \ReviewCaptain\Plugin::instance()->settings()->get( 'advanced', 'debug_logging', false ) ) {
+			return;
+		}
+		$line = sprintf(
+			'Review Captain [debug]: job %d (%s, attempt %d) failed: %s (%s)',
+			(int) ( $job['id'] ?? 0 ),
+			preg_replace( '/[^a-z0-9_.:-]/i', '', (string) ( $job['type'] ?? '' ) ),
+			(int) ( $job['attempts'] ?? 0 ),
+			preg_replace( '/[^a-z0-9_.:-]/i', '', $code ),
+			preg_replace( '/[^a-z0-9_\\\\]/i', '', $source )
+		);
+		/**
+		 * Diagnostic log line (tests, custom loggers). Return '' to suppress.
+		 *
+		 * @param string $line Line without personal data.
+		 */
+		$line = (string) apply_filters( 'review_captain_debug_log_line', $line );
+		if ( '' !== $line ) {
+			error_log( $line ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		}
 	}
 
 	/**

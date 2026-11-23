@@ -109,10 +109,12 @@
 						} ),
 						el( RangeControl, {
 							label: __( 'Anzahl', 'review-captain' ),
+							help: __( 'Leer = Vorgabe aus den Einstellungen (Darstellung › Widget-Vorgaben).', 'review-captain' ),
 							value: a.limit,
 							min: 1,
 							max: 50,
-							onChange: function ( v ) { set( { limit: v || 6 } ); }
+							allowReset: true,
+							onChange: function ( v ) { set( { limit: v || undefined } ); }
 						} ),
 						el( ToggleControl, {
 							label: __( 'Blättern erlauben', 'review-captain' ),
@@ -141,19 +143,22 @@
 						{ title: __( 'Layout', 'review-captain' ), initialOpen: false },
 						el( SelectControl, {
 							label: __( 'Darstellung', 'review-captain' ),
-							value: a.layout,
+							value: a.layout || '',
 							options: [
+								{ label: __( 'Vorgabe aus den Einstellungen', 'review-captain' ), value: '' },
 								{ label: __( 'Raster', 'review-captain' ), value: 'grid' },
 								{ label: __( 'Liste', 'review-captain' ), value: 'list' }
 							],
-							onChange: function ( v ) { set( { layout: v } ); }
+							onChange: function ( v ) { set( { layout: v || undefined } ); }
 						} ),
-						'grid' === a.layout && el( RangeControl, {
+						'list' !== a.layout && el( RangeControl, {
 							label: __( 'Spalten', 'review-captain' ),
+							help: __( 'Leer = Vorgabe aus den Einstellungen.', 'review-captain' ),
 							value: a.columns,
 							min: 1,
 							max: 4,
-							onChange: function ( v ) { set( { columns: v || 3 } ); }
+							allowReset: true,
+							onChange: function ( v ) { set( { columns: v || undefined } ); }
 						} )
 					),
 					el(

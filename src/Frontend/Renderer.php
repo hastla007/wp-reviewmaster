@@ -305,7 +305,7 @@ class Renderer {
 				'p'  => array(),
 				'br' => array(),
 			),
-			'rating'    => $this->rating_data( $r, $show_stars ),
+			'rating'    => $this->rating_data( $r, $show_stars, (string) $settings->get( 'display', 'rating_display', 'both' ) ),
 			'author'    => $author,
 			'avatar'    => $author && $settings->get( 'display', 'show_avatar', false ) ? mb_strtoupper( mb_substr( $author, 0, 1 ) ) : '',
 			'date'      => $date,
@@ -318,14 +318,19 @@ class Renderer {
 	/**
 	 * Rating view data on the original scale.
 	 *
+	 * `display.rating_display` (SET-RC-22): stars|number|both. Stars exist only for 1–5 scales;
+	 * without stars the number is always shown. The label for screen readers is always present.
+	 *
 	 * @param Review $r          Review.
-	 * @param bool   $show_stars Whether to draw stars.
-	 * @return array{label: string, value: string, stars: list<string>}|null
+	 * @param bool   $show_stars Whether to draw stars (display.show_stars).
+	 * @param string $display    stars|number|both.
+	 * @return array{label: string, value: string, stars: list<string>, show_value: bool}|null
 	 */
-	public function rating_data( Review $r, bool $show_stars = true ): ?array {
+	public function rating_data( Review $r, bool $show_stars = true, string $display = 'both' ): ?array {
 		if ( null === $r->rating_value ) {
 			return null;
 		}
+		$show_stars = $show_stars && 'number' !== $display;
 		$value = $r->rating_value;
 		$max   = $r->rating_scale_max;
 		$fmt   = static fn( float $v ): string => number_format_i18n( $v, floor( $v ) === $v ? 0 : 1 );
@@ -346,10 +351,22 @@ class Renderer {
 			$label = sprintf( __( '%1$s von %2$s Punkten', 'review-captain' ), $fmt( $value ), $fmt( $max ) );
 		}
 		return array(
-			'label' => $label,
-			'value' => $fmt( $value ) . ' / ' . $fmt( $max ),
-			'stars' => $stars,
+			'label'      => $label,
+			'value'      => $fmt( $value ) . ' / ' . $fmt( $max ),
+			'stars'      => $stars,
+			'show_value' => ! $stars || 'stars' !== $display,
 		);
+	}
+
+	/**
+	 * Format an average with `display.decimal_places` (0–2, SET-RC-22); whole numbers without decimals.
+	 *
+	 * @param float $average Average.
+	 */
+	public function format_average( float $average ): string {
+		$places  = max( 0, min( 2, (int) $this->plugin->settings()->get( 'display', 'decimal_places', 1 ) ) );
+		$rounded = round( $average, $places );
+		return number_format_i18n( $rounded, floor( $rounded ) === $rounded ? 0 : $places );
 	}
 
 	/**
@@ -368,7 +385,7 @@ class Renderer {
 				continue;
 			}
 			$platform = Platform::tryFrom( $row['platform'] ) ?? Platform::OTHER;
-			$avg      = number_format_i18n( $row['average'], floor( $row['average'] ) === $row['average'] ? 0 : 1 );
+			$avg      = $this->format_average( (float) $row['average'] );
 			$out[]    = array(
 				'platform' => $platform->value,
 				'text'     => sprintf(

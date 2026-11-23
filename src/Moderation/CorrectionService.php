@@ -28,6 +28,8 @@ use ReviewCaptain\Plugin;
  */
 class CorrectionService {
 
+	// Defaults; effective values come from submissions.correction_link_hours and
+	// privacy.retention_corrections_days (SET-RC-21).
 	public const TOKEN_TTL     = HOUR_IN_SECONDS;
 	public const MAX_LINKS     = 5;
 	public const RETENTION_DAYS = 90;
@@ -39,6 +41,12 @@ class CorrectionService {
 	 * @param Plugin $plugin Plugin.
 	 */
 	public function __construct( private Plugin $plugin ) {}
+
+	/** Validity of a one-time link in seconds (setting submissions.correction_link_hours, 1–72 h). */
+	public static function token_ttl(): int {
+		$hours = (int) Plugin::instance()->settings()->get( 'submissions', 'correction_link_hours', 1 );
+		return max( 1, min( 72, $hours ) ) * HOUR_IN_SECONDS;
+	}
 
 	/** Whether the operator enabled corrections. */
 	public function enabled(): bool {
@@ -69,7 +77,7 @@ class CorrectionService {
 				continue;
 			}
 			$token = rtrim( strtr( base64_encode( random_bytes( 32 ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			set_transient( self::TOKEN_PREFIX . hash( 'sha256', $token ), array( 'review' => (int) $r->id ), self::TOKEN_TTL );
+			set_transient( self::TOKEN_PREFIX . hash( 'sha256', $token ), array( 'review' => (int) $r->id ), self::token_ttl() );
 			$out[ (int) $r->id ] = $token;
 		}
 		return $out;
@@ -245,11 +253,13 @@ class CorrectionService {
 	}
 
 	/**
-	 * Retention: decided revisions older than RETENTION_DAYS are deleted.
+	 * Retention: decided revisions older than $days (privacy.retention_corrections_days) are deleted.
+	 *
+	 * @param int $days Days after the decision (default RETENTION_DAYS).
 	 */
-	public static function purge_old(): int {
+	public static function purge_old( int $days = self::RETENTION_DAYS ): int {
 		global $wpdb;
-		$cut = gmdate( 'Y-m-d H:i:s', time() - self::RETENTION_DAYS * DAY_IN_SECONDS );
+		$cut = gmdate( 'Y-m-d H:i:s', time() - max( 1, $days ) * DAY_IN_SECONDS );
 		return max( 0, (int) $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . Schema::table( 'review_revisions' ) . " WHERE status <> 'proposed' AND decided_at IS NOT NULL AND decided_at < %s", $cut ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery
 	}
 

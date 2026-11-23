@@ -30,7 +30,28 @@ final class CampaignStore {
 
 	public const OPTION = 'review_captain_feedback_campaigns';
 
+	/**
+	 * Default maximum number of feedback links; raisable with `review_captain_max_feedback_links`
+	 * up to MAX_LIMIT (SET-RC-31).
+	 */
 	public const MAX = 50;
+
+	/**
+	 * Upper bound for `review_captain_max_feedback_links` (all links live in one option).
+	 */
+	public const MAX_LIMIT = 200;
+
+	/**
+	 * Effective maximum number of feedback links.
+	 */
+	public static function max(): int {
+		/**
+		 * Maximum number of feedback links (1–200, default 50).
+		 *
+		 * @param int $max Maximum.
+		 */
+		return max( 1, min( self::MAX_LIMIT, (int) apply_filters( 'review_captain_max_feedback_links', self::MAX ) ) );
+	}
 
 	/**
 	 * All campaigns keyed by id.
@@ -87,7 +108,7 @@ final class CampaignStore {
 			$errors[] = 'whatsapp_text';
 		}
 		$all = $this->all();
-		if ( count( $all ) >= self::MAX ) {
+		if ( count( $all ) >= self::max() ) {
 			$errors[] = 'limit';
 		}
 		if ( $errors ) {

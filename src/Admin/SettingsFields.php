@@ -24,14 +24,13 @@ final class SettingsFields {
 		return array(
 			'general'     => array(
 				'brand_name'        => array( __( 'Marken- bzw. Firmenname', 'review-captain' ), __( 'Erscheint in Hinweisen und Formularen. Leer = Titel deiner Website.', 'review-captain' ) ),
-				'default_language'  => array( __( 'Standardsprache', 'review-captain' ), __( 'Sprachkürzel für Plugin-Texte im Frontend, z. B. de_DE. Leer = Sprache der Website. Reviewtexte werden nie übersetzt.', 'review-captain' ) ),
 				'date_format'       => array( __( 'Datumsformat', 'review-captain' ), __( 'PHP-Datumsformat, z. B. d.m.Y. Leer = WordPress-Datumsformat. Es gilt die WordPress-Zeitzone.', 'review-captain' ) ),
 				'new_review_status' => array( __( 'Status neuer Reviews', 'review-captain' ), __( 'Gilt für Einreichungen über das Formular. „Sofort freigeben“ veröffentlicht ungeprüfte Texte – empfohlen nur mit aktiver Moderation.', 'review-captain' ) ),
 			),
 			'sources'     => array(
 				'sync_window_start'       => array( __( 'Synchronisierung ab', 'review-captain' ), __( 'Beginn des Zeitfensters für automatische Abgleiche (Website-Zeit).', 'review-captain' ) ),
 				'sync_window_end'         => array( __( 'Synchronisierung bis', 'review-captain' ), __( 'Ende des Zeitfensters. Ende vor Beginn = Fenster über Mitternacht.', 'review-captain' ) ),
-				'removed_review_behavior' => array( __( 'Bei der Quelle gelöschte Reviews', 'review-captain' ), __( 'Was passiert, wenn ein Review bei der Plattform gelöscht wurde oder nicht mehr abrufbar ist.', 'review-captain' ) ),
+				'removed_review_behavior' => array( __( 'Bei der Quelle gelöschte Reviews', 'review-captain' ), __( 'Was passiert, wenn die Plattform meldet, dass ein Review gelöscht wurde. In beiden Fällen ist es sofort nicht mehr sichtbar und wird nach der Frist für externe Reviews (Datenschutz) endgültig gelöscht.', 'review-captain' ) ),
 				'max_pages_per_run'       => array( __( 'Seiten je Abruf', 'review-captain' ), __( 'Höhere Werte holen große Bestände schneller, belasten aber Server und Anbieterkontingent.', 'review-captain' ) ),
 				'pause_after_auth_errors' => array( __( 'Pause nach Anmeldefehlern', 'review-captain' ), __( 'Nach so vielen aufeinanderfolgenden Anmeldefehlern wird die Quelle pausiert. Vorhandene Reviews bleiben sichtbar.', 'review-captain' ) ),
 			),
@@ -62,6 +61,14 @@ final class SettingsFields {
 				'multi_product_enabled'      => array( __( 'Formular für mehrere Produkte', 'review-captain' ), __( 'Ein Formular mit context_ids bewertet mehrere Produkte auf einmal. Je Person und Produkt ist dann nur eine Bewertung möglich.', 'review-captain' ) ),
 				'qa_enabled'                 => array( __( 'Produktfragen (Q&A)', 'review-captain' ), __( 'Fragen und Antworten über [review_captain_qa]. Getrennt von Bewertungen, moderiert, ohne Schema-Markup.', 'review-captain' ) ),
 				'feedback_campaigns_enabled' => array( __( 'Feedback-Links und QR-Codes', 'review-captain' ), __( 'Erzeugt Feedback-Links mit QR-Code (SVG) und optionalem WhatsApp-Click-to-Chat-Link.', 'review-captain' ) ),
+				'corrections_enabled'        => array( __( 'Korrektur durch Autorinnen und Autoren', 'review-captain' ), __( 'Wer eine freigegebene Bewertung geschrieben hat, kann sie per Einmal-Link oder angemeldet korrigieren oder zurückziehen. Korrekturen werden erst nach deiner Freigabe sichtbar.', 'review-captain' ) ),
+				'correction_link_hours'      => array( __( 'Gültigkeit des Korrektur-Links (Stunden)', 'review-captain' ), __( 'Der Link funktioniert einmal und verfällt danach automatisch.', 'review-captain' ) ),
+				'min_seconds'                => array( __( 'Mindest-Ausfüllzeit (Sekunden)', 'review-captain' ), __( 'Schneller abgeschickte Formulare gelten als automatisiert und werden mit einem neutralen Hinweis abgewiesen.', 'review-captain' ) ),
+				'hold_words'                 => array( __( 'Wörter, die zur Prüfung zurückhalten', 'review-captain' ), __( 'Ein Wort oder eine Wortgruppe je Zeile, Groß-/Kleinschreibung egal. Enthält eine Bewertung einen Eintrag, wartet sie auf Moderation – auch wenn neue Reviews sofort freigegeben werden. Es wird nie etwas gelöscht.', 'review-captain' ) ),
+				'hold_links'                 => array( __( 'Bewertungen mit Links zurückhalten', 'review-captain' ), __( 'Bewertungen mit Webadresse (http, www.) im Titel oder Text warten auf Moderation.', 'review-captain' ) ),
+				'block_email_domains'        => array( __( 'Gesperrte E-Mail-Domains', 'review-captain' ), __( 'Eine Domain je Zeile, z. B. wegwerfmail.example. Einreichungen mit Adressen dieser Domains (auch Subdomains) werden mit einem neutralen Hinweis abgelehnt und nicht gespeichert.', 'review-captain' ) ),
+				'photo_max_edge'             => array( __( 'Längste Fotokante (Pixel)', 'review-captain' ), __( 'Größere Fotos werden beim Neukodieren verkleinert. Je Bewertung bleibt es bei einem Foto.', 'review-captain' ) ),
+				'trusted_proxy_header'       => array( __( 'Absenderadresse hinter einem Proxy', 'review-captain' ), __( 'Nur einstellen, wenn deine Website hinter einem Reverse Proxy oder CDN liegt, der diese Kopfzeile selbst setzt. Sonst können Absender die Sendebegrenzung umgehen. Verwendet wird die letzte Adresse der Kopfzeile, gespeichert nur als Hash.', 'review-captain' ) ),
 			),
 			'display'     => array(
 				'show_stars'     => array( __( 'Sterne anzeigen', 'review-captain' ), __( 'Sterne werden immer zusätzlich als Text für Screenreader ausgegeben.', 'review-captain' ) ),
@@ -73,6 +80,18 @@ final class SettingsFields {
 				'reduced_motion' => array( __( 'Bewegung reduzieren', 'review-captain' ), __( 'Keine automatischen Animationen oder Karussell-Rotation. Die Systemeinstellung der Besucher wird immer beachtet.', 'review-captain' ) ),
 				'load_css'       => array( __( 'Plugin-CSS laden', 'review-captain' ), __( 'Aus = dein Theme muss die Ausgabe selbst gestalten (Klassen rc-…).', 'review-captain' ) ),
 				'show_photos'    => array( __( 'Fotos anzeigen', 'review-captain' ), __( 'Zeigt Fotos freigegebener Bewertungen in den Karten. Personenbezogen möglich.', 'review-captain' ) ),
+				'star_color'     => array( __( 'Sternfarbe', 'review-captain' ), __( 'Hex-Farbwert, z. B. #e0a800. Leer = Farbe aus Theme bzw. Plugin-CSS. Achte auf ausreichenden Kontrast.', 'review-captain' ) ),
+				'accent_color'   => array( __( 'Akzentfarbe', 'review-captain' ), __( 'Für Schaltflächen, Links und Fokusrahmen. Hex-Farbwert; leer = Theme-Farbe.', 'review-captain' ) ),
+				'rating_display' => array( __( 'Bewertung anzeigen als', 'review-captain' ), __( 'Für Screenreader steht die Bewertung immer als Text da. Andere Skalen als 1–5 werden nie in Sterne umgerechnet.', 'review-captain' ) ),
+				'decimal_places' => array( __( 'Nachkommastellen bei Durchschnitten', 'review-captain' ), __( 'Gilt für Durchschnittswerte in der Zusammenfassung. Eigene Bewertungen bleiben ganze Sterne von 1 bis 5.', 'review-captain' ) ),
+				'schema_enabled' => array( __( 'Review-Markup ausgeben', 'review-captain' ), __( 'Strukturierte Daten (schema.org) für geeignete eigene Bewertungen. Externe Bewertungen und Erfahrungsberichte erhalten nie Markup.', 'review-captain' ) ),
+				'schema_contexts'    => array( __( 'Markup für', 'review-captain' ), __( 'Nur für diese Inhaltstypen werden strukturierte Daten ausgegeben.', 'review-captain' ) ),
+				'schema_min_reviews' => array( __( 'Mindestzahl Bewertungen für Markup', 'review-captain' ), __( 'Strukturierte Daten erst ab so vielen geeigneten, sichtbaren Bewertungen auf der Seite.', 'review-captain' ) ),
+				'widget_limit'         => array( __( 'Anzahl Bewertungen', 'review-captain' ), __( 'Vorgabe, wenn ein Widget, Block oder Shortcode keine eigene Anzahl hat (höchstens 50).', 'review-captain' ) ),
+				'widget_layout'        => array( __( 'Darstellung', 'review-captain' ), '' ),
+				'widget_columns'       => array( __( 'Spalten im Raster', 'review-captain' ), __( 'Auf schmalen Bildschirmen werden es automatisch weniger.', 'review-captain' ) ),
+				'widget_heading_level' => array( __( 'Überschriftenebene der Karten', 'review-captain' ), __( 'h2 bis h6. Wähle die Ebene passend zur Gliederung deiner Seite.', 'review-captain' ) ),
+				'widget_new_tab'       => array( __( 'Links zum Original in neuem Tab', 'review-captain' ), '' ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( __( 'Externe Reviews ohne Bestätigung (Tage)', 'review-captain' ), __( 'Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde.', 'review-captain' ) ),
@@ -81,6 +100,9 @@ final class SettingsFields {
 				'erase_mode'               => array( __( 'Verhalten bei Löschanfragen', 'review-captain' ), __( 'Was „Personenbezogene Daten löschen“ (Werkzeuge) mit Reviews dieser E-Mail-Adresse macht.', 'review-captain' ) ),
 				'retention_logs_days'      => array( __( 'Protokolle (Tage)', 'review-captain' ), __( 'Protokolle enthalten keine Reviewtexte oder Zugangsdaten.', 'review-captain' ) ),
 				'retention_jobs_days'      => array( __( 'Erledigte Hintergrundaufgaben (Tage)', 'review-captain' ), '' ),
+				'retention_contact_days'   => array( __( 'Kontaktadresse zu Bewertungen (Tage)', 'review-captain' ), __( 'Danach wird die E-Mail-Adresse zur Bewertung entfernt; die Bewertung bleibt. 0 = unbegrenzt. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen.', 'review-captain' ) ),
+				'retention_approved_days'  => array( __( 'Freigegebene eigene Bewertungen (Tage)', 'review-captain' ), __( 'Danach werden Bewertungen dieser Website endgültig gelöscht (gerechnet ab Eingang). 0 = unbegrenzt. Plattform-Bewertungen sind nicht betroffen. Frist bitte rechtlich prüfen lassen.', 'review-captain' ) ),
+				'retention_corrections_days' => array( __( 'Entschiedene Korrekturfassungen (Tage)', 'review-captain' ), __( 'Frühere und abgelehnte Fassungen korrigierter Bewertungen werden danach gelöscht.', 'review-captain' ) ),
 				'delete_data_on_uninstall' => array( __( 'Daten beim Deinstallieren löschen', 'review-captain' ), __( 'An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert.', 'review-captain' ) ),
 			),
 			'access'      => array(
@@ -91,7 +113,7 @@ final class SettingsFields {
 				'use_action_scheduler' => array( __( 'Action Scheduler verwenden', 'review-captain' ), __( 'Falls verfügbar (z. B. durch WooCommerce), sonst WP-Cron. Bei wenig Besucherverkehr empfehlen wir einen Server-Cron.', 'review-captain' ) ),
 				'job_time_budget'      => array( __( 'Zeitbudget je Lauf (Sekunden)', 'review-captain' ), __( 'Nur ändern, wenn die Diagnose Zeitüberschreitungen meldet.', 'review-captain' ) ),
 				'lease_seconds'        => array( __( 'Freigabe hängender Aufgaben (Sekunden)', 'review-captain' ), __( 'Muss länger als das Zeitbudget sein.', 'review-captain' ) ),
-				'debug_logging'        => array( __( 'Fehlerprotokoll', 'review-captain' ), __( 'Enthält keine Zugangsdaten, Reviewtexte oder E-Mail-Adressen.', 'review-captain' ) ),
+				'debug_logging'        => array( __( 'Fehlerprotokoll', 'review-captain' ), __( 'Schreibt fehlgeschlagene Hintergrundaufgaben (Nummer, Typ, Fehlercode) zusätzlich ins PHP-Fehlerprotokoll des Servers. Enthält keine Zugangsdaten, Reviewtexte oder E-Mail-Adressen.', 'review-captain' ) ),
 			),
 		);
 	}
@@ -105,7 +127,7 @@ final class SettingsFields {
 		return array(
 			'general'     => array(
 				__( 'Identität', 'review-captain' )       => array( 'brand_name' ),
-				__( 'Sprache & Datum', 'review-captain' ) => array( 'default_language', 'date_format' ),
+				__( 'Datum', 'review-captain' )           => array( 'date_format' ),
 				__( 'Neue Reviews', 'review-captain' )    => array( 'new_review_status' ),
 			),
 			'sources'     => array(
@@ -122,16 +144,22 @@ final class SettingsFields {
 				__( 'Formular', 'review-captain' )          => array( 'enabled', 'allow_title', 'min_text_length', 'max_text_length' ),
 				__( 'Einwilligung', 'review-captain' )      => array( 'require_consent' ),
 				__( 'Benachrichtigung', 'review-captain' )  => array( 'notify_admin' ),
-				__( 'Erweiterte Funktionen (nach 1.0)', 'review-captain' ) => array( 'tags_enabled', 'reports_enabled', 'report_threshold', 'report_rate_limit_per_hour', 'photos_enabled', 'photo_max_kb', 'multi_product_enabled', 'qa_enabled', 'feedback_campaigns_enabled' ),
+				__( 'Moderationsregeln', 'review-captain' ) => array( 'hold_words', 'hold_links', 'block_email_domains', 'min_seconds' ),
+				__( 'Schutz vor Missbrauch', 'review-captain' ) => array( 'honeypot', 'rate_limit_per_hour', 'trusted_proxy_header' ),
+				__( 'Korrekturen', 'review-captain' )       => array( 'corrections_enabled', 'correction_link_hours' ),
+				__( 'Erweiterte Funktionen (nach 1.0)', 'review-captain' ) => array( 'tags_enabled', 'reports_enabled', 'report_threshold', 'report_rate_limit_per_hour', 'photos_enabled', 'photo_max_kb', 'photo_max_edge', 'multi_product_enabled', 'qa_enabled', 'feedback_campaigns_enabled' ),
 			),
 			'display'     => array(
 				__( 'Inhalte', 'review-captain' )          => array( 'show_stars', 'show_date', 'date_style', 'show_author', 'show_avatar' ),
+				__( 'Bewertung und Farben', 'review-captain' ) => array( 'rating_display', 'decimal_places', 'star_color', 'accent_color' ),
+				__( 'Widget-Vorgaben', 'review-captain' )  => array( 'widget_limit', 'widget_layout', 'widget_columns', 'widget_heading_level', 'widget_new_tab' ),
+				__( 'Strukturierte Daten', 'review-captain' ) => array( 'schema_enabled', 'schema_contexts', 'schema_min_reviews' ),
 				__( 'Leerer Zustand', 'review-captain' )   => array( 'empty_text' ),
 				__( 'Barrierefreiheit', 'review-captain' ) => array( 'reduced_motion' ),
 				__( 'Fotos', 'review-captain' )            => array( 'show_photos' ),
 			),
 			'privacy'     => array(
-				__( 'Aufbewahrung', 'review-captain' )       => array( 'retention_external_days', 'retention_rejected_days' ),
+				__( 'Aufbewahrung', 'review-captain' )       => array( 'retention_external_days', 'retention_rejected_days', 'retention_contact_days', 'retention_approved_days', 'retention_corrections_days' ),
 				__( 'Datenschutzhinweis', 'review-captain' ) => array( 'privacy_notice' ),
 				__( 'Löschanfragen', 'review-captain' )      => array( 'erase_mode' ),
 				__( 'Deinstallation', 'review-captain' )     => array( 'delete_data_on_uninstall' ),
@@ -161,8 +189,23 @@ final class SettingsFields {
 				'approved' => __( 'Sofort freigeben', 'review-captain' ),
 			),
 			'sources.removed_review_behavior' => array(
-				'tombstone' => __( 'Inhalt entfernen, Platzhalter behalten', 'review-captain' ),
-				'hide'      => __( 'Nur ausblenden (Inhalt bis Fristablauf speichern)', 'review-captain' ),
+				'tombstone' => __( 'Inhalt sofort entfernen, nur Platzhalter behalten (empfohlen)', 'review-captain' ),
+				'hide'      => __( 'Nur ausblenden, Inhalt bis Fristablauf speichern', 'review-captain' ),
+			),
+			'submissions.trusted_proxy_header' => array(
+				'none'             => __( 'Keine – direkte Verbindungsadresse (empfohlen)', 'review-captain' ),
+				'x-forwarded-for'  => 'X-Forwarded-For',
+				'x-real-ip'        => 'X-Real-IP',
+				'cf-connecting-ip' => 'CF-Connecting-IP (Cloudflare)',
+			),
+			'display.rating_display'          => array(
+				'both'   => __( 'Sterne und Zahl', 'review-captain' ),
+				'stars'  => __( 'Nur Sterne', 'review-captain' ),
+				'number' => __( 'Nur Zahl', 'review-captain' ),
+			),
+			'display.widget_layout'           => array(
+				'grid' => __( 'Raster', 'review-captain' ),
+				'list' => __( 'Liste', 'review-captain' ),
 			),
 			'display.date_style'              => array(
 				'absolute' => __( 'Absolut (12.11.2026)', 'review-captain' ),

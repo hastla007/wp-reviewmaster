@@ -44,6 +44,17 @@ Tests (`T`) sind für alle Zeilen noch offen.
 - [ ] Pro deaktiviert/Lizenz abgelaufen: `requests`-Werte unverändert.
 - [ ] Hilfetexte enthalten keine internen Begriffe (TTL, Backoff, Lease, Entitlement).
 
+## 4. Automatische Prüfung: keine toten Einstellungen (SET-RC-05)
+
+`tests/Unit/Settings/SettingsReadersTest.php` läuft mit der Unit-Suite und schlägt fehl, wenn
+
+- ein Core-Feld (`owner = core`) keine Beschriftung in `Admin\SettingsFields::texts()` hat, oder
+- ein Core-Feld in `src/` außerhalb von `Settings/SettingsSchema.php` und `Admin/SettingsFields.php` nirgends gelesen wird (Muster `'tab', 'key'` oder Tab und Schlüssel als Literale in derselben Datei).
+
+Ausnahmeliste (nur von Review Captain Pro gelesen, automatischer Abgleich): `sources.sync_window_start`, `sources.sync_window_end`, `sources.max_pages_per_run`, `sources.pause_after_auth_errors`. Pro-eigene Felder (`owner = pro`) prüft der Test nicht. Neue Ausnahmen nur mit Begründung in dieser Liste und im Test (`PRO_ONLY`).
+
+Mit SET-RC-05 entfernt bzw. verdrahtet: `general.default_language` (entfernt, WordPress-Sprache gilt; gespeicherte Altwerte bleiben unausgewertet in der Option), `sources.removed_review_behavior` (wirkt im Abgleich), `advanced.debug_logging` (Zeile im PHP-Fehlerprotokoll bei fehlgeschlagenen Jobs).
+
 ## Abnahme
 
 Entspricht SET-024, wenn diese Checkliste in die Release-Checkliste (RC-142) übernommen ist und vor dem Core-1.0-Release jede Zeile in §2 in allen Spalten `D`+`T` (bzw. geprüft) ist.
