@@ -345,7 +345,7 @@ class Renderer {
 				'nonce_action' => ReportHandler::NONCE_ACTION,
 				'nonce_name'   => ReportHandler::NONCE_FIELD,
 				'reasons'      => ReportStore::enabled_reason_labels( $settings ),
-				'pow'          => PowCaptcha::field( 'rc-report-' . $r->uuid ),
+				'pow'          => PowCaptcha::field( 'rc-report-' . $r->uuid, PowCaptcha::scope( 'report', array( 'rc_review' => $r->uuid ) ) ),
 			);
 		}
 
@@ -545,7 +545,16 @@ class Renderer {
 				'max_length'      => (int) $settings->get( 'submissions', 'max_text_length', 5000 ),
 				'success'         => $state['success'],
 				'errors'          => $errors,
-				'pow'             => PowCaptcha::field( 'rc-form-' . $number ),
+				'pow'             => PowCaptcha::field(
+					'rc-form-' . $number,
+					PowCaptcha::scope(
+						'review',
+						array(
+							'rc_context_type' => $type,
+							'rc_context_id'   => $cid,
+						)
+					)
+				),
 				'values'          => array(
 					'rating' => (string) ( $draft['rating'] ?? '' ),
 					'title'  => (string) ( $draft['title'] ?? '' ),

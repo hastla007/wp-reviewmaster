@@ -2,8 +2,8 @@
 /**
  * Spam protection hook and built-in proof-of-work captcha (SET-RC-11).
  *
- * WordPress glue around ReviewCaptain\Spam\ProofOfWork\ProofOfWork – ported from Form Captain's
- * `FormCaptain\Security\PowCaptcha` (wp-formmaster commit ca81401) with the Review Captain prefix.
+ * WordPress side of ReviewCaptain\Spam\ProofOfWork\ProofOfWork (a copy of Form Captain's core,
+ * wp-formmaster ca81401); counterpart of Form Captain's `FormCaptain\Security\PowCaptcha`.
  *
  * @package ReviewCaptain
  */
@@ -20,17 +20,29 @@ use ReviewCaptain\Spam\ProofOfWork\ProofOfWork;
  * external request, no cookie, no personal data, no puzzle). External providers attach via the
  * filter `review_captain_spam_checks_v1` – only after legal review.
  *
- * Challenges are fetched by the browser from admin-ajax.php when the visitor starts using the form,
- * so they also work on fully cached pages. A challenge carries its own expiry and an HMAC
- * signature, so nothing is stored when it is issued. A solved challenge is accepted once: its hash
- * is kept in a transient until the challenge expires (same storage as the rate limits).
+ * - Key: derived from wp_salt( 'nonce' ), never output.
+ * - Scope: a challenge is bound to one form and its context (see scope()); a solution for one
+ *   product's review form is not accepted by another product's or by the report form.
+ * - Challenges are only handed out by the admin-ajax action, never in (cacheable) HTML.
+ * - Single use: an option `review_captain_pow_used_<hash>` per solved challenge, written with
+ *   add_option() (one INSERT on the unique option_name, so two parallel requests cannot both win),
+ *   kept until expiry + 60 s and removed by the daily maintenance (purge_used()).
+ * - Unlike Form Captain there is no no-JS fallback: Review Captain's forms are plain POSTs, so a
+ *   fallback would let bots skip the check by not sending a solution.
  */
 final class PowCaptcha {
 
-	public const PROVIDERS     = array( 'none', 'pow' );
-	public const FIELD         = 'rc_pow';
+	public const PROVIDER      = 'pow';
+	public const PROVIDERS     = array( 'none', self::PROVIDER );
+	public const FIELD         = '_rc_pow';
 	public const AJAX_ACTION   = 'review_captain_pow_challenge';
 	public const SCRIPT_HANDLE = 'review-captain-pow';
+	public const FORM_HANDLE   = 'review-captain-pow-form';
+	public const FORMS         = array( 'review', 'report', 'question' );
+
+	public const REASON_MISSING  = 'pow_missing';
+	public const REASON_INVALID  = 'pow_invalid';
+	public const REASON_REPLAYED = 'pow_replayed';
 
 	/**
 	 * Public error code for reasons from external checks (the reason itself is not shown).
@@ -38,9 +50,14 @@ final class PowCaptcha {
 	public const EXTERNAL_CODE = 'spam_check';
 
 	/**
-	 * Transient prefix of used challenges.
+	 * Option prefix of used challenges (inside the plugin prefix, so uninstall removes leftovers).
 	 */
-	private const USED_PREFIX = 'review_captain_pow_';
+	public const USED_PREFIX = 'review_captain_pow_used_';
+
+	/**
+	 * Highest length of a scope (longer requests for a challenge are refused).
+	 */
+	private const MAX_SCOPE = 200;
 
 	/**
 	 * Configured provider (unknown values fall back to `none`).
@@ -54,7 +71,7 @@ final class PowCaptcha {
 	 * Whether the built-in proof-of-work check is active.
 	 */
 	public static function enabled(): bool {
-		return 'pow' === self::provider();
+		return self::PROVIDER === self::provider();
 	}
 
 	/**
@@ -62,72 +79,131 @@ final class PowCaptcha {
 	 */
 	public static function max_number(): int {
 		/**
-		 * Difficulty of the built-in proof-of-work check: upper bound of the number the browser
-		 * searches (on average half of it is tried). Clamped to 1000–10,000,000; default 100,000.
-		 * Same meaning as Form Captain's `form_captain_pow_max_number_v1`.
+		 * Difficulty of the built-in proof-of-work check (technical value): highest number the
+		 * browser may have to try (on average half of it). Default 50 000, kept within
+		 * 1 000–1 000 000. Same meaning as Form Captain's `form_captain_pow_max_number_v1`.
 		 *
 		 * @param int $max_number Upper bound.
 		 */
-		return ProofOfWork::clamp_max_number( (int) apply_filters( 'review_captain_pow_max_number_v1', ProofOfWork::DEFAULT_MAX_NUMBER ) );
+		$max = (int) apply_filters( 'review_captain_pow_max_number_v1', ProofOfWork::DEFAULT_MAX_NUMBER );
+		return max( ProofOfWork::MIN_MAX_NUMBER, min( ProofOfWork::MAX_MAX_NUMBER, $max ) );
 	}
 
 	/**
-	 * Engine with the site secret.
+	 * Engine with the site key and the single-use store.
 	 *
 	 * @param callable|null $clock Clock (tests).
 	 */
 	public static function engine( ?callable $clock = null ): ProofOfWork {
-		return new ProofOfWork( hash_hmac( 'sha256', 'review_captain_pow', wp_salt( 'nonce' ) ), self::max_number(), ProofOfWork::DEFAULT_TTL, $clock );
+		return new ProofOfWork(
+			hash_hmac( 'sha256', 'review-captain/pow/v1', wp_salt( 'nonce' ) ),
+			array( self::class, 'consume' ),
+			self::max_number(),
+			ProofOfWork::DEFAULT_TTL,
+			$clock
+		);
 	}
 
 	/**
-	 * A new challenge for the browser (the secret number is never part of it).
+	 * Scope of a form: form type plus its context. Used when rendering (from the hidden fields)
+	 * and when checking (from the POST data), so both sides compute the same string.
 	 *
+	 * @param string               $form review, report or question.
+	 * @param array<string, mixed> $data Hidden fields or POST data.
+	 */
+	public static function scope( string $form, array $data ): string {
+		$value = static fn( string $key ): string => is_scalar( $data[ $key ] ?? null ) ? (string) $data[ $key ] : '';
+		if ( 'report' === $form ) {
+			return 'report|' . strtolower( $value( 'rc_review' ) );
+		}
+		return $form . '|' . $value( 'rc_context_type' ) . '|' . $value( 'rc_context_id' );
+	}
+
+	/**
+	 * Whether a scope sent by the browser may receive a challenge.
+	 *
+	 * @param string $scope Scope.
+	 */
+	public static function valid_scope( string $scope ): bool {
+		if ( '' === $scope || strlen( $scope ) > self::MAX_SCOPE || 1 === preg_match( '/[\x00-\x1f\x7f]/', $scope ) ) {
+			return false;
+		}
+		return in_array( strstr( $scope, '|', true ), self::FORMS, true );
+	}
+
+	/**
+	 * A new challenge for a scope (the secret number is never part of it).
+	 *
+	 * @param string $scope Scope from scope().
 	 * @return array<string, mixed>
 	 */
-	public static function challenge(): array {
-		return self::engine()->create();
+	public static function challenge( string $scope ): array {
+		return self::engine()->create( $scope );
 	}
 
 	/**
-	 * Handler for admin-ajax (logged-in and anonymous): returns a fresh, uncached challenge.
+	 * Handler for admin-ajax (logged-in and anonymous): a fresh, uncached challenge for the posted
+	 * scope. No nonce: it would go stale on cached pages, and the challenge is signed anyway.
 	 */
 	public static function ajax_challenge(): void {
 		nocache_headers();
 		if ( ! self::enabled() ) {
 			wp_send_json_error( array( 'code' => 'disabled' ), 404 );
 		}
-		wp_send_json_success( self::challenge() );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- public, signed challenge; see above.
+		$scope = isset( $_POST['scope'] ) && is_string( $_POST['scope'] ) ? sanitize_text_field( wp_unslash( $_POST['scope'] ) ) : '';
+		if ( ! self::valid_scope( $scope ) ) {
+			wp_send_json_error( array( 'code' => 'scope' ), 400 );
+		}
+		wp_send_json_success( self::challenge( $scope ) );
 	}
 
 	/**
-	 * Single use: remember a solved challenge until it expires. Returns false when it was used.
+	 * Single-use store: true only the first time a challenge is presented.
 	 *
-	 * @param string $id      Challenge id (hash).
-	 * @param int    $expires Expiry (Unix time).
+	 * @param string $challenge Challenge hash.
+	 * @param int    $expires   Expiry (Unix time).
 	 */
-	public static function consume( string $id, int $expires ): bool {
-		$key = self::USED_PREFIX . substr( $id, 0, 40 );
-		if ( false !== get_transient( $key ) ) {
-			return false;
+	public static function consume( string $challenge, int $expires ): bool {
+		$name = self::USED_PREFIX . substr( hash( 'sha256', 'review-captain/pow-used|' . $challenge ), 0, 40 );
+		// Same value for the same challenge, so a parallel duplicate INSERT changes no row and fails.
+		return (bool) add_option( $name, (string) ( $expires + 60 ), '', false );
+	}
+
+	/**
+	 * Remove expired single-use entries (daily maintenance). Returns the number removed.
+	 *
+	 * @param int $limit Highest number per run.
+	 */
+	public static function purge_used( int $limit = 1000 ): int {
+		global $wpdb;
+		if ( ! isset( $wpdb->options ) || ! is_string( $wpdb->options ) ) {
+			return 0;
 		}
-		set_transient( $key, 1, max( 60, $expires - time() + 60 ) );
-		return true;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- maintenance scan of own options.
+		$names = $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s AND CAST(option_value AS UNSIGNED) < %d LIMIT %d", $wpdb->esc_like( self::USED_PREFIX ) . '%', time(), $limit ) );
+		$count = 0;
+		foreach ( (array) $names as $name ) {
+			if ( delete_option( (string) $name ) ) {
+				++$count;
+			}
+		}
+		return $count;
 	}
 
 	/**
 	 * Run the spam checks for a submission. Returns null when it passes, otherwise the reason
 	 * (`pow_missing`, `pow_invalid`, `pow_replayed` or a reason from an external check).
 	 *
-	 * @param string               $form Form key: review, report or question.
+	 * @param string               $form Form type: review, report or question.
 	 * @param array<string, mixed> $post Unslashed POST data.
 	 */
 	public static function check( string $form, array $post ): ?string {
 		$provider = self::provider();
-		if ( 'pow' === $provider ) {
-			$result = self::engine()->verify( (string) ( is_scalar( $post[ self::FIELD ] ?? null ) ? $post[ self::FIELD ] : '' ), array( self::class, 'consume' ) );
+		if ( self::PROVIDER === $provider ) {
+			$result = self::engine()->verify( $post[ self::FIELD ] ?? null, self::scope( $form, $post ) );
 			if ( ProofOfWork::OK !== $result ) {
-				return $result;
+				return self::reason( $result );
 			}
 		}
 		/**
@@ -161,12 +237,24 @@ final class PowCaptcha {
 	}
 
 	/**
+	 * Spam reason for a result of ProofOfWork::verify() (same mapping as Form Captain).
+	 *
+	 * @param string $result Result constant.
+	 */
+	public static function reason( string $result ): string {
+		if ( ProofOfWork::MISSING === $result ) {
+			return self::REASON_MISSING;
+		}
+		return ProofOfWork::REPLAYED === $result ? self::REASON_REPLAYED : self::REASON_INVALID;
+	}
+
+	/**
 	 * Public error code for a reason (external reasons are not revealed to the visitor).
 	 *
 	 * @param string $reason Reason from check().
 	 */
 	public static function public_code( string $reason ): string {
-		return in_array( $reason, array( ProofOfWork::MISSING, ProofOfWork::INVALID, ProofOfWork::REPLAYED ), true ) ? $reason : self::EXTERNAL_CODE;
+		return in_array( $reason, array( self::REASON_MISSING, self::REASON_INVALID, self::REASON_REPLAYED ), true ) ? $reason : self::EXTERNAL_CODE;
 	}
 
 	/**
@@ -177,21 +265,22 @@ final class PowCaptcha {
 	public static function messages(): array {
 		$neutral = __( 'Ihre Eingabe konnte nicht überprüft werden. Bitte laden Sie die Seite neu und senden Sie das Formular erneut.', 'review-captain' );
 		return array(
-			ProofOfWork::MISSING  => __( 'Das Formular konnte nicht überprüft werden. Bitte aktivieren Sie JavaScript und senden Sie das Formular erneut – die Prüfung läuft unbemerkt in Ihrem Browser, ohne Daten an Dritte.', 'review-captain' ),
-			ProofOfWork::INVALID  => $neutral,
-			ProofOfWork::REPLAYED => $neutral,
+			self::REASON_MISSING  => __( 'Das Formular konnte nicht überprüft werden. Bitte aktivieren Sie JavaScript und senden Sie das Formular erneut – die Prüfung läuft unbemerkt in Ihrem Browser, ohne Daten an Dritte.', 'review-captain' ),
+			self::REASON_INVALID  => $neutral,
+			self::REASON_REPLAYED => $neutral,
 			self::EXTERNAL_CODE   => $neutral,
 		);
 	}
 
 	/**
-	 * Register the script (idempotent).
+	 * Register the solver and the form script (idempotent).
 	 */
 	public static function register_script(): void {
 		wp_register_script( self::SCRIPT_HANDLE, REVIEW_CAPTAIN_URL . 'assets/js/proof-of-work.js', array(), REVIEW_CAPTAIN_VERSION, true );
+		wp_register_script( self::FORM_HANDLE, REVIEW_CAPTAIN_URL . 'assets/js/pow-form.js', array( self::SCRIPT_HANDLE ), REVIEW_CAPTAIN_VERSION, true );
 		wp_localize_script(
-			self::SCRIPT_HANDLE,
-			'reviewCaptainPow',
+			self::FORM_HANDLE,
+			'reviewCaptainPowForm',
 			array(
 				'endpoint' => admin_url( 'admin-ajax.php' ),
 				'action'   => self::AJAX_ACTION,
@@ -207,18 +296,19 @@ final class PowCaptcha {
 
 	/**
 	 * Markup for a form when the built-in check is active ('' otherwise): hidden field, status in
-	 * an aria-live region and a notice for visitors without JavaScript. Enqueues the script.
+	 * an aria-live region and a notice for visitors without JavaScript. Enqueues the scripts.
 	 *
-	 * @param string $id Unique id prefix of the form.
+	 * @param string $id    Unique id prefix of the form.
+	 * @param string $scope Scope from scope().
 	 */
-	public static function field( string $id ): string {
+	public static function field( string $id, string $scope ): string {
 		if ( ! self::enabled() ) {
 			return '';
 		}
 		self::register_script();
-		wp_enqueue_script( self::SCRIPT_HANDLE );
+		wp_enqueue_script( self::FORM_HANDLE );
 		$status = $id . '-pow-status';
-		return '<div class="rc-pow" data-rc-pow="1">'
+		return '<div class="rc-pow" data-rc-pow="1" data-rc-pow-scope="' . esc_attr( $scope ) . '">'
 			. '<input type="hidden" name="' . esc_attr( self::FIELD ) . '" value="" />'
 			. '<p class="rc-pow__status rc-form__hint" id="' . esc_attr( $status ) . '" role="status" aria-live="polite"></p>'
 			. '<noscript><p class="rc-pow__noscript rc-form__hint">' . esc_html__( 'Zum Absenden wird JavaScript benötigt: Ein unsichtbarer Spam-Schutz rechnet kurz in Ihrem Browser. Es werden keine Daten an Dritte übertragen und keine Cookies gesetzt.', 'review-captain' ) . '</p></noscript>'

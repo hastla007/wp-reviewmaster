@@ -74,7 +74,7 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 | `review_captain_review_removed_v1` | action | V | nach Commit |
 | `review_captain_request_planner_v1` | filter | V | Pro registriert den Anfrage-Planer für `WorkflowService` (`RequestPlannerInterface`, Vertrag 1.x); ohne → `rc.contract.unavailable` (RC-WF-03) |
 | `review_captain_spam_checks_v1` | filter | V | zusätzliche Spam-Prüfungen/externe Captcha-Anbieter für Bewertungs-, Melde- und Frageformular (SET-RC-11); Rückgabe Liste von Gründen, jeder Grund lehnt neutral ab. **Nur nach Rechtsprüfung.** Angelehnt an Form Captains `form_captain_spam_checks_v1` |
-| `review_captain_pow_max_number_v1` | filter | B | Schwierigkeit der eingebauten Rechenprüfung (Standard 100 000, 1 000–10 000 000) |
+| `review_captain_pow_max_number_v1` | filter | B | Schwierigkeit der eingebauten Rechenprüfung (Standard 50 000, 1 000–1 000 000, wie `form_captain_pow_max_number_v1`) |
 | `review_captain_settings_schema` | filter | S | Pro ergänzt Einstellungsfelder (Core-Felder nicht entfern-/änderbar) |
 | `review_captain_pro_settings_writable` | filter | S | Pro erlaubt das Schreiben von Pro-Feldern (Default `false`) |
 | `review_captain_show_pro_info` | filter | S | Pro-Hinweis im Dashboard ausblenden (Default `true`) |

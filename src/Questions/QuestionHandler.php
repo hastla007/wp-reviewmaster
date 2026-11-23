@@ -231,7 +231,16 @@ class QuestionHandler {
 				'honeypot_name'   => FormHandler::HONEYPOT_FIELD,
 				'require_consent' => (bool) $settings->get( 'submissions', 'require_consent', true ),
 				'max_length'      => self::MAX_LENGTH,
-				'pow'             => PowCaptcha::field( 'rc-qa' . ( $this->instances > 1 ? '-' . $this->instances : '' ) ),
+				'pow'             => PowCaptcha::field(
+					'rc-qa' . ( $this->instances > 1 ? '-' . $this->instances : '' ),
+					PowCaptcha::scope(
+						'question',
+						array(
+							'rc_context_type' => $d->context_type,
+							'rc_context_id'   => $d->context_id,
+						)
+					)
+				),
 			)
 		);
 	}

@@ -28,7 +28,7 @@ Anzahl: 56 Aufrufstellen, 54 Hooks.
 | `review_captain_notification` | filter | `array{to: list<string>, subject: string, body: string} $mail` – Mail<br>`string $event` – review\|report\|question<br>`array<string, mixed> $context` – Context (no personal data) | `src/Moderation/Notifier.php:101` |
 | `review_captain_notify_recipients` | filter | `list<string> $list` – Addresses<br>`string $event` – review\|report\|question | `src/Moderation/Notifier.php:68` |
 | `review_captain_photo_max_edge` | filter | `int $edge` – Edge from the setting | `src/Media/PhotoStore.php:63` |
-| `review_captain_pow_max_number_v1` | filter | `int $max_number` – Upper bound | `src/Security/PowCaptcha.php:71` |
+| `review_captain_pow_max_number_v1` | filter | `int $max_number` – Upper bound | `src/Security/PowCaptcha.php:88` |
 | `review_captain_privacy_personal_meta_keys` | filter | `list<string> $keys` – Keys | `src/Privacy/PersonalData.php:244` |
 | `review_captain_privacy_policy_url` | filter | `string $url` – URL ('' = no link) | `src/Frontend/PublicTexts.php:124` |
 | `review_captain_pro_settings_writable` | filter | `bool $writable` – Default false | `src/Admin/SettingsPage.php:91` |
@@ -56,7 +56,7 @@ Anzahl: 56 Aufrufstellen, 54 Hooks.
 | `review_captain_setup_checklist_detected` | filter | `array<string, bool> $detected` – Detected steps | `src/Admin/SetupChecklist.php:112` |
 | `review_captain_show_pro_info` | filter | `bool $show` – Default: setting general.show_pro_hints (on); the Pro add-on returns false | `src/Admin/DashboardPage.php:173` |
 | `review_captain_side_effect_free_job_prefixes` | filter | `self::SIDE_EFFECT_FREE_PREFIXES` | `src/Jobs/Runner.php:235` |
-| `review_captain_spam_checks_v1` | filter | `list<string> $reasons` – Reasons found so far (empty)<br>`array<string, mixed> $context` – Keys: form (review\|report\|question), provider (none\|pow), post (unslashed POST data) | `src/Security/PowCaptcha.php:142` |
+| `review_captain_spam_checks_v1` | filter | `list<string> $reasons` – Reasons found so far (empty)<br>`array<string, mixed> $context` – Keys: form (review\|report\|question), provider (none\|pow), post (unslashed POST data) | `src/Security/PowCaptcha.php:218` |
 | `review_captain_submission_hold_reasons` | filter | `list<string> $reasons` – Reasons found by the settings<br>`Review $review` – Review (not yet stored) | `src/Frontend/FormHandler.php:407` |
 | `review_captain_sync_initial_status` | filter | `ReviewStatus $status` – Status (pending by default) | `src/Providers/SyncService.php:151` |
 | `review_captain_template` | filter | `string $file` – Absolute path<br>`string $name` – Template name | `src/Frontend/TemplateLoader.php:45` |
