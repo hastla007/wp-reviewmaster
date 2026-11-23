@@ -159,4 +159,51 @@ final class CorrectionTest extends TestCase {
 		$r->status   = ReviewStatus::APPROVED;
 		$this->assertFalse( CorrectionService::correctable( $r ) );
 	}
+
+	public function test_double_click_on_submit_or_withdraw_gives_the_first_answer(): void {
+		$this->enable();
+		$r     = $this->review();
+		$svc   = new CorrectionService( Plugin::instance() );
+		$token = $svc->issue_links( 'erika@example.org' )[ (int) $r->id ];
+		$h     = new CorrectionHandler( Plugin::instance() );
+		$post  = array( 'op' => 'submit', 'rc_token' => $token, 'rc_rating' => '5', 'rc_body' => 'Korrigierter Bewertungstext mit genug Zeichen.', CorrectionHandler::NONCE_FIELD => $this->nonce() );
+		$this->assertSame( 'proposed', $h->process( $post )['result'] );
+		$again = $h->process( $post );
+		$this->assertTrue( $again['ok'] );
+		$this->assertSame( 'proposed', $again['result'], 'not "link expired" after a double click' );
+		$this->assertCount( 1, $svc->open(), 'stored once' );
+		$this->assertNull( $svc->review_for_token( $token ), 'a used link never opens the review again' );
+		$this->assertSame( 'proposed', $h->process( array( 'op' => 'withdraw' ) + $post )['result'], 'a used link cannot withdraw' );
+		$this->assertSame( ReviewStatus::APPROVED, Plugin::instance()->reviews()->find( (int) $r->id )->status );
+
+		$w     = $this->review( array( 'email' => 'w@example.org' ) );
+		$token = $svc->issue_links( 'w@example.org' )[ (int) $w->id ];
+		$wpost = array( 'op' => 'withdraw', 'rc_token' => $token, CorrectionHandler::NONCE_FIELD => $this->nonce() );
+		$this->assertSame( 'withdrawn', $h->process( $wpost )['result'] );
+		$this->assertSame( 'withdrawn', $h->process( $wpost )['result'] );
+	}
+
+	public function test_title_follows_the_form_rules(): void {
+		$this->enable();
+		$r   = $this->review();
+		$svc = new CorrectionService( Plugin::instance() );
+		$res = $svc->propose( $r, array( 'title' => str_repeat( 'ü', 151 ) ), 'link' );
+		$this->assertTrue( is_wp_error( $res ) );
+		$this->assertSame( 'title', $res->get_error_message(), 'too long: refused, never cut inside a character' );
+
+		$s                                = Plugin::instance()->settings()->all();
+		$s['submissions']['allow_title'] = false;
+		update_option( 'review_captain_settings', $s );
+		Plugin::instance()->settings()->flush();
+		$id = $svc->propose( $r, array( 'title' => 'Neuer Titel', 'body' => 'Ganz anderer Text, lang genug für die Prüfung.' ), 'link' );
+		$this->assertIsInt( $id );
+		$this->assertSame( 'Alt', $svc->find( $id )['title'], 'titles off: the stored title stays' );
+
+		$token = $svc->issue_links( 'erika@example.org' )[ (int) $r->id ];
+		$_GET[ CorrectionHandler::QUERY_TOKEN ] = $token;
+		$html = ( new CorrectionHandler( Plugin::instance() ) )->shortcode();
+		unset( $_GET[ CorrectionHandler::QUERY_TOKEN ] );
+		$this->assertStringContainsString( 'name="rc_body"', $html );
+		$this->assertStringNotContainsString( 'name="rc_title"', $html );
+	}
 }

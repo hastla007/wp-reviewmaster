@@ -77,7 +77,12 @@ class CorrectionHandler {
 			}
 			return $out( true, 'link_sent' ); // Same answer whether or not reviews exist (no enumeration).
 		}
-		$token  = (string) ( $post['rc_token'] ?? '' );
+		$token = (string) ( $post['rc_token'] ?? '' );
+		$used  = '' !== $token ? $this->service->used_result( $token ) : null;
+		if ( null !== $used ) {
+			// Double click or resent form: the first request already did the work.
+			return $out( true, $used );
+		}
 		$review = '' !== $token ? $this->service->review_for_token( $token ) : $this->service->review_for_user( (int) ( $post['rc_review'] ?? 0 ) );
 		if ( null === $review ) {
 			return $out( false, 'invalid_link' );
@@ -86,7 +91,7 @@ class CorrectionHandler {
 		if ( 'withdraw' === $op ) {
 			$ok = $this->service->withdraw( $review );
 			if ( $ok && '' !== $token ) {
-				$this->service->consume_token( $token );
+				$this->service->consume_token( $token, 'withdrawn' );
 			}
 			return $out( $ok, $ok ? 'withdrawn' : 'error' );
 		}
@@ -104,7 +109,7 @@ class CorrectionHandler {
 				return $out( false, 'invalid_' . sanitize_key( (string) $res->get_error_message() ) );
 			}
 			if ( '' !== $token ) {
-				$this->service->consume_token( $token );
+				$this->service->consume_token( $token, 'proposed' );
 			}
 			return $out( true, 'proposed' );
 		}
@@ -137,7 +142,7 @@ class CorrectionHandler {
 		} else {
 			$html .= '<form method="post" action="' . $action . '">' . $hidden . '<input type="hidden" name="rc_token" value="' . esc_attr( $token ) . '">'
 				. '<p><label for="rc-corr-rating">' . esc_html__( 'Bewertung (1–5)', 'review-captain' ) . '</label><br><input id="rc-corr-rating" type="number" name="rc_rating" min="1" max="5" step="0.5" value="' . esc_attr( (string) $review->rating_value ) . '" required></p>'
-				. '<p><label for="rc-corr-title">' . esc_html__( 'Titel', 'review-captain' ) . '</label><br><input id="rc-corr-title" type="text" name="rc_title" maxlength="191" value="' . esc_attr( $review->title ) . '"></p>'
+				. ( $this->plugin->settings()->get( 'submissions', 'allow_title', true ) ? '<p><label for="rc-corr-title">' . esc_html__( 'Titel', 'review-captain' ) . '</label><br><input id="rc-corr-title" type="text" name="rc_title" maxlength="150" value="' . esc_attr( $review->title ) . '"></p>' : '' )
 				. '<p><label for="rc-corr-body">' . esc_html__( 'Text', 'review-captain' ) . '</label><br><textarea id="rc-corr-body" name="rc_body" rows="6" required>' . esc_textarea( $review->body ) . '</textarea></p>'
 				. '<p class="description">' . esc_html__( 'Die Änderung wird erst nach Prüfung veröffentlicht. Bis dahin bleibt die bisherige Fassung sichtbar.', 'review-captain' ) . '</p>'
 				. '<p><button type="submit" name="op" value="submit">' . esc_html__( 'Korrektur einreichen', 'review-captain' ) . '</button> '
