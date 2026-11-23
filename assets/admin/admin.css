@@ -37,6 +37,12 @@
 .rc-admin-pro-card ul { margin: 0; }
 .rc-admin-pro-card li { margin-bottom: 4px; }
 
+/* SET-RC-06: quiet hint lines for add-on functions at the end of a settings tab (no warning colours). */
+.rc-admin-hints { margin: 2em 0 1em; padding: 0; list-style: none; color: #646970; }
+.rc-admin-hint { margin: 0 0 6px; }
+.rc-admin-hint-badge { display: inline-block; padding: 0 6px; border: 1px solid #c3c4c7; border-radius: 3px; font-size: 11px; line-height: 18px; text-transform: uppercase; color: #50575e; }
+.rc-admin-hint a { color: inherit; text-decoration: underline; }
+
 .rc-admin-advanced { margin: 1em 0; }
 .rc-admin-advanced > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
 .rc-admin-advanced > summary:focus-visible { box-shadow: 0 0 0 2px var(--wp-admin-theme-color, #2271b1); outline: none; }

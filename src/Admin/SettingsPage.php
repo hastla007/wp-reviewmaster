@@ -79,12 +79,12 @@ final class SettingsPage {
 	}
 
 	/**
-	 * Whether Pro-owned fields may be written (Pro add-on opts in; the Core never does).
+	 * Whether add-on fields (owner 'pro') may be written (the add-on opts in; the core never does).
 	 */
 	public static function pro_writable(): bool {
 		/**
-		 * Filter whether Pro-owned settings fields are editable on the settings page.
-		 * The Pro add-on returns true while its license/entitlement allows it.
+		 * Filter whether add-on settings fields (owner 'pro') are editable on the settings page.
+		 * The add-on that registered them answers; the core has no opinion of its own.
 		 *
 		 * @param bool $writable Default false.
 		 */
@@ -642,13 +642,8 @@ final class SettingsPage {
 
 		echo '<nav class="nav-tab-wrapper" aria-label="' . esc_attr__( 'Einstellungsbereiche', 'review-captain' ) . '">';
 		foreach ( $tabs as $key => $label ) {
-			$has_pro_only = $this->tab_is_pro_only( $schema[ $key ] ?? array() );
-			$active       = $key === $tab;
-			echo '<a href="' . esc_url( self::tab_url( $key ) ) . '" class="nav-tab' . ( $active ? ' nav-tab-active' : '' ) . '"' . ( $active ? ' aria-current="page"' : '' ) . '>' . esc_html( $label );
-			if ( $has_pro_only && ! $pro ) {
-				echo ' <span class="dashicons dashicons-lock" aria-hidden="true"></span><span class="screen-reader-text"> ' . esc_html__( '(Review Captain Pro)', 'review-captain' ) . '</span>';
-			}
-			echo '</a>';
+			$active = $key === $tab;
+			echo '<a href="' . esc_url( self::tab_url( $key ) ) . '" class="nav-tab' . ( $active ? ' nav-tab-active' : '' ) . '"' . ( $active ? ' aria-current="page"' : '' ) . '>' . esc_html( $label ) . '</a>';
 		}
 		echo '</nav>';
 
@@ -659,11 +654,19 @@ final class SettingsPage {
 			echo View::notice( 'warning', 'access' === $tab ? __( 'Rollen kann nur ändern, wer selbst Benutzerrollen vergeben darf.', 'review-captain' ) : __( 'Diese Einstellungen darf nur ändern, wer das Recht „Datenschutz verwalten“ hat.', 'review-captain' ), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
+		$fields = array_filter( $schema[ $tab ] ?? array(), static fn( $f ) => empty( $f['internal'] ) );
+		$hints  = SettingsHints::for_tab( $tab, $this->settings() );
+		if ( ! $fields ) {
+			// A tab whose fields all come from add-ons (requests): no empty form, no save button.
+			echo $hints ? SettingsHints::render( $hints ) : '<p class="description rc-admin-empty-tab">' . esc_html__( 'Hier erscheinen Einstellungen von Erweiterungen.', 'review-captain' ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '</div>';
+			return;
+		}
+
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="rc-admin-settings-form">';
 		echo View::form_fields( 'save_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />';
 
-		$fields   = array_filter( $schema[ $tab ] ?? array(), static fn( $f ) => empty( $f['internal'] ) );
 		$sections = 'access' === $tab ? array() : ( SettingsFields::sections()[ $tab ] ?? array() );
 		$placed   = array();
 		$advanced = array();
@@ -681,6 +684,18 @@ final class SettingsPage {
 			if ( $keys ) {
 				$this->render_section( $heading, $tab, $keys, $fields, $values, $writable, $pro );
 			}
+		}
+		// Add-on fields may name their own section heading ('section').
+		$own = array();
+		foreach ( array_diff( array_keys( $fields ), $placed, $advanced ) as $key ) {
+			$heading = $fields[ $key ]['section'] ?? '';
+			if ( is_string( $heading ) && '' !== trim( $heading ) ) {
+				$own[ trim( $heading ) ][] = $key;
+			}
+		}
+		foreach ( $own as $heading => $keys ) {
+			$placed = array_merge( $placed, $keys );
+			$this->render_section( (string) $heading, $tab, $keys, $fields, $values, $writable, $pro );
 		}
 		$rest = array_values( array_diff( array_keys( $fields ), $placed, $advanced ) );
 		if ( $rest ) {
@@ -703,6 +718,7 @@ final class SettingsPage {
 			echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'review-captain' ) . '</button></p>';
 		}
 		echo '</form>';
+		echo SettingsHints::render( $hints ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( 'privacy' === $tab ) {
 			$this->render_privacy_actions();
@@ -820,34 +836,13 @@ final class SettingsPage {
 	}
 
 	/**
-	 * Whether every field of a tab is Pro-owned.
-	 *
-	 * @param array<string, array<string, mixed>> $fields Fields.
-	 */
-	private function tab_is_pro_only( array $fields ): bool {
-		if ( ! $fields ) {
-			return false;
-		}
-		foreach ( $fields as $field ) {
-			if ( 'pro' !== ( $field['owner'] ?? 'core' ) ) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * Context notes per tab.
 	 *
 	 * @param string $tab Tab.
 	 */
 	private function render_tab_notes( string $tab ): void {
-		$fields = SettingsSchema::fields()[ $tab ] ?? array();
-		$notes  = array();
-		if ( $this->tab_is_pro_only( $fields ) && ! self::pro_writable() ) {
-			$notes[] = array( 'info', __( 'Diese Einstellungen benötigen Review Captain Pro. Sie sind sichtbar, aber gesperrt; gespeicherte Werte bleiben unverändert erhalten.', 'review-captain' ) );
-		}
-		if ( 'requests' === $tab ) {
+		$notes = array();
+		if ( 'requests' === $tab && array_filter( SettingsSchema::fields()['requests'] ?? array(), static fn( $f ) => empty( $f['internal'] ) ) ) {
 			$notes[] = array( 'info', __( 'Immer gilt: höchstens eine Einladung je tatsächlichem Erlebnis und Empfänger, kein Versand ohne bekannte Versanderlaubnis, Abmeldungen sperren jede weitere Einladung, keine Filterung nach Zufriedenheit.', 'review-captain' ) );
 		}
 		if ( 'sources' === $tab ) {
@@ -916,7 +911,7 @@ final class SettingsPage {
 	 * @param array<string, mixed> $field    Field.
 	 * @param mixed                $value    Value.
 	 * @param bool                 $disabled Disabled.
-	 * @param bool                 $pro_lock Show Pro lock.
+	 * @param bool                 $pro_lock Add-on field that is not writable right now (neutral lock note).
 	 */
 	public function render_field( string $tab, string $key, array $field, mixed $value, bool $disabled, bool $pro_lock ): void {
 		$id    = 'rc-' . $tab . '-' . $key;
@@ -987,7 +982,7 @@ final class SettingsPage {
 		if ( '' !== $desc || $pro_lock ) {
 			echo '<p class="description" id="' . esc_attr( $id . '-desc' ) . '">' . esc_html( $desc );
 			if ( $pro_lock ) {
-				echo ( '' !== $desc ? ' ' : '' ) . View::pro_lock( __( 'Benötigt Review Captain Pro', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo ( '' !== $desc ? ' ' : '' ) . View::pro_lock( __( 'Von einer Erweiterung verwaltet; derzeit nicht änderbar.', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 			echo '</p>';
 		}

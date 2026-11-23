@@ -154,6 +154,33 @@ final class PagesTest extends AdminTestCase {
 		$this->assertStringContainsString( 'API-Verbindung in Review Captain Pro', $html );
 	}
 
+	public function test_pro_hints_switch_hides_dashboard_and_sources_info(): void {
+		update_option( Settings::OPTION, array( 'general' => array( 'show_pro_hints' => false ) ) );
+		$this->login_with( Capabilities::MODERATE, Capabilities::MANAGE_SOURCES );
+		ob_start();
+		( new DashboardPage( $this->plugin() ) )->render();
+		$html = (string) ob_get_clean();
+		$this->assertStringNotContainsString( 'In Review Captain Pro', $html );
+		ob_start();
+		( new SourcesPage( $this->plugin() ) )->render();
+		$html = (string) ob_get_clean();
+		$this->assertStringNotContainsString( 'Review Captain Pro', $html );
+
+		// The filter wins over the setting (in both directions).
+		add_filter( 'review_captain_show_pro_info', '__return_true' );
+		ob_start();
+		( new DashboardPage( $this->plugin() ) )->render();
+		$this->assertStringContainsString( 'In Review Captain Pro', (string) ob_get_clean() );
+
+		update_option( Settings::OPTION, array( 'general' => array( 'show_pro_hints' => true ) ) );
+		\RC_Test_State::$hooks['review_captain_show_pro_info'] = array();
+		add_filter( 'review_captain_show_pro_info', '__return_false' );
+		ob_start();
+		$this->plugin()->settings()->flush();
+		( new DashboardPage( $this->plugin() ) )->render();
+		$this->assertStringNotContainsString( 'In Review Captain Pro', (string) ob_get_clean() );
+	}
+
 	public function test_widget_shortcode_builder(): void {
 		$this->assertSame( '[review_captain v="1"]', WidgetsPage::build_shortcode( array() ) );
 		$this->assertSame(

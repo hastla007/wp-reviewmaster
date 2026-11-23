@@ -450,7 +450,7 @@ class Commands {
 			return null;
 		}
 		if ( 'pro' === $field['owner'] && ! SettingsPage::pro_writable() ) {
-			$this->out->error( __( 'Diese Einstellung benötigt Review Captain Pro.', 'review-captain' ) );
+			$this->out->error( __( 'Diese Einstellung gehört zu einer Erweiterung und ist derzeit nicht änderbar.', 'review-captain' ) );
 			return null;
 		}
 		if ( ! $this->settings_require_writer( array( $tab ) ) ) {

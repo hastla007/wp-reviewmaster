@@ -12,6 +12,7 @@ use ReviewCaptain\Admin\SettingsPage;
 use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Settings\Settings;
 use ReviewCaptain\Settings\SettingsSchema;
+use ReviewCaptain\Tests\Support\ProRequestsFields;
 
 final class SettingsValidationTest extends AdminTestCase {
 
@@ -28,8 +29,9 @@ final class SettingsValidationTest extends AdminTestCase {
 		$this->assertNotNull( SettingsSchema::validate_value( $fields['general']['new_review_status'], 'published' )[1] );
 		$this->assertSame( array( 'approved', null ), SettingsSchema::validate_value( $fields['general']['new_review_status'], 'approved' ) );
 		$this->assertStringContainsString( 'HH:MM', (string) SettingsSchema::validate_value( $fields['sources']['sync_window_start'], '25:00' )[1] );
-		$this->assertNotNull( SettingsSchema::validate_value( $fields['requests']['sender_email'], 'kein-mail' )[1] );
-		$this->assertSame( array( '', null ), SettingsSchema::validate_value( $fields['requests']['sender_email'], '  ' ) );
+		$email = array( 'type' => 'email', 'default' => '' );
+		$this->assertNotNull( SettingsSchema::validate_value( $email, 'kein-mail' )[1] );
+		$this->assertSame( array( '', null ), SettingsSchema::validate_value( $email, '  ' ) );
 		$this->assertSame( array( true, null ), SettingsSchema::validate_value( $fields['display']['show_date'], '1' ) );
 		$this->assertNotNull( SettingsSchema::validate_value( $fields['general']['brand_name'], array( 'x' ) )[1] );
 		// Import and programmatic paths keep correcting (sanitize_value is unchanged).
@@ -77,11 +79,17 @@ final class SettingsValidationTest extends AdminTestCase {
 		$this->assertSame( 300, ( new Settings() )->get( 'advanced', 'lease_seconds' ) );
 		$this->assertSame( 20, ( new Settings() )->get( 'advanced', 'job_time_budget' ) );
 
-		// Without Pro the requests tab is locked: no error is reported on fields the user cannot change.
+		// Without the add-on the requests tab has no fields: nothing is checked or reported.
 		update_option( Settings::OPTION, array( 'requests' => array( 'send_window_start' => '10:00', 'send_window_end' => '10:00' ) ) );
 		$result = $this->page()->save_tab( 'requests', array( 'requests' => array( 'send_window_start' => '10:00' ) ) );
 		$this->assertSame( array(), $result['errors'] );
 
+		// Fields registered by the add-on but not writable: no error on fields the user cannot change.
+		ProRequestsFields::register( false );
+		$result = $this->page()->save_tab( 'requests', array( 'requests' => array( 'send_window_start' => '10:00' ) ) );
+		$this->assertSame( array(), $result['errors'] );
+
+		// The core cross-check of the send window works for the add-on's fields.
 		add_filter( 'review_captain_pro_settings_writable', '__return_true' );
 		$result = $this->page()->save_tab( 'requests', array( 'requests' => array( 'send_window_start' => '12:00', 'send_window_end' => '12:00' ) ) );
 		$this->assertArrayHasKey( 'requests-send_window_end', $result['errors'] );

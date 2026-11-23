@@ -11,7 +11,7 @@ Bezug: [konventionen](../architecture/conventions.md), [Inventar](inventory.md),
 | Option (Schema-Version) | `review_captain_settings_version` – Ganzzahl, Start `1` |
 | Autoload | `review_captain_settings`: ja (klein, wird im Frontend für `display` gebraucht); `…_version`: nein |
 | Schreiben | eigenes Formular je Tab über `SettingsPage::save_tab()` (Nonce + Capability), Sanitisierung über `Settings::sanitize()` → `SettingsSchema::sanitize_value()` |
-| Erweiterung durch Pro | Filter `review_captain_settings_schema` (Pro ergänzt Felder; Core-Felder werden nach dem Filter wiederhergestellt, können also weder entfernt noch umdefiniert werden). Pro-Felder (`owner = pro`) werden nur geschrieben, wenn der Filter `review_captain_pro_settings_writable` `true` liefert |
+| Erweiterung durch Pro | Filter `review_captain_settings_schema` (Add-ons ergänzen Felder; Core-Felder können weder entfernt noch umdefiniert werden, Einträge ohne `type`/`default` werden verworfen, fehlende Schlüssel erhalten die Standardwerte, `owner` dabei `pro`). Add-on-Felder (`owner = pro`) werden nur geschrieben, wenn der Filter `review_captain_pro_settings_writable` `true` liefert. Der Core selbst definiert seit SET-RC-06 **kein** Add-on-Feld und kennt keine Lizenzschlüssel; für verkaufte Pro-Funktionen zeigt er nur graue Hinweiszeilen (§4.3, [pro-matrix.md](pro-matrix.md)) |
 | Multisite | jede Site besitzt eine eigene Option (`get_option`, nicht `get_site_option`). In 1.0 gibt es **keine** Netzwerk-Optionen; Spalte „Scope“ ist daher überall `site`. `network` ist für spätere Versionen reserviert (siehe [inheritance.md](inheritance.md)). |
 | Secrets | liegen **nie** in `review_captain_settings`. API-Schlüssel/Tokens gehören zu Quellprofilen (verschlüsselt, Quellen-Seite). |
 | Objekt-Einstellungen | Profile (`profiles`-Tabelle), Widgets, Formulare (Block-/Shortcode-Attribute), Kampagnen (Pro) speichern ihre Overrides am Objekt, nicht in dieser Option. |
@@ -31,9 +31,9 @@ Tab-Schlüssel (= URL-Parameter `tab` der Einstellungsseite): `general`, `source
   - `textarea`: `sanitize_textarea_field`; `string`: `sanitize_text_field`; mit `max_length` auf so viele Zeichen gekürzt.
   - `color` (SET-RC-22): leer oder Hex-Farbe `#rgb`/`#rrggbb` (klein geschrieben), sonst Default.
   Diese Sanitisierung gilt für Import, Rücksicherung und programmatische Aufrufe. **Einstellungsseite und WP-CLI prüfen strenger (SET-RC-19):** `SettingsSchema::validate_value()` korrigiert nicht, sondern meldet einen Fehler (keine ganze Zahl, außerhalb `min`/`max`, unbekannte Auswahl, Uhrzeit nicht `HH:MM`, ungültige E-Mail); das Feld behält seinen gespeicherten Wert, alle gültigen Felder des Tabs werden gespeichert. Danach `SettingsSchema::cross_check()`: `submissions.min_text_length < max_text_length`, `requests.send_window_start ≠ send_window_end`, `sources.sync_window_start ≠ sync_window_end`, `advanced.lease_seconds > job_time_budget` (Filter `review_captain_settings_cross_check`); schlägt eine Prüfung fehl, behalten alle beteiligten Felder ihren gespeicherten Wert. Die Seite zeigt eine Fehlerliste mit Sprungmarken und setzt `aria-invalid` am Feld. Geänderte Felder werden als Audit-Ereignis `settings.changed` mit altem und neuem Wert protokolliert ([audit.md](audit.md)). Speichern verlangt Capability `review_captain_manage_settings` und Nonce; Tab `privacy` zusätzlich `review_captain_manage_privacy`, Tab `access` zusätzlich `promote_users` (`SettingsPage::can_write_tab()`).
-- **Pro-Felder ohne aktives Pro/Entitlement:** werden angezeigt (gesperrt), beim Speichern **nicht** verändert, beim Lesen **nicht** entfernt.
+- **Add-on-Felder ohne aktives Add-on bzw. ohne freigeschaltete Funktion:** sind nicht registriert und werden nicht angezeigt (an ihrer Stelle steht höchstens eine graue Hinweiszeile); ihre gespeicherten Werte werden beim Speichern anderer Tabs, beim Zurücksetzen und beim Import **nicht** verändert und beim Lesen **nicht** entfernt (`Settings::merge()` behält unbekannte Schlüssel). Registriert ein Add-on seine Felder, verweigert aber das Schreiben (`review_captain_pro_settings_writable`), erscheinen sie deaktiviert mit dem neutralen Vermerk „Von einer Erweiterung verwaltet; derzeit nicht änderbar.“
 - **Booleans** werden als `true`/`false` gespeichert (nicht `'1'`/`''`). Ein nicht angehakter Checkbox-Wert im abgeschickten Tab bedeutet `false`.
-- **Felddefinition** (`SettingsSchema::fields()`): Schlüssel `type` (`string`\|`int`\|`bool`\|`enum`\|`array`\|`time`\|`email`\|`textarea`\|`color`), `default`, `choices`, `min`/`max`, `owner` (`core`\|`pro`, Default `core`), `entitlement` (nur Pro), `privacy` (`none`\|`personal`\|`config`, Default `none`), `advanced` (progressive Offenlegung, Default `false`), `scope` (`site`\|`network`, Default `site`), `internal` (vom Plugin selbst geschrieben: nicht angezeigt, nicht exportiert/importiert, nicht über Eingaben setzbar; derzeit nur `privacy.delete_data_confirmed_at`). Die Datenschutzklassen P0–P2 unten sind eine Dokumentationssicht; im Code ist nur `privacy = config` für `requests.sender_name`/`sender_email` gesetzt.
+- **Felddefinition** (`SettingsSchema::fields()`): Schlüssel `type` (`string`\|`int`\|`bool`\|`enum`\|`array`\|`time`\|`email`\|`textarea`\|`color`), `default`, `choices`, `min`/`max`, `owner` (`core`\|`pro`, Default `core`; für Felder aus dem Filter `pro`), `privacy` (`none`\|`personal`\|`config`, Default `none`), `advanced` (progressive Offenlegung, Default `false`), `scope` (`site`\|`network`, Default `site`), `internal` (vom Plugin selbst geschrieben: nicht angezeigt, nicht exportiert/importiert, nicht über Eingaben setzbar; derzeit nur `privacy.delete_data_confirmed_at`). Nur für Add-on-Felder: `label`, `description` (Beschriftung und Hilfetext, wenn `SettingsFields` keine hat), `section` (Abschnittsüberschrift) und `replaces_hint` (Kennung oder Liste von Kennungen der Hinweiszeilen, die das Feld ersetzt). Einen Lizenzschlüssel (`entitlement`) trägt kein Feld mehr (SET-RC-06). Die Datenschutzklassen P0–P2 unten sind eine Dokumentationssicht; im Code ist `privacy = config` (für `notify_recipients` und die Absenderfelder des Add-ons) gesetzt.
 - **Strings** werden getrimmt; Mehrzeilentexte mit `sanitize_textarea_field`, außer wo anders angegeben.
 - **Uhrzeiten** `HH:MM` 24h in **Website-Zeitzone** (`wp_timezone()`); Start > Ende bedeutet Fenster über Mitternacht. Start = Ende wird beim Speichern zurückgewiesen (SET-RC-19).
 
@@ -48,7 +48,7 @@ Tab-Schlüssel (= URL-Parameter `tab` der Einstellungsseite): `general`, `source
 
 ## 4. Felder
 
-Spalten: **Typ** · **Default** · **Validierung** · **Scope** · **Klasse** · **Entitlement** (`—` = Core, ohne Lizenz) · **Capability** (zum Ändern; immer zusätzlich Nonce).
+Spalten: **Typ** · **Default** · **Validierung** · **Scope** · **Klasse** · **Entitlement** (`—` = Core, ohne Lizenz; alle Felder dieser Liste außer §4.3 gehören dem Core) · **Capability** (zum Ändern; immer zusätzlich Nonce).
 Standard-Capability ist `review_captain_manage_settings`; Abweichungen sind angegeben.
 
 ### 4.1 `general` – Allgemein
@@ -58,9 +58,11 @@ Standard-Capability ist `review_captain_manage_settings`; Abweichungen sind ange
 | `brand_name` | string | `''` (= `get_bloginfo('name')`) | `sanitize_text_field` | site | P1 | — |
 | `date_format` | string | `''` (= WP-Option `date_format`) | `sanitize_text_field` | site | P0 | — |
 | `new_review_status` | enum `pending`\|`approved` | `pending` | Enum | site | P2 | — |
+| `show_pro_hints` | bool | `true` | bool | site | P0 | — |
 
 Hinweis: Zeitzone ist **keine** eigene Option; maßgeblich ist die WordPress-Zeitzone (Einstellungen → Allgemein), der Tab zeigt sie nur an.
 Ebenso gibt es keine eigene Sprache: maßgeblich sind Website- bzw. Benutzersprache von WordPress. `default_language` wurde nie gelesen und ist seit SET-RC-05 entfernt; gespeicherte Altwerte bleiben in der Option liegen (`Settings::merge` behält unbekannte Schlüssel), werden aber nirgends ausgewertet.
+`show_pro_hints` (SET-RC-06) schaltet alle Pro-Hinweise ab: die grauen Hinweiszeilen am Ende der Tabs, den Kasten „In Review Captain Pro“ in der Übersicht (Filter `review_captain_show_pro_info` hat Vorrang) und den Vermerk „API-Verbindung in Review Captain Pro“ auf der Quellen-Seite. Am Funktionsumfang ändert er nichts.
 `new_review_status = approved` gilt nur für **lokale Einreichungen** (Formular). Manuelle Einträge legt die moderierende Person ohnehin mit gewähltem Status an; CSV-Import nutzt die Spalte `status`.
 
 ### 4.2 `sources` – Quellen & Synchronisierung
@@ -77,19 +79,19 @@ Diese Felder gehören dem Core, weil Jobs, Provider-/Connector-Registry und Tomb
 `sync_window_*`, `max_pages_per_run` und `pause_after_auth_errors` liest nur Review Captain Pro (automatischer Abgleich); sie stehen deshalb in der Ausnahmeliste der Release-Prüfung (siehe [release-gate.md](release-gate.md)).
 `removed_review_behavior` wertet `Providers\SyncService` aus (SET-RC-05): Status `removed` immer; bei `tombstone` zusätzlich sofortiges Leeren von `title`, `body`, `author_name`, `rating_value` (NULL), `meta.avatar_url`, `meta.reply` und personenbezogenen Meta-Schlüsseln, Löschen des Fotos, `meta.tombstone = {reason, at}` und Verlaufseintrag `content_removed` (`ReviewRepository::scrub_removed()`); bei `hide` bleibt der Inhalt bis `retention_external_days`. Adapter dürfen über den Filter `review_captain_removed_review_behavior` nur verschärfen (`hide` → `tombstone`).
 
-### 4.3 `requests` – Anfragen & Zustellung (Pro)
+### 4.3 `requests` – Anfragen & Zustellung (Felder von Review Captain Pro)
 
-Im Core nur **sichtbar gesperrt** (Beschreibung + Lizenzhinweis, keine Eingabe). Pro registriert Validierung und Wirkung über `review_captain_settings_schema`. Die Werte werden in derselben Option unter `[requests]` gespeichert; der Core verändert oder leert sie nie.
+Der Core definiert in diesem Tab **keine Felder** (SET-RC-06). Ohne Add-on stehen dort nur graue Hinweiszeilen (oder, wenn `general.show_pro_hints` aus ist, der Satz „Hier erscheinen Einstellungen von Erweiterungen.“), kein Formular und keine Speichern-Schaltfläche. Review Captain Pro meldet die folgenden Felder über `review_captain_settings_schema` an, solange seine Funktion „Bewertungsanfragen“ aktiv ist (SET-RC-07), mit `owner = pro`, eigener Beschriftung, Abschnitt und `replaces_hint`. Die Werte liegen in derselben Option unter `[requests]`; der Core verändert oder leert sie nie, auch nicht ohne Add-on. Die Prüfung `send_window_start ≠ send_window_end` bleibt in `SettingsSchema::cross_check()` und greift, sobald das Add-on die Felder angemeldet hat.
 
-| Schlüssel | Typ | Default | Validierung | Scope | Klasse | Entitlement |
+| Schlüssel | Typ | Default | Validierung | Scope | Klasse | Ersetzt Hinweis |
 |---|---|---|---|---|---|---|
-| `sender_name` | string | `''` (= `general.brand_name`) | `sanitize_text_field` | site | P1 (`privacy = config`) | `review.review_requests` |
-| `sender_email` | email | `''` (kein Versand, solange leer) | `sanitize_email` + `is_email` | site | P1 (`privacy = config`) | `review.review_requests` |
-| `send_window_start` | time `HH:MM` | `'09:00'` | wie Sync-Fenster | site | P0 | `review.review_requests` |
-| `send_window_end` | time `HH:MM` | `'18:00'` | wie Sync-Fenster | site | P0 | `review.review_requests` |
-| `daily_limit` | int | `200` | 1–100 000 | site | P0 | `review.review_requests` |
-| `cooldown_days` | int | `90` | 0–3650 | site | P2 | `review.review_requests` |
-| `reminders_enabled` | bool | `false` | bool | site | P2 | `review.review_requests` |
+| `sender_name` | string | `''` (= `general.brand_name`) | `sanitize_text_field` | site | P1 (`privacy = config`) | `requests.invitations`, `requests.sender` |
+| `sender_email` | email | `''` (kein Versand, solange leer) | `sanitize_email` + `is_email` | site | P1 (`privacy = config`) | `requests.sender` |
+| `send_window_start` | time `HH:MM` | `'09:00'` | wie Sync-Fenster | site | P0 | `requests.send_window` |
+| `send_window_end` | time `HH:MM` | `'18:00'` | wie Sync-Fenster | site | P0 | `requests.send_window` |
+| `daily_limit` | int | `200` | 1–100 000 | site | P0 | `requests.limits` |
+| `cooldown_days` | int | `90` | 0–3650 | site | P2 | `requests.limits` |
+| `reminders_enabled` | bool | `false` | bool | site | P2 | `requests.reminders` |
 
 Capability zum Ändern: `review_captain_manage_settings` **und** `review_captain_manage_requests`.
 Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Empfänger + Kampagne; kein Versand bei fehlender/unbekannter Versandberechtigung; siteweite Opt-out-Sperre; keine Bewertungsauswahl als Routingkriterium.

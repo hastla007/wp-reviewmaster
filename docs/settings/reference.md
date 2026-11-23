@@ -32,6 +32,11 @@ Eine eigene Standardsprache gibt es nicht (mehr): Plugin-Texte folgen der Sprach
 - **Datenschutz:** betrifft Veröffentlichung personenbezogener Daten; Änderung wird protokolliert.
 - **Voraussetzung:** keine. Zeitzone: es gilt die WordPress-Zeitzone (Einstellungen → Allgemein).
 
+### Pro-Hinweise zeigen (`show_pro_hints`)
+- **Zweck:** Zeigt am Ende einzelner Einstellungsbereiche graue Hinweiszeilen zu Funktionen von Review Captain Pro (je ein Satz, kein Eingabefeld), den Kasten „In Review Captain Pro“ in der Übersicht und den Vermerk zur API-Verbindung auf der Quellen-Seite.
+- **Standard:** an. **Folgen:** aus = keine Pro-Hinweise mehr. Am Funktionsumfang des kostenlosen Plugins ändert das nichts; Einstellungen, die Review Captain Pro selbst mitbringt, erscheinen weiterhin, sobald das Add-on sie anmeldet.
+- **Voraussetzung:** keine.
+
 ## Quellen & Synchronisierung
 
 Diese Einstellungen wirken erst, wenn eine Quelle automatisch abgeglichen wird (Review Captain Pro oder ein installierter Connector). Konten, Profile und Zugangsdaten verwalten Sie unter **Quellen**.
@@ -60,7 +65,7 @@ Diese Einstellungen wirken erst, wenn eine Quelle automatisch abgeglichen wird (
 
 ## Anfragen & Zustellung (Review Captain Pro)
 
-Ohne Pro sehen Sie diese Einstellungen gesperrt. Bei abgelaufener Lizenz bleiben Ihre Werte gespeichert, es wird aber nichts versendet. Einzelne Kampagnen verwalten Sie unter **Anfragen**.
+Diese Einstellungen bringt Review Captain Pro mit; sie erscheinen nur, solange die Funktion „Bewertungsanfragen“ des Add-ons aktiv ist. Ohne Pro (oder ohne gültige Lizenz) stehen hier nur graue Hinweiszeilen bzw., wenn die Pro-Hinweise ausgeschaltet sind, der Satz „Hier erscheinen Einstellungen von Erweiterungen.“. Ihre gespeicherten Werte bleiben in jedem Fall erhalten und gelten wieder, sobald die Funktion aktiv ist; es wird aber nichts versendet, solange sie es nicht ist. Einzelne Kampagnen verwalten Sie unter **Anfragen**.
 Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsächlichem Erlebnis und Empfänger; kein Versand ohne bekannte Versanderlaubnis; wer sich abmeldet, erhält von dieser Website keine Einladungen mehr; Einladungen werden nie nach Zufriedenheit gefiltert.
 
 ### Absendername / Absenderadresse (`sender_name`, `sender_email`)

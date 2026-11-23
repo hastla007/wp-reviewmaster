@@ -15,6 +15,7 @@ use ReviewCaptain\Install\Schema;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Settings\Settings;
+use ReviewCaptain\Tests\Support\ProRequestsFields;
 use ReviewCaptain\Tests\TestCase;
 
 final class SettingsCommandsTest extends TestCase {
@@ -122,7 +123,9 @@ final class SettingsCommandsTest extends TestCase {
 
 		// Same rights as the page: privacy needs manage_privacy, Pro fields need Pro, internal fields are read-only.
 		$this->expect_error( fn() => $c->settings_set( array( 'privacy.retention_logs_days', '30' ), array() ), 'privacy' );
-		$this->expect_error( fn() => $c->settings_set( array( 'requests.daily_limit', '10' ), array() ), 'Pro' );
+		$this->expect_error( fn() => $c->settings_set( array( 'requests.daily_limit', '10' ), array() ) );
+		ProRequestsFields::register( false );
+		$this->expect_error( fn() => $c->settings_set( array( 'requests.daily_limit', '10' ), array() ), 'Erweiterung' );
 		$this->expect_error( fn() => $c->settings_set( array( 'privacy.delete_data_confirmed_at', 'x' ), array() ) );
 
 		$rows = $this->db->get_results( $this->db->prepare( 'SELECT context FROM ' . Schema::table( 'audit_log' ) . ' WHERE event = %s ORDER BY id ASC', 'settings.changed' ), ARRAY_A );

@@ -13,7 +13,8 @@ use ReviewCaptain\Moderation\ReportStore;
 
 /**
  * Presentation metadata only. The schema (types, defaults, validation) stays in SettingsSchema.
- * Fields added via `review_captain_settings_schema` may carry their own 'label'/'description'.
+ * Fields added via `review_captain_settings_schema` may carry their own 'label', 'description' and
+ * 'section' (heading on the settings page; see SettingsPage::render()).
  */
 final class SettingsFields {
 
@@ -28,6 +29,7 @@ final class SettingsFields {
 				'brand_name'        => array( __( 'Marken- bzw. Firmenname', 'review-captain' ), __( 'Erscheint in Hinweisen und Formularen. Leer = Titel deiner Website.', 'review-captain' ) ),
 				'date_format'       => array( __( 'Datumsformat', 'review-captain' ), __( 'PHP-Datumsformat, z. B. d.m.Y. Leer = WordPress-Datumsformat. Es gilt die WordPress-Zeitzone.', 'review-captain' ) ),
 				'new_review_status' => array( __( 'Status neuer Reviews', 'review-captain' ), __( 'Gilt für Einreichungen über das Formular. „Sofort freigeben“ veröffentlicht ungeprüfte Texte – empfohlen nur mit aktiver Moderation.', 'review-captain' ) ),
+				'show_pro_hints'    => array( __( 'Pro-Hinweise zeigen', 'review-captain' ), __( 'Zeigt am Ende einzelner Einstellungsbereiche graue Hinweiszeilen zu Funktionen von Review Captain Pro und den Kasten „In Review Captain Pro“ in der Übersicht. Aus = keine Hinweise. Am Funktionsumfang ändert das nichts.', 'review-captain' ) ),
 			),
 			'sources'     => array(
 				'sync_window_start'       => array( __( 'Synchronisierung ab', 'review-captain' ), __( 'Beginn des Zeitfensters für automatische Abgleiche (Website-Zeit).', 'review-captain' ) ),
@@ -35,15 +37,6 @@ final class SettingsFields {
 				'removed_review_behavior' => array( __( 'Bei der Quelle gelöschte Reviews', 'review-captain' ), __( 'Was passiert, wenn die Plattform meldet, dass ein Review gelöscht wurde. In beiden Fällen ist es sofort nicht mehr sichtbar und wird nach der Frist für externe Reviews (Datenschutz) endgültig gelöscht.', 'review-captain' ) ),
 				'max_pages_per_run'       => array( __( 'Seiten je Abruf', 'review-captain' ), __( 'Höhere Werte holen große Bestände schneller, belasten aber Server und Anbieterkontingent.', 'review-captain' ) ),
 				'pause_after_auth_errors' => array( __( 'Pause nach Anmeldefehlern', 'review-captain' ), __( 'Nach so vielen aufeinanderfolgenden Anmeldefehlern wird die Quelle pausiert. Vorhandene Reviews bleiben sichtbar.', 'review-captain' ) ),
-			),
-			'requests'    => array(
-				'sender_name'       => array( __( 'Absendername', 'review-captain' ), __( 'Name im Absender von Einladungen. Leer = Markenname.', 'review-captain' ) ),
-				'sender_email'      => array( __( 'Absenderadresse', 'review-captain' ), __( 'Ohne Absenderadresse wird nichts versendet. Die Domain muss für deinen Versanddienst eingerichtet sein.', 'review-captain' ) ),
-				'send_window_start' => array( __( 'Versand ab', 'review-captain' ), __( 'Einladungen werden nur in diesem Zeitfenster verschickt (Website-Zeit).', 'review-captain' ) ),
-				'send_window_end'   => array( __( 'Versand bis', 'review-captain' ), __( 'Ende des Versandfensters (Website-Zeit). Ende vor Beginn = Fenster über Mitternacht.', 'review-captain' ) ),
-				'daily_limit'       => array( __( 'Tageslimit', 'review-captain' ), __( 'Höchstzahl Einladungen pro Tag über alle Kampagnen.', 'review-captain' ) ),
-				'cooldown_days'     => array( __( 'Mindestabstand je Empfänger (Tage)', 'review-captain' ), __( 'Innerhalb dieser Zeit erhält dieselbe Person keine weitere Einladung.', 'review-captain' ) ),
-				'reminders_enabled' => array( __( 'Erinnerungen erlauben', 'review-captain' ), __( 'Kampagnen dürfen eine einzelne Erinnerung senden. Abmeldung stoppt jede Erinnerung.', 'review-captain' ) ),
 			),
 			'submissions' => array(
 				'enabled'             => array( __( 'Einreichungen aktiv', 'review-captain' ), __( 'Hauptschalter für das Bewertungsformular. Aus = Formulare zeigen einen neutralen Hinweis.', 'review-captain' ) ),
@@ -158,16 +151,11 @@ final class SettingsFields {
 				__( 'Identität', 'review-captain' )       => array( 'brand_name' ),
 				__( 'Datum', 'review-captain' )           => array( 'date_format' ),
 				__( 'Neue Reviews', 'review-captain' )    => array( 'new_review_status' ),
+				__( 'Hinweise', 'review-captain' )        => array( 'show_pro_hints' ),
 			),
 			'sources'     => array(
 				__( 'Zeitfenster', 'review-captain' )       => array( 'sync_window_start', 'sync_window_end' ),
 				__( 'Gelöschte Reviews', 'review-captain' ) => array( 'removed_review_behavior' ),
-			),
-			'requests'    => array(
-				__( 'Absender', 'review-captain' )      => array( 'sender_name', 'sender_email' ),
-				__( 'Versandzeiten', 'review-captain' ) => array( 'send_window_start', 'send_window_end' ),
-				__( 'Grenzen', 'review-captain' )       => array( 'daily_limit', 'cooldown_days' ),
-				__( 'Erinnerungen', 'review-captain' )  => array( 'reminders_enabled' ),
 			),
 			'submissions' => array(
 				__( 'Formular', 'review-captain' )          => array( 'enabled', 'allow_title', 'min_text_length', 'max_text_length' ),

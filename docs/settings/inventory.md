@@ -7,7 +7,7 @@ Ziel: jede geplante Option hat **genau einen fachlichen Besitzer** (Admin-Seite)
 Legende
 - **Seite:** Admin-Seite, auf der das Feld bearbeitet wird. `Einstellungen › <Tab>` = Tab der Einstellungsseite.
 - **Scope:** `global` (Site-Option) · `profil` · `kampagne` · `formular` · `widget`. Multisite: alle Werte site-lokal.
-- **Owner:** `Core` oder `Pro` (Pro = Feld wird nur mit Pro wirksam/bearbeitbar).
+- **Owner:** `Core` oder `Pro` (Pro = Feld wird vom Add-on angemeldet, nur mit Pro sichtbar und bearbeitbar; ohne Pro zeigt der Core an seiner Stelle höchstens eine graue Hinweiszeile, SET-RC-06).
 - **Speicherort:** `S` = `review_captain_settings[tab][key]`; `P` = Tabelle `profiles`; `W` = Widget-Definition (Speicherort OFFEN, siehe unten); `B` = Block-/Shortcode-Attribut; `K` = Kampagne (Pro-Speicher).
 - **Cap:** Capability zum Ändern (immer zusätzlich Nonce).
 
@@ -18,6 +18,7 @@ Legende
 | `general.brand_name` | Welcher Name steht in Vorlagen und Hinweisen? | Einstellungen › Allgemein | global | Core | `''` → Websitetitel | manage_settings | S |
 | `general.date_format` | Wie werden Daten angezeigt? | Einstellungen › Allgemein | global (Widget darf überschreiben) | Core | `''` → WP-Format | manage_settings | S |
 | `general.new_review_status` | Sollen neue eingereichte Reviews sofort sichtbar sein? | Einstellungen › Allgemein | global | Core | `pending` | manage_settings | S |
+| `general.show_pro_hints` | Sollen graue Hinweise auf Review Captain Pro erscheinen? (SET-RC-06) | Einstellungen › Allgemein | global | Core | `true` | manage_settings | S |
 | `sources.sync_window_start` | Wann darf synchronisiert werden (Beginn)? | Einstellungen › Quellen & Synchronisierung | global (Profil darf einschränken) | Core | `02:00` | manage_settings | S |
 | `sources.sync_window_end` | … (Ende)? | Einstellungen › Quellen & Synchronisierung | global | Core | `05:00` | manage_settings | S |
 | `sources.max_pages_per_run` | Wie viel wird pro Lauf höchstens abgerufen? | Einstellungen › Quellen & Synchronisierung | global (Profil darf senken) | Core | `5` | manage_settings | S |
