@@ -44,6 +44,7 @@ Kein ADR nötig: Bugfixes, interne Refactorings ohne Vertragsänderung, Texte, S
 | [0008](0008-auth-modell-betreiber-credential.md) | Plattformzugänge im MVP über Betreiber-Credentials | Angenommen (eigenes Google-Projekt des Kunden; Captain-App später) | 2026-11-16 |
 | [0009](0009-connector-lizenzgrenze.md) | Lizenzgrenze für kundenspezifische Connectoren | Angenommen | 2026-11-16 |
 | [0010](0010-sortierspalte-sorted-at.md) | Indizierte Sortierspalte `sorted_at` und Keyset-Export | Vorgeschlagen | 2026-11-16 |
+| [0011](0011-etrusted-widget-host-in-embed-allowlist.md) | `integrations.etrusted.com` in die Core-Embed-Allowlist aufnehmen | Vorgeschlagen | 2026-11-23 |
 
 Vorgemerkte ADR-Kandidaten (noch nicht angelegt, siehe offene Entscheidungen in `docs/architecture/`):
 
