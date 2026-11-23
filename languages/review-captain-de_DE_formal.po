@@ -1698,8 +1698,8 @@ msgid "Erledigte Hintergrundaufgaben (Tage)"
 msgstr "Erledigte Hintergrundaufgaben (Tage)"
 
 #: src/Admin/SettingsFields.php:84
-msgid "Daten beim Deinstallieren löschen"
-msgstr "Daten beim Deinstallieren löschen"
+msgid "Beim Löschen des Plugins alle Daten entfernen"
+msgstr "Beim Löschen des Plugins alle Daten entfernen"
 
 #: src/Admin/SettingsFields.php:84
 msgid "An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert."
@@ -2002,8 +2002,8 @@ msgid "Alle Plugin-Daten löschen"
 msgstr "Alle Plugin-Daten löschen"
 
 #: src/Admin/SettingsPage.php:776
-msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Daten beim Deinstallieren löschen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
-msgstr "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Daten beim Deinstallieren löschen“ aktiviert ist und Sie das Plugin anschließend unter „Plugins“ deaktivieren und löschen. Exportieren Sie vorher Ihre Reviews."
+msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
+msgstr "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und Sie das Plugin anschließend unter „Plugins“ deaktivieren und löschen. Exportieren Sie vorher Ihre Reviews."
 
 #: src/Admin/SettingsPage.php:777
 msgid "Einzelne Personen betreffende Löschanfragen bearbeitest du unter"

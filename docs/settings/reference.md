@@ -254,10 +254,11 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 - **Standard:** „Anonymisieren“: Name wird zu „Anonym“, E-Mail und Nutzerverknüpfung werden entfernt, Text und Bewertung bleiben. **Alternative:** „Löschen“: das Review wird vollständig entfernt.
 - **Datenschutz:** Enthält der Text selbst personenbezogene Angaben, prüfen und bearbeiten bzw. löschen Sie ihn zusätzlich manuell.
 
-### Daten beim Deinstallieren löschen (`delete_data_on_uninstall`)
-- **Standard:** aus = Reviews und Einstellungen bleiben beim Löschen des Plugins erhalten. An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert.
+### Beim Löschen des Plugins alle Daten entfernen (`delete_data_on_uninstall`)
+- **Standard:** aus = Reviews und Einstellungen bleiben beim Löschen des Plugins erhalten. An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt (Bewertungen mit Fotos, Antworten, Korrekturfassungen, Meldungen und Schlagwörtern, Profile und Quellen, Fragen, Importe, Hintergrundaufgaben, Protokolle, Einstellungen und die Review-Captain-Rechte der Rollen). Daten bei Google, Trustpilot usw. werden nie verändert. Geplante Aufgaben (Cron, Action Scheduler) und unbestätigte CSV-Uploads werden immer entfernt. Multisite: jede Website entscheidet für sich.
+- **Export (Suite-Standard S10):** Die Einstellung und ihr Bestätigungszeitpunkt werden nie exportiert; ein Import lässt sie unverändert.
 - **Bestätigung (SET-RC-20):** Zum Einschalten tippen Sie `LÖSCHEN` in das Feld unter dem Schalter (auch `LOESCHEN` oder `DELETE`). Der Zeitpunkt wird gespeichert und angezeigt („Bestätigt am …“). Gelöscht wird nur mit dieser Bestätigung; Ausschalten hebt sie auf. Ein Konfigurationsimport kann die Löschung nicht einschalten. War der Schalter schon vor dieser Version an, bleiben die Daten erhalten, bis Sie einmal bestätigen; die Seite weist darauf hin.
-- **WP-CLI:** `wp review-captain settings set privacy.delete_data_on_uninstall 1 --confirm-word=LÖSCHEN --user=<admin>`.
+- **WP-CLI:** `wp review-captain settings set privacy.delete_data_on_uninstall 1 --confirm=LÖSCHEN --user=<admin>` (`--confirm-word` bleibt als gleichwertiger Alias).
 
 ### Datenschutzhinweis im Formular (`privacy_notice`)
 - **Standard:** leer = kurzer Standardtext mit Link zu Ihrer WordPress-Datenschutzseite. Eigener Text wird als reiner Text gespeichert (Absätze bleiben erhalten, HTML wird entfernt).

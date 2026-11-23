@@ -224,9 +224,15 @@ final class CliModule implements Module {
 					),
 					array(
 						'type'        => 'assoc',
-						'name'        => 'confirm-word',
+						'name'        => 'confirm',
 						'optional'    => true,
 						'description' => __( 'Bestätigungswort (LÖSCHEN), nötig beim Einschalten von privacy.delete_data_on_uninstall.', 'review-captain' ),
+					),
+					array(
+						'type'        => 'assoc',
+						'name'        => 'confirm-word',
+						'optional'    => true,
+						'description' => __( 'Alias für --confirm.', 'review-captain' ),
 					),
 				),
 			),
