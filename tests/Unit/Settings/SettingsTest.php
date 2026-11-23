@@ -24,6 +24,24 @@ final class SettingsTest extends TestCase {
 		$this->assertSame( 200, $s->get( 'requests', 'daily_limit' ) );
 	}
 
+	public function test_multisite_switch_reads_the_settings_of_the_current_site(): void {
+		// SET-RC-P1: the cached values belong to one site; after switch_to_blog() the other site's apply.
+		update_option( Settings::OPTION, array( 'general' => array( 'brand_name' => 'Site 1' ) ) );
+		$s = new Settings();
+		$this->assertSame( 'Site 1', $s->get( 'general', 'brand_name' ) );
+		switch_to_blog( 2 );
+		$this->assertSame( '', $s->get( 'general', 'brand_name' ), 'site 2 has its own (default) value' );
+		update_option( Settings::OPTION, array( 'general' => array( 'brand_name' => 'Site 2' ) ) );
+		$s->flush();
+		$this->assertSame( 'Site 2', $s->get( 'general', 'brand_name' ) );
+		restore_current_blog();
+		$this->assertSame( 'Site 1', $s->get( 'general', 'brand_name' ) );
+		$s->save( array( 'general' => array( 'brand_name' => 'Neu 1' ) ) );
+		switch_to_blog( 2 );
+		$this->assertSame( 'Site 2', $s->get( 'general', 'brand_name' ), 'saving site 1 never touches site 2' );
+		restore_current_blog();
+	}
+
 	public function test_sanitize_clamps_and_rejects_invalid(): void {
 		$s   = new Settings();
 		$out = $s->sanitize(

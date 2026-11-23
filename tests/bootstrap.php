@@ -59,8 +59,15 @@ final class RC_Test_State {
 	public static array $nonces_valid = array();
 	public static bool $is_admin = false;
 	public static int $queried_id = 0;
+	/** Multisite stand-in: current site and the options of the other sites (switch_to_blog). */
+	public static int $blog_id = 1;
+	public static array $blog_stack = array();
+	public static array $blog_options = array();
 
 	public static function reset(): void {
+		self::$blog_id      = 1;
+		self::$blog_stack   = array();
+		self::$blog_options = array();
 		self::$options      = array();
 		self::$site_options = array();
 		self::$hooks        = array();
@@ -187,9 +194,10 @@ function wp_roles() { $o = new stdClass(); $o->role_objects = array(); $o->role_
 // ---------------------------------------------------------------------------
 // Environment / URLs.
 function is_multisite() { return false; }
-function get_current_blog_id() { return 1; }
-function switch_to_blog( $id ) { return true; }
-function restore_current_blog() { return true; }
+function get_current_blog_id() { return RC_Test_State::$blog_id; }
+function rc_test_use_blog( int $id ): void { RC_Test_State::$blog_options[ RC_Test_State::$blog_id ] = RC_Test_State::$options; RC_Test_State::$blog_id = $id; RC_Test_State::$options = RC_Test_State::$blog_options[ $id ] ?? array(); }
+function switch_to_blog( $id ) { RC_Test_State::$blog_stack[] = RC_Test_State::$blog_id; rc_test_use_blog( (int) $id ); return true; }
+function restore_current_blog() { if ( ! RC_Test_State::$blog_stack ) { return false; } rc_test_use_blog( (int) array_pop( RC_Test_State::$blog_stack ) ); return true; }
 function is_admin() { return RC_Test_State::$is_admin; }
 function wp_doing_cron() { return false; }
 function wp_doing_ajax() { return false; }
