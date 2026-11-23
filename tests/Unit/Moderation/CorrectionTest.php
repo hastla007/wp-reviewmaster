@@ -220,4 +220,25 @@ final class CorrectionTest extends TestCase {
 		$res = ( new CorrectionHandler( Plugin::instance() ) )->process( array( 'op' => 'request', 'rc_email' => 'x@example.org', 'rc_return' => '//evil.test/x', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
 		$this->assertStringStartsWith( 'https://example.test/', $res['redirect'] );
 	}
+
+	public function test_anonymising_erasure_removes_versions_and_open_proposals(): void {
+		$this->enable();
+		$r = $this->review();
+		$r->consent_publish = false; // Text is anonymised too.
+		Plugin::instance()->reviews()->update( $r );
+		$svc = new CorrectionService( Plugin::instance() );
+		$id  = $svc->propose( $r, array( 'body' => 'Neue Fassung mit Klarname Erika Musterfrau, lang genug.' ), 'link' );
+		$this->assertIsInt( $id );
+
+		( new PersonalData( Plugin::instance()->reviews(), Plugin::instance()->settings() ) )->erase( 'erika@example.org' );
+		$after = Plugin::instance()->reviews()->find( (int) $r->id );
+		$this->assertNotNull( $after, 'anonymised, not deleted (erase_mode anonymize)' );
+		$this->assertStringNotContainsString( 'Ursprünglicher', $after->body );
+		$this->assertSame( array(), CorrectionService::versions( (int) $r->id ), 'no earlier or proposed text of the person stays' );
+
+		// The open proposal can no longer bring the text back over the anonymised review.
+		$this->login_with( 'review_captain_moderate' );
+		$this->assertTrue( is_wp_error( $svc->approve( $id ) ) );
+		$this->assertStringNotContainsString( 'Musterfrau', Plugin::instance()->reviews()->find( (int) $r->id )->body );
+	}
 }

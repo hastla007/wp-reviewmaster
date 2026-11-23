@@ -298,6 +298,19 @@ class CorrectionService {
 	}
 
 	/**
+	 * Delete every version of a review, open proposals included (privacy erasure: earlier and
+	 * proposed texts are the author's personal data, and an open proposal must never be approved
+	 * over an anonymised review, review P2).
+	 *
+	 * @param int $review_id Review ID.
+	 * @return int Rows deleted.
+	 */
+	public static function delete_for_review( int $review_id ): int {
+		global $wpdb;
+		return max( 0, (int) $wpdb->delete( Schema::table( 'review_revisions' ), array( 'review_id' => $review_id ), array( '%d' ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	}
+
+	/**
 	 * All versions of a review (privacy export).
 	 *
 	 * @param int $review_id Review ID.

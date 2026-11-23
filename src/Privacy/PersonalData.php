@@ -196,6 +196,8 @@ class PersonalData {
 		$r->meta['anonymized_at'] = gmdate( 'c' );
 		if ( null !== $r->id ) {
 			PhotoStore::delete_for_review( $r->id ); // A photo may show the person (RC-121).
+			// Earlier and proposed versions of an author correction hold the person's texts (review P2).
+			\ReviewCaptain\Moderation\CorrectionService::delete_for_review( $r->id );
 		}
 		$r->submission_key        = null; // Derived from the e-mail (HMAC) – personal.
 		try {
