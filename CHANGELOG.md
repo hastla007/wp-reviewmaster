@@ -6,8 +6,13 @@ Das Add-on Review Captain Pro hat ein eigenes Änderungsprotokoll (`captain-pro/
 
 ## [Unreleased]
 
+### Added
+- Vertrag 1.1.0 (RC-4): Payload `review_captain.review.v1` der Hooks `review_captain_review_created_v1`, `_status_changed_v1` und `_removed_v1` enthält zusätzlich `rating_value`, `rating_scale_min` und `rating_scale_max`. `rating_value` ist `null`, wenn die Bewertung keine Sterne hat. Neu ist außerdem `removal`: `tombstoned` (Status „entfernt“, Zeile bleibt) oder `deleted` (Zeile gelöscht) bei `review_captain_review_removed_v1`, sonst `null`. ADR-0007 stellt klar: Zusätzliche optionale Felder heben nur MINOR.
+- Öffentliche Vertragsversion `REVIEW_CAPTAIN_CONTRACT_VERSION` = `1.0.0` (SemVer, unabhängig von der Plugin-Version; Suite-Spezifikation R-3.1, RC-2), dokumentiert in `docs/contracts/README.md`, geprüft durch `tests/Unit/Support/ContractVersionTest.php` und `bin/check-plugin-meta.php`.
+
 ### Changed
 - Mindestversionen ergänzt (Entscheidung 17.11.2026, einheitlich für alle Captain-Plugins): WordPress 7.0, WooCommerce 11.2.2 (optional; 11.2.0 übernimmt Bestell-/Zahlungsdaten früherer Store-API-Checkouts im selben PHP-Prozess, behoben in 11.2.2, woocommerce#70637); getestet bis WordPress 7.1 / WooCommerce 11.3.
+- `docs/contracts/workflow-provider-v1.md` als nicht normativ gekennzeichnet (Inhaberentscheidung F-12); maßgeblich ist die Suite-Spezifikation in `wp-workflowmaster` (RC-1).
 - Kartenüberschriften standardmäßig `h2` statt `h3` (Barrierefreiheit, F-07); Block, Shortcode und Elementor-Widget.
 - WooCommerce: Core meldet Kompatibilität mit HPOS und Block-Checkout.
 - Yoast-Mindestversion für die Graph-Integration auf 26.0 angehoben (aktuelle Major − 2, Entscheidung SEO-001); ältere Yoast-Versionen: kein Review-Markup, Reviews bleiben sichtbar.

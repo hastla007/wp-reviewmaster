@@ -301,7 +301,7 @@ class ReviewRepository {
 		CacheGeneration::bump();
 		Plugin::instance()->events()->review_status_changed( $review, $from->value );
 		if ( ReviewStatus::REMOVED === $to ) {
-			Plugin::instance()->events()->review_removed( $review );
+			Plugin::instance()->events()->review_removed( $review, 'tombstoned' );
 		}
 		return true;
 	}
@@ -321,7 +321,7 @@ class ReviewRepository {
 		self::purge_related( $id );
 		CacheGeneration::bump();
 		if ( $deleted ) {
-			Plugin::instance()->events()->review_removed( $review );
+			Plugin::instance()->events()->review_removed( $review, 'deleted' );
 		}
 		return $deleted;
 	}
@@ -350,7 +350,7 @@ class ReviewRepository {
 			return false;
 		}
 		self::purge_related( $id );
-		Plugin::instance()->events()->review_removed( $review );
+		Plugin::instance()->events()->review_removed( $review, 'deleted' );
 		CacheGeneration::bump();
 		return true;
 	}

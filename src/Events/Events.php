@@ -25,23 +25,30 @@ class Events {
 	 *
 	 * @param Review      $review          Review.
 	 * @param string|null $previous_status Previous status.
+	 * @param string|null $removal         For review_removed: 'tombstoned' (status removed) or 'deleted' (row deleted); null otherwise.
 	 * @return array<string, mixed>
 	 */
-	public static function payload( Review $review, ?string $previous_status = null ): array {
+	public static function payload( Review $review, ?string $previous_status = null, ?string $removal = null ): array {
 		return array(
-			'schema'          => self::SCHEMA,
-			'event_id'        => Uuid::v4(),
-			'review_uuid'     => $review->uuid,
-			'kind'            => $review->kind->value,
-			'platform'        => $review->platform->value,
-			'origin'          => $review->origin->value,
-			'status'          => $review->status->value,
-			'previous_status' => $previous_status,
-			'verification'    => $review->verification->value,
-			'context_type'    => $review->context_type,
-			'context_id'      => $review->context_id,
-			'experience_id'   => $review->experience_id,
-			'occurred_at'     => gmdate( 'c' ),
+			'schema'           => self::SCHEMA,
+			'event_id'         => Uuid::v4(),
+			'review_uuid'      => $review->uuid,
+			'kind'             => $review->kind->value,
+			'platform'         => $review->platform->value,
+			'origin'           => $review->origin->value,
+			'status'           => $review->status->value,
+			'previous_status'  => $previous_status,
+			'verification'     => $review->verification->value,
+			// Since contract 1.1.0 (RC-4): rating on the review's own scale, null without rating.
+			'rating_value'     => $review->rating_value,
+			'rating_scale_min' => $review->rating_scale_min,
+			'rating_scale_max' => $review->rating_scale_max,
+			'context_type'     => $review->context_type,
+			'context_id'       => $review->context_id,
+			'experience_id'    => $review->experience_id,
+			// Since contract 1.1.0: how a review was removed (only set on review_removed).
+			'removal'          => $removal,
+			'occurred_at'      => gmdate( 'c' ),
 		);
 	}
 
@@ -67,9 +74,10 @@ class Events {
 	/**
 	 * Review removed (tombstone or erase).
 	 *
-	 * @param Review $review Review.
+	 * @param Review $review  Review.
+	 * @param string $removal 'tombstoned' (status set to removed, row kept) or 'deleted' (row deleted).
 	 */
-	public function review_removed( Review $review ): void {
-		do_action( 'review_captain_review_removed_v1', self::payload( $review ) );
+	public function review_removed( Review $review, string $removal = 'deleted' ): void {
+		do_action( 'review_captain_review_removed_v1', self::payload( $review, null, 'tombstoned' === $removal ? 'tombstoned' : 'deleted' ) );
 	}
 }

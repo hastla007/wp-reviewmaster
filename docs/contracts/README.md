@@ -16,11 +16,30 @@ Stand: 2026-11-16. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme*
 | [request-lifecycle.md](request-lifecycle.md) | RC-024 | Zustände, Mermaid-Diagramm, Übergangstabelle, Pro-Tabelle `requests` | Entwurf |
 | [invitation-rule.md](invitation-rule.md) | RC-025 | Einladungsschlüssel, Suite-Sperre, Versand-Ledger, Empfänger-Guard, SQL | Entwurf |
 | [../architecture/error-codes.md](../architecture/error-codes.md) | RC-030 | Fehlercodes, Retry-Klassen, Integrationsstatus | an Implementierung angeglichen; nicht implementierte Codes „geplant“ |
-| [workflow-provider-v1.md](workflow-provider-v1.md) | RC-WF-01, -02, -03, -06 | Trigger, Payload-Allowlists, Services, zulässige Auslöser | Entwurf; Workflow-Captain-Registry unbestätigt |
+| [workflow-provider-v1.md](workflow-provider-v1.md) | RC-WF-01, -02, -03, -06 | Trigger, Payload-Allowlists, Services, zulässige Auslöser | **nicht normativ** (F-12, 16.11.2026); maßgeblich ist `docs/SPEC-suite-events.md` in `wp-workflowmaster` |
 | [race-conditions.md](race-conditions.md) | TEC-005 | 12 Szenarien mit erwartetem Verhalten und Testfällen | Entwurf |
 | [cross-site-interfaces.md](cross-site-interfaces.md) | TEC-011 | Voraussetzungen für spätere signierte REST/Webhooks | Entwurf (v1: nicht implementiert) |
 | [widget-v1.md](widget-v1.md) | RC-049–RC-055, RC-039, RC-118 | Shortcode-/Block-/Formularvertrag | **verbindlich**, an Implementierung angeglichen |
 | [../hooks.md](../hooks.md) | – | generierte Referenz aller `review_captain_*`-Hooks (`bin/list-hooks.php`) | generiert |
+
+## Vertragsversion
+
+`REVIEW_CAPTAIN_CONTRACT_VERSION` (Hauptdatei `review-captain.php`, Anforderung RC-2 aus der Suite-Spezifikation, R-3.1) ist die SemVer-Version des öffentlichen Vertrags von Core v1, unabhängig von der Plugin-Version. Sie umfasst die Hooks der Stufe V aus [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md) (u. a. `review_captain_review_created_v1`, `_status_changed_v1`, `_removed_v1` mit dem Payload `review_captain.review.v1`) und den Container-Service `workflow` (`WorkflowService::CONTRACT`).
+
+- MAJOR steigt, wenn ein Hook der Stufe V, ein Payload-Feld oder eine öffentliche Methode entfällt oder sich unverträglich ändert; die Hauptversion von `WorkflowService::CONTRACT` ist immer dieselbe.
+- MINOR steigt, wenn Hooks, Felder, Methoden oder optionale Argumente dazukommen.
+- PATCH steigt bei Klarstellungen ohne Änderung des Verhaltens.
+
+Stand: `1.1.0`.
+
+| Version | Änderung |
+|---|---|
+| 1.0.0 | erster öffentlicher Vertrag (RC-2) |
+| 1.1.0 | Payload `review_captain.review.v1` additiv um `rating_value`, `rating_scale_min`, `rating_scale_max` ergänzt (RC-4); `rating_value` ist `null`, wenn die Bewertung keine Sterne hat; außerdem `removal` (`tombstoned` = Status „entfernt“, Zeile bleibt; `deleted` = Zeile gelöscht) bei `review_captain_review_removed_v1`, sonst `null` |
+
+Neue Felder in einem Payload sind additiv und optional: Empfänger müssen unbekannte Schlüssel ignorieren (siehe [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md), Ergänzung vom 23.11.2026).
+
+ Ein Test (`tests/Unit/Support/ContractVersionTest.php`) prüft Format und Übereinstimmung der Hauptversion mit `WorkflowService::CONTRACT`. Adapter (z. B. Workflow Captain Pro) melden sich nur bei Hauptversion 1 an.
 
 ## Lesereihenfolge für Implementierung
 
