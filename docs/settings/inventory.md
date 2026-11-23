@@ -43,6 +43,7 @@ Legende
 | `submissions.hold_words` | Welche Wörter halten eine Bewertung zur Prüfung zurück? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `''` | manage_settings | S |
 | `submissions.hold_links` | Bewertungen mit Links zur Prüfung zurückhalten? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `false` | manage_settings | S |
 | `submissions.block_email_domains` | Welche E-Mail-Domains dürfen nicht bewerten? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `''` | manage_settings | S |
+| `submissions.captcha_provider` | Zusätzlicher Spam-Schutz (eingebaute Rechenprüfung ohne Dritte)? | Einstellungen › Einreichungen & Moderation | global | Core | `none` | manage_settings | S |
 | `submissions.trusted_proxy_header` | Welche Kopfzeile nennt die echte Absenderadresse hinter einem Proxy? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `none` | manage_settings | S |
 | `submissions.correction_link_hours` | Wie lange gilt ein Korrektur-Link? | Einstellungen › Einreichungen & Moderation | global | Core | `1` | manage_settings | S |
 | `submissions.photo_max_edge` | Auf welche längste Kante werden Fotos verkleinert? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `1600` | manage_settings | S |

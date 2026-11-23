@@ -345,6 +345,14 @@
 	overflow: hidden;
 }
 
+/* Proof-of-work spam check (SET-RC-11): status line only, nothing to solve */
+.rc-pow__status,
+.rc-pow__noscript {
+	margin: var(--rc-space-1) 0;
+	font-size: var(--rc-font-size-sm);
+	color: var(--rc-color-muted);
+}
+
 /* Embed placeholder (click-to-load) */
 .rc-embed-placeholder {
 	display: grid;

@@ -15,6 +15,7 @@ use ReviewCaptain\Module;
 use ReviewCaptain\Questions\QuestionHandler;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\EmbedPolicy;
+use ReviewCaptain\Security\PowCaptcha;
 use ReviewCaptain\Seo\VisibleReviews;
 use ReviewCaptain\Widgets\WidgetDefinition;
 use ReviewCaptain\Widgets\WidgetRegistry;
@@ -57,6 +58,9 @@ final class FrontendModule implements Module {
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_early' ) );
 		add_action( 'admin_post_' . FormHandler::ACTION, array( $this, 'handle_submit' ) );
 		add_action( 'admin_post_nopriv_' . FormHandler::ACTION, array( $this, 'handle_submit' ) );
+		// SET-RC-11: proof-of-work challenges via admin-ajax (uncached, so cached pages work).
+		add_action( 'wp_ajax_' . PowCaptcha::AJAX_ACTION, array( PowCaptcha::class, 'ajax_challenge' ) );
+		add_action( 'wp_ajax_nopriv_' . PowCaptcha::AJAX_ACTION, array( PowCaptcha::class, 'ajax_challenge' ) );
 		// M7 endpoints: each checks its own setting (all off by default) before doing anything.
 		foreach ( array( ReportHandler::ACTION => 'handle_report', QuestionHandler::ACTION => 'handle_question', PhotoStore::ACTION => 'handle_photo' ) as $action => $method ) {
 			add_action( 'admin_post_' . $action, array( $this, $method ) );
@@ -234,6 +238,9 @@ final class FrontendModule implements Module {
 		static $inline = false;
 		wp_register_style( self::STYLE_HANDLE, REVIEW_CAPTAIN_URL . 'assets/css/frontend.css', array(), REVIEW_CAPTAIN_VERSION );
 		wp_register_script( EmbedPolicy::SCRIPT_HANDLE, REVIEW_CAPTAIN_URL . 'assets/js/frontend-embed.js', array(), REVIEW_CAPTAIN_VERSION, true );
+		if ( PowCaptcha::enabled() ) {
+			PowCaptcha::register_script();
+		}
 		$css = self::inline_css();
 		if ( ! $inline && '' !== $css ) {
 			$inline = true;

@@ -75,6 +75,9 @@ $rc_id = (string) $rc['id'];
 				<?php esc_html_e( 'Ich willige ein, dass meine Frage mit meinem Namen auf dieser Website veröffentlicht wird. Die Einwilligung kann ich jederzeit widerrufen.', 'review-captain' ); ?>
 			</label>
 		</p>
+		<?php if ( ! empty( $rc['pow'] ) ) : ?>
+			<?php echo $rc['pow']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in PowCaptcha::field() (SET-RC-11). ?>
+		<?php endif; ?>
 		<p class="rc-form__actions">
 			<button type="submit" class="rc-form__submit"><?php esc_html_e( 'Frage senden', 'review-captain' ); ?></button>
 		</p>

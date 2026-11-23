@@ -52,7 +52,7 @@ Einstellungen
 │   ├─ Einwilligung ......... require_consent  (Datenschutztext → Tab Datenschutz)
 │   ├─ Benachrichtigung ..... notify_admin
 │   ├─ Moderationsregeln .... hold_words, hold_links, block_email_domains, ▸ min_seconds
-│   ├─ Schutz vor Missbrauch  ▸ honeypot, ▸ rate_limit_per_hour, ▸ trusted_proxy_header
+│   ├─ Schutz vor Missbrauch  ▸ honeypot, captcha_provider, ▸ rate_limit_per_hour, ▸ trusted_proxy_header
 │   ├─ Korrekturen .......... corrections_enabled, ▸ correction_link_hours
 │   └─ Erweiterte Funktionen  tags/reports/photos (▸ photo_max_edge)/multi_product/qa/feedback
 ├─ 5 Darstellung (display)

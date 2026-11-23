@@ -35,6 +35,10 @@ class Maintenance {
 		$retention = ( new Retention( $this->plugin, $this->queue ) )->run( $time_budget );
 		$reconcile = ( new Reconciler( $this->plugin, $this->queue ) )->run( true, 'manual' );
 		$retention['import_uploads'] = \ReviewCaptain\ImportExport\UploadStore::purge_older_than( HOUR_IN_SECONDS );
+
+		// SET-RC-11: expired single-use entries of the proof-of-work check.
+		$retention['pow_used'] = \ReviewCaptain\Security\PowCaptcha::purge_used();
+
 		update_option( 'review_captain_last_maintenance', time(), false );
 		return array(
 			'retention' => $retention,
