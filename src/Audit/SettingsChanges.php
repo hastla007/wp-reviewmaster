@@ -73,7 +73,11 @@ final class SettingsChanges {
 			return $value;
 		}
 		if ( is_array( $value ) ) {
-			return self::shorten( implode( ', ', array_map( static fn( $v ): string => is_scalar( $v ) ? (string) $v : '', $value ) ), 100 );
+			// Lists (roles, e-mail recipients, …): every element passes the same rules as a single
+			// value, so addresses in submissions.notify_recipients are masked as well (P4-2).
+			$item  = array( 'type' => 'email_list' === $type ? 'email' : 'list_item' ) + $field;
+			$parts = array_map( static fn( $v ): string => is_scalar( $v ) ? (string) self::value( $key, $item, (string) $v ) : '', $value );
+			return self::shorten( implode( ', ', $parts ), 100 );
 		}
 		if ( ! is_scalar( $value ) ) {
 			return null;
@@ -86,10 +90,24 @@ final class SettingsChanges {
 			// May be a person's name (e.g. requests.sender_name): only "changed" is logged.
 			return '' === $value ? '' : self::HIDDEN;
 		}
+		$value = self::mask_embedded_emails( $value );
 		if ( in_array( $type, array( 'string', 'textarea' ), true ) ) {
 			return self::shorten( $value, self::TEXT_MAX );
 		}
 		return self::shorten( $value, 100 );
+	}
+
+	/**
+	 * Mask e-mail addresses inside a longer text (e.g. a notification body naming a contact).
+	 *
+	 * @param string $text Text.
+	 */
+	public static function mask_embedded_emails( string $text ): string {
+		return (string) preg_replace_callback(
+			'/[^\s@<>"\'(),;:]+@[^\s@<>"\'(),;:]+\.[a-z]{2,}/iu',
+			static fn( array $m ): string => self::mask_email( $m[0] ),
+			$text
+		);
 	}
 
 	/**

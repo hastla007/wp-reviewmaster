@@ -50,6 +50,26 @@ final class SettingsAuditTest extends AdminTestCase {
 		$this->assertSame( 30, SettingsChanges::value( 'retention_logs_days', array( 'type' => 'int' ), 30 ) );
 	}
 
+	public function test_recipient_lists_and_addresses_in_texts_are_masked(): void {
+		// P4-2: submissions.notify_recipients (email_list) was logged in plain text.
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		$this->page()->save_tab(
+			'submissions',
+			array(
+				'submissions' => array(
+					'notify_recipients' => "erika.muster@example.test\nshop@example.test",
+					'notify_body'       => 'Fragen an max.mustermann@example.test',
+				),
+			)
+		);
+		$context = $this->audit_rows( 'settings.changed' )[0]['context'];
+		$this->assertStringNotContainsString( 'erika.muster', $context );
+		$this->assertStringNotContainsString( 'max.mustermann', $context );
+		$changes = $this->changes();
+		$this->assertSame( 'e***@example.test, s***@example.test', $changes['submissions.notify_recipients']['to'] );
+		$this->assertSame( 'Fragen an m***@example.test', $changes['submissions.notify_body']['to'] );
+	}
+
 	public function test_save_logs_old_and_new_values_masked(): void {
 		ProRequestsFields::register( true );
 		add_filter(
