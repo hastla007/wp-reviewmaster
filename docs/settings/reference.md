@@ -117,7 +117,7 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 
 ### Absenderadresse hinter einem Proxy (`trusted_proxy_header`)
 - **Zweck:** Welche Adresse für die Sendebegrenzung (Bewertungen, Meldungen, Fragen) gezählt wird. **Standard:** „Keine“ = direkte Verbindungsadresse (`REMOTE_ADDR`). Wählbar: `X-Forwarded-For`, `X-Real-IP`, `CF-Connecting-IP` (erweiterte Einstellung). Filter `review_captain_trusted_proxy_header` hat Vorrang.
-- **Folgen:** Nur einstellen, wenn Ihre Website hinter einem Reverse Proxy/CDN liegt, der diese Kopfzeile selbst setzt – sonst zählen alle Besucher als ein Absender. Bei einer Liste (`X-Forwarded-For`) gilt die letzte gültige Adresse (die Ihr Proxy angehängt hat); ungültige Werte fallen auf `REMOTE_ADDR` zurück. Ohne vertrauenswürdigen Proxy könnten Absender die Begrenzung durch eine gefälschte Kopfzeile umgehen.
+- **Folgen:** Nur einstellen, wenn Ihre Website hinter einem Reverse Proxy/CDN liegt, der diese Kopfzeile selbst setzt – sonst zählen alle Besucher als ein Absender. Bei einer Liste (`X-Forwarded-For`) gilt die letzte gültige Adresse (die Ihr Proxy angehängt hat); ungültige Werte fallen auf `REMOTE_ADDR` zurück. Ohne vertrauenswürdigen Proxy könnten Absender die Begrenzung durch eine gefälschte Kopfzeile umgehen. Ist der Server auch direkt erreichbar, nennen Sie die Adressen Ihrer Proxys über den Filter `review_captain_trusted_proxies` (Liste exakter IP-Adressen): dann wird die Kopfzeile nur bei Anfragen von diesen Adressen gelesen.
 - **Datenschutz:** gespeichert wird weiterhin nur ein gekürzter Hash, nie die Adresse.
 
 ### Einreichungen pro Stunde (`rate_limit_per_hour`)

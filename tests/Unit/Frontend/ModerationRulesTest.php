@@ -150,6 +150,18 @@ final class ModerationRulesTest extends FrontendTestCase {
 		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
 	}
 
+	public function test_proxy_header_only_from_listed_proxies(): void {
+		// P4-7: with a proxy list, a client reaching the origin directly cannot spoof its address.
+		$this->settings( array( 'submissions' => array( 'trusted_proxy_header' => 'cf-connecting-ip' ) ) );
+		add_filter( 'review_captain_trusted_proxies', static fn() => array( '10.0.0.1' ) );
+		$_SERVER['HTTP_CF_CONNECTING_IP'] = '203.0.113.9';
+		$_SERVER['REMOTE_ADDR']           = '10.0.0.1';
+		$this->assertSame( '203.0.113.9', RateLimiter::client_ip(), 'request from the listed proxy' );
+		$_SERVER['REMOTE_ADDR'] = '198.51.100.50';
+		$this->assertSame( '198.51.100.50', RateLimiter::client_ip(), 'direct request: header ignored' );
+		unset( $_SERVER['HTTP_CF_CONNECTING_IP'] );
+	}
+
 	public function test_form_item_limit_filter_has_upper_bound(): void {
 		$ids = implode( ',', range( 1, 80 ) );
 		$this->assertCount( 20, FormHandler::parse_context_list( $ids ) );
