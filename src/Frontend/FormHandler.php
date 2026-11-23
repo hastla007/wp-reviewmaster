@@ -16,6 +16,7 @@ use ReviewCaptain\Domain\Review;
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Domain\Verification;
 use ReviewCaptain\Media\PhotoStore;
+use ReviewCaptain\Moderation\Notifier;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Widgets\WidgetDefinition;
 
@@ -597,16 +598,11 @@ class FormHandler {
 	}
 
 	/**
-	 * Notify the admin – no review text, no e-mail address, only a hint and a link.
+	 * Notify moderators (SET-RC-09) – no review text, no e-mail address, only a hint and a link.
 	 *
 	 * @param Review $review Review.
 	 */
 	private function notify_admin( Review $review ): void {
-		$to = (string) get_option( 'admin_email', '' );
-		if ( '' === $to || ! is_email( $to ) ) {
-			return;
-		}
-		$site = wp_strip_all_tags( (string) get_bloginfo( 'name' ) );
 		/**
 		 * Filter the moderation URL used in notification mails.
 		 *
@@ -614,15 +610,12 @@ class FormHandler {
 		 * @param Review $review Review.
 		 */
 		$url = (string) apply_filters( 'review_captain_moderation_url', admin_url( 'admin.php?page=review-captain' ), $review );
-		wp_mail(
-			$to,
-			/* translators: %s: site name */
-			sprintf( __( '[%s] Neue Bewertung eingegangen', 'review-captain' ), $site ),
-			ReviewStatus::APPROVED === $review->status
-				/* translators: %s: moderation URL */
-				? sprintf( __( "Auf Ihrer Website wurde eine neue Bewertung abgegeben und automatisch freigegeben.\n\nZur Übersicht: %s", 'review-captain' ), $url )
-				/* translators: %s: moderation URL */
-				: sprintf( __( "Auf Ihrer Website wurde eine neue Bewertung abgegeben. Sie wartet auf Moderation.\n\nJetzt prüfen: %s", 'review-captain' ), $url )
+		( new Notifier( $this->plugin->settings() ) )->notify(
+			Notifier::EVENT_REVIEW,
+			array(
+				'moderation_url' => $url,
+				'approved'       => ReviewStatus::APPROVED === $review->status,
+			)
 		);
 	}
 

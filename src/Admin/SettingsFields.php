@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace ReviewCaptain\Admin;
 
+use ReviewCaptain\Moderation\ReportStore;
+
 /**
  * Presentation metadata only. The schema (types, defaults, validation) stays in SettingsSchema.
  * Fields added via `review_captain_settings_schema` may carry their own 'label'/'description'.
@@ -39,18 +41,26 @@ final class SettingsFields {
 				'sender_name'       => array( __( 'Absendername', 'review-captain' ), __( 'Name im Absender von Einladungen. Leer = Markenname.', 'review-captain' ) ),
 				'sender_email'      => array( __( 'Absenderadresse', 'review-captain' ), __( 'Ohne Absenderadresse wird nichts versendet. Die Domain muss für deinen Versanddienst eingerichtet sein.', 'review-captain' ) ),
 				'send_window_start' => array( __( 'Versand ab', 'review-captain' ), __( 'Einladungen werden nur in diesem Zeitfenster verschickt (Website-Zeit).', 'review-captain' ) ),
-				'send_window_end'   => array( __( 'Versand bis', 'review-captain' ), '' ),
+				'send_window_end'   => array( __( 'Versand bis', 'review-captain' ), __( 'Ende des Versandfensters (Website-Zeit). Ende vor Beginn = Fenster über Mitternacht.', 'review-captain' ) ),
 				'daily_limit'       => array( __( 'Tageslimit', 'review-captain' ), __( 'Höchstzahl Einladungen pro Tag über alle Kampagnen.', 'review-captain' ) ),
 				'cooldown_days'     => array( __( 'Mindestabstand je Empfänger (Tage)', 'review-captain' ), __( 'Innerhalb dieser Zeit erhält dieselbe Person keine weitere Einladung.', 'review-captain' ) ),
 				'reminders_enabled' => array( __( 'Erinnerungen erlauben', 'review-captain' ), __( 'Kampagnen dürfen eine einzelne Erinnerung senden. Abmeldung stoppt jede Erinnerung.', 'review-captain' ) ),
 			),
 			'submissions' => array(
 				'enabled'             => array( __( 'Einreichungen aktiv', 'review-captain' ), __( 'Hauptschalter für das Bewertungsformular. Aus = Formulare zeigen einen neutralen Hinweis.', 'review-captain' ) ),
-				'allow_title'         => array( __( 'Titelfeld anbieten', 'review-captain' ), '' ),
+				'allow_title'         => array( __( 'Titelfeld anbieten', 'review-captain' ), __( 'Zeigt im Formular ein optionales Feld „Titel“. Gilt für alle Formulare der Website.', 'review-captain' ) ),
 				'min_text_length'     => array( __( 'Mindestlänge des Textes', 'review-captain' ), __( 'Zeichen. Muss kleiner als die Höchstlänge sein.', 'review-captain' ) ),
 				'max_text_length'     => array( __( 'Höchstlänge des Textes', 'review-captain' ), __( 'Zeichen.', 'review-captain' ) ),
 				'require_consent'     => array( __( 'Einwilligung zur Veröffentlichung abfragen', 'review-captain' ), __( 'Pflicht-Kontrollkästchen im Formular. Aus = du musst die Veröffentlichungsgrundlage anders sicherstellen.', 'review-captain' ) ),
-				'notify_admin'        => array( __( 'Admin benachrichtigen', 'review-captain' ), __( 'E-Mail mit Link zur Moderation – ohne Reviewtext und ohne Kontaktdaten.', 'review-captain' ) ),
+				'notify_admin'        => array( __( 'Bei neuen Bewertungen benachrichtigen', 'review-captain' ), __( 'E-Mail mit Link zur Moderation – ohne Reviewtext und ohne Kontaktdaten.', 'review-captain' ) ),
+				'notify_recipients'   => array( __( 'Empfänger der Benachrichtigungen', 'review-captain' ), __( 'Eine E-Mail-Adresse je Zeile (oder durch Komma getrennt), höchstens 10. Leer = Administrator-Adresse der Website. Gilt für neue Bewertungen, Meldungen und Fragen.', 'review-captain' ) ),
+				'notify_subject'      => array( __( 'Betreff der Benachrichtigung', 'review-captain' ), __( 'Für neue Bewertungen. Platzhalter: {site}, {moderation_url}, {status}. Leer = „[Website] Neue Bewertung eingegangen“.', 'review-captain' ) ),
+				'notify_body'         => array( __( 'Text der Benachrichtigung', 'review-captain' ), __( 'Für neue Bewertungen. Platzhalter: {site}, {moderation_url}, {status}. Leer = Standardtext. Reviewtext und Kontaktdaten werden nie eingefügt.', 'review-captain' ) ),
+				'notify_questions'    => array( __( 'Bei neuen Fragen benachrichtigen', 'review-captain' ), __( 'Wirkt nur mit aktiven Produktfragen (Q&A). E-Mail mit Link zur Moderation, ohne Fragetext und ohne Kontaktdaten.', 'review-captain' ) ),
+				'consent_text'        => array( __( 'Text der Einwilligung', 'review-captain' ), __( 'Rechtstext – bitte prüfen lassen. Steht neben dem Pflicht-Kontrollkästchen. Platzhalter {privacy_link} = Link zu deiner Datenschutzseite. Leer = Standardtext.', 'review-captain' ) ),
+				'name_label'          => array( __( 'Beschriftung Namensfeld', 'review-captain' ), __( 'Leer = „Name (wird veröffentlicht)“. Mach deutlich, dass der Name öffentlich erscheint.', 'review-captain' ) ),
+				'email_hint'          => array( __( 'Hinweis unter dem E-Mail-Feld', 'review-captain' ), __( 'Rechtstext – bitte prüfen lassen. Leer = „Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.“', 'review-captain' ) ),
+				'submit_label'        => array( __( 'Beschriftung der Absende-Schaltfläche', 'review-captain' ), __( 'Leer = „Bewertung senden“.', 'review-captain' ) ),
 				'honeypot'            => array( __( 'Spam-Falle', 'review-captain' ), __( 'Unsichtbares Feld, das automatisierte Einsendungen erkennt. Nonce-Prüfung und Rate-Limit bleiben immer aktiv.', 'review-captain' ) ),
 				'rate_limit_per_hour' => array( __( 'Einreichungen pro Stunde', 'review-captain' ), __( 'Je Absender. Zur Zählung wird kurzzeitig ein gehashter Wert gespeichert, keine Klar-IP.', 'review-captain' ) ),
 				'tags_enabled'               => array( __( 'Interne Tags', 'review-captain' ), __( 'Moderierende können Reviews mit internen Schlagwörtern versehen und danach filtern. Tags werden nie öffentlich angezeigt oder exportiert.', 'review-captain' ) ),
@@ -62,10 +72,14 @@ final class SettingsFields {
 				'multi_product_enabled'      => array( __( 'Formular für mehrere Produkte', 'review-captain' ), __( 'Ein Formular mit context_ids bewertet mehrere Produkte auf einmal. Je Person und Produkt ist dann nur eine Bewertung möglich.', 'review-captain' ) ),
 				'qa_enabled'                 => array( __( 'Produktfragen (Q&A)', 'review-captain' ), __( 'Fragen und Antworten über [review_captain_qa]. Getrennt von Bewertungen, moderiert, ohne Schema-Markup.', 'review-captain' ) ),
 				'feedback_campaigns_enabled' => array( __( 'Feedback-Links und QR-Codes', 'review-captain' ), __( 'Erzeugt Feedback-Links mit QR-Code (SVG) und optionalem WhatsApp-Click-to-Chat-Link.', 'review-captain' ) ),
+				'report_reasons'             => array( __( 'Meldegründe', 'review-captain' ), __( 'Diese Gründe stehen im Formular „Melden“ zur Auswahl. Mindestens ein Grund bleibt immer aktiv.', 'review-captain' ) ),
+				'report_notify'              => array( __( 'Bei Meldungen benachrichtigen', 'review-captain' ), __( 'E-Mail an die Empfänger der Benachrichtigungen je angenommener Meldung, mit Grund und Link zur Moderation – ohne Angaben zur meldenden Person.', 'review-captain' ) ),
+				'report_confirmation'        => array( __( 'Rückmeldung an Meldende', 'review-captain' ), __( 'Erscheint nach dem Absenden einer Meldung. Leer = „Danke für Ihre Meldung. Wir prüfen die Bewertung.“', 'review-captain' ) ),
+				'corrections_enabled'        => array( __( 'Korrekturen durch Verfasser', 'review-captain' ), __( 'Wer eine Bewertung abgegeben hat, kann sie über einen Einmal-Link per E-Mail (oder angemeldet) korrigieren oder zurückziehen. Korrekturen werden erst nach deiner Freigabe sichtbar; die Karte zeigt dann „bearbeitet am …“.', 'review-captain' ) ),
 			),
 			'display'     => array(
 				'show_stars'     => array( __( 'Sterne anzeigen', 'review-captain' ), __( 'Sterne werden immer zusätzlich als Text für Screenreader ausgegeben.', 'review-captain' ) ),
-				'show_date'      => array( __( 'Datum anzeigen', 'review-captain' ), '' ),
+				'show_date'      => array( __( 'Datum anzeigen', 'review-captain' ), __( 'Zeigt das Veröffentlichungsdatum, sonst das Eingangsdatum. Einzelne Widgets können abweichen.', 'review-captain' ) ),
 				'date_style'     => array( __( 'Datumsstil', 'review-captain' ), __( 'Relativ („vor 3 Tagen“) veraltet in zwischengespeicherten Seiten schneller.', 'review-captain' ) ),
 				'show_author'    => array( __( 'Autor anzeigen', 'review-captain' ), __( 'Personenbezogen.', 'review-captain' ) ),
 				'show_avatar'    => array( __( 'Profilbild anzeigen', 'review-captain' ), __( 'Personenbezogen; je nach WordPress-Einstellung wird dabei Gravatar kontaktiert.', 'review-captain' ) ),
@@ -73,6 +87,16 @@ final class SettingsFields {
 				'reduced_motion' => array( __( 'Bewegung reduzieren', 'review-captain' ), __( 'Keine automatischen Animationen oder Karussell-Rotation. Die Systemeinstellung der Besucher wird immer beachtet.', 'review-captain' ) ),
 				'load_css'       => array( __( 'Plugin-CSS laden', 'review-captain' ), __( 'Aus = dein Theme muss die Ausgabe selbst gestalten (Klassen rc-…).', 'review-captain' ) ),
 				'show_photos'    => array( __( 'Fotos anzeigen', 'review-captain' ), __( 'Zeigt Fotos freigegebener Bewertungen in den Karten. Personenbezogen möglich.', 'review-captain' ) ),
+				'schema_enabled' => array( __( 'Bewertungs-Markup ausgeben (schema.org)', 'review-captain' ), __( 'Strukturierte Daten für eigene, auf dieser Website abgegebene und freigegebene Bewertungen. Externe Bewertungen erhalten nie Markup. Aus = kein Bewertungs-Markup; die sichtbare Ausgabe bleibt gleich.', 'review-captain' ) ),
+				'verification_notice_show'     => array( __( 'Hinweis „So prüfen wir Bewertungen“ anzeigen', 'review-captain' ), __( 'Aufklappbarer Hinweis an jedem Bewertungs-Widget und am Formular. Informiert, ob und wie Bewertungen geprüft werden.', 'review-captain' ) ),
+				'verification_notice'          => array( __( 'Text „So prüfen wir Bewertungen“', 'review-captain' ), __( 'Rechtstext – bitte prüfen lassen (Transparenzpflicht, je Land). Leer = neutraler Entwurf, der nur die Prüfstufen beschreibt, die auf deiner Website vorkommen. Beschreibe nur, was du wirklich prüfst.', 'review-captain' ) ),
+				'verification_notice_position' => array( __( 'Position des Hinweises', 'review-captain' ), __( 'Über oder unter der Liste bzw. dem Formular.', 'review-captain' ) ),
+				'label_purchase_verified'      => array( __( 'Kennzeichen „Kauf verifiziert“', 'review-captain' ), __( 'Leer = „Verifizierter Kauf“. Nur der Text ist einstellbar; die Stufe setzt allein eine angebundene, vertrauenswürdige Quelle.', 'review-captain' ) ),
+				'label_attendance_confirmed'   => array( __( 'Kennzeichen „Teilnahme bestätigt“', 'review-captain' ), __( 'Leer = „Teilnahme bestätigt“. Nur der Text ist einstellbar; die Stufe setzt allein eine angebundene, vertrauenswürdige Quelle.', 'review-captain' ) ),
+				'label_external'               => array( __( 'Kennzeichen „Externe Plattform“', 'review-captain' ), __( 'Leer = „Externe Plattformbewertung“. Quelle und Link zum Original bleiben immer sichtbar.', 'review-captain' ) ),
+				'label_testimonial'            => array( __( 'Kennzeichen „Erfahrungsbericht“', 'review-captain' ), __( 'Leer = „Erfahrungsbericht dieser Website“.', 'review-captain' ) ),
+				'label_unverified'             => array( __( 'Kennzeichen „Ungeprüft“', 'review-captain' ), __( 'Leer = „Ungeprüft“. Erscheint nur, wenn „Ungeprüfte Bewertungen kennzeichnen“ aktiv ist.', 'review-captain' ) ),
+				'show_unverified_label'        => array( __( 'Ungeprüfte Bewertungen kennzeichnen', 'review-captain' ), __( 'Zeigt bei Bewertungen ohne Kauf- oder Teilnahmenachweis sichtbar das Kennzeichen „Ungeprüft“.', 'review-captain' ) ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( __( 'Externe Reviews ohne Bestätigung (Tage)', 'review-captain' ), __( 'Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde.', 'review-captain' ) ),
@@ -80,7 +104,7 @@ final class SettingsFields {
 				'privacy_notice'           => array( __( 'Datenschutzhinweis im Formular', 'review-captain' ), __( 'Leer = kurzer Standardtext mit Link zu deiner Datenschutzseite.', 'review-captain' ) ),
 				'erase_mode'               => array( __( 'Verhalten bei Löschanfragen', 'review-captain' ), __( 'Was „Personenbezogene Daten löschen“ (Werkzeuge) mit Reviews dieser E-Mail-Adresse macht.', 'review-captain' ) ),
 				'retention_logs_days'      => array( __( 'Protokolle (Tage)', 'review-captain' ), __( 'Protokolle enthalten keine Reviewtexte oder Zugangsdaten.', 'review-captain' ) ),
-				'retention_jobs_days'      => array( __( 'Erledigte Hintergrundaufgaben (Tage)', 'review-captain' ), '' ),
+				'retention_jobs_days'      => array( __( 'Erledigte Hintergrundaufgaben (Tage)', 'review-captain' ), __( 'Danach werden abgeschlossene Hintergrundaufgaben gelöscht. Sie enthalten keine Reviewtexte.', 'review-captain' ) ),
 				'delete_data_on_uninstall' => array( __( 'Daten beim Deinstallieren löschen', 'review-captain' ), __( 'An = beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt. Daten bei Google, Trustpilot usw. werden nie verändert.', 'review-captain' ) ),
 			),
 			'access'      => array(
@@ -120,18 +144,23 @@ final class SettingsFields {
 			),
 			'submissions' => array(
 				__( 'Formular', 'review-captain' )          => array( 'enabled', 'allow_title', 'min_text_length', 'max_text_length' ),
-				__( 'Einwilligung', 'review-captain' )      => array( 'require_consent' ),
-				__( 'Benachrichtigung', 'review-captain' )  => array( 'notify_admin' ),
+				__( 'Formulartexte', 'review-captain' )     => array( 'name_label', 'email_hint', 'submit_label' ),
+				__( 'Einwilligung', 'review-captain' )      => array( 'require_consent', 'consent_text' ),
+				__( 'Benachrichtigung', 'review-captain' )  => array( 'notify_admin', 'notify_recipients', 'notify_subject', 'notify_body', 'notify_questions' ),
+				__( 'Korrekturen', 'review-captain' )       => array( 'corrections_enabled' ),
 				__( 'Erweiterte Funktionen (nach 1.0)', 'review-captain' ) => array( 'tags_enabled', 'reports_enabled', 'report_threshold', 'report_rate_limit_per_hour', 'photos_enabled', 'photo_max_kb', 'multi_product_enabled', 'qa_enabled', 'feedback_campaigns_enabled' ),
+				__( 'Meldungen', 'review-captain' )         => array( 'report_reasons', 'report_notify', 'report_confirmation' ),
 			),
 			'display'     => array(
 				__( 'Inhalte', 'review-captain' )          => array( 'show_stars', 'show_date', 'date_style', 'show_author', 'show_avatar' ),
+				__( 'Prüfung & Transparenz', 'review-captain' ) => array( 'verification_notice_show', 'verification_notice', 'verification_notice_position', 'show_unverified_label', 'label_purchase_verified', 'label_attendance_confirmed', 'label_external', 'label_testimonial', 'label_unverified' ),
 				__( 'Leerer Zustand', 'review-captain' )   => array( 'empty_text' ),
 				__( 'Barrierefreiheit', 'review-captain' ) => array( 'reduced_motion' ),
 				__( 'Fotos', 'review-captain' )            => array( 'show_photos' ),
+				__( 'Suchmaschinen', 'review-captain' )    => array( 'schema_enabled' ),
 			),
 			'privacy'     => array(
-				__( 'Aufbewahrung', 'review-captain' )       => array( 'retention_external_days', 'retention_rejected_days' ),
+				__( 'Aufbewahrung', 'review-captain' )       => array( 'retention_external_days', 'retention_rejected_days', 'retention_logs_days', 'retention_jobs_days' ),
 				__( 'Datenschutzhinweis', 'review-captain' ) => array( 'privacy_notice' ),
 				__( 'Löschanfragen', 'review-captain' )      => array( 'erase_mode' ),
 				__( 'Deinstallation', 'review-captain' )     => array( 'delete_data_on_uninstall' ),
@@ -167,6 +196,15 @@ final class SettingsFields {
 			'display.date_style'              => array(
 				'absolute' => __( 'Absolut (12.11.2026)', 'review-captain' ),
 				'relative' => __( 'Relativ (vor 3 Tagen)', 'review-captain' ),
+			),
+			'submissions.report_reasons'      => ReportStore::reason_labels(),
+			'submissions.report_notify'       => array(
+				'recipients' => __( 'Empfänger der Benachrichtigungen', 'review-captain' ),
+				'none'       => __( 'Niemand', 'review-captain' ),
+			),
+			'display.verification_notice_position' => array(
+				'below' => __( 'Unter der Liste bzw. dem Formular', 'review-captain' ),
+				'above' => __( 'Über der Liste bzw. dem Formular', 'review-captain' ),
 			),
 			'privacy.erase_mode'              => array(
 				'anonymize' => __( 'Anonymisieren (Text und Bewertung bleiben)', 'review-captain' ),

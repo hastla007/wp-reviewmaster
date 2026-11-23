@@ -145,6 +145,14 @@ final class SettingsPage {
 			if ( ( 'pro' === $field['owner'] && ! $pro ) || ! array_key_exists( $key, $raw ) || ! is_scalar( $raw[ $key ] ) ) {
 				continue;
 			}
+			if ( 'email_list' === $field['type'] ) {
+				// Dropped (invalid, duplicate or surplus) addresses are reported.
+				$given = array_filter( array_map( 'trim', (array) preg_split( '/[\s,;]+/', (string) $raw[ $key ] ) ) );
+				if ( count( array_unique( array_map( 'strtolower', $given ) ) ) !== count( (array) $values[ $tab ][ $key ] ) ) {
+					$invalid[] = $tab . '-' . $key;
+				}
+				continue;
+			}
 			if ( in_array( $field['type'], array( 'int', 'enum', 'time', 'email' ), true ) ) {
 				$given = trim( (string) $raw[ $key ] );
 				if ( 'email' === $field['type'] && '' === $given ) {
@@ -665,6 +673,9 @@ final class SettingsPage {
 			case 'email':
 				echo '<input type="email" class="regular-text" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) $value ) . '"' . $dis . $descr . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
+			case 'email_list':
+				echo '<textarea class="regular-text" rows="3" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"' . $dis . $descr . '>' . esc_textarea( implode( "\n", array_map( 'strval', (array) $value ) ) ) . '</textarea>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				break;
 			case 'textarea':
 				echo '<textarea class="large-text" rows="4" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"' . $dis . $descr . '>' . esc_textarea( (string) $value ) . '</textarea>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
@@ -699,6 +710,7 @@ final class SettingsPage {
 	 */
 	private function render_array_field( string $tab, string $key, array $field, array $value, string $name, bool $disabled ): void {
 		$roles   = str_ends_with( $key, '_roles' );
+		// Choice labels come from SettingsFields::choice_label() (falls back to the raw value).
 		$choices = array();
 		if ( $roles ) {
 			foreach ( wp_roles()->role_names as $role => $role_label ) {
@@ -706,7 +718,7 @@ final class SettingsPage {
 			}
 		} else {
 			foreach ( (array) ( $field['choices'] ?? array() ) as $choice ) {
-				$choices[ (string) $choice ] = (string) $choice;
+				$choices[ (string) $choice ] = SettingsFields::choice_label( $tab, $key, (string) $choice );
 			}
 		}
 		$dis = $disabled ? ' disabled="disabled"' : '';

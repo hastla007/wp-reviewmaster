@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace ReviewCaptain\Moderation;
 
 use ReviewCaptain\Install\Schema;
+use ReviewCaptain\Settings\Settings;
 
 /**
  * Stores one row per accepted report: review, reason code, time. No reporter data (no IP, no
@@ -32,6 +33,35 @@ final class ReportStore {
 			'fake'          => __( 'Vermutlich keine echte Erfahrung', 'review-captain' ),
 			'other'         => __( 'Anderer Grund', 'review-captain' ),
 		);
+	}
+
+	/**
+	 * Reasons the public may choose (SET-RC-26): setting submissions.report_reasons, limited to
+	 * the fixed list; filter `review_captain_report_reasons` wins. Never empty (falls back to all).
+	 *
+	 * @param Settings $settings Settings.
+	 * @return list<string>
+	 */
+	public static function enabled_reasons( Settings $settings ): array {
+		$chosen = $settings->get( 'submissions', 'report_reasons', self::REASONS );
+		/**
+		 * Filter the reasons offered in the public report form. Only values of ReportStore::REASONS count.
+		 *
+		 * @param list<string> $reasons Reason codes.
+		 */
+		$chosen  = apply_filters( 'review_captain_report_reasons', is_array( $chosen ) ? $chosen : self::REASONS );
+		$reasons = array_values( array_intersect( self::REASONS, is_array( $chosen ) ? array_map( 'strval', $chosen ) : array() ) );
+		return $reasons ? $reasons : self::REASONS;
+	}
+
+	/**
+	 * Labels of the enabled reasons, in the order of the fixed list.
+	 *
+	 * @param Settings $settings Settings.
+	 * @return array<string, string>
+	 */
+	public static function enabled_reason_labels( Settings $settings ): array {
+		return array_intersect_key( self::reason_labels(), array_flip( self::enabled_reasons( $settings ) ) );
 	}
 
 	/**

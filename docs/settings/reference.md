@@ -69,7 +69,7 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Voraussetzung:** Pro, Recht „Review-Anfragen“, eingerichteter Versandweg.
 
 ### Versandzeitfenster (`send_window_start`, `send_window_end`)
-- **Zweck:** Uhrzeiten, zu denen Einladungen verschickt werden dürfen (Website-Zeit). **Standard:** 09:00–18:00.
+- **Zweck:** Uhrzeiten, zu denen Einladungen verschickt werden dürfen (Website-Zeit). **Standard:** 09:00–18:00. Ende vor Beginn = Fenster über Mitternacht.
 - **Folgen:** Einladungen außerhalb werden auf das nächste Fenster verschoben. Kampagnen dürfen das Fenster nur verkleinern.
 
 ### Tageslimit (`daily_limit`)
@@ -107,11 +107,23 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Standard:** 20 bzw. 5 000 Zeichen; erlaubt 0–1000 bzw. 50–20 000. Wählen Sie den Mindestwert kleiner als den Höchstwert (wird in v1 nicht automatisch geprüft). Abweichungen je Formular sind in v1 nicht vorgesehen.
 
 ### Titelfeld anbieten (`allow_title`)
-- **Standard:** an. Gilt für alle Formulare der Website.
+- **Zweck:** optionales Feld „Titel“ im Formular. **Standard:** an. Gilt für alle Formulare der Website.
 
-### Admin benachrichtigen (`notify_admin`)
-- **Zweck:** E-Mail an die Administrator-Adresse der Website bei neuer Einreichung. **Standard:** an.
-- **Datenschutz:** die E-Mail enthält nur einen Link zur Moderation, keinen Reviewtext und keine Kontaktdaten.
+### Formulartexte (`name_label`, `email_hint`, `submit_label`) – SET-RC-04
+- **Zweck:** Beschriftung des Namensfelds, Hinweis unter dem E-Mail-Feld und Text der Absende-Schaltfläche. **Standard:** leer = heutige Texte („Name (wird veröffentlicht)“, „Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.“, „Bewertung senden“).
+- **Grenzen:** 100 / 300 / 60 Zeichen, reiner Text (HTML wird entfernt). Filter `review_captain_public_text` (ID `submissions.name_label` usw.) gewinnt.
+- **Datenschutz:** Der E-Mail-Hinweis ist ein **Rechtstext – bitte prüfen lassen**.
+
+### Text der Einwilligung (`consent_text`) – SET-RC-04
+- **Zweck:** Text neben dem Kontrollkästchen „Einwilligung zur Veröffentlichung“. **Standard:** leer = heutiger Text („Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. …“).
+- **Platzhalter:** `{privacy_link}` wird zum Link „Datenschutzerklärung“ auf Ihre WordPress-Datenschutzseite (ohne Datenschutzseite: das Wort ohne Link; Filter `review_captain_privacy_policy_url`). Höchstens 2 000 Zeichen, sonst reiner Text.
+- **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen.** Der Standardtext ist ein Entwurf und nicht rechtlich freigegeben.
+
+### Benachrichtigungen (`notify_admin`, `notify_recipients`, `notify_subject`, `notify_body`, `notify_questions`) – SET-RC-09
+- **Zweck:** E-Mail an die Moderation bei neuer Bewertung (`notify_admin`, Standard an), bei neuer Produktfrage (`notify_questions`, Standard an, wirkt nur mit „Produktfragen“) und bei Meldungen (siehe `report_notify`).
+- **Empfänger:** `notify_recipients` – bis zu 10 Adressen, eine je Zeile oder durch Komma getrennt; ungültige Adressen werden verworfen und beim Speichern gemeldet. **Standard:** leer = Administrator-Adresse der Website. Filter `review_captain_notify_recipients` gewinnt.
+- **Betreff/Text (nur Bewertungen):** leer = Standardtext. Platzhalter `{site}` (Website-Name), `{moderation_url}` (Link zur Moderation), `{status}` („wartet auf Moderation“ / „freigegeben“). Betreff höchstens 200, Text höchstens 2 000 Zeichen. Filter `review_captain_notification` kann jede Mail ändern oder unterdrücken.
+- **Datenschutz:** Die Mails enthalten nie den Text der Bewertung oder Frage und keine Kontaktdaten der Verfasser oder Meldenden – auch nicht mit eigenem Text, denn dafür gibt es keinen Platzhalter.
 
 ### Erweiterte Funktionen nach 1.0 (alle standardmäßig aus)
 - **Interne Tags (`tags_enabled`):** Schlagwörter für die Moderation, filterbar, nie öffentlich oder im Export.
@@ -121,12 +133,21 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Produktfragen (`qa_enabled`):** Fragen und Antworten getrennt von Bewertungen, mit Moderation; ohne Schema-Markup.
 - **Feedback-Links und QR-Codes (`feedback_campaigns_enabled`):** Link mit QR-Code (SVG, beschriftet „Feedback geben – Kein Ticket – kein Einlasscode“) und optional ein offizieller WhatsApp-Click-to-Chat-Link (`wa.me`).
 
+### Korrekturen durch Verfasser (`corrections_enabled`)
+- **Zweck:** Wer eine Bewertung abgegeben hat, kann sie über einen Einmal-Link per E-Mail (oder angemeldet) korrigieren oder zurückziehen. **Standard:** aus.
+- **Folgen:** Korrekturen werden erst nach Freigabe sichtbar; die Karte zeigt „bearbeitet am …“. Fristen (Link 1 Stunde, Aufbewahrung 90 Tage) sind in v1 fest.
+
+### Meldungen (`report_reasons`, `report_notify`, `report_confirmation`) – SET-RC-26
+- **Meldegründe:** Auswahl aus der festen Liste Spam/Werbung, beleidigend, personenbezogene Daten, vermutlich keine echte Erfahrung, anderer Grund. **Standard:** alle. Mindestens ein Grund bleibt aktiv; nicht angebotene Gründe werden beim Absenden abgelehnt. Filter `review_captain_report_reasons` gewinnt.
+- **Benachrichtigen:** „Empfänger der Benachrichtigungen“ (Standard) oder „Niemand“. Je angenommener Meldung eine Mail mit Grund und Link zur Liste der gemeldeten Bewertungen; keine Angaben zur meldenden Person.
+- **Rückmeldung an Meldende:** Text nach dem Absenden, höchstens 300 Zeichen. **Standard:** leer = „Danke für Ihre Meldung. Wir prüfen die Bewertung.“
+
 ## Darstellung
 
 Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets können abweichen. Die Quellenangabe externer Bewertungen (Plattformname, Link) wird immer angezeigt und lässt sich nicht abschalten.
 
 ### Sterne, Datum, Autor, Profilbild (`show_stars`, `show_date`, `show_author`, `show_avatar`)
-- **Standard:** Sterne, Datum und Autor an; Profilbild aus.
+- **Standard:** Sterne, Datum und Autor an; Profilbild aus. Das Datum ist das Veröffentlichungsdatum, sonst das Eingangsdatum.
 - **Folgen:** Sterne werden immer zusätzlich als Text („4 von 5 Sternen“) für Screenreader ausgegeben.
 - **Datenschutz:** Autor und Profilbild sind personenbezogen. Profilbilder lokaler Reviews nutzen die WordPress-Avatarfunktion; je nach WordPress-Einstellung wird dabei Gravatar kontaktiert.
 
@@ -143,6 +164,16 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 - **Zweck:** Ob Review Captain strukturierte Daten (schema.org) für eigene, auf dieser Website abgegebene und freigegebene Bewertungen ausgibt.
 - **Standard:** an. **Folgen:** aus = keinerlei Bewertungs-Markup durch Review Captain; die sichtbare Ausgabe bleibt gleich. Externe Bewertungen erhalten unabhängig davon nie Markup.
 - **Datenschutz:** keiner. **Voraussetzung:** keine; mit Yoast SEO wird das Markup in dessen Schema-Graph eingefügt.
+
+### Hinweis „So prüfen wir Bewertungen“ (`verification_notice_show`, `verification_notice`, `verification_notice_position`) – SET-RC-01
+- **Zweck:** aufklappbarer Hinweis (Link „So prüfen wir Bewertungen“) an jedem Bewertungs-Widget und am Bewertungsformular, der erklärt, ob und wie Bewertungen geprüft werden (Transparenzpflicht, z. B. EU-Omnibus-Richtlinie).
+- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten.
+- **Filter:** `review_captain_verification_notice` (`$text`, `$context` = `widget`|`form`, `$levels`) gewinnt; leerer Rückgabewert blendet den Hinweis aus. Pro-Widgets können `Renderer::verification_notice()` nutzen.
+- **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen.** Der Entwurf macht keine rechtlichen Aussagen; beschreiben Sie nur, was Sie tatsächlich prüfen.
+
+### Texte der Prüfstufen (`label_purchase_verified`, `label_attendance_confirmed`, `label_external`, `label_testimonial`, `label_unverified`, `show_unverified_label`) – SET-RC-02
+- **Zweck:** Wortlaut der Kennzeichen an den Bewertungskarten. **Standard:** leer = „Verifizierter Kauf“, „Teilnahme bestätigt“, „Externe Plattformbewertung“, „Erfahrungsbericht dieser Website“, „Ungeprüft“; je höchstens 60 Zeichen. Filter `review_captain_public_text` (ID `display.label_…`) gewinnt.
+- **Folgen:** Nur der Text ist einstellbar. Welche Stufe eine Bewertung hat, setzt allein eine angebundene, vertrauenswürdige Quelle (Kauf/Teilnahme) bzw. der Abgleich (externe Plattform); keine Einstellung ändert die Stufe. „Ungeprüft“ erscheint nur mit `show_unverified_label` (Standard aus).
 
 ### Fotos anzeigen (`show_photos`)
 - **Standard:** aus. An = Fotos freigegebener Bewertungen erscheinen in den Karten. **Datenschutz:** Fotos können Personen zeigen.
@@ -162,7 +193,7 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 - **Standard:** 90 Tage nach Ablehnung (erlaubt 1–3650), dann endgültige Löschung inklusive Verlauf.
 
 ### Protokolle (`retention_logs_days`) und erledigte Hintergrundjobs (`retention_jobs_days`)
-- **Standard:** 90 bzw. 30 Tage, jeweils erlaubt 1–3650. Protokolle enthalten keine Reviewtexte oder Zugangsdaten.
+- **Standard:** 90 bzw. 30 Tage, jeweils erlaubt 1–3650. Danach werden Protokolleinträge bzw. abgeschlossene Hintergrundaufgaben gelöscht. Beide enthalten keine Reviewtexte oder Zugangsdaten.
 
 ### Verhalten bei Löschanfragen (`erase_mode`)
 - **Zweck:** Was das WordPress-Werkzeug „Personenbezogene Daten löschen“ mit Reviews dieser E-Mail-Adresse macht.
