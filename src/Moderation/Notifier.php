@@ -106,6 +106,18 @@ final class Notifier {
 	}
 
 	/**
+	 * Name of the site in plain-text mails: general.brand_name, otherwise the site title. WordPress
+	 * stores the title HTML-escaped ("Müller &amp; Söhne"), so it is decoded for plain text.
+	 *
+	 * @param Settings $settings Settings.
+	 */
+	public static function site_name( Settings $settings ): string {
+		$brand = trim( (string) $settings->get( 'general', 'brand_name', '' ) );
+		$name  = '' !== $brand ? $brand : (string) get_bloginfo( 'name' );
+		return trim( wp_strip_all_tags( wp_specialchars_decode( $name, ENT_QUOTES ) ) );
+	}
+
+	/**
 	 * Subject and body of an event.
 	 *
 	 * @param string               $event   Event.
@@ -113,7 +125,7 @@ final class Notifier {
 	 * @return array{subject: string, body: string}
 	 */
 	public function message( string $event, array $context ): array {
-		$site = wp_strip_all_tags( (string) get_bloginfo( 'name' ) );
+		$site = self::site_name( $this->settings );
 		$url  = (string) ( $context['moderation_url'] ?? admin_url( 'admin.php?page=review-captain' ) );
 
 		if ( self::EVENT_REPORT === $event ) {
