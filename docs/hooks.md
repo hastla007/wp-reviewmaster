@@ -9,21 +9,21 @@ Anzahl: 54 Aufrufstellen, 52 Hooks.
 | Name | Typ | Parameter | Datei:Zeile |
 |---|---|---|---|
 | `review_captain_audit_allowed_keys` | filter | `self::ALLOWED_KEYS` | `src/Audit/AuditLog.php:87` |
-| `review_captain_blocked_email_domains` | filter | `list<string> $domains` – Domains | `src/Frontend/FormHandler.php:431` |
+| `review_captain_blocked_email_domains` | filter | `list<string> $domains` – Domains | `src/Frontend/FormHandler.php:432` |
 | `review_captain_budget_warning` | action | `string $scope` – Scope<br>`int $used` – Used units<br>`int $limit` – Limit | `src/Jobs/Budget.php:89` |
 | `review_captain_connector_runtime_v1` | filter | `bool $enabled` – Default false<br>`string $key` – Connector key | `src/Connectors/Registry.php:223` |
 | `review_captain_connectors_v1` | action | `Registry $registry` – Registry | `src/Connectors/Registry.php:82` |
 | `review_captain_debug_log_line` | filter | `string $line` – Line without personal data | `src/Jobs/Runner.php:424` |
 | `review_captain_diagnostics_sections` | filter | `array()` | `src/Admin/DiagnosticsPage.php:239` |
 | `review_captain_embed_hosts` | filter | `list<string> $hosts` – Hosts | `src/Security/EmbedPolicy.php:46` |
-| `review_captain_form_max_items` | filter | `int $max` – Maximum | `src/Frontend/FormHandler.php:468` |
-| `review_captain_form_min_seconds` | filter | `int $value` – Seconds from the setting | `src/Frontend/FormHandler.php:481` |
+| `review_captain_form_max_items` | filter | `int $max` – Maximum | `src/Frontend/FormHandler.php:484` |
+| `review_captain_form_min_seconds` | filter | `int $value` – Seconds from the setting | `src/Frontend/FormHandler.php:497` |
 | `review_captain_installed` | action | `int $from` – Previous schema version<br>`int $to` – New schema version | `src/Install/Installer.php:115` |
 | `review_captain_instance_confirmed` | action | `bool $is_copy` – Copy | `src/Maintenance/Reconciler.php:230` |
 | `review_captain_loaded` | action | `Plugin $plugin` – Plugin instance | `src/Plugin.php:132` |
 | `review_captain_max_feedback_links` | filter | `int $max` – Maximum | `src/Feedback/CampaignStore.php:53` |
 | `review_captain_max_tags` | filter | `int $max` – Maximum | `src/Moderation/TagStore.php:39` |
-| `review_captain_moderation_url` | filter | `string $url` – URL<br>`Review $review` – Review | `src/Frontend/FormHandler.php:762` |
+| `review_captain_moderation_url` | filter | `string $url` – URL<br>`Review $review` – Review | `src/Frontend/FormHandler.php:778` |
 | `review_captain_moderation_url` | filter | `string $url` – URL (review list filtered to open reports)<br>`\ReviewCaptain\Domain\Review $review` – Reported review | `src/Moderation/ReportHandler.php:114` |
 | `review_captain_notification` | filter | `array{to: list<string>, subject: string, body: string} $mail` – Mail<br>`string $event` – review\|report\|question<br>`array<string, mixed> $context` – Context (no personal data) | `src/Moderation/Notifier.php:101` |
 | `review_captain_notify_recipients` | filter | `list<string> $list` – Addresses<br>`string $event` – review\|report\|question | `src/Moderation/Notifier.php:68` |
@@ -37,8 +37,8 @@ Anzahl: 54 Aufrufstellen, 52 Hooks.
 | `review_captain_reconcile_report` | filter | `array $report` – Report<br>`bool $fix` – Whether fixes may be applied<br>`string $mode` – Mode | `src/Maintenance/Reconciler.php:172` |
 | `review_captain_removed_review_behavior` | filter | `string $value` – 'hide'\|'tombstone' | `src/Providers/SyncService.php:55` |
 | `review_captain_report_reasons` | filter | `list<string> $reasons` – Reason codes | `src/Moderation/ReportStore.php:52` |
-| `review_captain_request_planner_v1` | filter | `RequestPlannerInterface\|null $planner` – Planner (null = none) | `src/Workflow/WorkflowService.php:379` |
-| `review_captain_request_planner_v1` | filter | `null` | `src/Workflow/WorkflowService.php:392` |
+| `review_captain_request_planner_v1` | filter | `RequestPlannerInterface\|null $planner` – Planner (null = none) | `src/Workflow/WorkflowService.php:380` |
+| `review_captain_request_planner_v1` | filter | `null` | `src/Workflow/WorkflowService.php:393` |
 | `review_captain_retention_audit_days` | filter | `int $days` – Days (setting privacy.retention_audit_days, default 365) | `src/Maintenance/Retention.php:63` |
 | `review_captain_review_created_v1` | action | `self::payload( $review )` | `src/Events/Events.php:61` |
 | `review_captain_review_removed_v1` | action | `self::payload( $review, null, 'tombstoned' === $removal ? 'tombstoned' : 'deleted' )` | `src/Events/Events.php:81` |
@@ -55,7 +55,7 @@ Anzahl: 54 Aufrufstellen, 52 Hooks.
 | `review_captain_setup_checklist_detected` | filter | `array<string, bool> $detected` – Detected steps | `src/Admin/SetupChecklist.php:112` |
 | `review_captain_show_pro_info` | filter | `bool $show` – Default: setting general.show_pro_hints (on); the Pro add-on returns false | `src/Admin/DashboardPage.php:173` |
 | `review_captain_side_effect_free_job_prefixes` | filter | `self::SIDE_EFFECT_FREE_PREFIXES` | `src/Jobs/Runner.php:235` |
-| `review_captain_submission_hold_reasons` | filter | `list<string> $reasons` – Reasons found by the settings<br>`Review $review` – Review (not yet stored) | `src/Frontend/FormHandler.php:410` |
+| `review_captain_submission_hold_reasons` | filter | `list<string> $reasons` – Reasons found by the settings<br>`Review $review` – Review (not yet stored) | `src/Frontend/FormHandler.php:411` |
 | `review_captain_sync_initial_status` | filter | `ReviewStatus $status` – Status (pending by default) | `src/Providers/SyncService.php:151` |
 | `review_captain_template` | filter | `string $file` – Absolute path<br>`string $name` – Template name | `src/Frontend/TemplateLoader.php:45` |
 | `review_captain_trusted_proxy_header` | filter | `string $header` – Header from the setting | `src/Security/RateLimiter.php:45` |

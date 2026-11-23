@@ -539,8 +539,8 @@ class Renderer {
 				'submit_label'    => PublicTexts::get( $settings, 'submissions', 'submit_label' ),
 				'verification'    => $this->verification_notice( 'form' ),
 				'privacy_notice'  => (string) $settings->get( 'privacy', 'privacy_notice', '' ),
-				'min_length'      => (int) $settings->get( 'submissions', 'min_text_length', 20 ),
-				'max_length'      => (int) $settings->get( 'submissions', 'max_text_length', 5000 ),
+				'min_length'      => FormHandler::text_limits( $settings )[0],
+				'max_length'      => FormHandler::text_limits( $settings )[1],
 				'success'         => $state['success'],
 				'errors'          => $errors,
 				'values'          => array(

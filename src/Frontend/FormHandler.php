@@ -196,8 +196,9 @@ class FormHandler {
 		$name    = sanitize_text_field( (string) ( $post['rc_name'] ?? '' ) );
 		$email   = sanitize_email( (string) ( $post['rc_email'] ?? '' ) );
 		$consent = ! empty( $post['rc_consent'] );
-		$min     = (int) $settings->get( 'submissions', 'min_text_length', 20 );
-		$max     = (int) $settings->get( 'submissions', 'max_text_length', 5000 );
+		$limits  = self::text_limits( $settings );
+		$min     = $limits[0];
+		$max     = $limits[1];
 		$len     = mb_strlen( $body );
 		$items   = array();
 
@@ -205,7 +206,7 @@ class FormHandler {
 			if ( ! in_array( $rating, array( '1', '2', '3', '4', '5' ), true ) ) {
 				$errors[] = 'rating';
 			}
-			if ( $len < max( 1, $min ) ) {
+			if ( $len < $min ) {
 				$errors[] = 'body_short';
 			} elseif ( $len > $max ) {
 				$errors[] = 'body_long';
@@ -223,7 +224,7 @@ class FormHandler {
 					$errors[] = 'item_rating';
 				}
 				$item_len = mb_strlen( $item_body );
-				if ( $item_len < max( 1, $min ) ) {
+				if ( $item_len < $min ) {
 					$errors[] = 'item_body_short';
 				} elseif ( $item_len > $max ) {
 					$errors[] = 'item_body_long';
@@ -454,6 +455,21 @@ class FormHandler {
 			}
 		}
 		return array_slice( array_values( $out ), 0, self::MAX_LIST_ENTRIES );
+	}
+
+	/**
+	 * Effective text length limits of a review text (form, correction, workflow draft). The text is
+	 * never empty (minimum 1 even with min_text_length 0), and a contradictory stored pair (minimum
+	 * not below the maximum, e.g. from an import or an old backup, which skip the cross-field check)
+	 * never makes every text invalid: the minimum is lowered to the maximum (review P2).
+	 *
+	 * @param \ReviewCaptain\Settings\Settings $settings Settings.
+	 * @return array{0: int, 1: int} Minimum and maximum characters.
+	 */
+	public static function text_limits( $settings ): array {
+		$max = max( 1, (int) $settings->get( 'submissions', 'max_text_length', 5000 ) );
+		$min = max( 1, (int) $settings->get( 'submissions', 'min_text_length', 20 ) );
+		return array( min( $min, $max ), $max );
 	}
 
 	/**

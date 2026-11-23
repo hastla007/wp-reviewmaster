@@ -128,8 +128,9 @@ class CorrectionService {
 		$rating   = isset( $fields['rating_value'] ) ? (float) $fields['rating_value'] : (float) $r->rating_value;
 		$title    = substr( sanitize_text_field( (string) ( $fields['title'] ?? $r->title ) ), 0, 191 );
 		$body     = trim( sanitize_textarea_field( (string) ( $fields['body'] ?? $r->body ) ) );
-		$min      = (int) $settings->get( 'submissions', 'min_text_length', 20 );
-		$max      = (int) $settings->get( 'submissions', 'max_text_length', 5000 );
+		$limits   = \ReviewCaptain\Frontend\FormHandler::text_limits( $settings );
+		$min      = $limits[0];
+		$max      = $limits[1];
 		if ( $rating < 1 || $rating > 5 || fmod( $rating * 2, 1.0 ) !== 0.0 ) {
 			return new \WP_Error( 'rc.form.invalid_input', 'rating' );
 		}
