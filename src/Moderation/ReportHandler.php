@@ -11,6 +11,7 @@ namespace ReviewCaptain\Moderation;
 
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Plugin;
+use ReviewCaptain\Security\PowCaptcha;
 use ReviewCaptain\Security\RateLimiter;
 
 /**
@@ -67,6 +68,11 @@ class ReportHandler {
 		}
 		if ( ! wp_verify_nonce( (string) ( $post[ self::NONCE_FIELD ] ?? '' ), self::NONCE_ACTION ) ) {
 			return $result( false, 'nonce' );
+		}
+		// SET-RC-11: proof-of-work check and external spam checks (neutral error, nothing stored).
+		$spam = PowCaptcha::check( 'report', $post );
+		if ( null !== $spam ) {
+			return $result( false, PowCaptcha::public_code( $spam ) );
 		}
 		$uuid   = strtolower( (string) ( $post['rc_review'] ?? '' ) );
 		$reason = sanitize_key( (string) ( $post['rc_reason'] ?? '' ) );

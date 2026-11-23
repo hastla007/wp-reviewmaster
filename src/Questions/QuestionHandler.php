@@ -14,6 +14,7 @@ use ReviewCaptain\Frontend\Renderer;
 use ReviewCaptain\Frontend\TemplateLoader;
 use ReviewCaptain\Moderation\Notifier;
 use ReviewCaptain\Plugin;
+use ReviewCaptain\Security\PowCaptcha;
 use ReviewCaptain\Security\RateLimiter;
 use ReviewCaptain\Widgets\WidgetDefinition;
 
@@ -99,6 +100,10 @@ class QuestionHandler {
 		if ( null !== $ts ) {
 			return $out( false, array( $ts ) );
 		}
+		$spam = PowCaptcha::check( 'question', $post );
+		if ( null !== $spam ) {
+			return $out( false, array( PowCaptcha::public_code( $spam ) ) );
+		}
 		$type = (string) ( $post['rc_context_type'] ?? '' );
 		$cid  = (string) ( $post['rc_context_id'] ?? '' );
 		if ( '' === $type || '' === $cid || ! FormHandler::verify_context( $type, $cid, (string) ( $post['rc_context_sig'] ?? '' ) ) ) {
@@ -167,7 +172,7 @@ class QuestionHandler {
 			'email'        => __( 'Die E-Mail-Adresse ist ungültig.', 'review-captain' ),
 			'consent'      => __( 'Bitte bestätigen Sie die Einwilligung zur Veröffentlichung.', 'review-captain' ),
 			'save'         => __( 'Ihre Frage konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'review-captain' ),
-		);
+		) + PowCaptcha::messages();
 	}
 
 	/**
@@ -226,6 +231,7 @@ class QuestionHandler {
 				'honeypot_name'   => FormHandler::HONEYPOT_FIELD,
 				'require_consent' => (bool) $settings->get( 'submissions', 'require_consent', true ),
 				'max_length'      => self::MAX_LENGTH,
+				'pow'             => PowCaptcha::field( 'rc-qa' . ( $this->instances > 1 ? '-' . $this->instances : '' ) ),
 			)
 		);
 	}

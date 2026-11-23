@@ -189,6 +189,13 @@ final class SettingsSchema {
 					'choices'  => array( 'none', 'x-forwarded-for', 'x-real-ip', 'cf-connecting-ip' ),
 					'advanced' => true,
 				),
+				// SET-RC-11: spam protection. `pow` = built-in proof-of-work check (no external request,
+				// no cookie, no personal data). External providers only via review_captain_spam_checks_v1.
+				'captcha_provider'           => array(
+					'type'    => 'enum',
+					'default' => 'none',
+					'choices' => array( 'none', 'pow' ),
+				),
 			),
 			'display'     => array(
 				'show_stars'     => array( 'type' => 'bool', 'default' => true ),

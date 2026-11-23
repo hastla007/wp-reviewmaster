@@ -20,6 +20,7 @@ use ReviewCaptain\Moderation\ReportStore;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Security\EmbedPolicy;
+use ReviewCaptain\Security\PowCaptcha;
 use ReviewCaptain\Seo\VisibleReviews;
 use ReviewCaptain\Widgets\WidgetDefinition;
 use ReviewCaptain\Widgets\WidgetRegistry;
@@ -344,6 +345,7 @@ class Renderer {
 				'nonce_action' => ReportHandler::NONCE_ACTION,
 				'nonce_name'   => ReportHandler::NONCE_FIELD,
 				'reasons'      => ReportStore::enabled_reason_labels( $settings ),
+				'pow'          => PowCaptcha::field( 'rc-report-' . $r->uuid ),
 			);
 		}
 
@@ -543,6 +545,7 @@ class Renderer {
 				'max_length'      => (int) $settings->get( 'submissions', 'max_text_length', 5000 ),
 				'success'         => $state['success'],
 				'errors'          => $errors,
+				'pow'             => PowCaptcha::field( 'rc-form-' . $number ),
 				'values'          => array(
 					'rating' => (string) ( $draft['rating'] ?? '' ),
 					'title'  => (string) ( $draft['title'] ?? '' ),

@@ -18,13 +18,14 @@ use ReviewCaptain\Domain\Verification;
 use ReviewCaptain\Media\PhotoStore;
 use ReviewCaptain\Moderation\Notifier;
 use ReviewCaptain\Plugin;
+use ReviewCaptain\Security\PowCaptcha;
 use ReviewCaptain\Widgets\WidgetDefinition;
 
 /**
  * Handles POSTs to admin-post.php?action=review_captain_submit (logged-in and anonymous).
  *
  * Protection: nonce, honeypot, signed render timestamp (min. `submissions.min_seconds`, default
- * 3 s), rate limit per IP hash (wp_hash; the plain IP is never stored), signed context, strict
+ * 3 s), optional proof-of-work check and external spam checks (SET-RC-11, PowCaptcha), rate limit per IP hash (wp_hash; the plain IP is never stored), signed context, strict
  * field validation, blocked e-mail domains. Moderation rules (hold words, links) only ever hold a
  * review for moderation (SET-RC-10); nothing is silently dropped.
  * Result is communicated via redirect back (rc_submitted / rc_error).
@@ -161,6 +162,12 @@ class FormHandler {
 		$ts_error = self::verify_timestamp( (string) ( $post['rc_ts'] ?? '' ) );
 		if ( null !== $ts_error ) {
 			return $fail( array( $ts_error ) );
+		}
+
+		// SET-RC-11: proof-of-work check and external spam checks. Neutral message, nothing stored.
+		$spam = PowCaptcha::check( 'review', $post );
+		if ( null !== $spam ) {
+			return $fail( array( PowCaptcha::public_code( $spam ) ) );
 		}
 
 		$type = (string) ( $post['rc_context_type'] ?? '' );
@@ -597,7 +604,7 @@ class FormHandler {
 			'photo_type'        => PhotoStore::message( 'photo_type' ),
 			'photo_invalid'     => PhotoStore::message( 'photo_invalid' ),
 			'photo_unsupported' => PhotoStore::message( 'photo_unsupported' ),
-		);
+		) + PowCaptcha::messages();
 	}
 
 	/**
