@@ -9,6 +9,7 @@ namespace ReviewCaptain\Tests\Unit\Frontend;
 
 use ReviewCaptain\Domain\ReviewStatus;
 use ReviewCaptain\Frontend\FormHandler;
+use ReviewCaptain\Frontend\PublicTexts;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\RateLimiter;
 
@@ -84,6 +85,27 @@ final class ModerationRulesTest extends FrontendTestCase {
 
 		$part = $this->handler()->process( $this->post( array( 'rc_body' => 'Betrugsverdacht hatte ich nicht, alles bestens gelaufen.' ) ) );
 		$this->assertSame( ReviewStatus::APPROVED, $part['review']->status, 'whole words only' );
+	}
+
+	public function test_consent_text_version_is_recorded_and_archived(): void {
+		$first   = $this->handler()->process( $this->post() );
+		$archive = get_option( PublicTexts::CONSENT_ARCHIVE_OPTION, array() );
+		$this->assertCount( 1, $archive );
+		$version = (string) array_key_first( $archive );
+		$this->assertMatchesRegularExpression( '/^[a-f0-9]{16}$/', $version );
+		$this->assertSame( PublicTexts::defaults()['submissions.consent_text'], $archive[ $version ]['text'], 'the text the author saw' );
+		$this->assertContains( 'consent_recorded:consent_text:' . $version, $this->history( (int) $first['review']->id ) );
+
+		$this->settings( array( 'submissions' => array( 'consent_text' => 'Neuer Einwilligungstext {privacy_link}.' ) ) );
+		$second  = $this->handler()->process( $this->post( array( 'rc_email' => 'dora@example.test' ) ) );
+		$archive = get_option( PublicTexts::CONSENT_ARCHIVE_OPTION, array() );
+		$this->assertCount( 2, $archive, 'the earlier version stays archived' );
+		$this->assertArrayHasKey( $version, $archive );
+		$this->assertNotContains( 'consent_recorded:consent_text:' . $version, $this->history( (int) $second['review']->id ) );
+
+		$this->settings( array( 'submissions' => array( 'require_consent' => false ) ) );
+		$none = $this->handler()->process( $this->post( array( 'rc_email' => 'emil@example.test', 'rc_consent' => '' ) ) );
+		$this->assertSame( array(), array_filter( $this->history( (int) $none['review']->id ), static fn( string $e ): bool => str_starts_with( $e, 'consent_recorded' ) ), 'no consent, no record' );
 	}
 
 	public function test_hold_links(): void {

@@ -118,6 +118,15 @@ final class RendererTest extends FrontendTestCase {
 		$this->assertSame( 2, substr_count( $out, 'rc-summary__item' ), 'no combined score row' );
 	}
 
+	public function test_summary_ignores_min_rating_filter(): void {
+		$this->review( array( 'rating_value' => 5.0 ) );
+		$this->review( array( 'rating_value' => 5.0 ) );
+		$this->review( array( 'rating_value' => 2.0 ) );
+		$out = $this->shortcode( array( 'min_rating' => '4' ) );
+		$this->assertSame( 2, substr_count( $out, '<article' ), 'the filter narrows the cards' );
+		$this->assertStringContainsString( 'Diese Website: 4 von 5 (3 Bewertungen)', $out, 'average over all approved reviews, not over the filtered ones' );
+	}
+
 	public function test_accessible_stars_on_original_scale(): void {
 		$this->review( array( 'rating_value' => 4.0 ) );
 		$out = $this->shortcode();

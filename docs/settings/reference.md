@@ -146,6 +146,7 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Zweck:** Text neben dem Kontrollkästchen „Einwilligung zur Veröffentlichung“. **Standard:** leer = heutiger Text („Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. …“).
 - **Platzhalter:** `{privacy_link}` wird zum Link „Datenschutzerklärung“ auf Ihre WordPress-Datenschutzseite (ohne Datenschutzseite: das Wort ohne Link; Filter `review_captain_privacy_policy_url`). Höchstens 2 000 Zeichen, sonst reiner Text.
 - **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen.** Der Standardtext ist ein Entwurf und nicht rechtlich freigegeben.
+- **Nachweis (Prüfphase SET-RC-P3):** Jede Einreichung mit Einwilligung bekommt im Verlauf der Bewertung den Eintrag `consent_recorded` mit der Fassung `consent_text:<16 Hex-Zeichen>` (Hash aus wirksamem Text und Datenschutz-Link). Der Wortlaut jeder Fassung wird einmalig in der Option `review_captain_consent_texts` abgelegt (mit erstem Verwendungszeitpunkt, UTC; nicht autoload; wird bei „Daten löschen“ mit entfernt). So bleibt nach einer Textänderung nachvollziehbar, welcher Wortlaut gezeigt wurde. Wie lange das Archiv aufbewahrt werden muss, *wartet auf* Rechtsprüfung.
 
 ### Benachrichtigungen (`notify_admin`, `notify_recipients`, `notify_subject`, `notify_body`, `notify_questions`) – SET-RC-09
 - **Zweck:** E-Mail an die Moderation bei neuer Bewertung (`notify_admin`, Standard an), bei neuer Produktfrage (`notify_questions`, Standard an, wirkt nur mit „Produktfragen“) und bei Meldungen (siehe `report_notify`).
@@ -209,9 +210,9 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 - **Diagnose:** „Einstellungen → SEO & Yoast“ nennt eingeschränkte Inhaltstypen, die Mindestzahl und warum ggf. nichts ausgegeben wird (Gründe `context_disabled`, `below_minimum`).
 - **Datenschutz:** keiner. **Voraussetzung:** keine; mit Yoast SEO wird das Markup in dessen Schema-Graph eingefügt.
 
-### Hinweis „So prüfen wir Bewertungen“ (`verification_notice_show`, `verification_notice`, `verification_notice_position`) – SET-RC-01
+### Hinweis „So prüfen wir Bewertungen“ (`verification_notice_show`, `verification_notice_title`, `verification_notice`, `verification_notice_position`) – SET-RC-01
 - **Zweck:** aufklappbarer Hinweis (Link „So prüfen wir Bewertungen“) an jedem Bewertungs-Widget und am Bewertungsformular, der erklärt, ob und wie Bewertungen geprüft werden (Transparenzpflicht, z. B. EU-Omnibus-Richtlinie).
-- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten.
+- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten. Die Überschrift (Text des aufklappbaren Links) ist mit `verification_notice_title` einstellbar (höchstens 80 Zeichen, leer = „So prüfen wir Bewertungen“; Filter `review_captain_public_text` mit ID `display.verification_notice_title`).
 - **Filter:** `review_captain_verification_notice` (`$text`, `$context` = `widget`|`form`, `$levels`) gewinnt; leerer Rückgabewert blendet den Hinweis aus. Pro-Widgets können `Renderer::verification_notice()` nutzen.
 - **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen.** Der Entwurf macht keine rechtlichen Aussagen; beschreiben Sie nur, was Sie tatsächlich prüfen.
 

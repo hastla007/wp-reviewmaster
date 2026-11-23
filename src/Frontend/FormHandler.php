@@ -298,6 +298,7 @@ class FormHandler {
 			: $items;
 		$saved      = array();
 		$duplicates = 0;
+		$consent_v  = $consent ? PublicTexts::consent_version( $settings ) : '';
 		foreach ( $targets as $target_id => $item ) {
 			$target_id = (string) $target_id;
 			$review    = $this->build_review( $settings, $item['rating'], $title, $item['body'], $name, $email, $consent, $type, $target_id );
@@ -312,6 +313,9 @@ class FormHandler {
 				$inserted = $this->plugin->reviews()->insert( $review );
 				if ( $hold && null !== $inserted->id ) {
 					$this->plugin->reviews()->record_hold( $inserted->id, $hold );
+				}
+				if ( '' !== $consent_v && null !== $inserted->id ) {
+					$this->plugin->reviews()->record_consent( $inserted->id, $consent_v );
 				}
 				$saved[] = $inserted;
 			} catch ( \Throwable $e ) {

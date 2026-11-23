@@ -219,6 +219,12 @@ final class SettingsSchema {
 					'type'    => 'bool',
 					'default' => true,
 				),
+				// P3: heading of the disclosure; empty = "So prüfen wir Bewertungen".
+				'verification_notice_title' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 80,
+				),
 				'verification_notice' => array(
 					'type'       => 'textarea',
 					'default'    => '',

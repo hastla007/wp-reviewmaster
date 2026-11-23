@@ -172,6 +172,7 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `load_css` | bool (erweitert) | `true` | bool | site | P0 | — |
 | `show_photos` | bool | `false` | bool | site | P2 | — |
 | `verification_notice_show` | bool | `true` | bool | site | P0 | — |
+| `verification_notice_title` | string | `''` (= „So prüfen wir Bewertungen“) | `max_length` 80 | site | P0 | — |
 | `verification_notice` | textarea | `''` (= neutraler Entwurf je vorkommender Prüfstufe) | `max_length` 3000 | site | P0 | — |
 | `verification_notice_position` | enum `below`\|`above` | `below` | Enum | site | P0 | — |
 | `label_purchase_verified` | string | `''` (= „Verifizierter Kauf“) | `max_length` 60 | site | P0 | — |

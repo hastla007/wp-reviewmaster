@@ -229,7 +229,7 @@ class Renderer {
 			'html'     => '' === $text ? '' : TemplateLoader::render(
 				'verification-notice.php',
 				array(
-					'title' => __( 'So prüfen wir Bewertungen', 'review-captain' ),
+					'title' => PublicTexts::get( $settings, 'display', 'verification_notice_title' ),
 					'html'  => wpautop( esc_html( $text ) ),
 				)
 			),
@@ -435,7 +435,9 @@ class Renderer {
 	 */
 	public function summary( WidgetDefinition $d ): array {
 		$args = $d->query_args();
-		unset( $args['limit'], $args['orderby'], $args['order'] );
+		// P3: the average is never computed over a star-filtered selection (min_rating only narrows the
+		// cards shown); a filtered average would overstate the rating (SET-RC-03, transparency).
+		unset( $args['limit'], $args['orderby'], $args['order'], $args['min_normalized'] );
 		$args['kind'] = 'review';
 		$out          = array();
 		foreach ( $this->plugin->reviews()->summary_by_platform( $args ) as $row ) {

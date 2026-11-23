@@ -40,6 +40,8 @@ Stand: `1.1.0`.
 
 Neue Felder in einem Payload sind additiv und optional: Empfänger müssen unbekannte Schlüssel ignorieren (siehe [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md), Ergänzung vom 23.11.2026).
 
+**Verwendungsregel für `rating_value` (Prüfphase SET-RC-P3, 23.11.2026):** Empfänger dürfen die Höhe einer Bewertung nicht nutzen, um Vorteile (Gutschein, Punkte, Provision, Rabatt), weitere Einladungen oder die Sichtbarkeit einer Bewertung davon abhängig zu machen, wie gut sie ausfällt (kein Review-Gating, vgl. [`rc-014`](../m0/rc-014-datenschutz-kommunikation.md), [`invitation-rule.md`](invitation-rule.md) Regel 3). Zulässig sind Auswertungen und Anzeigen, die alle Bewertungen gleich behandeln. Ob und wie ein Vorteil für eine Bewertung überhaupt gewährt und gekennzeichnet werden darf, ist eine Rechtsfrage (Kennzeichen „gegen Vorteil erhalten“, SET-RC-12) und *wartet auf* Rechtsprüfung.
+
  Ein Test (`tests/Unit/Support/ContractVersionTest.php`) prüft Format und Übereinstimmung der Hauptversion mit `WorkflowService::CONTRACT`. Adapter (z. B. Workflow Captain Pro) melden sich nur bei Hauptversion 1 an.
 
 ## Lesereihenfolge für Implementierung
