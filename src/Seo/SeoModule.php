@@ -47,6 +47,11 @@ final class SeoModule implements Module {
 	private bool $primed = false;
 
 	/**
+	 * Outcome of the last eligible_reviews() call (diagnostics).
+	 */
+	private string $last_reason = '';
+
+	/**
 	 * Register hooks.
 	 *
 	 * @param Plugin $plugin Plugin.
@@ -94,14 +99,48 @@ final class SeoModule implements Module {
 	 * @return list<Review>
 	 */
 	public function eligible_reviews(): array {
-		$ctx = array(
+		$settings = $this->plugin->settings();
+		$ctx      = array(
 			'visible'     => $this->visible,
 			'environment' => $this->environment(),
 			'enabled'     => $this->markup_enabled(),
 			// Only the item of a single page may receive review markup (QA F-09).
 			'main_object_id' => function_exists( 'is_singular' ) && is_singular() ? (string) get_queried_object_id() : '',
+			// SET-RC-23: context types switched on in the settings.
+			'contexts'    => SchemaEligibility::enabled_contexts( $settings->get( 'display', 'schema_contexts', SchemaEligibility::ELIGIBLE_CONTEXTS ) ),
 		);
-		return array_values( array_filter( $this->visible->reviews(), static fn( Review $r ): bool => SchemaEligibility::is_eligible( $r, $ctx ) ) );
+		$eligible = array_values( array_filter( $this->visible->reviews(), static fn( Review $r ): bool => SchemaEligibility::is_eligible( $r, $ctx ) ) );
+		// SET-RC-23: no markup below the minimum number of eligible reviews on the page.
+		if ( $eligible && count( $eligible ) < self::min_reviews( $settings ) ) {
+			$this->last_reason = 'below_minimum';
+			return array();
+		}
+		$this->last_reason = $eligible ? 'eligible' : '';
+		return $eligible;
+	}
+
+	/**
+	 * Reason key of the last eligible_reviews() call when the minimum blocked the output
+	 * ('below_minimum'), 'eligible', or '' (nothing eligible; see SchemaEligibility per review).
+	 */
+	public function last_reason(): string {
+		return $this->last_reason;
+	}
+
+	/**
+	 * Minimum number of eligible reviews before markup is output (display.schema_min_reviews,
+	 * 1–50; the filter `review_captain_schema_min_reviews` wins).
+	 *
+	 * @param \ReviewCaptain\Settings\Settings $settings Settings.
+	 */
+	public static function min_reviews( $settings ): int {
+		$min = (int) $settings->get( 'display', 'schema_min_reviews', 1 );
+		/**
+		 * Minimum number of eligible reviews on a page before review markup is output.
+		 *
+		 * @param int $min Minimum from the setting.
+		 */
+		return max( 1, min( 50, (int) apply_filters( 'review_captain_schema_min_reviews', $min ) ) );
 	}
 
 	/**

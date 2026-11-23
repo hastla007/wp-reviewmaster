@@ -157,6 +157,12 @@ final class WidgetDefinition {
 		$t       = isset( $raw['type'] ) && '' !== $raw['type'] ? sanitize_key( $raw['type'] ) : $type;
 		$d->type = '' !== $t ? $t : $type;
 
+		// SET-RC-28: global defaults from the settings for attributes the embed does not set.
+		$g                = self::global_defaults();
+		$d->layout        = $g['layout'];
+		$d->new_tab       = $g['new_tab'];
+		$d->heading_level = $g['heading_level'];
+
 		if ( isset( $raw['layout'] ) && '' !== $raw['layout'] ) {
 			if ( in_array( $raw['layout'], array( 'grid', 'list' ), true ) ) {
 				$d->layout = $raw['layout'];
@@ -165,7 +171,7 @@ final class WidgetDefinition {
 			}
 		}
 
-		$d->columns = self::int_in_range( $raw['columns'] ?? '', 1, 4, 3, 'columns', $d );
+		$d->columns = self::int_in_range( $raw['columns'] ?? '', 1, 4, $g['columns'], 'columns', $d );
 
 		if ( isset( $raw['platform'] ) && '' !== $raw['platform'] ) {
 			foreach ( array_filter( array_map( 'trim', explode( ',', strtolower( $raw['platform'] ) ) ) ) as $p ) {
@@ -195,7 +201,7 @@ final class WidgetDefinition {
 			}
 		}
 
-		$d->limit = self::int_in_range( $raw['limit'] ?? '', 1, self::MAX_LIMIT, self::DEFAULT_LIMIT, 'limit', $d );
+		$d->limit = self::int_in_range( $raw['limit'] ?? '', 1, self::MAX_LIMIT, $g['limit'], 'limit', $d );
 
 		if ( isset( $raw['context_type'] ) && '' !== $raw['context_type'] ) {
 			if ( in_array( $raw['context_type'], self::CONTEXT_TYPES, true ) ) {
@@ -227,9 +233,9 @@ final class WidgetDefinition {
 		$d->show_author  = self::bool_or_null( $raw['show_author'] ?? '' );
 		$d->show_summary = self::bool_or_null( $raw['show_summary'] ?? '' ) ?? true;
 		$d->paginate     = self::bool_or_null( $raw['paginate'] ?? '' ) ?? false;
-		$d->new_tab      = self::bool_or_null( $raw['new_tab'] ?? '' ) ?? false;
+		$d->new_tab      = self::bool_or_null( $raw['new_tab'] ?? '' ) ?? $g['new_tab'];
 
-		$d->heading_level = self::int_in_range( $raw['heading_level'] ?? '', 2, 6, 2, 'heading_level', $d );
+		$d->heading_level = self::int_in_range( $raw['heading_level'] ?? '', 2, 6, $g['heading_level'], 'heading_level', $d );
 
 		if ( isset( $raw['profile'] ) && '' !== $raw['profile'] ) {
 			if ( ctype_digit( $raw['profile'] ) && (int) $raw['profile'] > 0 ) {
@@ -240,6 +246,37 @@ final class WidgetDefinition {
 		}
 
 		return $d;
+	}
+
+	/**
+	 * Global widget defaults (SET-RC-28): settings display.widget_* , then the filter
+	 * `review_captain_widget_defaults` (wins), each value clamped to the attribute's valid range.
+	 *
+	 * @return array{limit: int, layout: string, columns: int, heading_level: int, new_tab: bool}
+	 */
+	public static function global_defaults(): array {
+		$settings = \ReviewCaptain\Plugin::instance()->settings();
+		$values   = array(
+			'limit'         => (int) $settings->get( 'display', 'widget_limit', self::DEFAULT_LIMIT ),
+			'layout'        => (string) $settings->get( 'display', 'widget_layout', 'grid' ),
+			'columns'       => (int) $settings->get( 'display', 'widget_columns', 3 ),
+			'heading_level' => (int) $settings->get( 'display', 'widget_heading_level', 2 ),
+			'new_tab'       => (bool) $settings->get( 'display', 'widget_new_tab', false ),
+		);
+		/**
+		 * Global defaults for widgets, blocks and shortcodes without their own value.
+		 *
+		 * @param array $values limit, layout, columns, heading_level, new_tab.
+		 */
+		$filtered = apply_filters( 'review_captain_widget_defaults', $values );
+		$values   = is_array( $filtered ) ? $filtered + $values : $values;
+		return array(
+			'limit'         => max( 1, min( self::MAX_LIMIT, (int) $values['limit'] ) ),
+			'layout'        => in_array( $values['layout'], array( 'grid', 'list' ), true ) ? (string) $values['layout'] : 'grid',
+			'columns'       => max( 1, min( 4, (int) $values['columns'] ) ),
+			'heading_level' => max( 2, min( 6, (int) $values['heading_level'] ) ),
+			'new_tab'       => (bool) $values['new_tab'],
+		);
 	}
 
 	/**

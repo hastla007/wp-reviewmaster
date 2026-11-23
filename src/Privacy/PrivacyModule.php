@@ -93,6 +93,12 @@ final class PrivacyModule implements Module {
 			'<p>' . __( 'Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird erst nach Prüfung angezeigt und mit der Bewertung gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person.', 'review-captain' ) . '</p>',
 			'<p>' . __( 'Abgelehnte Einreichungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht.', 'review-captain' ) . '</p>',
 		);
+		// SET-RC-08: only when the operator set a retention period for the contact address.
+		$contact_days = (int) \ReviewCaptain\Plugin::instance()->settings()->get( 'privacy', 'retention_contact_days', 0 );
+		if ( $contact_days > 0 ) {
+			/* translators: %s: number of days */
+			$parts[] = '<p>' . sprintf( __( 'Die E-Mail-Adresse zu einer Bewertung löschen wir %s Tage nach Eingang der Bewertung; die Bewertung selbst bleibt erhalten.', 'review-captain' ), number_format_i18n( $contact_days ) ) . '</p>';
+		}
 		return implode( "\n", $parts );
 	}
 }

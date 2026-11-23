@@ -23,8 +23,10 @@ use ReviewCaptain\Widgets\WidgetDefinition;
 /**
  * Handles POSTs to admin-post.php?action=review_captain_submit (logged-in and anonymous).
  *
- * Protection: nonce, honeypot, signed render timestamp (min. 3 s), rate limit per IP hash
- * (wp_hash; the plain IP is never stored), signed context, strict field validation.
+ * Protection: nonce, honeypot, signed render timestamp (min. `submissions.min_seconds`, default
+ * 3 s), rate limit per IP hash (wp_hash; the plain IP is never stored), signed context, strict
+ * field validation, blocked e-mail domains. Moderation rules (hold words, links) only ever hold a
+ * review for moderation (SET-RC-10); nothing is silently dropped.
  * Result is communicated via redirect back (rc_submitted / rc_error).
  */
 class FormHandler {
@@ -43,9 +45,20 @@ class FormHandler {
 	public const DRAFT_TTL = 10 * MINUTE_IN_SECONDS;
 
 	/**
-	 * Maximum number of contexts in a multi-product form (RC-123).
+	 * Maximum number of contexts in a multi-product form (RC-123). Default; raisable with the
+	 * filter `review_captain_form_max_items` up to MAX_ITEMS_LIMIT (SET-RC-31).
 	 */
 	public const MAX_ITEMS = 20;
+
+	/**
+	 * Upper bound for `review_captain_form_max_items`.
+	 */
+	public const MAX_ITEMS_LIMIT = 50;
+
+	/**
+	 * Upper bound for entries of a moderation list setting (hold words, blocked domains).
+	 */
+	public const MAX_LIST_ENTRIES = 500;
 
 	/**
 	 * Plugin.
@@ -232,6 +245,8 @@ class FormHandler {
 		}
 		if ( '' === $email || ! is_email( $email ) || strlen( $email ) > 191 ) {
 			$errors[] = 'email';
+		} elseif ( self::email_domain_blocked( $email, self::list_setting( (string) $settings->get( 'submissions', 'block_email_domains', '' ) ) ) ) {
+			$errors[] = 'email_blocked';
 		}
 		if ( $settings->get( 'submissions', 'require_consent', true ) && ! $consent ) {
 			$errors[] = 'consent';
@@ -282,8 +297,16 @@ class FormHandler {
 			if ( $unique && '' !== $target_id ) {
 				$review->submission_key = self::submission_key( $email, $type, $target_id );
 			}
+			$hold = self::hold_reasons( $review, $settings );
+			if ( $hold ) {
+				$review->status = ReviewStatus::PENDING; // Moderation rules only hold, never drop (SET-RC-10).
+			}
 			try {
-				$saved[] = $this->plugin->reviews()->insert( $review );
+				$inserted = $this->plugin->reviews()->insert( $review );
+				if ( $hold && null !== $inserted->id ) {
+					$this->plugin->reviews()->record_hold( $inserted->id, $hold );
+				}
+				$saved[] = $inserted;
 			} catch ( \Throwable $e ) {
 				if ( null !== $review->submission_key && null !== $this->plugin->reviews()->find_by_submission_key( $review->submission_key ) ) {
 					++$duplicates; // UNIQUE submission_key: this person already rated this context.
@@ -347,6 +370,108 @@ class FormHandler {
 	}
 
 	/**
+	 * Moderation rules that hold this review (SET-RC-10): `hold_words` (whole words or phrases,
+	 * case-insensitive, in title, text or name) and `hold_links` (http(s):// or www.). Returns rule
+	 * codes only – never the matched content.
+	 *
+	 * @param Review                           $review   Review about to be stored.
+	 * @param \ReviewCaptain\Settings\Settings $settings Settings.
+	 * @return list<string>
+	 */
+	public static function hold_reasons( Review $review, $settings ): array {
+		$text    = $review->title . "\n" . $review->body . "\n" . $review->author_name;
+		$reasons = array();
+		foreach ( self::list_setting( (string) $settings->get( 'submissions', 'hold_words', '' ) ) as $word ) {
+			if ( preg_match( '/(?<![\p{L}\p{N}])' . preg_quote( $word, '/' ) . '(?![\p{L}\p{N}])/iu', $text ) ) {
+				$reasons[] = 'hold_words';
+				break;
+			}
+		}
+		if ( $settings->get( 'submissions', 'hold_links', false ) && preg_match( '#(?:https?://|\bwww\.)\S#i', $text ) ) {
+			$reasons[] = 'hold_links';
+		}
+		/**
+		 * Reasons to hold a new submission for moderation (codes, no content). Returning a
+		 * non-empty list holds the review (status pending); an empty list releases it.
+		 *
+		 * @param list<string> $reasons Reasons found by the settings.
+		 * @param Review       $review  Review (not yet stored).
+		 */
+		$filtered = apply_filters( 'review_captain_submission_hold_reasons', $reasons, $review );
+		return is_array( $filtered ) ? array_values( array_filter( array_map( 'sanitize_key', array_filter( $filtered, 'is_string' ) ) ) ) : $reasons;
+	}
+
+	/**
+	 * Whether the e-mail domain (or a parent domain) is on the block list.
+	 *
+	 * @param string       $email   E-mail.
+	 * @param list<string> $domains Blocked domains (lower case).
+	 */
+	public static function email_domain_blocked( string $email, array $domains ): bool {
+		$at = strrpos( $email, '@' );
+		if ( false === $at ) {
+			return false;
+		}
+		$domain = strtolower( rtrim( substr( $email, $at + 1 ), '.' ) );
+		/**
+		 * Blocked e-mail domains for submissions (filter wins over the setting).
+		 *
+		 * @param list<string> $domains Domains.
+		 */
+		$domains = (array) apply_filters( 'review_captain_blocked_email_domains', $domains );
+		foreach ( $domains as $blocked ) {
+			$blocked = ltrim( strtolower( trim( (string) $blocked ) ), '@.' );
+			if ( '' !== $blocked && ( $domain === $blocked || str_ends_with( $domain, '.' . $blocked ) ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Parse a list setting (one entry per line or comma separated): trimmed, lower case, unique.
+	 *
+	 * @param string $raw Raw setting.
+	 * @return list<string>
+	 */
+	public static function list_setting( string $raw ): array {
+		$out = array();
+		$parts = preg_split( '/[\r\n,]+/', $raw );
+		foreach ( false === $parts ? array() : $parts as $entry ) {
+			$entry = mb_strtolower( trim( $entry ) );
+			if ( '' !== $entry ) {
+				$out[ $entry ] = $entry;
+			}
+		}
+		return array_slice( array_values( $out ), 0, self::MAX_LIST_ENTRIES );
+	}
+
+	/**
+	 * Effective maximum of contexts per multi-product form (SET-RC-31).
+	 */
+	public static function max_items(): int {
+		/**
+		 * Maximum number of products in one multi-product form (1–50, default 20).
+		 *
+		 * @param int $max Maximum.
+		 */
+		return max( 1, min( self::MAX_ITEMS_LIMIT, (int) apply_filters( 'review_captain_form_max_items', self::MAX_ITEMS ) ) );
+	}
+
+	/**
+	 * Effective minimum fill-in time in seconds (SET-RC-10; filter wins).
+	 */
+	public static function min_seconds(): int {
+		$value = (int) Plugin::instance()->settings()->get( 'submissions', 'min_seconds', self::MIN_SECONDS );
+		/**
+		 * Minimum seconds between rendering and submitting the form (0–120).
+		 *
+		 * @param int $value Seconds from the setting.
+		 */
+		return max( 0, min( 120, (int) apply_filters( 'review_captain_form_min_seconds', $value ) ) );
+	}
+
+	/**
 	 * Uniqueness key author + context (HMAC; the e-mail itself is not derivable from it).
 	 *
 	 * @param string $email E-mail.
@@ -381,7 +506,7 @@ class FormHandler {
 				$ids[ $id ] = $id;
 			}
 		}
-		return array_slice( array_values( $ids ), 0, self::MAX_ITEMS );
+		return array_slice( array_values( $ids ), 0, self::max_items() );
 	}
 
 	/**
@@ -459,6 +584,7 @@ class FormHandler {
 			'body_long'    => __( 'Der Bewertungstext ist zu lang.', 'review-captain' ),
 			'name'         => __( 'Bitte geben Sie Ihren Namen an (höchstens 100 Zeichen).', 'review-captain' ),
 			'email'        => __( 'Bitte geben Sie eine gültige E-Mail-Adresse an.', 'review-captain' ),
+			'email_blocked' => __( 'Mit dieser E-Mail-Adresse kann keine Bewertung abgegeben werden. Bitte verwenden Sie eine andere Adresse.', 'review-captain' ),
 			'consent'      => __( 'Bitte bestätigen Sie die Einwilligung zur Veröffentlichung.', 'review-captain' ),
 			'save'         => __( 'Ihre Bewertung konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut.', 'review-captain' ),
 			'duplicate'       => __( 'Sie haben dieses Produkt bereits bewertet.', 'review-captain' ),
@@ -502,7 +628,7 @@ class FormHandler {
 			return 'expired';
 		}
 		$age = time() - (int) $m[1];
-		if ( $age < self::MIN_SECONDS ) {
+		if ( $age < self::min_seconds() ) {
 			return 'too_fast';
 		}
 		return $age > self::MAX_AGE ? 'expired' : null;
@@ -542,8 +668,7 @@ class FormHandler {
 	 * Rate-limit key from the hashed IP (never the plain IP).
 	 */
 	public static function rate_key(): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
-		return 'review_captain_rl_' . substr( wp_hash( 'rc_ip|' . self::rate_subject( $ip ), 'nonce' ), 0, 24 );
+		return 'review_captain_rl_' . substr( wp_hash( 'rc_ip|' . self::rate_subject( \ReviewCaptain\Security\RateLimiter::client_ip() ), 'nonce' ), 0, 24 );
 	}
 
 	/**

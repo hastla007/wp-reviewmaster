@@ -21,16 +21,39 @@ use ReviewCaptain\Repository\ReviewRepository;
 /**
  * Idempotent upsert via dedupe_key plus tombstones for removed external IDs.
  * Moderation status of existing records is preserved (ReviewRepository::upsert_external).
+ *
+ * Removed at the source (`sources.removed_review_behavior`, SET-RC-05): the review always gets
+ * status `removed` (never shown again). With `tombstone` (default) its content (title, text,
+ * author name, rating, avatar/reply meta, photo) is scrubbed at once, so only a placeholder with
+ * the dedupe key remains; with `hide` the content stays until `privacy.retention_external_days`.
  */
 class SyncService {
+
+	public const REMOVED_BEHAVIORS = array( 'hide', 'tombstone' );
 
 	/**
 	 * Constructor.
 	 *
-	 * @param ReviewRepository $reviews     Repository.
-	 * @param int              $ttl_seconds Max. display time without refresh (refresh_due_at).
+	 * @param ReviewRepository $reviews          Repository.
+	 * @param int              $ttl_seconds      Max. display time without refresh (refresh_due_at).
+	 * @param string|null      $removed_behavior 'hide'|'tombstone'; null = setting sources.removed_review_behavior.
 	 */
-	public function __construct( private ReviewRepository $reviews, private int $ttl_seconds = DAY_IN_SECONDS ) {}
+	public function __construct( private ReviewRepository $reviews, private int $ttl_seconds = DAY_IN_SECONDS, private ?string $removed_behavior = null ) {}
+
+	/**
+	 * Effective behaviour for reviews removed at the source. The filter may only tighten
+	 * (`hide` → `tombstone`, e.g. a provider that demands deletion), never loosen.
+	 */
+	public function removed_behavior(): string {
+		$value = $this->removed_behavior ?? (string) \ReviewCaptain\Plugin::instance()->settings()->get( 'sources', 'removed_review_behavior', 'tombstone' );
+		$value = in_array( $value, self::REMOVED_BEHAVIORS, true ) ? $value : 'tombstone';
+		/**
+		 * Behaviour for reviews removed at the source. Only 'tombstone' can be forced.
+		 *
+		 * @param string $value 'hide'|'tombstone'.
+		 */
+		return 'tombstone' === apply_filters( 'review_captain_removed_review_behavior', $value ) ? 'tombstone' : $value;
+	}
 
 	/**
 	 * Apply one page.
@@ -74,6 +97,7 @@ class SyncService {
 		}
 
 		if ( $page->removed_external_ids ) {
+			$scrub      = 'tombstone' === $this->removed_behavior();
 			$candidates = $this->platforms_for( $profile_id, $platforms );
 			foreach ( $page->removed_external_ids as $external_id ) {
 				foreach ( $candidates as $platform ) {
@@ -84,6 +108,9 @@ class SyncService {
 					}
 					if ( ReviewStatus::REMOVED !== $existing->status && $this->reviews->change_status( $existing->id, ReviewStatus::REMOVED, 'remote_removed', true ) ) {
 						++$result['removed'];
+						if ( $scrub ) {
+							$this->reviews->scrub_removed( $existing->id, 'remote_removed' );
+						}
 					}
 					break;
 				}

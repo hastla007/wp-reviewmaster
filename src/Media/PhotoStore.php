@@ -19,7 +19,8 @@ use ReviewCaptain\Security\Capabilities;
  *
  * - Accepted: JPEG, PNG, WebP (detected from the file content, not the name), size limit from
  *   `submissions.photo_max_kb`, at most 40 megapixels.
- * - Every photo is decoded and re-encoded with GD (max. 1600 px edge). This removes EXIF/XMP
+ * - Every photo is decoded and re-encoded with GD (longest edge `submissions.photo_max_edge`,
+ *   default 1600 px, 400–4000; SET-RC-27). This removes EXIF/XMP
  *   metadata such as GPS position and camera serial numbers (data minimisation). Without GD,
  *   uploads are rejected instead of stored unprocessed.
  * - Files live in a protected uploads sub-directory under random names and are only delivered
@@ -47,6 +48,20 @@ final class PhotoStore {
 
 	public const MAX_PIXELS = 40000000;
 	public const MAX_EDGE   = 1600;
+
+	/**
+	 * Effective longest edge in pixels (setting submissions.photo_max_edge; the filter
+	 * `review_captain_photo_max_edge` wins; always clamped to 400–4000).
+	 */
+	public static function max_edge(): int {
+		$edge = (int) Plugin::instance()->settings()->get( 'submissions', 'photo_max_edge', self::MAX_EDGE );
+		/**
+		 * Longest edge of re-encoded review photos in pixels (400–4000).
+		 *
+		 * @param int $edge Edge from the setting.
+		 */
+		return max( 400, min( 4000, (int) apply_filters( 'review_captain_photo_max_edge', $edge ) ) );
+	}
 
 	/**
 	 * Per-request cache review_id => row|null.
@@ -120,8 +135,9 @@ final class PhotoStore {
 		}
 		$w = imagesx( $image );
 		$h = imagesy( $image );
-		if ( max( $w, $h ) > self::MAX_EDGE ) {
-			$scale  = self::MAX_EDGE / max( $w, $h );
+		$edge = self::max_edge();
+		if ( max( $w, $h ) > $edge ) {
+			$scale  = $edge / max( $w, $h );
 			$scaled = imagescale( $image, max( 1, (int) round( $w * $scale ) ), max( 1, (int) round( $h * $scale ) ) );
 			if ( false !== $scaled ) {
 				imagedestroy( $image );

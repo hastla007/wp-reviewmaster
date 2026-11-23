@@ -862,6 +862,20 @@ final class SettingsPage {
 		if ( 'advanced' === $tab && defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
 			$notes[] = array( 'warning', __( 'WP-Cron ist deaktiviert. Richte einen Server-Cron ein, z. B. „wp cron event run --due-now“ alle 5 Minuten.', 'review-captain' ) );
 		}
+		if ( 'privacy' === $tab ) {
+			// SET-RC-08: preview of the next retention runs (two COUNT queries).
+			$contact_days  = (int) $this->settings()->get( 'privacy', 'retention_contact_days', 0 );
+			$approved_days = (int) $this->settings()->get( 'privacy', 'retention_approved_days', 0 );
+			$preview       = \ReviewCaptain\Maintenance\Retention::preview( $contact_days, $approved_days );
+			if ( $contact_days > 0 ) {
+				/* translators: %s: number of reviews */
+				$notes[] = array( 'info', sprintf( _n( 'Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertung. Die Bewertung bleibt.', 'Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertungen. Die Bewertungen bleiben.', $preview['contacts'], 'review-captain' ), number_format_i18n( $preview['contacts'] ) ) );
+			}
+			if ( $approved_days > 0 ) {
+				/* translators: %s: number of reviews */
+				$notes[] = array( 'warning', sprintf( _n( 'Freigegebene Bewertungen: Die nächste Bereinigung löscht %s Bewertung endgültig.', 'Freigegebene Bewertungen: Die nächste Bereinigung löscht %s Bewertungen endgültig.', $preview['approved'], 'review-captain' ), number_format_i18n( $preview['approved'] ) ) );
+			}
+		}
 		if ( in_array( $tab, array( 'access', 'privacy' ), true ) && is_multisite() ) {
 			$notes[] = array( 'info', __( 'Multisite: Diese Einstellungen gelten nur für diese Website. Jede Website des Netzwerks hat eigene Einstellungen, Rollen und Daten; Netzwerkadministratoren ändern sie je Website.', 'review-captain' ) );
 		}

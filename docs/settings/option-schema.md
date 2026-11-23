@@ -29,10 +29,11 @@ Tab-Schlüssel (= URL-Parameter `tab` der Einstellungsseite): `general`, `source
   - `array` mit `choices`: nur erlaubte Werte; mit `min_items`: weniger Einträge → Default; `max_items` kürzt;
   - `email_list` (SET-RC-09): Array oder durch Zeilenumbruch/Komma/Semikolon getrennter Text → Liste gültiger, eindeutiger Adressen, höchstens `max_items`; verworfene Einträge meldet die Seite als `invalid`;
   - `textarea`: `sanitize_textarea_field`; `string`: `sanitize_text_field`; mit `max_length` auf so viele Zeichen gekürzt.
+  - `color` (SET-RC-22): leer oder Hex-Farbe `#rgb`/`#rrggbb` (klein geschrieben), sonst Default.
   Diese Sanitisierung gilt für Import, Rücksicherung und programmatische Aufrufe. **Einstellungsseite und WP-CLI prüfen strenger (SET-RC-19):** `SettingsSchema::validate_value()` korrigiert nicht, sondern meldet einen Fehler (keine ganze Zahl, außerhalb `min`/`max`, unbekannte Auswahl, Uhrzeit nicht `HH:MM`, ungültige E-Mail); das Feld behält seinen gespeicherten Wert, alle gültigen Felder des Tabs werden gespeichert. Danach `SettingsSchema::cross_check()`: `submissions.min_text_length < max_text_length`, `requests.send_window_start ≠ send_window_end`, `sources.sync_window_start ≠ sync_window_end`, `advanced.lease_seconds > job_time_budget` (Filter `review_captain_settings_cross_check`); schlägt eine Prüfung fehl, behalten alle beteiligten Felder ihren gespeicherten Wert. Die Seite zeigt eine Fehlerliste mit Sprungmarken und setzt `aria-invalid` am Feld. Geänderte Felder werden als Audit-Ereignis `settings.changed` mit altem und neuem Wert protokolliert ([audit.md](audit.md)). Speichern verlangt Capability `review_captain_manage_settings` und Nonce; Tab `privacy` zusätzlich `review_captain_manage_privacy`, Tab `access` zusätzlich `promote_users` (`SettingsPage::can_write_tab()`).
 - **Pro-Felder ohne aktives Pro/Entitlement:** werden angezeigt (gesperrt), beim Speichern **nicht** verändert, beim Lesen **nicht** entfernt.
 - **Booleans** werden als `true`/`false` gespeichert (nicht `'1'`/`''`). Ein nicht angehakter Checkbox-Wert im abgeschickten Tab bedeutet `false`.
-- **Felddefinition** (`SettingsSchema::fields()`): Schlüssel `type` (`string`\|`int`\|`bool`\|`enum`\|`array`\|`time`\|`email`\|`textarea`), `default`, `choices`, `min`/`max`, `owner` (`core`\|`pro`, Default `core`), `entitlement` (nur Pro), `privacy` (`none`\|`personal`\|`config`, Default `none`), `advanced` (progressive Offenlegung, Default `false`), `scope` (`site`\|`network`, Default `site`), `internal` (vom Plugin selbst geschrieben: nicht angezeigt, nicht exportiert/importiert, nicht über Eingaben setzbar; derzeit nur `privacy.delete_data_confirmed_at`). Die Datenschutzklassen P0–P2 unten sind eine Dokumentationssicht; im Code ist nur `privacy = config` für `requests.sender_name`/`sender_email` gesetzt.
+- **Felddefinition** (`SettingsSchema::fields()`): Schlüssel `type` (`string`\|`int`\|`bool`\|`enum`\|`array`\|`time`\|`email`\|`textarea`\|`color`), `default`, `choices`, `min`/`max`, `owner` (`core`\|`pro`, Default `core`), `entitlement` (nur Pro), `privacy` (`none`\|`personal`\|`config`, Default `none`), `advanced` (progressive Offenlegung, Default `false`), `scope` (`site`\|`network`, Default `site`), `internal` (vom Plugin selbst geschrieben: nicht angezeigt, nicht exportiert/importiert, nicht über Eingaben setzbar; derzeit nur `privacy.delete_data_confirmed_at`). Die Datenschutzklassen P0–P2 unten sind eine Dokumentationssicht; im Code ist nur `privacy = config` für `requests.sender_name`/`sender_email` gesetzt.
 - **Strings** werden getrimmt; Mehrzeilentexte mit `sanitize_textarea_field`, außer wo anders angegeben.
 - **Uhrzeiten** `HH:MM` 24h in **Website-Zeitzone** (`wp_timezone()`); Start > Ende bedeutet Fenster über Mitternacht. Start = Ende wird beim Speichern zurückgewiesen (SET-RC-19).
 
@@ -55,11 +56,11 @@ Standard-Capability ist `review_captain_manage_settings`; Abweichungen sind ange
 | Schlüssel | Typ | Default | Validierung | Scope | Klasse | Entitlement |
 |---|---|---|---|---|---|---|
 | `brand_name` | string | `''` (= `get_bloginfo('name')`) | `sanitize_text_field` | site | P1 | — |
-| `default_language` | string | `''` (= Site-Sprache `get_locale()`) | `sanitize_text_field` (Ausblick: nur installierte Locales) | site | P0 | — |
 | `date_format` | string | `''` (= WP-Option `date_format`) | `sanitize_text_field` | site | P0 | — |
 | `new_review_status` | enum `pending`\|`approved` | `pending` | Enum | site | P2 | — |
 
 Hinweis: Zeitzone ist **keine** eigene Option; maßgeblich ist die WordPress-Zeitzone (Einstellungen → Allgemein), der Tab zeigt sie nur an.
+Ebenso gibt es keine eigene Sprache: maßgeblich sind Website- bzw. Benutzersprache von WordPress. `default_language` wurde nie gelesen und ist seit SET-RC-05 entfernt; gespeicherte Altwerte bleiben in der Option liegen (`Settings::merge` behält unbekannte Schlüssel), werden aber nirgends ausgewertet.
 `new_review_status = approved` gilt nur für **lokale Einreichungen** (Formular). Manuelle Einträge legt die moderierende Person ohnehin mit gewähltem Status an; CSV-Import nutzt die Spalte `status`.
 
 ### 4.2 `sources` – Quellen & Synchronisierung
@@ -73,7 +74,8 @@ Hinweis: Zeitzone ist **keine** eigene Option; maßgeblich ist die WordPress-Zei
 | `removed_review_behavior` | enum `hide`\|`tombstone` | `tombstone` | Enum | site | P2 | — |
 
 Diese Felder gehören dem Core, weil Jobs, Provider-/Connector-Registry und Tombstone-Logik im Core liegen. Ohne registrierten Provider/Connector sind sie wirkungslos und werden mit Hinweis angezeigt („wirkt erst, wenn eine synchronisierende Quelle verbunden ist“). Credentials, Profile und Anbieter-Scopes liegen ausschließlich auf der Quellen-Seite.
-Adapter dürfen strengere Werte erzwingen (z. B. Anbieter verlangt Löschung → `tombstone` unabhängig von `hide`).
+`sync_window_*`, `max_pages_per_run` und `pause_after_auth_errors` liest nur Review Captain Pro (automatischer Abgleich); sie stehen deshalb in der Ausnahmeliste der Release-Prüfung (siehe [release-gate.md](release-gate.md)).
+`removed_review_behavior` wertet `Providers\SyncService` aus (SET-RC-05): Status `removed` immer; bei `tombstone` zusätzlich sofortiges Leeren von `title`, `body`, `author_name`, `rating_value` (NULL), `meta.avatar_url`, `meta.reply` und personenbezogenen Meta-Schlüsseln, Löschen des Fotos, `meta.tombstone = {reason, at}` und Verlaufseintrag `content_removed` (`ReviewRepository::scrub_removed()`); bei `hide` bleibt der Inhalt bis `retention_external_days`. Adapter dürfen über den Filter `review_captain_removed_review_behavior` nur verschärfen (`hide` → `tombstone`).
 
 ### 4.3 `requests` – Anfragen & Zustellung (Pro)
 
@@ -125,7 +127,17 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `report_reasons` | array | alle 5 Gründe | `choices` = `ReportStore::REASONS`, `min_items` 1 | site | P0 | — |
 | `report_notify` | enum `none`\|`recipients` | `recipients` | Enum | site | P0 | — |
 | `report_confirmation` | string | `''` (= „Danke für Ihre Meldung. …“) | `max_length` 300 | site | P0 | — |
+| `correction_link_hours` | int (erweitert) | `1` | 1–72 | site | P0 | — |
+| `min_seconds` | int (erweitert) | `3` | 1–120; Filter `review_captain_form_min_seconds` (0–120) gewinnt | site | P0 | — |
+| `hold_words` | textarea (Liste) | `''` | `sanitize_textarea_field`; ein Eintrag je Zeile oder Komma, höchstens 500 | site | P0 | — |
+| `hold_links` | bool | `false` | bool | site | P0 | — |
+| `block_email_domains` | textarea (Liste) | `''` | wie `hold_words`; Filter `review_captain_blocked_email_domains` gewinnt | site | P2 | — |
+| `photo_max_edge` | int (erweitert) | `1600` | 400–4000; Filter `review_captain_photo_max_edge` gewinnt | site | P0 | — |
+| `trusted_proxy_header` | enum (erweitert) `none`\|`x-forwarded-for`\|`x-real-ip`\|`cf-connecting-ip` | `none` | Enum; Filter `review_captain_trusted_proxy_header` gewinnt | site | P1 | — |
 
+- Moderationsregeln (SET-RC-10): `hold_words`/`hold_links` setzen eine neue Einreichung nur auf `pending` (nie löschen); Verlauf `held_for_moderation` mit Regelkennung. Filter `review_captain_submission_hold_reasons` kann Gründe ergänzen oder entfernen. `block_email_domains` lehnt mit Fehlercode `email_blocked` (neutraler Text) ab, ohne zu speichern.
+- `trusted_proxy_header` (SET-RC-29): `Security\RateLimiter::client_ip()` liest die Kopfzeile nur, wenn gesetzt; aus einer Liste gilt die letzte gültige IP, sonst `REMOTE_ADDR`. Gilt für Bewertungen, Meldungen und Fragen.
+- `photo_max_edge` (SET-RC-27): `photo_max_count` gibt es nicht – das Datenmodell (`review_media`, URL je Review-UUID, eine Karte = ein Foto) ist auf ein Foto ausgelegt.
 - `enabled = false`: Formular-Block/-Shortcode rendert einen neutralen Hinweis statt des Formulars; `admin-post.php`-Handler lehnt ab.
 - `require_consent = true`: Pflicht-Checkbox „Veröffentlichung erlauben“, setzt `consent_publish`/`consent_at`. Bei `false` wird `consent_publish = 0` gespeichert und **das Review kann trotzdem nur nach Moderation veröffentlicht werden**; der Tab zeigt eine Warnung.
 - `honeypot = false` zeigt eine Warnung; Nonce und Rate-Limit bleiben immer aktiv.
@@ -164,7 +176,22 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `label_external` | string | `''` (= „Externe Plattformbewertung“) | `max_length` 60 | site | P0 | — |
 | `label_testimonial` | string | `''` (= „Erfahrungsbericht dieser Website“) | `max_length` 60 | site | P0 | — |
 | `show_unverified_label` | bool | `false` | bool | site | P0 | — |
+| `star_color` | color | `''` (= Theme/CSS) | Hex `#rgb`/`#rrggbb` | site | P0 | — |
+| `accent_color` | color | `''` (= Theme/CSS) | Hex `#rgb`/`#rrggbb` | site | P0 | — |
+| `rating_display` | enum `stars`\|`number`\|`both` | `both` | Enum | site | P0 | — |
+| `decimal_places` | int | `1` | 0–2 | site | P0 | — |
+| `schema_contexts` | array (`product`, `post`, `event`) | alle drei | `sanitize_key`; beim Lesen Schnittmenge mit `SchemaEligibility::ELIGIBLE_CONTEXTS` | site | P0 | — |
+| `schema_min_reviews` | int | `1` | 1–50; Filter `review_captain_schema_min_reviews` gewinnt | site | P0 | — |
+| `widget_limit` | int | `6` | 1–50 | site | P0 | — |
+| `widget_layout` | enum `grid`\|`list` | `grid` | Enum | site | P0 | — |
+| `widget_columns` | int | `3` | 1–4 | site | P0 | — |
+| `widget_heading_level` | int | `2` | 2–6 | site | P0 | — |
+| `widget_new_tab` | bool | `false` | bool | site | P0 | — |
 
+- Farben (SET-RC-22) werden als `--rc-color-star`/`--rc-color-accent` per `wp_add_inline_style` an `review-captain-frontend` gehängt (`FrontendModule::inline_css()`), leer = nichts.
+- `rating_display`: Sterne nur für Skala 1–5; ohne Sterne immer Zahl; `show_stars = false` blendet Sterne immer aus. `decimal_places` gilt für Durchschnitte (`Renderer::format_average()`).
+- `schema_*` (SET-RC-23): neue Gründe `context_disabled` (E4) und `below_minimum` (Seitenebene, `SeoModule::last_reason()`); `SeoStatus` zeigt Einschränkungen an. Erfahrungsberichte erhalten nie Markup (E2), daher kein Schalter.
+- `widget_*` (SET-RC-28): `WidgetDefinition::global_defaults()` (Filter `review_captain_widget_defaults` gewinnt) gilt für alle Attribute ohne eigenen Wert; Block-Attribute `limit`, `layout`, `columns`, `headingLevel`, `newTab` haben deshalb keinen Default in `block.json`, Elementor-Steuerelemente stehen auf „Standard“.
 - Quellenlabel/-link externer Reviews ist **nicht abschaltbar** und hat daher keinen Schalter.
 - `show_avatar = true` nutzt für lokale Reviews `get_avatar()`; ob dabei Gravatar kontaktiert wird, folgt der WP-Einstellung „Avatare anzeigen“. Der Tab weist darauf hin. Externe Avatar-URLs werden in 1.0 nicht geladen (OFFEN für Pro).
 - `reduced_motion = true`: keine automatischen Animationen/Auto-Rotation; zusätzlich gilt immer `@media (prefers-reduced-motion: reduce)`.
@@ -184,6 +211,9 @@ Capability zum Ändern: `review_captain_manage_settings` **und** `review_captain
 | `retention_logs_days` | int | `90` | 1–3650 | site | P2 | — |
 | `retention_jobs_days` | int | `30` | 1–3650 | site | P0 | — |
 | `retention_audit_days` | int | `365` | 1–3650; Filter `review_captain_retention_audit_days` gewinnt | site | P2 | — |
+| `retention_contact_days` | int | `0` (= unbegrenzt) | 0–3650 | site | P2 | — |
+| `retention_approved_days` | int | `0` (= unbegrenzt) | 0–3650 | site | P2 | — |
+| `retention_corrections_days` | int | `90` | 1–3650 | site | P2 | — |
 | `erase_mode` | enum `anonymize`\|`delete` | `anonymize` | Enum | site | P2 | — |
 | `delete_data_on_uninstall` | bool | `false` | bool; Einschalten nur mit Bestätigungswort `LÖSCHEN` (auch `LOESCHEN`, `DELETE`, Groß-/Kleinschreibung egal) | site | P2 | — |
 | `delete_data_confirmed_at` | string (intern) | `''` | UTC `Y-m-d H:i:s` der Bestätigung; nur vom Plugin gesetzt | site | P2 | — |
@@ -196,6 +226,9 @@ Capability zum Ändern: `review_captain_manage_settings` **und** `review_captain
 - `retention_jobs_days`: abgeschlossene Jobs (`succeeded`/`dead`) werden danach gelöscht.
 - `erase_mode`: Verhalten des WordPress-Privacy-Erasers für lokale Reviews einer E-Mail-Adresse (siehe [reference.md](reference.md)).
 - `delete_data_on_uninstall`: in Multisite entscheidet jede Site für sich; Uninstall iteriert die Sites. Gelöscht wird nur, wenn zusätzlich `delete_data_confirmed_at` gesetzt ist (SET-RC-20, `Uninstaller::should_delete()`). Ausschalten leert den Zeitpunkt; ein Import kann die Löschung nie einschalten. Vor SET-RC-20 eingeschaltete Websites behalten ihre Daten, bis jemand das Wort eintippt.
+- `retention_contact_days` (SET-RC-08): `Maintenance\Retention` setzt `author_email` und `submission_key` von Reviews mit `created_at` älter als die Frist auf NULL (`ReviewRepository::remove_contact()`, Verlauf `contact_removed`, Audit `retention.contacts_removed`). Standard 0 = heutiges Verhalten; die künftige Standardfrist wartet auf Entscheidung E5 und Rechtsprüfung. Vorschau: `Retention::preview()` im Reiter.
+- `retention_approved_days`: löscht freigegebene lokale Reviews (`kind = review`) nach `created_at` + Frist endgültig; 0 = nie.
+- `retention_corrections_days` (SET-RC-21): Frist für entschiedene Korrekturfassungen (`CorrectionService::purge_old()`).
 
 ### 4.7 `access` – Zugriff & Rollen
 
@@ -222,7 +255,7 @@ Capability zum Ändern: `review_captain_manage_settings` **und** `review_captain
 | `debug_logging` | bool (erweitert) | `false` | bool | site | P0 | — |
 | `use_action_scheduler` | bool (erweitert) | `true` | bool; wirkt nur, wenn Action Scheduler geladen ist, sonst WP-Cron | site | P0 | — |
 
-- `debug_logging = true` protokolliert nur sanitisierte Kontexte (keine Secrets, kein Reviewtext, keine E-Mail). Ausblick (nicht in v1): automatische Abschaltung nach 7 Tagen über eine Option `review_captain_debug_until`.
+- `debug_logging = true` (SET-RC-05): `Jobs\Runner` schreibt bei jedem fehlgeschlagenen Job eine Zeile `Review Captain [debug]: job <id> (<typ>, attempt <n>) failed: <rc.code> (<Ausnahmeklasse|WP_Error|result>)` per `error_log()`; nie Fehlermeldung oder Payload (keine Secrets, kein Reviewtext, keine E-Mail). Filter `review_captain_debug_log_line`. Ausblick (nicht in v1): automatische Abschaltung nach 7 Tagen über eine Option `review_captain_debug_until`.
 
 ## 5. Versionierung und Migration
 

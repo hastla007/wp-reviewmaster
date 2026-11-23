@@ -13,7 +13,7 @@ namespace ReviewCaptain\Settings;
  * Declarative definition of all core settings. Pro can extend via the
  * `review_captain_settings_schema` filter (fields with 'owner' => 'pro').
  *
- * Field keys: type (string|int|bool|enum|array|time|email|email_list|textarea), default, choices
+ * Field keys: type (string|int|bool|enum|array|time|email|email_list|textarea|color), default, choices
  * (enum; for array: allowed values), min/max (int), max_length (string/textarea, characters),
  * max_items (array/email_list), min_items (array: fewer → default), owner (core|pro), entitlement
  * (pro only), privacy (none|personal|config), advanced (bool, progressive disclosure), scope (site|network),
@@ -55,7 +55,6 @@ final class SettingsSchema {
 		$core = array(
 			'general'     => array(
 				'brand_name'        => array( 'type' => 'string', 'default' => '' ),
-				'default_language'  => array( 'type' => 'string', 'default' => '' ),
 				'date_format'       => array( 'type' => 'string', 'default' => '' ),
 				'new_review_status' => array(
 					'type'    => 'enum',
@@ -175,6 +174,23 @@ final class SettingsSchema {
 					'default'    => '',
 					'max_length' => 300,
 				),
+				// SET-RC-21: validity of the one-time correction link.
+				'correction_link_hours'      => array( 'type' => 'int', 'default' => 1, 'min' => 1, 'max' => 72, 'advanced' => true ),
+				// SET-RC-10: moderation rules. They only ever hold a review for moderation (status pending);
+				// a blocked e-mail domain rejects the submission with a neutral message. Lists: one entry per line.
+				'min_seconds'                => array( 'type' => 'int', 'default' => 3, 'min' => 1, 'max' => 120, 'advanced' => true ),
+				'hold_words'                 => array( 'type' => 'textarea', 'default' => '' ),
+				'hold_links'                 => array( 'type' => 'bool', 'default' => false ),
+				'block_email_domains'        => array( 'type' => 'textarea', 'default' => '' ),
+				// SET-RC-27: longest edge of re-encoded photos (one photo per review, see docs/settings/reference.md).
+				'photo_max_edge'             => array( 'type' => 'int', 'default' => 1600, 'min' => 400, 'max' => 4000, 'advanced' => true ),
+				// SET-RC-29: client address for the rate limits behind a reverse proxy (off = REMOTE_ADDR).
+				'trusted_proxy_header'       => array(
+					'type'     => 'enum',
+					'default'  => 'none',
+					'choices'  => array( 'none', 'x-forwarded-for', 'x-real-ip', 'cf-connecting-ip' ),
+					'advanced' => true,
+				),
 			),
 			'display'     => array(
 				'show_stars'     => array( 'type' => 'bool', 'default' => true ),
@@ -236,6 +252,32 @@ final class SettingsSchema {
 					'type'    => 'bool',
 					'default' => false,
 				),
+				// SET-RC-22: colours as CSS custom properties (empty = theme/CSS default); own reviews keep the 1–5 scale.
+				'star_color'     => array( 'type' => 'color', 'default' => '' ),
+				'accent_color'   => array( 'type' => 'color', 'default' => '' ),
+				'rating_display' => array(
+					'type'    => 'enum',
+					'default' => 'both',
+					'choices' => array( 'stars', 'number', 'both' ),
+				),
+				'decimal_places' => array( 'type' => 'int', 'default' => 1, 'min' => 0, 'max' => 2 ),
+				// SET-RC-23: structured data can only be narrowed (testimonials never get markup).
+				'schema_contexts'    => array(
+					'type'    => 'array',
+					'default' => array( 'product', 'post', 'event' ),
+					'choices' => array( 'product', 'post', 'event' ),
+				),
+				'schema_min_reviews' => array( 'type' => 'int', 'default' => 1, 'min' => 1, 'max' => 50 ),
+				// SET-RC-28: global defaults for widgets, blocks and shortcodes without their own value.
+				'widget_limit'         => array( 'type' => 'int', 'default' => 6, 'min' => 1, 'max' => 50 ),
+				'widget_layout'        => array(
+					'type'    => 'enum',
+					'default' => 'grid',
+					'choices' => array( 'grid', 'list' ),
+				),
+				'widget_columns'       => array( 'type' => 'int', 'default' => 3, 'min' => 1, 'max' => 4 ),
+				'widget_heading_level' => array( 'type' => 'int', 'default' => 2, 'min' => 2, 'max' => 6 ),
+				'widget_new_tab'       => array( 'type' => 'bool', 'default' => false ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),
@@ -244,6 +286,11 @@ final class SettingsSchema {
 				'retention_jobs_days'      => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),
 				// SET-RC-17: settings and role changes are kept longer than the other logs.
 				'retention_audit_days'     => array( 'type' => 'int', 'default' => 365, 'min' => 1, 'max' => 3650 ),
+				// SET-RC-08: 0 = unlimited (behaviour up to now). The future default awaits owner decision E5 and a legal review.
+				'retention_contact_days'   => array( 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 3650 ),
+				'retention_approved_days'  => array( 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 3650 ),
+				// SET-RC-21: decided author-correction versions.
+				'retention_corrections_days' => array( 'type' => 'int', 'default' => 90, 'min' => 1, 'max' => 3650 ),
 				'erase_mode'               => array(
 					'type'    => 'enum',
 					'default' => 'anonymize',
@@ -363,6 +410,10 @@ final class SettingsSchema {
 				return count( $list ) < (int) ( $field['min_items'] ?? 0 ) ? $default : $list;
 			case 'email_list':
 				return self::sanitize_email_list( $field, $value );
+			case 'color':
+				// Hex colour (#rgb or #rrggbb); empty = theme/CSS default.
+				$v = is_scalar( $value ) ? strtolower( trim( (string) $value ) ) : '';
+				return '' === $v || preg_match( '/^#(?:[0-9a-f]{3}){1,2}$/', $v ) ? $v : $default;
 			case 'textarea':
 				return is_scalar( $value ) ? self::limit_length( $field, sanitize_textarea_field( (string) $value ) ) : $default;
 			case 'string':
@@ -462,6 +513,12 @@ final class SettingsSchema {
 					return array( null, __( 'Ungültiger Wert.', 'review-captain' ) );
 				}
 				return array( self::sanitize_value( $field, $value ), null );
+			case 'color':
+				$given = is_scalar( $value ) ? strtolower( trim( (string) $value ) ) : '';
+				if ( '' !== $given && ! preg_match( '/^#(?:[0-9a-f]{3}){1,2}$/', $given ) ) {
+					return array( null, __( 'Bitte gib einen Hex-Farbwert wie #e0a800 ein oder lass das Feld leer.', 'review-captain' ) );
+				}
+				return array( $given, null );
 			case 'email_list':
 				$list  = self::sanitize_email_list( $field, $value );
 				$parts = is_array( $value ) ? array_map( 'strval', array_filter( $value, 'is_scalar' ) ) : ( is_scalar( $value ) ? (array) preg_split( '/[\s,;]+/', (string) $value ) : array() );

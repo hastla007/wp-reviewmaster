@@ -32,7 +32,7 @@ URL: `admin.php?page=review-captain-settings&tab=<tab>`; Standard-Tab `general`.
 Einstellungen
 ├─ 1 Allgemein (general)
 │   ├─ Identität ............ brand_name
-│   ├─ Sprache & Datum ...... default_language, date_format, [Anzeige WP-Zeitzone]
+│   ├─ Datum ................ date_format, [Anzeige WP-Zeitzone] (Sprache = WordPress-Sprache, keine eigene Einstellung)
 │   └─ Neue Reviews ......... new_review_status
 ├─ 2 Quellen & Synchronisierung (sources)
 │   ├─ Zeitfenster .......... sync_window_start, sync_window_end
@@ -48,15 +48,22 @@ Einstellungen
 │   ├─ Formular ............. enabled, allow_title, min_text_length, max_text_length
 │   ├─ Einwilligung ......... require_consent  (Datenschutztext → Tab Datenschutz)
 │   ├─ Benachrichtigung ..... notify_admin
-│   └─ ▸ Erweitert (Spam) ... honeypot, rate_limit_per_hour
+│   ├─ Moderationsregeln .... hold_words, hold_links, block_email_domains, ▸ min_seconds
+│   ├─ Schutz vor Missbrauch  ▸ honeypot, ▸ rate_limit_per_hour, ▸ trusted_proxy_header
+│   ├─ Korrekturen .......... corrections_enabled, ▸ correction_link_hours
+│   └─ Erweiterte Funktionen  tags/reports/photos (▸ photo_max_edge)/multi_product/qa/feedback
 ├─ 5 Darstellung (display)
 │   ├─ Inhalte .............. show_stars, show_date, date_style, show_author, show_avatar
+│   ├─ Bewertung und Farben . rating_display, decimal_places, star_color, accent_color
+│   ├─ Widget-Vorgaben ...... widget_limit, widget_layout, widget_columns, widget_heading_level, widget_new_tab
+│   ├─ Strukturierte Daten .. schema_enabled, schema_contexts, schema_min_reviews
 │   ├─ Leerer Zustand ....... empty_text
 │   ├─ Barrierefreiheit ..... reduced_motion
 │   ├─ [Hinweis] Quellenangabe externer Reviews ist immer sichtbar
 │   └─ ▸ Erweitert .......... load_css
 ├─ 6 Datenschutz & Aufbewahrung (privacy)  [+ manage_privacy]
-│   ├─ Aufbewahrung ......... retention_external_days, retention_rejected_days
+│   ├─ Aufbewahrung ......... retention_external_days, retention_rejected_days, retention_contact_days,
+│   │                         retention_approved_days, retention_corrections_days  [Vorschau „betrifft N Bewertungen“]
 │   ├─ Datenschutzhinweis ... privacy_notice
 │   ├─ Löschanfragen ........ erase_mode, [Link: Werkzeuge › Personenbezogene Daten]
 │   ├─ ▸ Erweitert .......... retention_logs_days, retention_jobs_days

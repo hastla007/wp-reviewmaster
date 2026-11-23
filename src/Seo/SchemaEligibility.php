@@ -36,12 +36,24 @@ final class SchemaEligibility {
 		'not_approved',
 		'self_serving',
 		'context_not_supported',
+		'context_disabled',
 		'not_rendered',
 		'woo_product_schema',
 		'foreign_schema_owner',
 		'yoast_incompatible',
 		'filtered',
+		'below_minimum',
 	);
+
+	/**
+	 * Context types enabled by `display.schema_contexts` (SET-RC-23). Only narrows ELIGIBLE_CONTEXTS.
+	 *
+	 * @param mixed $setting Stored setting value.
+	 * @return list<string>
+	 */
+	public static function enabled_contexts( mixed $setting ): array {
+		return array_values( array_intersect( self::ELIGIBLE_CONTEXTS, array_map( 'strval', (array) $setting ) ) );
+	}
 
 	/**
 	 * Evaluate one review.
@@ -52,6 +64,8 @@ final class SchemaEligibility {
 	 * - `preview` (bool): editor/REST/preview request → never rendered (E5).
 	 * - `environment` (SeoEnvironment): detected plugins (E6, E7). Missing → live detection.
 	 * - `enabled` (bool): admin setting "Review-Markup ausgeben" (acts like E8, default true).
+	 * - `contexts` (list<string>): context types enabled in the settings (`display.schema_contexts`);
+	 *   missing = all of ELIGIBLE_CONTEXTS. Can only narrow.
 	 *
 	 * @param Review               $r   Review.
 	 * @param array<string, mixed> $ctx Context.
@@ -76,6 +90,9 @@ final class SchemaEligibility {
 		}
 		if ( ! in_array( $r->context_type, self::ELIGIBLE_CONTEXTS, true ) ) {
 			return self::no( 'context_not_supported' );
+		}
+		if ( array_key_exists( 'contexts', $ctx ) && ! in_array( $r->context_type, (array) $ctx['contexts'], true ) ) {
+			return self::no( 'context_disabled' );
 		}
 		// E5 – visibility.
 		if ( ! empty( $ctx['preview'] ) || ! self::is_rendered( $r, $ctx ) ) {
@@ -146,6 +163,8 @@ final class SchemaEligibility {
 			'not_approved'          => __( 'Nicht freigegeben.', 'review-captain' ),
 			'self_serving'          => __( 'Bewertung über das eigene Unternehmen – selbstbezogen, kein Markup.', 'review-captain' ),
 			'context_not_supported' => __( 'Kontext wird für Bewertungs-Markup nicht unterstützt.', 'review-captain' ),
+			'context_disabled'      => __( 'Markup für diesen Inhaltstyp ist in den Einstellungen abgeschaltet.', 'review-captain' ),
+			'below_minimum'         => __( 'Weniger geeignete Bewertungen auf der Seite als die eingestellte Mindestzahl.', 'review-captain' ),
 			'not_rendered'          => __( 'Nicht sichtbar auf der Seite gerendert.', 'review-captain' ),
 			'woo_product_schema'    => __( 'WooCommerce besitzt das Produkt-Schema.', 'review-captain' ),
 			'foreign_schema_owner'  => __( 'Ein anderes SEO-/Schema-Plugin verantwortet strukturierte Daten.', 'review-captain' ),
