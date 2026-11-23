@@ -12,7 +12,8 @@
 		'www.youtube-nocookie.com',
 		'player.vimeo.com',
 		'widget.trustpilot.com',
-		'widgets.trustedshops.com'
+		'widgets.trustedshops.com',
+		'integrations.etrusted.com'
 	];
 
 	function load( placeholder ) {

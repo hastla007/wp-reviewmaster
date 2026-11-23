@@ -37,6 +37,7 @@ Profil-URLs (`profiles.profile_url`) und `reviews.source_url` werden **nie** ser
 | Vimeo-Video | `player.vimeo.com` (`/video/{id}`, `dnt=1`) | numerische ID |
 | Trustpilot TrustBox | `widget.trustpilot.com` (Bootstrap-Script + iframe) | Template-ID, Business-Unit-ID, Locale, Theme – je per Whitelist-Regex |
 | Trusted Shops Trustbadge/Widgets | `widgets.trustedshops.com` | TS-ID/Widget-ID per Regex |
+| eTrusted-Bewertungswidget (Pro) | `integrations.etrusted.com` (`/applications/widget.js/v2`, [ADR-0011](../adr/0011-etrusted-widget-host-in-embed-allowlist.md)) | Widget-ID `wdg-…`/Channel-ID `chl-…` per Regex |
 
 Andere Hosts werden beim Speichern abgelehnt („Diese Quelle wird nicht unterstützt“). Erweiterung der Liste nur per Code (Adapter) und ADR, nicht per Admin-Feld. Ein Filter darf die Liste nur **verkleinern**.
 

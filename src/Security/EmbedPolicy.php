@@ -22,7 +22,8 @@ final class EmbedPolicy {
 	public const SCRIPT_HANDLE = 'review-captain-embed';
 
 	/**
-	 * Allowed embed hosts. Extension only via code + ADR, never via admin field.
+	 * Allowed embed hosts. Extension only via code + ADR, never via admin field
+	 * (integrations.etrusted.com: ADR-0011). Keep in sync with assets/js/frontend-embed.js.
 	 */
 	public const HOSTS = array(
 		'youtube-nocookie.com',
@@ -30,6 +31,7 @@ final class EmbedPolicy {
 		'player.vimeo.com',
 		'widget.trustpilot.com',
 		'widgets.trustedshops.com',
+		'integrations.etrusted.com',
 	);
 
 	/**
