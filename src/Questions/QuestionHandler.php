@@ -12,6 +12,7 @@ namespace ReviewCaptain\Questions;
 use ReviewCaptain\Frontend\FormHandler;
 use ReviewCaptain\Frontend\Renderer;
 use ReviewCaptain\Frontend\TemplateLoader;
+use ReviewCaptain\Moderation\Notifier;
 use ReviewCaptain\Plugin;
 use ReviewCaptain\Security\RateLimiter;
 use ReviewCaptain\Widgets\WidgetDefinition;
@@ -142,6 +143,8 @@ class QuestionHandler {
 		}
 		$limiter->hit();
 		$this->plugin->audit()->record( 'question.created', 'question', (int) $row['id'], array( 'status' => 'pending' ) );
+		// SET-RC-09: hint + link only, never the question text or contact data.
+		( new Notifier( $settings ) )->notify( Notifier::EVENT_QUESTION, array( 'moderation_url' => admin_url( 'admin.php?page=review-captain-questions' ) ) );
 		return $out( true, array(), $row );
 	}
 

@@ -231,8 +231,33 @@ final class FrontendModule implements Module {
 	 * Register (not enqueue) frontend assets. Idempotent.
 	 */
 	public static function register_assets(): void {
+		static $inline = false;
 		wp_register_style( self::STYLE_HANDLE, REVIEW_CAPTAIN_URL . 'assets/css/frontend.css', array(), REVIEW_CAPTAIN_VERSION );
 		wp_register_script( EmbedPolicy::SCRIPT_HANDLE, REVIEW_CAPTAIN_URL . 'assets/js/frontend-embed.js', array(), REVIEW_CAPTAIN_VERSION, true );
+		$css = self::inline_css();
+		if ( ! $inline && '' !== $css ) {
+			$inline = true;
+			wp_add_inline_style( self::STYLE_HANDLE, $css );
+		}
+	}
+
+	/**
+	 * Colour settings as CSS custom properties (SET-RC-22). Empty settings add nothing, so the
+	 * theme or plugin CSS defaults apply. Values are validated hex colours (SettingsSchema 'color').
+	 */
+	public static function inline_css(): string {
+		$settings = Plugin::instance()->settings();
+		$vars     = array();
+		foreach ( array(
+			'star_color'   => '--rc-color-star',
+			'accent_color' => '--rc-color-accent',
+		) as $key => $property ) {
+			$value = (string) $settings->get( 'display', $key, '' );
+			if ( preg_match( '/^#(?:[0-9a-f]{3}){1,2}$/i', $value ) ) {
+				$vars[] = $property . ':' . strtolower( $value );
+			}
+		}
+		return $vars ? '.rc-widget,.rc-form,.rc-cta{' . implode( ';', $vars ) . '}' : '';
 	}
 
 	/**

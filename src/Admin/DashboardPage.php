@@ -160,15 +160,17 @@ final class DashboardPage {
 	}
 
 	/**
-	 * Quiet, locked Pro info (no upsell wall, nothing clickable). Hidden once Pro registers itself.
+	 * Quiet, locked Pro info (no upsell wall, nothing clickable). Only while the setting
+	 * general.show_pro_hints is on (SET-RC-06); hidden once Pro registers itself.
 	 */
 	private function render_pro_info(): void {
 		/**
-		 * Whether to show the locked "In Review Captain Pro" info on the dashboard.
+		 * Whether to show the locked "In Review Captain Pro" info on the dashboard. The filter wins
+		 * over the setting.
 		 *
-		 * @param bool $show Default true; the Pro add-on returns false.
+		 * @param bool $show Default: setting general.show_pro_hints (on); the Pro add-on returns false.
 		 */
-		if ( ! apply_filters( 'review_captain_show_pro_info', true ) ) {
+		if ( ! apply_filters( 'review_captain_show_pro_info', SettingsHints::enabled( $this->plugin->settings() ) ) ) {
 			return;
 		}
 		echo '<div class="postbox rc-admin-pro-card"><div class="postbox-header"><h2>' . esc_html__( 'In Review Captain Pro', 'review-captain' ) . '</h2></div><div class="inside">';

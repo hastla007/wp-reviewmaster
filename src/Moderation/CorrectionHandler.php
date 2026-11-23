@@ -153,7 +153,11 @@ class CorrectionHandler {
 	 */
 	public static function message( string $code ): string {
 		return match ( $code ) {
-			'link_sent'    => __( 'Wenn zu dieser Adresse veröffentlichte Bewertungen existieren, haben wir Ihnen einen Link geschickt. Er ist eine Stunde gültig.', 'review-captain' ),
+			'link_sent'    => sprintf(
+				/* translators: %s: validity, e.g. "eine Stunde" or "24 Stunden" */
+				__( 'Wenn zu dieser Adresse veröffentlichte Bewertungen existieren, haben wir Ihnen einen Link geschickt. Er ist %s gültig.', 'review-captain' ),
+				self::validity_text()
+			),
 			'proposed'     => __( 'Danke! Ihre Korrektur wird geprüft und danach veröffentlicht.', 'review-captain' ),
 			'withdrawn'    => __( 'Ihre Bewertung wurde zurückgezogen und wird nicht mehr angezeigt.', 'review-captain' ),
 			'invalid_link' => __( 'Der Link ist abgelaufen oder ungültig. Bitte fordern Sie einen neuen an.', 'review-captain' ),
@@ -161,6 +165,15 @@ class CorrectionHandler {
 			'invalid_unchanged' => __( 'Es wurde nichts geändert.', 'review-captain' ),
 			default        => __( 'Das hat nicht geklappt. Bitte prüfen Sie Ihre Angaben.', 'review-captain' ),
 		};
+	}
+
+	/**
+	 * Validity of the one-time link as text (submissions.correction_link_hours, SET-RC-21).
+	 */
+	private static function validity_text(): string {
+		$hours = (int) ( CorrectionService::token_ttl() / HOUR_IN_SECONDS );
+		/* translators: %s: number of hours */
+		return 1 === $hours ? __( 'eine Stunde', 'review-captain' ) : sprintf( _n( '%s Stunde', '%s Stunden', $hours, 'review-captain' ), number_format_i18n( $hours ) );
 	}
 
 	/**
@@ -174,8 +187,8 @@ class CorrectionHandler {
 		$site = wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
 		/* translators: %s: site name */
 		$subject = sprintf( __( 'Ihre Bewertung bei %s bearbeiten', 'review-captain' ), $site );
-		/* translators: 1: site name, 2: link */
-		$body = sprintf( __( "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1\$s korrigieren oder zurückziehen. Der Link ist eine Stunde gültig und funktioniert einmal:\n\n%2\$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail.", 'review-captain' ), $site, $url );
+		/* translators: 1: site name, 2: link, 3: validity, e.g. "eine Stunde" or "24 Stunden" */
+		$body = sprintf( __( "Hallo,\n\nüber diesen Link können Sie Ihre Bewertung bei %1\$s korrigieren oder zurückziehen. Der Link ist %3\$s gültig und funktioniert einmal:\n\n%2\$s\n\nWenn Sie das nicht angefordert haben, ignorieren Sie diese E-Mail.", 'review-captain' ), $site, $url, self::validity_text() );
 		wp_mail( $email, $subject, $body );
 		unset( $id );
 	}

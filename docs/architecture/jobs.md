@@ -62,6 +62,7 @@ Ohne System-Cron läuft WP-Cron nur bei Seitenaufrufen; Ausführungszeiten sind 
 | `wp review-captain doctor [--format=…]` | Schema, Cron und Schlüssel prüfen |
 | `wp review-captain schema upgrade` | Schema installieren/aktualisieren |
 | `wp review-captain dev seed` | Testdaten (nur Entwicklung) |
+| `wp review-captain settings list\|get\|set\|reset\|export\|import` | Einstellungen (SET-RC-18), siehe [settings/reference.md](../settings/reference.md#wp-cli) |
 
 Ausblick (nicht in v1): `--max-jobs`, `--type`, `--network`, `jobs list --overdue`, `jobs show <id>`, `jobs cleanup`.
 

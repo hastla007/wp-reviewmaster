@@ -71,6 +71,34 @@ final class SeoStatus {
 			$items[] = self::item( __( 'Einstellung', 'review-captain' ), 'warn', __( '„Review-Markup ausgeben“ ist deaktiviert.', 'review-captain' ) );
 		}
 
+		// SET-RC-23: narrowed contexts and minimum number – say why nothing may be output.
+		$contexts = SchemaEligibility::enabled_contexts( $plugin->settings()->get( 'display', 'schema_contexts', SchemaEligibility::ELIGIBLE_CONTEXTS ) );
+		if ( ! $contexts ) {
+			$items[] = self::item( __( 'Inhaltstypen', 'review-captain' ), 'warn', __( 'Für keinen Inhaltstyp ist Markup eingeschaltet – es werden keine strukturierten Daten ausgegeben.', 'review-captain' ) );
+		} elseif ( count( $contexts ) < count( SchemaEligibility::ELIGIBLE_CONTEXTS ) ) {
+			$labels  = array(
+				'product' => __( 'Produkte', 'review-captain' ),
+				'post'    => __( 'Beiträge', 'review-captain' ),
+				'event'   => __( 'Veranstaltungen', 'review-captain' ),
+			);
+			$items[] = self::item(
+				__( 'Inhaltstypen', 'review-captain' ),
+				'info',
+				/* translators: %s: list of content types */
+				sprintf( __( 'Markup nur für: %s. Bewertungen zu anderen Inhalten erhalten kein Markup.', 'review-captain' ), implode( ', ', array_map( static fn( string $c ): string => $labels[ $c ] ?? $c, $contexts ) ) )
+			);
+		}
+		$min = SeoModule::min_reviews( $plugin->settings() );
+		if ( $min > 1 ) {
+			$items[] = self::item(
+				__( 'Mindestzahl', 'review-captain' ),
+				'info',
+				/* translators: %d: minimum number of reviews */
+				sprintf( _n( 'Markup erst ab %d geeigneten Bewertung auf der Seite.', 'Markup erst ab %d geeigneten Bewertungen auf der Seite; darunter wird nichts ausgegeben.', $min, 'review-captain' ), $min )
+			);
+		}
+		$items[] = self::item( __( 'Erfahrungsberichte', 'review-captain' ), 'info', __( 'Erfahrungsberichte der Website (Testimonials) erhalten nie Bewertungs-Markup.', 'review-captain' ) );
+
 		$items[] = self::item( __( 'Externe Bewertungen', 'review-captain' ), 'info', __( 'Bewertungen von Google, Trustpilot, Trusted Shops, App Store, Google Play und anderen Plattformen werden angezeigt, aber nie ausgezeichnet.', 'review-captain' ) );
 		$items[] = self::item( __( 'Unternehmensbewertungen', 'review-captain' ), 'info', __( 'Bewertungen ohne Produkt-, Beitrags- oder Event-Bezug gelten als selbstbezogen und erhalten kein Markup.', 'review-captain' ) );
 		$items[] = self::item( __( 'Gesamtbewertung', 'review-captain' ), 'info', __( 'Es wird kein AggregateRating ausgegeben (Entscheidung offen).', 'review-captain' ) );

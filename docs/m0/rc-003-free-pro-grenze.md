@@ -71,6 +71,13 @@ Konzept §5 nennt „CSV-Export mit Spreadsheet-Formel-Schutz“ unter Pro, TODO
 
 Konzept §5 Pro-Liste wird nach Freigabe entsprechend präzisiert.
 
+## Pro-Hinweise in der Oberfläche (Entscheidung S1/S5 vom 23.11.2026)
+
+- **S1:** Pro-Einstellungen erscheinen im kostenlosen Core nur als **graue Hinweiszeile am Ende des jeweiligen Einstellungs-Tabs**: Kennzeichen „Pro“, Titel und ein Satz, was die Einstellung tut („… Verfügbar mit Review Captain Pro.“). Kein deaktiviertes Eingabefeld, kein Schloss, keine Warnfarben, höchstens ein Link, kein Funktionscode im Core. Der Betreiber blendet alle Hinweise mit einem Schalter aus („Pro-Hinweise zeigen“, `general.show_pro_hints`). Das Add-on meldet das echte Feld an und ersetzt damit die Zeile.
+- **S5:** Hinweiszeilen nur für Pro-Funktionen, die bereits verkauft werden (heute: Einladungen/Anfragen, Plattform-Abgleich, erweiterte Widgets, Auswertungen; Suite-Anbindungen und eigene Connectoren haben keine Einstellung im Core). Keine Hinweise auf geplante Funktionen.
+- Unverändert: Der Core enthält keinen Lizenzcode, prüft keine Rechte und nennt keine Rechteschlüssel; nichts, was heute frei ist, wandert hinter Pro.
+- Umsetzung: SET-RC-06 (Core, `Admin\SettingsHints`), SET-RC-07 (Add-on); Einzelheiten in [docs/settings/pro-matrix.md](../settings/pro-matrix.md).
+
 ## Lizenzablauf
 
 Siehe RC-061: Pro-Schreibaktionen, neue Syncs, Anfrageversand und dynamische Pro-Widgets stoppen; gespeicherte Daten bleiben lesbar, exportierbar und löschbar. Pro-Widgets fallen auf das Core-Grid mit den zuletzt zulässig gecachten Daten zurück, solange die Plattform-Cachefrist das erlaubt.

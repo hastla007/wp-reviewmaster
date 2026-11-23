@@ -35,7 +35,7 @@ final class UninstallerTest extends TestCase {
 	}
 
 	public function test_explicit_option_deletes_everything(): void {
-		update_option( 'review_captain_settings', array( 'privacy' => array( 'delete_data_on_uninstall' => true ) ) );
+		update_option( 'review_captain_settings', array( 'privacy' => array( 'delete_data_on_uninstall' => true, 'delete_data_confirmed_at' => '2026-11-23 10:00:00' ) ) );
 		Uninstaller::run();
 		foreach ( Schema::TABLES as $key ) {
 			$this->assertFalse( $this->table_exists( $key ), $key );
@@ -58,8 +58,19 @@ final class UninstallerTest extends TestCase {
 		$this->assertFalse( Uninstaller::should_delete() );
 	}
 
-	public function test_uninstall_php_runs_uninstaller(): void {
+	public function test_unconfirmed_switch_keeps_data(): void {
+		// SET-RC-20: switched on (e.g. before the confirmation existed) but never confirmed.
 		update_option( 'review_captain_settings', array( 'privacy' => array( 'delete_data_on_uninstall' => true ) ) );
+		$this->assertFalse( Uninstaller::should_delete() );
+		update_option( 'review_captain_settings', array( 'privacy' => array( 'delete_data_on_uninstall' => true, 'delete_data_confirmed_at' => '  ' ) ) );
+		$this->assertFalse( Uninstaller::should_delete() );
+		Uninstaller::run();
+		$this->assertTrue( $this->table_exists( 'reviews' ) );
+		$this->assertSame( 1, get_option( 'review_captain_db_version' ) );
+	}
+
+	public function test_uninstall_php_runs_uninstaller(): void {
+		update_option( 'review_captain_settings', array( 'privacy' => array( 'delete_data_on_uninstall' => true, 'delete_data_confirmed_at' => '2026-11-23 10:00:00' ) ) );
 		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 			define( 'WP_UNINSTALL_PLUGIN', 'review-captain/review-captain.php' );
 		}

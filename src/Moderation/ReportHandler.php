@@ -17,9 +17,10 @@ use ReviewCaptain\Security\RateLimiter;
  * admin-post.php?action=review_captain_report (logged-in and anonymous).
  *
  * Requires `submissions.reports_enabled`. Protection: nonce, approved/public review only, reason
- * from a fixed list, rate limit per hashed address (and one report per review and address and
+ * from the enabled part of a fixed list (`submissions.report_reasons`, SET-RC-26), rate limit per hashed address (and one report per review and address and
  * hour). When the number of open reports reaches `submissions.report_threshold` the review is set
  * to `flagged` (hidden until a moderator decides). Nothing about the reporter is stored.
+ * Moderators are notified per accepted report unless `submissions.report_notify` is `none`.
  */
 class ReportHandler {
 
@@ -69,7 +70,7 @@ class ReportHandler {
 		}
 		$uuid   = strtolower( (string) ( $post['rc_review'] ?? '' ) );
 		$reason = sanitize_key( (string) ( $post['rc_reason'] ?? '' ) );
-		if ( ! preg_match( '/^[0-9a-f-]{36}$/', $uuid ) || ! in_array( $reason, ReportStore::REASONS, true ) ) {
+		if ( ! preg_match( '/^[0-9a-f-]{36}$/', $uuid ) || ! in_array( $reason, ReportStore::enabled_reasons( $settings ), true ) ) {
 			return $result( false, 'invalid' );
 		}
 		$review = $this->plugin->reviews()->find_by_uuid( $uuid );
@@ -102,6 +103,21 @@ class ReportHandler {
 				'reason' => $reason,
 				'count'  => $open,
 				'status' => $flagged ? ReviewStatus::FLAGGED->value : $review->status->value,
+			)
+		);
+		/**
+		 * Filter the moderation URL used in notification mails (also in FormHandler).
+		 *
+		 * @param string                       $url    URL (review list filtered to open reports).
+		 * @param \ReviewCaptain\Domain\Review $review Reported review.
+		 */
+		$url = (string) apply_filters( 'review_captain_moderation_url', admin_url( 'admin.php?page=review-captain&reported=1' ), $review );
+		( new Notifier( $settings ) )->notify(
+			Notifier::EVENT_REPORT,
+			array(
+				'moderation_url' => $url,
+				'flagged'        => $flagged,
+				'reason'         => $reason,
 			)
 		);
 		return $result( true, '', $flagged );

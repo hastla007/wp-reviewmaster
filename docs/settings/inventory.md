@@ -7,7 +7,7 @@ Ziel: jede geplante Option hat **genau einen fachlichen Besitzer** (Admin-Seite)
 Legende
 - **Seite:** Admin-Seite, auf der das Feld bearbeitet wird. `Einstellungen › <Tab>` = Tab der Einstellungsseite.
 - **Scope:** `global` (Site-Option) · `profil` · `kampagne` · `formular` · `widget`. Multisite: alle Werte site-lokal.
-- **Owner:** `Core` oder `Pro` (Pro = Feld wird nur mit Pro wirksam/bearbeitbar).
+- **Owner:** `Core` oder `Pro` (Pro = Feld wird vom Add-on angemeldet, nur mit Pro sichtbar und bearbeitbar; ohne Pro zeigt der Core an seiner Stelle höchstens eine graue Hinweiszeile, SET-RC-06).
 - **Speicherort:** `S` = `review_captain_settings[tab][key]`; `P` = Tabelle `profiles`; `W` = Widget-Definition (Speicherort OFFEN, siehe unten); `B` = Block-/Shortcode-Attribut; `K` = Kampagne (Pro-Speicher).
 - **Cap:** Capability zum Ändern (immer zusätzlich Nonce).
 
@@ -16,9 +16,9 @@ Legende
 | Schlüssel | Nutzerfrage | Seite | Scope | Owner | Sicherer Default | Cap | Speicher |
 |---|---|---|---|---|---|---|---|
 | `general.brand_name` | Welcher Name steht in Vorlagen und Hinweisen? | Einstellungen › Allgemein | global | Core | `''` → Websitetitel | manage_settings | S |
-| `general.default_language` | In welcher Sprache erscheinen Texte, wenn nichts anderes gilt? | Einstellungen › Allgemein | global | Core | `''` → Site-Sprache | manage_settings | S |
 | `general.date_format` | Wie werden Daten angezeigt? | Einstellungen › Allgemein | global (Widget darf überschreiben) | Core | `''` → WP-Format | manage_settings | S |
 | `general.new_review_status` | Sollen neue eingereichte Reviews sofort sichtbar sein? | Einstellungen › Allgemein | global | Core | `pending` | manage_settings | S |
+| `general.show_pro_hints` | Sollen graue Hinweise auf Review Captain Pro erscheinen? (SET-RC-06) | Einstellungen › Allgemein | global | Core | `true` | manage_settings | S |
 | `sources.sync_window_start` | Wann darf synchronisiert werden (Beginn)? | Einstellungen › Quellen & Synchronisierung | global (Profil darf einschränken) | Core | `02:00` | manage_settings | S |
 | `sources.sync_window_end` | … (Ende)? | Einstellungen › Quellen & Synchronisierung | global | Core | `05:00` | manage_settings | S |
 | `sources.max_pages_per_run` | Wie viel wird pro Lauf höchstens abgerufen? | Einstellungen › Quellen & Synchronisierung | global (Profil darf senken) | Core | `5` | manage_settings | S |
@@ -39,6 +39,13 @@ Legende
 | `submissions.max_text_length` | Wie lang darf ein Text sein? | Einstellungen › Einreichungen & Moderation | global (Formular darf senken) | Core | `5000` | manage_settings | S |
 | `submissions.allow_title` | Titel-Feld anbieten? | Einstellungen › Einreichungen & Moderation | global (Formular darf überschreiben) | Core | `true` | manage_settings | S |
 | `submissions.notify_admin` | Admin über neue Einreichungen informieren? | Einstellungen › Einreichungen & Moderation | global | Core | `true` | manage_settings | S |
+| `submissions.min_seconds` | Wie schnell darf ein Formular frühestens abgeschickt werden? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `3` | manage_settings | S |
+| `submissions.hold_words` | Welche Wörter halten eine Bewertung zur Prüfung zurück? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `''` | manage_settings | S |
+| `submissions.hold_links` | Bewertungen mit Links zur Prüfung zurückhalten? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `false` | manage_settings | S |
+| `submissions.block_email_domains` | Welche E-Mail-Domains dürfen nicht bewerten? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `''` | manage_settings | S |
+| `submissions.trusted_proxy_header` | Welche Kopfzeile nennt die echte Absenderadresse hinter einem Proxy? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `none` | manage_settings | S |
+| `submissions.correction_link_hours` | Wie lange gilt ein Korrektur-Link? | Einstellungen › Einreichungen & Moderation | global | Core | `1` | manage_settings | S |
+| `submissions.photo_max_edge` | Auf welche längste Kante werden Fotos verkleinert? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `1600` | manage_settings | S |
 | `display.show_stars` | Sterne anzeigen? | Einstellungen › Darstellung | global → widget | Core | `true` | manage_settings | S |
 | `display.show_date` | Datum anzeigen? | Einstellungen › Darstellung | global → widget | Core | `true` | manage_settings | S |
 | `display.show_author` | Namen der Verfasser anzeigen? | Einstellungen › Darstellung | global → widget | Core | `true` | manage_settings | S |
@@ -47,15 +54,26 @@ Legende
 | `display.empty_text` | Was steht da, wenn es (noch) keine Reviews gibt? | Einstellungen › Darstellung | global → widget | Core | `''` → Standardtext | manage_settings | S |
 | `display.reduced_motion` | Bewegung/Auto-Rotation vermeiden? | Einstellungen › Darstellung | global → widget (nur verschärfen) | Core | `true` | manage_settings | S |
 | `display.load_css` | Plugin-CSS laden? | Einstellungen › Darstellung | global | Core | `true` | manage_settings | S |
+| `display.rating_display` | Sterne, Zahl oder beides? | Einstellungen › Darstellung | global | Core | `both` | manage_settings | S |
+| `display.decimal_places` | Wie viele Nachkommastellen bei Durchschnitten? | Einstellungen › Darstellung | global | Core | `1` | manage_settings | S |
+| `display.star_color`, `display.accent_color` | Welche Stern- und Akzentfarbe? | Einstellungen › Darstellung | global | Core | `''` → Theme/CSS | manage_settings | S |
+| `display.widget_limit`, `widget_layout`, `widget_columns`, `widget_heading_level`, `widget_new_tab` | Was gilt für Widgets ohne eigenen Wert? | Einstellungen › Darstellung | global → widget (Widget gewinnt, Filter vor Einstellung) | Core | 6, grid, 3, h2, aus | manage_settings | S |
+| `display.schema_contexts`, `display.schema_min_reviews` | Für welche Inhalte und ab wie vielen Bewertungen strukturierte Daten? | Einstellungen › Darstellung | global (nur einschränken) | Core | alle drei, 1 | manage_settings | S |
 | `privacy.retention_external_days` | Wie lange bleiben externe Reviews ohne Bestätigung gespeichert? | Einstellungen › Datenschutz & Aufbewahrung | global (Adapter darf verkürzen) | Core | `30` | manage_settings + manage_privacy | S |
 | `privacy.retention_rejected_days` | Wann werden abgelehnte Reviews gelöscht? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `90` | manage_settings + manage_privacy | S |
 | `privacy.retention_logs_days` | Wie lange bleiben Protokolle? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `90` | manage_settings + manage_privacy | S |
+| `privacy.retention_audit_days` | Wie lange bleibt das Änderungsprotokoll der Einstellungen? (SET-RC-17) | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `365` | manage_settings + manage_privacy | S |
 | `privacy.retention_jobs_days` | Wie lange bleiben erledigte Hintergrundjobs? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `30` | manage_settings + manage_privacy | S |
+| `privacy.retention_contact_days` | Wann wird die E-Mail-Adresse zu einer Bewertung gelöscht? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `0` = unbegrenzt (E5 offen) | manage_settings + manage_privacy | S |
+| `privacy.retention_approved_days` | Werden freigegebene Bewertungen nach einer Frist gelöscht? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `0` = nie | manage_settings + manage_privacy | S |
+| `privacy.retention_corrections_days` | Wie lange bleiben entschiedene Korrekturfassungen? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `90` | manage_settings + manage_privacy | S |
 | `privacy.erase_mode` | Was passiert bei einer Löschanfrage mit eigenen Reviews? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `anonymize` | manage_settings + manage_privacy | S |
-| `privacy.delete_data_on_uninstall` | Beim Löschen des Plugins alle Daten entfernen? | Einstellungen › Datenschutz & Aufbewahrung | global (site) | Core | `false` | manage_settings + manage_privacy | S |
+| `privacy.delete_data_on_uninstall` | Beim Löschen des Plugins alle Daten entfernen? (Einschalten nur mit Bestätigungswort, SET-RC-20) | Einstellungen › Datenschutz & Aufbewahrung | global (site) | Core | `false` | manage_settings + manage_privacy | S |
+| `privacy.delete_data_confirmed_at` | intern: Zeitpunkt der Bestätigung (UTC) | – (nur Anzeige „Bestätigt am …“) | global (site) | Core | `''` | – | S |
 | `privacy.privacy_notice` | Welcher Hinweis steht unter dem Formular? | Einstellungen › Datenschutz & Aufbewahrung | global (Formular darf überschreiben) | Core | `''` → Standardtext | manage_settings + manage_privacy | S |
 | `access.moderate_roles` | Wer darf Reviews moderieren? | Einstellungen › Zugriff & Rollen | global | Core | administrator, editor | manage_settings + promote_users | S (+ Rollen-Caps) |
 | `access.settings_roles` | Wer darf diese Einstellungen ändern? | Einstellungen › Zugriff & Rollen | global | Core | administrator | manage_settings + promote_users | S (+ Rollen-Caps) |
+| `access.sources_roles`, `requests_roles`, `reports_roles`, `trust_roles`, `privacy_roles` | Wer hat die übrigen fünf Rechte? (Matrix, SET-RC-16) | Einstellungen › Zugriff & Rollen | global | Core | administrator | manage_settings + promote_users + das jeweilige Recht | S (+ Rollen-Caps) |
 | `advanced.job_time_budget` | Wie lange darf ein Hintergrundlauf dauern? | Einstellungen › Erweitert | global | Core | `20` | manage_settings | S |
 | `advanced.lease_seconds` | Wann gilt ein hängender Job als verwaist? | Einstellungen › Erweitert | global | Core | `300` | manage_settings | S |
 | `advanced.debug_logging` | Ausführliches Protokoll zur Fehlersuche? | Einstellungen › Erweitert | global | Core | `false` | manage_settings | S |

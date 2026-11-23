@@ -18,6 +18,45 @@ use ReviewCaptain\Frontend\FormHandler;
 final class RateLimiter {
 
 	/**
+	 * Supported proxy headers (setting value => $_SERVER key), SET-RC-29.
+	 */
+	public const PROXY_HEADERS = array(
+		'x-forwarded-for'  => 'HTTP_X_FORWARDED_FOR',
+		'x-real-ip'        => 'HTTP_X_REAL_IP',
+		'cf-connecting-ip' => 'HTTP_CF_CONNECTING_IP',
+	);
+
+	/**
+	 * Client address used for rate limiting. Default: REMOTE_ADDR. Only when the operator names a
+	 * trusted proxy header (`submissions.trusted_proxy_header`, off by default; the filter
+	 * `review_captain_trusted_proxy_header` wins) is that header read. From a list (X-Forwarded-For)
+	 * the last valid address is used – the one the operator's own proxy appended – so a client
+	 * cannot choose its address by sending the header itself. Invalid values fall back to REMOTE_ADDR.
+	 */
+	public static function client_ip(): string {
+		$remote = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$header = (string) \ReviewCaptain\Plugin::instance()->settings()->get( 'submissions', 'trusted_proxy_header', 'none' );
+		/**
+		 * Trusted proxy header for the client address ('none', 'x-forwarded-for', 'x-real-ip',
+		 * 'cf-connecting-ip').
+		 *
+		 * @param string $header Header from the setting.
+		 */
+		$header = strtolower( (string) apply_filters( 'review_captain_trusted_proxy_header', $header ) );
+		$key    = self::PROXY_HEADERS[ $header ] ?? '';
+		if ( '' === $key || ! isset( $_SERVER[ $key ] ) ) {
+			return $remote;
+		}
+		$parts = array_reverse( array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( (string) $_SERVER[ $key ] ) ) ) ) );
+		foreach ( $parts as $candidate ) {
+			if ( false !== filter_var( $candidate, FILTER_VALIDATE_IP ) ) {
+				return $candidate;
+			}
+		}
+		return $remote;
+	}
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $scope Short scope key, e.g. "report".
@@ -28,7 +67,7 @@ final class RateLimiter {
 	 * Transient key for the current client.
 	 */
 	public function key(): string {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip = self::client_ip();
 		return 'review_captain_rl' . substr( sanitize_key( $this->scope ), 0, 8 ) . '_' . substr( wp_hash( 'rc_' . $this->scope . '|' . FormHandler::rate_subject( $ip ), 'nonce' ), 0, 24 );
 	}
 

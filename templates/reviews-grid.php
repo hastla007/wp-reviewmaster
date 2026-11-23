@@ -8,7 +8,8 @@
  *
  * @var array<string, mixed> $rc Widget data: id, classes, layout, columns, cards (rendered card HTML),
  *                               summary (list of {platform, text}), empty_text, pagination {prev, next},
- *                               notice (status text after a public report, may be empty).
+ *                               notice (status text after a public report, may be empty),
+ *                               verification {html, position: above|below} (SET-RC-01, html may be empty).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -16,6 +17,9 @@ defined( 'ABSPATH' ) || exit;
 <div id="<?php echo esc_attr( $rc['id'] ); ?>" class="<?php echo esc_attr( $rc['classes'] ); ?>" style="<?php echo esc_attr( '--rc-columns: ' . (int) $rc['columns'] ); ?>">
 	<?php if ( ! empty( $rc['notice'] ) ) : ?>
 		<p class="rc-notice" role="status"><?php echo esc_html( $rc['notice'] ); ?></p>
+	<?php endif; ?>
+	<?php if ( ! empty( $rc['verification']['html'] ) && 'above' === $rc['verification']['position'] ) : ?>
+		<?php echo $rc['verification']['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in verification-notice.php. ?>
 	<?php endif; ?>
 	<?php if ( ! empty( $rc['summary'] ) ) : ?>
 		<ul class="rc-summary" aria-label="<?php esc_attr_e( 'Zusammenfassung je Plattform', 'review-captain' ); ?>">
@@ -44,5 +48,8 @@ defined( 'ABSPATH' ) || exit;
 				<a class="rc-pagination__next" href="<?php echo esc_url( $rc['pagination']['next'] ); ?>"><?php esc_html_e( 'Nächste Seite', 'review-captain' ); ?></a>
 			<?php endif; ?>
 		</nav>
+	<?php endif; ?>
+	<?php if ( ! empty( $rc['verification']['html'] ) && 'above' !== $rc['verification']['position'] ) : ?>
+		<?php echo $rc['verification']['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in verification-notice.php. ?>
 	<?php endif; ?>
 </div>

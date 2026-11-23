@@ -8,6 +8,7 @@ use ReviewCaptain\Admin\SettingsPage;
 use ReviewCaptain\Security\Capabilities;
 use ReviewCaptain\Settings\Settings;
 use ReviewCaptain\Settings\SettingsSchema;
+use ReviewCaptain\Tests\Support\ProRequestsFields;
 
 final class ConfigTransferTest extends AdminTestCase {
 
@@ -77,6 +78,43 @@ final class ConfigTransferTest extends AdminTestCase {
 		$newer                   = $doc;
 		$newer['schema_version'] = SettingsSchema::VERSION + 1;
 		$this->assertNull( $transfer->preview( (string) wp_json_encode( $newer ) ) );
+	}
+
+	public function test_export_and_import_keep_addon_request_values(): void {
+		$requests = array(
+			'sender_name'       => 'Laden',
+			'sender_email'      => 'shop@example.test',
+			'send_window_start' => '08:00',
+			'send_window_end'   => '20:00',
+			'daily_limit'       => 50,
+			'cooldown_days'     => 30,
+			'reminders_enabled' => true,
+		);
+		update_option( Settings::OPTION, array( 'requests' => $requests ) );
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		$page = new SettingsPage( $this->plugin() );
+
+		// Without the add-on: nothing of the tab is exported, an import never touches it.
+		$transfer = new ConfigTransfer( new Settings() );
+		$doc      = $transfer->export();
+		$this->assertArrayNotHasKey( 'requests', $doc['settings'] );
+		$doc['settings']['requests']               = array( 'daily_limit' => 1 );
+		$doc['settings']['display']['show_avatar'] = true;
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$page->apply_import( $preview['values'], $preview['tabs'] );
+		$this->assertSame( $requests, get_option( Settings::OPTION )['requests'] );
+
+		// With the add-on active: exported with the other settings; a re-import keeps them unchanged.
+		ProRequestsFields::register( true );
+		$transfer = new ConfigTransfer( new Settings() );
+		$doc      = $transfer->export();
+		$this->assertEquals( $requests, $doc['settings']['requests'] );
+		$doc['settings']['requests']['daily_limit'] = 1;
+		$doc['settings']['display']['show_avatar']  = false;
+		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
+		$page->apply_import( $preview['values'], $preview['tabs'] );
+		$this->assertEquals( $requests, get_option( Settings::OPTION )['requests'], 'add-on fields are never imported' );
+		$this->assertFalse( ( new Settings() )->get( 'display', 'show_avatar' ) );
 	}
 
 	public function test_preview_respects_allowed_tabs(): void {

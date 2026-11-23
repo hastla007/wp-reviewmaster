@@ -7,7 +7,9 @@
  *
  * @package ReviewCaptain
  *
- * @var array<string, mixed> $rc Form data (see Renderer::render_form()).
+ * @var array<string, mixed> $rc Form data (see Renderer::render_form()). Texts name_label, email_hint,
+ *                               submit_label, consent_html and the verification notice come from the
+ *                               settings (SET-RC-01, SET-RC-04).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -60,6 +62,9 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 				<?php endforeach; ?>
 			</ul>
 		</div>
+	<?php endif; ?>
+	<?php if ( ! empty( $rc['verification']['html'] ) && 'above' === $rc['verification']['position'] ) : ?>
+		<?php echo $rc['verification']['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in verification-notice.php. ?>
 	<?php endif; ?>
 	<form class="rc-form__form" method="post" action="<?php echo esc_url( $rc['action'] ); ?>"<?php echo ! empty( $rc['photos'] ) ? ' enctype="multipart/form-data"' : ''; ?> novalidate>
 		<?php wp_nonce_field( $rc['nonce_action'], $rc['nonce_name'], false ); ?>
@@ -146,7 +151,7 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 		<?php endif; ?>
 
 		<p class="rc-form__field">
-			<label for="<?php echo esc_attr( $rc_id . '-name' ); ?>"><?php esc_html_e( 'Name (wird veröffentlicht)', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></label>
+			<label for="<?php echo esc_attr( $rc_id . '-name' ); ?>"><?php echo esc_html( $rc['name_label'] ?? __( 'Name (wird veröffentlicht)', 'review-captain' ) ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></label>
 			<input type="text" id="<?php echo esc_attr( $rc_id . '-name' ); ?>" name="rc_name" required maxlength="100" autocomplete="name" value="<?php echo esc_attr( $rc_values['name'] ); ?>"<?php echo $rc_described( 'name' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
 			<?php if ( '' !== $rc_err_for( 'name' ) ) : ?>
 				<span class="rc-form__error" id="<?php echo esc_attr( $rc_id . '-name-error' ); ?>"><?php echo esc_html( $rc_err_for( 'name' ) ); ?></span>
@@ -156,7 +161,7 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 		<p class="rc-form__field">
 			<label for="<?php echo esc_attr( $rc_id . '-email' ); ?>"><?php esc_html_e( 'E-Mail-Adresse', 'review-captain' ); ?> <span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span></label>
 			<input type="email" id="<?php echo esc_attr( $rc_id . '-email' ); ?>" name="rc_email" required maxlength="191" autocomplete="email" value="<?php echo esc_attr( $rc_values['email'] ); ?>"<?php echo $rc_described( 'email', $rc_id . '-email-hint' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
-			<span class="rc-form__hint" id="<?php echo esc_attr( $rc_id . '-email-hint' ); ?>"><?php esc_html_e( 'Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.', 'review-captain' ); ?></span>
+			<span class="rc-form__hint" id="<?php echo esc_attr( $rc_id . '-email-hint' ); ?>"><?php echo esc_html( $rc['email_hint'] ?? __( 'Wird nie veröffentlicht. Wir nutzen sie nur für Rückfragen und Datenschutzauskünfte.', 'review-captain' ) ); ?></span>
 			<?php if ( '' !== $rc_err_for( 'email' ) ) : ?>
 				<span class="rc-form__error" id="<?php echo esc_attr( $rc_id . '-email-error' ); ?>"><?php echo esc_html( $rc_err_for( 'email' ) ); ?></span>
 			<?php endif; ?>
@@ -176,7 +181,12 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 		<p class="rc-form__field rc-form__field--consent">
 			<label>
 				<input type="checkbox" name="rc_consent" value="1"<?php echo $rc['require_consent'] ? ' required' : ''; ?><?php echo $rc_described( 'consent' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
-				<?php esc_html_e( 'Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. Meine E-Mail-Adresse wird nicht veröffentlicht. Die Einwilligung kann ich jederzeit widerrufen.', 'review-captain' ); ?>
+				<?php
+				// SET-RC-04: consent text from the settings (escaped; only the {privacy_link} link is HTML).
+				echo isset( $rc['consent_html'] )
+					? wp_kses( (string) $rc['consent_html'], array( 'a' => array( 'href' => array() ) ) )
+					: esc_html__( 'Ich willige ein, dass meine Bewertung mit meinem Namen auf dieser Website veröffentlicht wird. Meine E-Mail-Adresse wird nicht veröffentlicht. Die Einwilligung kann ich jederzeit widerrufen.', 'review-captain' );
+				?>
 				<?php if ( $rc['require_consent'] ) : ?>
 					<span class="rc-form__required"><?php esc_html_e( '(Pflichtfeld)', 'review-captain' ); ?></span>
 				<?php endif; ?>
@@ -187,7 +197,10 @@ $rc_described = static function ( string $field, string $extra = '' ) use ( $rc_
 		</p>
 
 		<p class="rc-form__actions">
-			<button type="submit" class="rc-form__submit"><?php esc_html_e( 'Bewertung senden', 'review-captain' ); ?></button>
+			<button type="submit" class="rc-form__submit"><?php echo esc_html( $rc['submit_label'] ?? __( 'Bewertung senden', 'review-captain' ) ); ?></button>
 		</p>
 	</form>
+	<?php if ( ! empty( $rc['verification']['html'] ) && 'above' !== $rc['verification']['position'] ) : ?>
+		<?php echo $rc['verification']['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in verification-notice.php. ?>
+	<?php endif; ?>
 </div>

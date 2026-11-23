@@ -174,16 +174,65 @@ class Renderer {
 		return TemplateLoader::render(
 			'reviews-grid.php',
 			array(
-				'id'         => $id,
-				'classes'    => implode( ' ', $classes ),
-				'layout'     => $d->layout,
-				'columns'    => $d->columns,
-				'cards'      => $cards,
-				'summary'    => $summary,
-				'empty_text' => '' !== $empty_text ? $empty_text : __( 'Es sind noch keine Bewertungen vorhanden.', 'review-captain' ),
-				'pagination' => $d->paginate ? $this->pagination( $d, $page, count( $reviews ) ) : array(),
-				'notice'     => 1 === $this->instances['widget'] ? self::report_notice() : '',
+				'id'           => $id,
+				'classes'      => implode( ' ', $classes ),
+				'layout'       => $d->layout,
+				'columns'      => $d->columns,
+				'cards'        => $cards,
+				'summary'      => $summary,
+				'empty_text'   => '' !== $empty_text ? $empty_text : __( 'Es sind noch keine Bewertungen vorhanden.', 'review-captain' ),
+				'pagination'   => $d->paginate ? $this->pagination( $d, $page, count( $reviews ) ) : array(),
+				'notice'       => 1 === $this->instances['widget'] ? self::report_notice( PublicTexts::get( $settings, 'submissions', 'report_confirmation' ) ) : '',
+				'verification' => $this->verification_notice( 'widget' ),
 			)
+		);
+	}
+
+	/**
+	 * Verification notice "So prüfen wir Bewertungen" (SET-RC-01) for a widget or form.
+	 *
+	 * Empty setting = neutral draft that names only the levels occurring on this site (the form
+	 * always adds "unverified", because submissions are unverified). Legal review pending.
+	 *
+	 * @param string $context widget|form.
+	 * @return array{html: string, position: string}
+	 */
+	public function verification_notice( string $context ): array {
+		$settings = $this->plugin->settings();
+		$position = 'above' === $settings->get( 'display', 'verification_notice_position', 'below' ) ? 'above' : 'below';
+		if ( ! $settings->get( 'display', 'verification_notice_show', true ) ) {
+			return array(
+				'html'     => '',
+				'position' => $position,
+			);
+		}
+		$levels = $this->plugin->reviews()->levels_in_use();
+		if ( 'form' === $context ) {
+			$levels[] = Verification::UNVERIFIED->value;
+		}
+		$levels = array_values( array_unique( $levels ) );
+		$text   = trim( (string) $settings->get( 'display', 'verification_notice', '' ) );
+		if ( '' === $text ) {
+			$text = PublicTexts::default_verification_notice( $settings, $levels );
+		}
+		/**
+		 * Filter the verification notice text ("So prüfen wir Bewertungen"). Return '' to hide it.
+		 *
+		 * @param string       $text    Plain text (paragraphs separated by blank lines).
+		 * @param string       $context widget|form.
+		 * @param list<string> $levels  Levels occurring on this site (Verification values, "testimonial").
+		 */
+		$text = apply_filters( 'review_captain_verification_notice', $text, $context, $levels );
+		$text = is_string( $text ) ? trim( $text ) : '';
+		return array(
+			'html'     => '' === $text ? '' : TemplateLoader::render(
+				'verification-notice.php',
+				array(
+					'title' => __( 'So prüfen wir Bewertungen', 'review-captain' ),
+					'html'  => wpautop( esc_html( $text ) ),
+				)
+			),
+			'position' => $position,
 		);
 	}
 
@@ -203,17 +252,24 @@ class Renderer {
 
 		$classes = array( 'rc-card', 'rc-card--' . $r->kind->value, $external ? 'rc-card--external' : 'rc-card--local' );
 
+		// SET-RC-02: only the texts are configurable; the level comes from the stored review.
 		$badges = array();
 		if ( Kind::TESTIMONIAL === $r->kind ) {
 			$badges[] = array(
 				'class' => 'rc-badge rc-badge--testimonial',
-				'text'  => __( 'Erfahrungsbericht dieser Website', 'review-captain' ),
+				'text'  => PublicTexts::level_label( $settings, PublicTexts::TESTIMONIAL ),
 			);
 		}
-		if ( Verification::PURCHASE_VERIFIED === $r->verification ) {
+		$level_class = match ( $r->verification ) {
+			Verification::PURCHASE_VERIFIED    => 'rc-verified',
+			Verification::ATTENDANCE_CONFIRMED => 'rc-verified rc-verified--attendance',
+			Verification::EXTERNAL_PLATFORM    => 'rc-badge rc-badge--external',
+			Verification::UNVERIFIED           => Kind::TESTIMONIAL !== $r->kind && $settings->get( 'display', 'show_unverified_label', false ) ? 'rc-badge rc-badge--unverified' : '',
+		};
+		if ( '' !== $level_class ) {
 			$badges[] = array(
-				'class' => 'rc-verified',
-				'text'  => __( 'Verifizierter Kauf', 'review-captain' ),
+				'class' => $level_class,
+				'text'  => PublicTexts::level_label( $settings, $r->verification->value ),
 			);
 		}
 
@@ -287,7 +343,7 @@ class Renderer {
 				),
 				'nonce_action' => ReportHandler::NONCE_ACTION,
 				'nonce_name'   => ReportHandler::NONCE_FIELD,
-				'reasons'      => ReportStore::reason_labels(),
+				'reasons'      => ReportStore::enabled_reason_labels( $settings ),
 			);
 		}
 
@@ -305,7 +361,7 @@ class Renderer {
 				'p'  => array(),
 				'br' => array(),
 			),
-			'rating'    => $this->rating_data( $r, $show_stars ),
+			'rating'    => $this->rating_data( $r, $show_stars, (string) $settings->get( 'display', 'rating_display', 'both' ) ),
 			'author'    => $author,
 			'avatar'    => $author && $settings->get( 'display', 'show_avatar', false ) ? mb_strtoupper( mb_substr( $author, 0, 1 ) ) : '',
 			'date'      => $date,
@@ -318,14 +374,19 @@ class Renderer {
 	/**
 	 * Rating view data on the original scale.
 	 *
+	 * `display.rating_display` (SET-RC-22): stars|number|both. Stars exist only for 1–5 scales;
+	 * without stars the number is always shown. The label for screen readers is always present.
+	 *
 	 * @param Review $r          Review.
-	 * @param bool   $show_stars Whether to draw stars.
-	 * @return array{label: string, value: string, stars: list<string>}|null
+	 * @param bool   $show_stars Whether to draw stars (display.show_stars).
+	 * @param string $display    stars|number|both.
+	 * @return array{label: string, value: string, stars: list<string>, show_value: bool}|null
 	 */
-	public function rating_data( Review $r, bool $show_stars = true ): ?array {
+	public function rating_data( Review $r, bool $show_stars = true, string $display = 'both' ): ?array {
 		if ( null === $r->rating_value ) {
 			return null;
 		}
+		$show_stars = $show_stars && 'number' !== $display;
 		$value = $r->rating_value;
 		$max   = $r->rating_scale_max;
 		$fmt   = static fn( float $v ): string => number_format_i18n( $v, floor( $v ) === $v ? 0 : 1 );
@@ -346,10 +407,22 @@ class Renderer {
 			$label = sprintf( __( '%1$s von %2$s Punkten', 'review-captain' ), $fmt( $value ), $fmt( $max ) );
 		}
 		return array(
-			'label' => $label,
-			'value' => $fmt( $value ) . ' / ' . $fmt( $max ),
-			'stars' => $stars,
+			'label'      => $label,
+			'value'      => $fmt( $value ) . ' / ' . $fmt( $max ),
+			'stars'      => $stars,
+			'show_value' => ! $stars || 'stars' !== $display,
 		);
+	}
+
+	/**
+	 * Format an average with `display.decimal_places` (0–2, SET-RC-22); whole numbers without decimals.
+	 *
+	 * @param float $average Average.
+	 */
+	public function format_average( float $average ): string {
+		$places  = max( 0, min( 2, (int) $this->plugin->settings()->get( 'display', 'decimal_places', 1 ) ) );
+		$rounded = round( $average, $places );
+		return number_format_i18n( $rounded, floor( $rounded ) === $rounded ? 0 : $places );
 	}
 
 	/**
@@ -368,7 +441,7 @@ class Renderer {
 				continue;
 			}
 			$platform = Platform::tryFrom( $row['platform'] ) ?? Platform::OTHER;
-			$avg      = number_format_i18n( $row['average'], floor( $row['average'] ) === $row['average'] ? 0 : 1 );
+			$avg      = $this->format_average( (float) $row['average'] );
 			$out[]    = array(
 				'platform' => $platform->value,
 				'text'     => sprintf(
@@ -460,6 +533,11 @@ class Renderer {
 				'honeypot_name'   => FormHandler::HONEYPOT_FIELD,
 				'allow_title'     => (bool) $settings->get( 'submissions', 'allow_title', true ),
 				'require_consent' => (bool) $settings->get( 'submissions', 'require_consent', true ),
+				'consent_html'    => PublicTexts::consent_html( $settings ),
+				'name_label'      => PublicTexts::get( $settings, 'submissions', 'name_label' ),
+				'email_hint'      => PublicTexts::get( $settings, 'submissions', 'email_hint' ),
+				'submit_label'    => PublicTexts::get( $settings, 'submissions', 'submit_label' ),
+				'verification'    => $this->verification_notice( 'form' ),
 				'privacy_notice'  => (string) $settings->get( 'privacy', 'privacy_notice', '' ),
 				'min_length'      => (int) $settings->get( 'submissions', 'min_text_length', 20 ),
 				'max_length'      => (int) $settings->get( 'submissions', 'max_text_length', 5000 ),
@@ -496,12 +574,14 @@ class Renderer {
 
 	/**
 	 * Status message after a public report (redirect parameter rc_reported).
+	 *
+	 * @param string $confirmation Confirmation text (submissions.report_confirmation); '' = default.
 	 */
-	public static function report_notice(): string {
+	public static function report_notice( string $confirmation = '' ): string {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
 		$flag = isset( $_GET['rc_reported'] ) ? sanitize_key( wp_unslash( (string) $_GET['rc_reported'] ) ) : '';
 		if ( '1' === $flag ) {
-			return __( 'Danke für Ihre Meldung. Wir prüfen die Bewertung.', 'review-captain' );
+			return '' !== trim( $confirmation ) ? $confirmation : __( 'Danke für Ihre Meldung. Wir prüfen die Bewertung.', 'review-captain' );
 		}
 		if ( 'error' === $flag ) {
 			return __( 'Die Meldung konnte nicht übermittelt werden. Bitte versuchen Sie es später erneut.', 'review-captain' );

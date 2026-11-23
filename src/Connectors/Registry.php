@@ -16,7 +16,7 @@ use ReviewCaptain\Support\ErrorCode;
  * Holds connectors registered via `review_captain_connectors_v1`.
  *
  * The core only registers, validates and reports status. Activation and the automated runtime
- * belong to Review Captain Pro (entitlement review.custom_connectors); Pro writes the activation
+ * belong to Review Captain Pro (custom connectors); Pro writes the activation
  * state through set_state().
  */
 class Registry {
@@ -213,8 +213,8 @@ class Registry {
 			return false;
 		}
 		/**
-		 * Whether a runtime for custom connectors is present (Review Captain Pro with the
-		 * review.custom_connectors entitlement, CON-006). The core only offers contract and registry;
+		 * Whether a runtime for custom connectors is present (Review Captain Pro with its custom
+		 * connectors function active, CON-006). The core only offers contract and registry;
 		 * without a runtime an earlier activated connector must not run (QA F-03).
 		 *
 		 * @param bool   $enabled Default false.

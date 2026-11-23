@@ -307,6 +307,83 @@ class ReviewRepository {
 	}
 
 	/**
+	 * Tombstone content scrub (SET-RC-05, docs/contracts/review-schema-v1.md "Tombstone"): clears
+	 * title, text, author name, rating, avatar/reply and personal meta and deletes the photo of a
+	 * review that already has status `removed`. Identity (uuid, platform, profile, external_id,
+	 * dedupe_key), source link and dates stay so a later sync hits the same row and retention can
+	 * delete it. Written directly (no validation: an empty review is intended here).
+	 *
+	 * @param int    $id     Review ID.
+	 * @param string $reason Reason (remote_removed, …).
+	 */
+	public function scrub_removed( int $id, string $reason ): bool {
+		global $wpdb;
+		$review = $this->find( $id );
+		if ( null === $review || ReviewStatus::REMOVED !== $review->status ) {
+			return false;
+		}
+		$meta = $review->meta;
+		foreach ( array_merge( array( 'avatar_url', 'reply' ), \ReviewCaptain\Privacy\PersonalData::personal_meta_keys() ) as $key ) {
+			unset( $meta[ $key ] );
+		}
+		$meta['tombstone'] = array(
+			'reason' => sanitize_key( $reason ),
+			'at'     => gmdate( 'c' ),
+		);
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$updated = $wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"UPDATE {$this->table()} SET title = '', body = '', author_name = '', rating_value = NULL, meta = %s, updated_at = %s, revision = revision + 1 WHERE id = %d AND status = %s",
+				(string) wp_json_encode( (object) $meta ),
+				gmdate( 'Y-m-d H:i:s' ),
+				$id,
+				ReviewStatus::REMOVED->value
+			)
+		);
+		if ( 1 !== (int) $updated ) {
+			return false;
+		}
+		PhotoStore::delete_for_review( $id );
+		$this->log_event( $id, 'content_removed', null, null, $reason );
+		CacheGeneration::bump();
+		return true;
+	}
+
+	/**
+	 * Remove the contact address of reviews (SET-RC-08 retention). The review itself, its status
+	 * and a linked user account stay; the uniqueness key derived from the e-mail is cleared too.
+	 * Each review gets a history entry (reason only, no address).
+	 *
+	 * @param list<int> $ids    Review IDs.
+	 * @param string    $reason History reason.
+	 * @return int Number of reviews changed.
+	 */
+	public function remove_contact( array $ids, string $reason ): int {
+		global $wpdb;
+		$done = 0;
+		foreach ( $ids as $id ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$updated = $wpdb->query(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"UPDATE {$this->table()} SET author_email = NULL, submission_key = NULL, updated_at = %s WHERE id = %d AND author_email IS NOT NULL",
+					gmdate( 'Y-m-d H:i:s' ),
+					(int) $id
+				)
+			);
+			if ( 1 === (int) $updated ) {
+				$this->log_event( (int) $id, 'contact_removed', null, null, $reason );
+				++$done;
+			}
+		}
+		if ( $done > 0 ) {
+			CacheGeneration::bump();
+		}
+		return $done;
+	}
+
+	/**
 	 * Hard delete (eraser/rollback/retention). Also deletes history, tags, reports and photos.
 	 *
 	 * @param int $id ID.
@@ -424,6 +501,31 @@ class ReviewRepository {
 		// TEC-012/RC-136: aggregate per widget is a full scan of the matching rows; cache it per
 		// generation (bumped on every review write). Short TTL bounds time-based visibility rules.
 		return CacheGeneration::remember( 's', $args, 5 * MINUTE_IN_SECONDS, fn() => $this->summary_by_platform_uncached( $args ) );
+	}
+
+	/**
+	 * Verification levels of publicly visible reviews (SET-RC-01). Testimonials count as the
+	 * pseudo level "testimonial" instead of their verification state.
+	 *
+	 * @return list<string>
+	 */
+	public function levels_in_use(): array {
+		return CacheGeneration::remember(
+			'v',
+			array( 'levels' => 1 ),
+			5 * MINUTE_IN_SECONDS,
+			function (): array {
+				global $wpdb;
+				$sql = "SELECT DISTINCT kind, verification FROM {$this->table()} WHERE status = %s AND removed_at IS NULL";
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery
+				$rows = $wpdb->get_results( $wpdb->prepare( $sql, ReviewStatus::APPROVED->value ), ARRAY_A );
+				$out  = array();
+				foreach ( (array) $rows as $row ) {
+					$out[] = 'testimonial' === (string) $row['kind'] ? 'testimonial' : (string) $row['verification'];
+				}
+				return array_values( array_unique( $out ) );
+			}
+		);
 	}
 
 	/**
@@ -556,6 +658,16 @@ class ReviewRepository {
 	 */
 	public function record_edit( int $review_id, array $fields ): void {
 		$this->log_event( $review_id, 'edited', null, null, implode( ',', array_map( 'sanitize_key', $fields ) ) );
+	}
+
+	/**
+	 * Record why a new submission was held for moderation (SET-RC-10; rule codes only).
+	 *
+	 * @param int          $review_id Review ID.
+	 * @param list<string> $reasons   Rule codes, e.g. hold_words, hold_links.
+	 */
+	public function record_hold( int $review_id, array $reasons ): void {
+		$this->log_event( $review_id, 'held_for_moderation', null, ReviewStatus::PENDING->value, implode( ',', array_map( 'sanitize_key', $reasons ) ) );
 	}
 
 	/**

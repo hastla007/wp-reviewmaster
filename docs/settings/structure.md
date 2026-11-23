@@ -32,31 +32,42 @@ URL: `admin.php?page=review-captain-settings&tab=<tab>`; Standard-Tab `general`.
 Einstellungen
 ├─ 1 Allgemein (general)
 │   ├─ Identität ............ brand_name
-│   ├─ Sprache & Datum ...... default_language, date_format, [Anzeige WP-Zeitzone]
-│   └─ Neue Reviews ......... new_review_status
+│   ├─ Datum ................ date_format, [Anzeige WP-Zeitzone] (Sprache = WordPress-Sprache, keine eigene Einstellung)
+│   ├─ Neue Reviews ......... new_review_status
+│   ├─ Hinweise ............. show_pro_hints
+│   └─ [Hinweiszeile Pro] Auswertungen
 ├─ 2 Quellen & Synchronisierung (sources)
 │   ├─ Zeitfenster .......... sync_window_start, sync_window_end
 │   ├─ Gelöschte Reviews .... removed_review_behavior
-│   └─ ▸ Erweitert .......... max_pages_per_run, pause_after_auth_errors
-├─ 3 Anfragen & Zustellung (requests)  [Pro – im Core gesperrt sichtbar]
-│   ├─ Absender ............. sender_name, sender_email, [Testmail – Pro]
-│   ├─ Versandzeiten ........ send_window_start, send_window_end
-│   ├─ Grenzen .............. daily_limit, cooldown_days
-│   ├─ Erinnerungen ......... reminders_enabled
-│   └─ [feste Regeln, nur Text] eine Einladung je Erlebnis, kein Versand ohne Berechtigung, Opt-out-Sperre
+│   ├─ ▸ Erweitert .......... max_pages_per_run, pause_after_auth_errors
+│   └─ [Hinweiszeile Pro] Automatischer Abgleich
+├─ 3 Anfragen & Zustellung (requests)  [Felder nur vom Add-on; ohne Pro nur Hinweiszeilen, SET-RC-06]
+│   ├─ Absender ............. sender_name, sender_email  (Pro)
+│   ├─ Versandzeiten ........ send_window_start, send_window_end  (Pro)
+│   ├─ Grenzen .............. daily_limit, cooldown_days  (Pro)
+│   ├─ Erinnerungen ......... reminders_enabled  (Pro)
+│   └─ [feste Regeln, nur Text, nur mit Feldern] eine Einladung je Erlebnis, kein Versand ohne Berechtigung, Opt-out-Sperre
 ├─ 4 Einreichungen & Moderation (submissions)
 │   ├─ Formular ............. enabled, allow_title, min_text_length, max_text_length
 │   ├─ Einwilligung ......... require_consent  (Datenschutztext → Tab Datenschutz)
 │   ├─ Benachrichtigung ..... notify_admin
-│   └─ ▸ Erweitert (Spam) ... honeypot, rate_limit_per_hour
+│   ├─ Moderationsregeln .... hold_words, hold_links, block_email_domains, ▸ min_seconds
+│   ├─ Schutz vor Missbrauch  ▸ honeypot, ▸ rate_limit_per_hour, ▸ trusted_proxy_header
+│   ├─ Korrekturen .......... corrections_enabled, ▸ correction_link_hours
+│   └─ Erweiterte Funktionen  tags/reports/photos (▸ photo_max_edge)/multi_product/qa/feedback
 ├─ 5 Darstellung (display)
 │   ├─ Inhalte .............. show_stars, show_date, date_style, show_author, show_avatar
+│   ├─ Bewertung und Farben . rating_display, decimal_places, star_color, accent_color
+│   ├─ Widget-Vorgaben ...... widget_limit, widget_layout, widget_columns, widget_heading_level, widget_new_tab
+│   ├─ Strukturierte Daten .. schema_enabled, schema_contexts, schema_min_reviews
 │   ├─ Leerer Zustand ....... empty_text
 │   ├─ Barrierefreiheit ..... reduced_motion
 │   ├─ [Hinweis] Quellenangabe externer Reviews ist immer sichtbar
-│   └─ ▸ Erweitert .......... load_css
+│   ├─ ▸ Erweitert .......... load_css
+│   └─ [Hinweiszeile Pro] Weitere Widgets
 ├─ 6 Datenschutz & Aufbewahrung (privacy)  [+ manage_privacy]
-│   ├─ Aufbewahrung ......... retention_external_days, retention_rejected_days
+│   ├─ Aufbewahrung ......... retention_external_days, retention_rejected_days, retention_contact_days,
+│   │                         retention_approved_days, retention_corrections_days  [Vorschau „betrifft N Bewertungen“]
 │   ├─ Datenschutzhinweis ... privacy_notice
 │   ├─ Löschanfragen ........ erase_mode, [Link: Werkzeuge › Personenbezogene Daten]
 │   ├─ ▸ Erweitert .......... retention_logs_days, retention_jobs_days
@@ -89,8 +100,9 @@ Zustand „aufgeklappt“ wird nur pro Nutzer gemerkt (User-Meta `review_captain
 | Bedingung | Wirkung |
 |---|---|
 | keine synchronisierende Quelle/kein Connector registriert | Tab „Quellen & Synchronisierung“: Felder sichtbar, mit Info-Notice „wirkt erst, wenn …“, Link zu Quellen |
-| Pro nicht aktiv | Tab „Anfragen & Zustellung“: Felder `disabled`, Erklärung + Lizenzhinweis; keine Werte werden verändert |
-| Pro aktiv, Entitlement `review.review_requests` fehlt/abgelaufen | wie oben, Text „Lizenz abgelaufen – Einstellungen bleiben erhalten“ |
+| Pro nicht aktiv oder Funktion „Bewertungsanfragen“ nicht lizenziert | Tab „Anfragen & Zustellung“: keine Felder, kein Formular, nur graue Hinweiszeilen am Ende (aus: Satz „Hier erscheinen Einstellungen von Erweiterungen.“); kein Schloss am Tab; keine Werte werden verändert (SET-RC-06) |
+| Add-on-Feld angemeldet, aber nicht schreibbar (z. B. ohne `review_captain_manage_requests`) | Feld `disabled` mit neutralem Vermerk „Von einer Erweiterung verwaltet; derzeit nicht änderbar.“ |
+| `general.show_pro_hints = false` | keine Hinweiszeilen, kein Kasten „In Review Captain Pro“, kein Vermerk auf der Quellen-Seite |
 | `requests.sender_email` leer | Warnung „Ohne Absenderadresse wird nichts versendet“ |
 | `submissions.enabled = false` | übrige Formularfelder bleiben sichtbar, aber grau beschrieben „gilt, sobald Einreichungen aktiv sind“ |
 | `require_consent = false` | Warnhinweis neben dem Feld |

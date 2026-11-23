@@ -84,9 +84,11 @@ final class SourcesPage {
 			echo '</tbody></table>';
 		}
 
-		echo '<div class="card rc-admin-pro-card"><h2>' . esc_html__( 'API-Verbindung', 'review-captain' ) . '</h2>';
-		echo '<p>' . esc_html__( 'Automatischer Abgleich über offizielle Schnittstellen (z. B. Google Business Profile, Trustpilot) setzt ein berechtigtes Eigentümerkonto voraus.', 'review-captain' ) . '</p>';
-		echo '<p>' . View::pro_lock( __( 'API-Verbindung in Review Captain Pro', 'review-captain' ) ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( SettingsHints::enabled( $this->plugin->settings() ) ) {
+			echo '<div class="card rc-admin-pro-card"><h2>' . esc_html__( 'API-Verbindung', 'review-captain' ) . '</h2>';
+			echo '<p>' . esc_html__( 'Automatischer Abgleich über offizielle Schnittstellen (z. B. Google Business Profile, Trustpilot) setzt ein berechtigtes Eigentümerkonto voraus.', 'review-captain' ) . '</p>';
+			echo '<p>' . View::pro_lock( __( 'API-Verbindung in Review Captain Pro', 'review-captain' ) ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 	}
 
 	/**
@@ -136,7 +138,8 @@ final class SourcesPage {
 			echo '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="profile[' . esc_attr( $key ) . ']" class="regular-text" value="' . esc_attr( (string) ( $data[ $key ] ?? '' ) ) . '"' . ( 'url' === $type ? ' pattern="https://.+"' : ' required' ) . ' />';
 			echo '<p class="description">' . esc_html( $help ) . '</p></td></tr>';
 		}
-		echo '<tr><th scope="row">' . esc_html__( 'Verbindung', 'review-captain' ) . '</th><td>' . esc_html__( 'Manuell (nur Link)', 'review-captain' ) . '<p>' . View::pro_lock( __( 'API-Verbindung in Review Captain Pro', 'review-captain' ) ) . '</p></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$pro_hint = SettingsHints::enabled( $this->plugin->settings() ) ? '<p>' . View::pro_lock( __( 'API-Verbindung in Review Captain Pro', 'review-captain' ) ) . '</p>' : '';
+		echo '<tr><th scope="row">' . esc_html__( 'Verbindung', 'review-captain' ) . '</th><td>' . esc_html__( 'Manuell (nur Link)', 'review-captain' ) . $pro_hint . '</td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</tbody></table>';
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Profil speichern', 'review-captain' ) . '</button></p></form>';
 	}
