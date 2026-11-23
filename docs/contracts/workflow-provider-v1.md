@@ -1,8 +1,10 @@
 # Workflow-Captain-Providervertrag v1 (RC-WF-01, RC-WF-02, RC-WF-03, RC-WF-06)
 
+> **Nicht normativ (Inhaberentscheidung F-12 vom 16.11.2026, wie D13).** Dieses Dokument legt für die Captain Suite keine Ereignisnamen, Umschläge, Garantien oder Befehle fest. Normativ ist allein die Suite-Spezifikation `docs/SPEC-suite-events.md` im Repository `wp-workflowmaster`; der Katalog `review.*` steht dort in Abschnitt 4.6.3 (seit Version 1.0.0-draft.8) und wird aus den öffentlichen Hooks `review_captain_review_created_v1`, `review_captain_review_status_changed_v1` und `review_captain_review_removed_v1` gebildet. Die Tabellen „Trigger“ und „Descriptor“ unten sind ein Entwurf ohne Umsetzung: Die vier `review_captain_request_*_v1`-Actions und `review_captain_recipient_opted_out_v1` löst Core v1 nicht aus (reserviert, [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md)); `\ReviewCaptain\Api::workflow_descriptor_v1()` gibt es nicht. Verbindlich für Core v1 sind nur der Container-Service `workflow` (Abschnitt „Services im Core“) und die Vertragsversion `REVIEW_CAPTAIN_CONTRACT_VERSION` (siehe [README](README.md#vertragsversion)). Ob ein Workflow Anfragen planen oder Entwürfe anlegen darf, entscheidet die Suite-Spezifikation (Abschnitt 8); dort ist es in Version 1 nicht vorgesehen.
+
 | | |
 |---|---|
-| Status | Spezifikation, Entwurf zur Abnahme. **Registrierungsmechanismus auf Workflow-Captain-Seite ist nicht bestätigt** (siehe „Anbindung“). |
+| Status | **Nicht normativ (F-12).** Spezifikation, Entwurf zur Abnahme. **Registrierungsmechanismus auf Workflow-Captain-Seite ist nicht bestätigt** (siehe „Anbindung“). |
 | Schema-ID | `review_captain.workflow_provider.v1` |
 | Vertragsversion | `1.0` |
 | Provider-Key | `review-captain` |

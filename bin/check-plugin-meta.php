@@ -16,6 +16,10 @@ preg_match( "/define\( 'REVIEW_CAPTAIN_VERSION', '([^']+)' \)/", $main, $cv );
 if ( ( $hv[1] ?? '' ) !== ( $cv[1] ?? '' ) ) {
 	$errors[] = 'Header version and REVIEW_CAPTAIN_VERSION differ';
 }
+// Public contract version (RC-2, suite spec R-3.1): SemVer, independent of the plugin version.
+if ( ! preg_match( "/define\( 'REVIEW_CAPTAIN_CONTRACT_VERSION', '\d+\.\d+\.\d+' \);/", $main ) ) {
+	$errors[] = 'REVIEW_CAPTAIN_CONTRACT_VERSION missing or not MAJOR.MINOR.PATCH';
+}
 if ( ! preg_match( '/^\s*\*\s*Text Domain:\s*review-captain\s*$/mi', $main ) ) {
 	$errors[] = 'Text domain must be review-captain';
 }
