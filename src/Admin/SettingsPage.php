@@ -43,6 +43,11 @@ final class SettingsPage {
 	private const ERRORS_TRANSIENT = 'review_captain_settings_errors_';
 
 	/**
+	 * Characters of a refused input kept to show it again (longer than every text field's limit).
+	 */
+	private const GIVEN_MAX = 20000;
+
+	/**
 	 * Role keys of the access tab and the capability each one grants (SET-RC-16: all seven).
 	 */
 	private const ROLE_CAPS = Capabilities::ROLE_KEYS;
@@ -208,7 +213,7 @@ final class SettingsPage {
 			[ $value, $error ] = SettingsSchema::validate_value( $field, $raw[ $key ] );
 			if ( null !== $error ) {
 				$errors[ $key ] = $error;
-				$given[ $key ]  = is_scalar( $raw[ $key ] ) ? mb_substr( (string) $raw[ $key ], 0, 500 ) : '';
+				$given[ $key ]  = is_scalar( $raw[ $key ] ) ? mb_substr( (string) $raw[ $key ], 0, self::GIVEN_MAX ) : '';
 				continue;
 			}
 			$values[ $tab ][ $key ] = $value;
@@ -223,7 +228,7 @@ final class SettingsPage {
 				$values[ $tab ][ $key ] = $current[ $tab ][ $key ] ?? null;
 				$errors[ $key ]       ??= (string) ( $check['message'] ?? '' );
 				if ( ! isset( $given[ $key ] ) && array_key_exists( $key, $raw ) && is_scalar( $raw[ $key ] ) ) {
-					$given[ $key ] = mb_substr( (string) $raw[ $key ], 0, 500 );
+					$given[ $key ] = mb_substr( (string) $raw[ $key ], 0, self::GIVEN_MAX );
 				}
 			}
 		}
