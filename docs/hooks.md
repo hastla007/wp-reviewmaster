@@ -56,7 +56,7 @@ Anzahl: 54 Aufrufstellen, 52 Hooks.
 | `review_captain_show_pro_info` | filter | `bool $show` – Default: setting general.show_pro_hints (on); the Pro add-on returns false | `src/Admin/DashboardPage.php:173` |
 | `review_captain_side_effect_free_job_prefixes` | filter | `self::SIDE_EFFECT_FREE_PREFIXES` | `src/Jobs/Runner.php:235` |
 | `review_captain_submission_hold_reasons` | filter | `list<string> $reasons` – Reasons found by the settings<br>`Review $review` – Review (not yet stored) | `src/Frontend/FormHandler.php:411` |
-| `review_captain_sync_initial_status` | filter | `ReviewStatus $status` – Status (pending by default) | `src/Providers/SyncService.php:151` |
+| `review_captain_sync_initial_status` | filter | `ReviewStatus $status` – Status (pending by default) | `src/Providers/SyncService.php:155` |
 | `review_captain_template` | filter | `string $file` – Absolute path<br>`string $name` – Template name | `src/Frontend/TemplateLoader.php:45` |
 | `review_captain_trusted_proxy_header` | filter | `string $header` – Header from the setting | `src/Security/RateLimiter.php:45` |
 | `review_captain_verification_notice` | filter | `string $text` – Plain text (paragraphs separated by blank lines)<br>`string $context` – widget\|form<br>`list<string> $levels` – Levels occurring on this site (Verification values, "testimonial") | `src/Frontend/Renderer.php:225` |

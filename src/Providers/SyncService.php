@@ -111,6 +111,10 @@ class SyncService {
 						if ( $scrub ) {
 							$this->reviews->scrub_removed( $existing->id, 'remote_removed' );
 						}
+					} elseif ( $scrub && ReviewStatus::REMOVED === $existing->status && ! isset( $existing->meta['tombstone'] ) ) {
+						// Removed but still with content: removed under "hide" or by an older version, or
+						// the run stopped between status change and scrub. Reported again: scrub now (review P2).
+						$this->reviews->scrub_removed( $existing->id, 'remote_removed' );
 					}
 					break;
 				}
