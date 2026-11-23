@@ -24,7 +24,7 @@ Anzahl: 57 Aufrufstellen, 55 Hooks.
 | `review_captain_max_feedback_links` | filter | `int $max` – Maximum | `src/Feedback/CampaignStore.php:53` |
 | `review_captain_max_tags` | filter | `int $max` – Maximum | `src/Moderation/TagStore.php:39` |
 | `review_captain_moderation_url` | filter | `string $url` – URL<br>`Review $review` – Review | `src/Frontend/FormHandler.php:748` |
-| `review_captain_moderation_url` | filter | `string $url` – URL (review list filtered to open reports)<br>`\ReviewCaptain\Domain\Review $review` – Reported review | `src/Moderation/ReportHandler.php:120` |
+| `review_captain_moderation_url` | filter | `string $url` – URL (review list filtered to open reports)<br>`\ReviewCaptain\Domain\Review $review` – Reported review | `src/Moderation/ReportHandler.php:121` |
 | `review_captain_notification` | filter | `array{to: list<string>, subject: string, body: string} $mail` – Mail<br>`string $event` – review\|report\|question<br>`array<string, mixed> $context` – Context (no personal data) | `src/Moderation/Notifier.php:101` |
 | `review_captain_notify_recipients` | filter | `list<string> $list` – Addresses<br>`string $event` – review\|report\|question | `src/Moderation/Notifier.php:68` |
 | `review_captain_photo_max_edge` | filter | `int $edge` – Edge from the setting | `src/Media/PhotoStore.php:63` |

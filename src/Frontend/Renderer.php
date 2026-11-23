@@ -287,7 +287,9 @@ class Renderer {
 				'url'        => $external ? $url : '',
 				/* translators: %s: platform name */
 				'link_text'  => sprintf( __( 'Original auf %s ansehen', 'review-captain' ), $r->platform->label() ),
-				'link_attrs' => EmbedPolicy::external_link_attrs(),
+				// display.widget_new_tab / new_tab attribute also applies to the link to the original (SET-RC-P5).
+				'link_attrs' => EmbedPolicy::external_link_attrs( $d->new_tab ),
+				'new_tab'    => $d->new_tab,
 			);
 		}
 

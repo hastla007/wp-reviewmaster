@@ -59,7 +59,8 @@ class ReportHandler {
 				'ok'       => $ok,
 				'error'    => $error,
 				'flagged'  => $flagged,
-				'redirect' => add_query_arg( 'rc_reported', $ok ? '1' : 'error', $return ),
+				// Fragment: back to the status message, not to the top of the page (SET-RC-P5).
+				'redirect' => add_query_arg( 'rc_reported', $ok ? '1' : 'error', $return ) . '#rc-report-notice',
 			);
 		};
 

@@ -16,4 +16,13 @@
 			} );
 		} );
 	} );
+	// SET-RC-P5: WordPress moves notices below the page title after load, which drops the autofocus of
+	// the settings error list. Focus it again once the page has settled, so keyboard and screen reader
+	// users start at the list of fields to fix.
+	window.addEventListener( 'load', function () {
+		var errors = document.getElementById( 'rc-settings-errors' );
+		if ( errors ) {
+			errors.focus();
+		}
+	} );
 } )();

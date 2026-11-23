@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 ?>
 <div id="<?php echo esc_attr( $rc['id'] ); ?>" class="<?php echo esc_attr( $rc['classes'] ); ?>" style="<?php echo esc_attr( '--rc-columns: ' . (int) $rc['columns'] ); ?>">
 	<?php if ( ! empty( $rc['notice'] ) ) : ?>
-		<p class="rc-notice" role="status"><?php echo esc_html( $rc['notice'] ); ?></p>
+		<p class="rc-notice" id="rc-report-notice" role="status" tabindex="-1" autofocus><?php echo esc_html( $rc['notice'] ); ?></p>
 	<?php endif; ?>
 	<?php if ( ! empty( $rc['verification']['html'] ) && 'above' === $rc['verification']['position'] ) : ?>
 		<?php echo $rc['verification']['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in verification-notice.php. ?>
