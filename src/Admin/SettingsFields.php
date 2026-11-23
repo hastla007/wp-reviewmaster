@@ -232,9 +232,9 @@ final class SettingsFields {
 			),
 			'submissions.report_reasons'      => ReportStore::reason_labels(),
 			'display.schema_contexts'         => array(
-				'product' => __( 'Produkt', 'review-captain' ),
-				'post'    => __( 'Beitrag/Seite', 'review-captain' ),
-				'event'   => __( 'Event', 'review-captain' ),
+				'product' => __( 'Produkte', 'review-captain' ),
+				'post'    => __( 'Beiträge', 'review-captain' ),
+				'event'   => __( 'Veranstaltungen', 'review-captain' ),
 			),
 			'submissions.report_notify'       => array(
 				'recipients' => __( 'Empfänger der Benachrichtigungen', 'review-captain' ),

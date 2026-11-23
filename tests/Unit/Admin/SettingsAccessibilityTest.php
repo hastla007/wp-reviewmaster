@@ -47,7 +47,7 @@ final class SettingsAccessibilityTest extends AdminTestCase {
 		$this->assertMatchesRegularExpression( '/<fieldset id="rc-display-schema_contexts" tabindex="-1" aria-describedby="rc-display-schema_contexts-desc">/', $html );
 		$this->assertStringContainsString( 'id="rc-display-schema_contexts-desc"', $html );
 		// Choices carry readable names, not the stored keys.
-		$this->assertMatchesRegularExpression( '/value="post"[^>]*\/> Beitrag\/Seite<\/label>/', $html );
+		$this->assertMatchesRegularExpression( '/value="post"[^>]*\/> Beiträge<\/label>/', $html );
 	}
 
 	public function test_error_list_takes_focus(): void {
