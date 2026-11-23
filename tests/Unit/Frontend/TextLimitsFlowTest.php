@@ -1,7 +1,8 @@
 <?php
 /**
  * Review P2: text length limits at 0 and in a contradictory stored combination, across the
- * whole flow (form, rendered form, author correction, workflow draft).
+ * whole flow (form, rendered form, author correction, workflow draft); date of the "edited"
+ * line after an approved correction.
  */
 
 declare(strict_types=1);
@@ -108,5 +109,18 @@ final class TextLimitsFlowTest extends FrontendTestCase {
 	private function handler(): FormHandler {
 		/** @var FormHandler */
 		return Plugin::instance()->get( 'form_handler' );
+	}
+
+	public function test_edited_label_uses_the_configured_date_format(): void {
+		$this->settings(
+			array(
+				'general' => array( 'date_format' => 'd.m.Y' ),
+				'display' => array( 'date_style' => 'relative' ),
+			)
+		);
+		$this->review( array( 'meta' => array( 'edited_at' => '2026-11-02 09:00:00' ) ) );
+		$html = $this->shortcode( array( 'v' => '1' ) );
+		$this->assertStringContainsString( 'bearbeitet am 02.11.2026', $html, 'general.date_format, never "bearbeitet am vor …"' );
+		$this->assertStringContainsString( 'vor ', $html, 'the review date itself stays relative' );
 	}
 }

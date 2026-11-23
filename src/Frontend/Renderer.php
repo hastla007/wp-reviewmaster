@@ -328,7 +328,7 @@ class Renderer {
 			$edited = false === $ts ? null : array(
 				'iso'  => gmdate( 'c', $ts ),
 				/* translators: %s: date */
-				'text' => sprintf( __( 'bearbeitet am %s', 'review-captain' ), wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts ) ),
+				'text' => sprintf( __( 'bearbeitet am %s', 'review-captain' ), wp_date( $this->date_format(), $ts ) ),
 			);
 		}
 
@@ -679,11 +679,19 @@ class Renderer {
 			/* translators: %s: human readable time difference */
 			return sprintf( __( 'vor %s', 'review-captain' ), human_time_diff( $ts, time() ) );
 		}
-		$format = trim( (string) $settings->get( 'general', 'date_format', '' ) );
+		return (string) wp_date( $this->date_format(), $ts );
+	}
+
+	/**
+	 * Absolute date format: general.date_format, else the WordPress date format (also for the
+	 * "bearbeitet am" line, which never uses the relative style, review P2).
+	 */
+	private function date_format(): string {
+		$format = trim( (string) $this->plugin->settings()->get( 'general', 'date_format', '' ) );
 		if ( '' === $format ) {
 			$format = (string) get_option( 'date_format', 'j. F Y' );
 		}
-		return (string) wp_date( '' !== $format ? $format : 'j. F Y', $ts );
+		return '' !== $format ? $format : 'j. F Y';
 	}
 
 	/**
