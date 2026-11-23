@@ -95,7 +95,7 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 
 Interne Cron-Hooks ohne Stabilitätszusage: `review_captain_run_jobs` (5-Minuten-Tick), `review_captain_daily_maintenance`.
 
-Event-Payloads (`ReviewCaptain\Events\Events::payload()`): `['schema' => 'review_captain.review.v1', 'event_id' => uuid, 'review_uuid', 'kind', 'platform', 'origin', 'status', 'previous_status', 'verification', 'context_type', 'context_id', 'experience_id', 'occurred_at' (ISO 8601 UTC)]` – niemals Reviewtext, E-Mail, Tokens.
+Event-Payloads (`ReviewCaptain\Events\Events::payload()`): `['schema' => 'review_captain.review.v1', 'event_id' => uuid, 'review_uuid', 'kind', 'platform', 'origin', 'status', 'previous_status', 'verification', 'rating_value' (float\|null, seit Vertrag 1.1.0), 'rating_scale_min', 'rating_scale_max', 'context_type', 'context_id', 'experience_id', 'occurred_at' (ISO 8601 UTC)]` – niemals Reviewtext, E-Mail, Tokens.
 
 ### Reservierte Namen (spezifiziert, in Core v1 nicht implementiert)
 

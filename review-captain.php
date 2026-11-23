@@ -21,7 +21,7 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'REVIEW_CAPTAIN_VERSION', '0.1.0-dev' );
 // Public contract version (SemVer, independent of the plugin version): docs/contracts/README.md#vertragsversion.
-define( 'REVIEW_CAPTAIN_CONTRACT_VERSION', '1.0.0' );
+define( 'REVIEW_CAPTAIN_CONTRACT_VERSION', '1.1.0' );
 define( 'REVIEW_CAPTAIN_FILE', __FILE__ );
 define( 'REVIEW_CAPTAIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'REVIEW_CAPTAIN_URL', plugin_dir_url( __FILE__ ) );

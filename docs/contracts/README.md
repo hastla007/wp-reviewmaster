@@ -30,7 +30,16 @@ Stand: 2026-11-16. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme*
 - MINOR steigt, wenn Hooks, Felder, Methoden oder optionale Argumente dazukommen.
 - PATCH steigt bei Klarstellungen ohne Änderung des Verhaltens.
 
-Stand: `1.0.0`. Ein Test (`tests/Unit/Support/ContractVersionTest.php`) prüft Format und Übereinstimmung der Hauptversion mit `WorkflowService::CONTRACT`. Adapter (z. B. Workflow Captain Pro) melden sich nur bei Hauptversion 1 an.
+Stand: `1.1.0`.
+
+| Version | Änderung |
+|---|---|
+| 1.0.0 | erster öffentlicher Vertrag (RC-2) |
+| 1.1.0 | Payload `review_captain.review.v1` additiv um `rating_value`, `rating_scale_min`, `rating_scale_max` ergänzt (RC-4); `rating_value` ist `null`, wenn die Bewertung keine Sterne hat |
+
+Neue Felder in einem Payload sind additiv und optional: Empfänger müssen unbekannte Schlüssel ignorieren (siehe [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md), Ergänzung vom 23.11.2026).
+
+ Ein Test (`tests/Unit/Support/ContractVersionTest.php`) prüft Format und Übereinstimmung der Hauptversion mit `WorkflowService::CONTRACT`. Adapter (z. B. Workflow Captain Pro) melden sich nur bei Hauptversion 1 an.
 
 ## Lesereihenfolge für Implementierung
 

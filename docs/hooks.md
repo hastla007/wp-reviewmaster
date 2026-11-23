@@ -25,9 +25,9 @@ Anzahl: 31 Aufrufstellen, 30 Hooks.
 | `review_captain_reconcile_report` | filter | `array $report` – Report<br>`bool $fix` – Whether fixes may be applied<br>`string $mode` – Mode | `src/Maintenance/Reconciler.php:172` |
 | `review_captain_request_planner_v1` | filter | `RequestPlannerInterface\|null $planner` – Planner (null = none) | `src/Workflow/WorkflowService.php:379` |
 | `review_captain_request_planner_v1` | filter | `null` | `src/Workflow/WorkflowService.php:392` |
-| `review_captain_review_created_v1` | action | `self::payload( $review )` | `src/Events/Events.php:54` |
-| `review_captain_review_removed_v1` | action | `self::payload( $review )` | `src/Events/Events.php:73` |
-| `review_captain_review_status_changed_v1` | action | `self::payload( $review, $previous )` | `src/Events/Events.php:64` |
+| `review_captain_review_created_v1` | action | `self::payload( $review )` | `src/Events/Events.php:58` |
+| `review_captain_review_removed_v1` | action | `self::payload( $review )` | `src/Events/Events.php:77` |
+| `review_captain_review_status_changed_v1` | action | `self::payload( $review, $previous )` | `src/Events/Events.php:68` |
 | `review_captain_runner_concurrency` | filter | `self::CONCURRENCY` | `src/Jobs/Runner.php:194` |
 | `review_captain_runner_max_jobs` | filter | `self::MAX_JOBS` | `src/Jobs/Runner.php:193` |
 | `review_captain_schema_eligible` | filter | `bool $eligible` – Always true here<br>`Review $r` – Review<br>`array<string, mixed> $ctx` – Context | `src/Seo/SchemaEligibility.php:117` |

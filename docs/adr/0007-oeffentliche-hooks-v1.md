@@ -22,7 +22,7 @@ Zusätzlich führt `docs/contracts/README.md` Namen (Hooks, Funktionen, Payload-
 
 Option 3. Alle 28 von Core v1 ausgelösten Hooks mit Präfix `review_captain_` sind öffentliche API. Es gelten drei Stufen:
 
-- **Stufe V (versionierter Vertrag, `_v1`):** Name, Parameter und Payload-Form ändern sich nur mit neuer Major-Version (`_v2`, parallel mindestens für die Deprecation-Frist).
+- **Stufe V (versionierter Vertrag, `_v1`):** Name, Parameter und Payload-Form ändern sich nur mit neuer Major-Version (`_v2`, parallel mindestens für die Deprecation-Frist). *Ergänzung 23.11.2026 (RC-4):* Zusätzliche, optionale Payload-Felder gelten nicht als Änderung der Form. Sie heben nur die MINOR-Version von `REVIEW_CAPTAIN_CONTRACT_VERSION`; Empfänger müssen unbekannte Schlüssel ignorieren. Entfernen, Umbenennen oder ein anderer Typ eines Felds bleiben Major-Änderungen.
 - **Stufe S (stabiler Erweiterungspunkt):** Name und Parameter bleiben innerhalb von Core-Major 1 stabil; neue optionale Parameter werden nur angehängt. Entfernen/Umbenennen nur per ADR mit `do_action_deprecated()`/`apply_filters_deprecated()`-Übergang (mindestens 2 Minor-Releases).
 - **Stufe B (Betriebs-Stellschraube):** Name und Parameter stabil wie Stufe S, aber **Default-Werte** und deren Wirkung dürfen sich in Minor-Releases ändern.
 
