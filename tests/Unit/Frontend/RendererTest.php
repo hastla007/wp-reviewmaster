@@ -81,6 +81,20 @@ final class RendererTest extends FrontendTestCase {
 
 		$with = $this->shortcode( array( 'show_source' => '1' ) );
 		$this->assertStringContainsString( 'Bewertung auf dieser Website', $with );
+		$this->assertStringNotContainsString( 'target="_blank"', $with );
+
+		// SET-RC-P5: "Links zum Original in neuem Tab" applies to the card link and is announced.
+		$tab = $this->shortcode( array( 'new_tab' => '1' ) );
+		$this->assertStringContainsString( 'rel="nofollow noopener noreferrer ugc" target="_blank">Original auf Trustpilot ansehen<span class="rc-visually-hidden"> (öffnet in neuem Tab)</span></a>', $tab );
+	}
+
+	public function test_report_status_message_is_a_focusable_jump_target(): void {
+		$this->review( array( 'author_name' => 'Lokal' ) );
+		$_GET['rc_reported'] = '1';
+		$out = $this->shortcode();
+		unset( $_GET['rc_reported'] );
+		// SET-RC-P5: the report redirect ends in #rc-report-notice; the message takes focus.
+		$this->assertStringContainsString( '<p class="rc-notice" id="rc-report-notice" role="status" tabindex="-1" autofocus>', $out );
 	}
 
 	public function test_testimonial_and_verified_badges(): void {

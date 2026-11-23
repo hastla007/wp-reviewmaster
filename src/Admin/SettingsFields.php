@@ -103,10 +103,10 @@ final class SettingsFields {
 				'schema_contexts'    => array( __( 'Markup für', 'review-captain' ), __( 'Nur für diese Inhaltstypen werden strukturierte Daten ausgegeben.', 'review-captain' ) ),
 				'schema_min_reviews' => array( __( 'Mindestzahl Bewertungen für Markup', 'review-captain' ), __( 'Strukturierte Daten erst ab so vielen geeigneten, sichtbaren Bewertungen auf der Seite.', 'review-captain' ) ),
 				'widget_limit'         => array( __( 'Anzahl Bewertungen', 'review-captain' ), __( 'Vorgabe, wenn ein Widget, Block oder Shortcode keine eigene Anzahl hat (höchstens 50).', 'review-captain' ) ),
-				'widget_layout'        => array( __( 'Darstellung', 'review-captain' ), '' ),
+				'widget_layout'        => array( __( 'Darstellung', 'review-captain' ), __( 'Raster zeigt die Bewertungen als Karten nebeneinander, Liste untereinander. Gilt, wenn ein Widget, Block oder Shortcode keine eigene Darstellung hat.', 'review-captain' ) ),
 				'widget_columns'       => array( __( 'Spalten im Raster', 'review-captain' ), __( 'Auf schmalen Bildschirmen werden es automatisch weniger.', 'review-captain' ) ),
 				'widget_heading_level' => array( __( 'Überschriftenebene der Karten', 'review-captain' ), __( 'h2 bis h6. Wähle die Ebene passend zur Gliederung deiner Seite.', 'review-captain' ) ),
-				'widget_new_tab'       => array( __( 'Links zum Original in neuem Tab', 'review-captain' ), '' ),
+				'widget_new_tab'       => array( __( 'Links zum Original in neuem Tab', 'review-captain' ), __( 'Öffnet Links zur Bewertung bei der Plattform in einem neuen Tab. Der Link kündigt das für Screenreader an.', 'review-captain' ) ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( __( 'Externe Reviews ohne Bestätigung (Tage)', 'review-captain' ), __( 'Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde.', 'review-captain' ) ),
@@ -231,6 +231,11 @@ final class SettingsFields {
 				'relative' => __( 'Relativ (vor 3 Tagen)', 'review-captain' ),
 			),
 			'submissions.report_reasons'      => ReportStore::reason_labels(),
+			'display.schema_contexts'         => array(
+				'product' => __( 'Produkt', 'review-captain' ),
+				'post'    => __( 'Beitrag/Seite', 'review-captain' ),
+				'event'   => __( 'Event', 'review-captain' ),
+			),
 			'submissions.report_notify'       => array(
 				'recipients' => __( 'Empfänger der Benachrichtigungen', 'review-captain' ),
 				'none'       => __( 'Niemand', 'review-captain' ),

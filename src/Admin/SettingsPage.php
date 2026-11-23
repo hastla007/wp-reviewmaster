@@ -770,7 +770,7 @@ final class SettingsPage {
 	 */
 	private function render_error_summary( string $tab ): void {
 		$fields = SettingsSchema::fields()[ $tab ] ?? array();
-		echo '<div class="notice notice-error rc-admin-errors" id="rc-settings-errors" role="alert" tabindex="-1"><p>' . esc_html__( 'Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:', 'review-captain' ) . '</p><ul>';
+		echo '<div class="notice notice-error rc-admin-errors" id="rc-settings-errors" role="alert" tabindex="-1" autofocus><p>' . esc_html__( 'Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:', 'review-captain' ) . '</p><ul>';
 		foreach ( $this->field_errors['errors'] as $key => $message ) {
 			$anchor = 'access' === $tab ? 'rc-access-' . $key . '-col' : 'rc-' . $tab . '-' . $key;
 			echo '<li><a href="#' . esc_attr( $anchor ) . '">' . esc_html( SettingsFields::label( $tab, $key, $fields[ $key ] ?? array() ) ) . '</a>: ' . esc_html( $message ) . '</li>';
@@ -933,7 +933,8 @@ final class SettingsPage {
 		$descr = ( $ids ? ' aria-describedby="' . esc_attr( implode( ' ', $ids ) ) . '"' : '' ) . ( null !== $error ? ' aria-invalid="true"' : '' );
 
 		echo '<tr><th scope="row">';
-		echo in_array( $field['type'], array( 'bool', 'array' ), true ) ? esc_html( $label ) : '<label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+		// A checkbox gets the row label as a second <label>, so its accessible name is "<label> Aktiv", not only "Aktiv".
+		echo 'array' === $field['type'] ? esc_html( $label ) : '<label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
 		echo '</th><td>';
 
 		switch ( $field['type'] ) {
@@ -965,7 +966,7 @@ final class SettingsPage {
 				echo '<textarea class="large-text" rows="4" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '"' . $dis . $descr . '>' . esc_textarea( (string) $value ) . '</textarea>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
 			case 'array':
-				$this->render_array_field( $tab, $key, $field, (array) $value, $name, $disabled );
+				$this->render_array_field( $tab, $key, $field, (array) $value, $name, $disabled, $descr );
 				break;
 			case 'string':
 			default:
@@ -998,8 +999,9 @@ final class SettingsPage {
 	 * @param array<int, mixed>    $value    Value.
 	 * @param string               $name     Input name.
 	 * @param bool                 $disabled Disabled.
+	 * @param string               $descr    aria-describedby/aria-invalid attributes of the field (help text, error).
 	 */
-	private function render_array_field( string $tab, string $key, array $field, array $value, string $name, bool $disabled ): void {
+	private function render_array_field( string $tab, string $key, array $field, array $value, string $name, bool $disabled, string $descr = '' ): void {
 		$roles   = str_ends_with( $key, '_roles' );
 		// Choice labels come from SettingsFields::choice_label() (falls back to the raw value).
 		$choices = array();
@@ -1013,7 +1015,8 @@ final class SettingsPage {
 			}
 		}
 		$dis = $disabled ? ' disabled="disabled"' : '';
-		echo '<fieldset><legend class="screen-reader-text">' . esc_html( SettingsFields::label( $tab, $key, $field ) ) . '</legend>';
+		// The fieldset carries the field id (target of the error list) and the help/error text.
+		echo '<fieldset id="' . esc_attr( 'rc-' . $tab . '-' . $key ) . '" tabindex="-1"' . $descr . '><legend class="screen-reader-text">' . esc_html( SettingsFields::label( $tab, $key, $field ) ) . '</legend>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $descr is escaped in render_field().
 		// Empty marker so "nothing checked" is submitted as an empty list.
 		echo '<input type="hidden" name="' . esc_attr( $name . '[]' ) . '" value=""' . $dis . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		foreach ( $choices as $choice => $label ) {

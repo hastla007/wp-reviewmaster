@@ -62,7 +62,7 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 		<?php if ( ! empty( $rc['source'] ) ) : ?>
 			<span class="rc-source rc-source--<?php echo esc_attr( $rc['source']['platform'] ); ?>"><?php echo esc_html( $rc['source']['label'] ); ?></span>
 			<?php if ( '' !== $rc['source']['url'] ) : ?>
-				<a class="rc-source__link" href="<?php echo esc_url( $rc['source']['url'] ); ?>" <?php echo $rc['source']['link_attrs']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string from EmbedPolicy. ?>><?php echo esc_html( $rc['source']['link_text'] ); ?></a>
+				<a class="rc-source__link" href="<?php echo esc_url( $rc['source']['url'] ); ?>" <?php echo $rc['source']['link_attrs']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string from EmbedPolicy. ?>><?php echo esc_html( $rc['source']['link_text'] ) . ( ! empty( $rc['source']['new_tab'] ) ? '<span class="rc-visually-hidden"> ' . esc_html__( '(öffnet in neuem Tab)', 'review-captain' ) . '</span>' : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped parts. ?></a>
 			<?php endif; ?>
 		<?php endif; ?>
 	</footer>

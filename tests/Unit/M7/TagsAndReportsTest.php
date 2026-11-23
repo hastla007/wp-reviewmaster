@@ -77,7 +77,7 @@ final class TagsAndReportsTest extends M7TestCase {
 		$out = $this->report( $r->uuid, 'offensive' );
 		$this->assertTrue( $out['ok'] );
 		$this->assertTrue( $out['flagged'] );
-		$this->assertSame( 'https://example.test/bewertungen/?rc_reported=1', $out['redirect'] );
+		$this->assertSame( 'https://example.test/bewertungen/?rc_reported=1#rc-report-notice', $out['redirect'] );
 		$this->assertSame( ReviewStatus::FLAGGED, Plugin::instance()->reviews()->find( (int) $r->id )->status );
 		$this->assertStringNotContainsString( $r->uuid, $this->shortcode( array( 'v' => '1' ) ) );
 		$this->assertSame( array( 'offensive' => 1 ), ( new ReportStore() )->open_reasons( (int) $r->id ) );

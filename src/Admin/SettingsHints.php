@@ -173,7 +173,8 @@ final class SettingsHints {
 		foreach ( $hints as $hint ) {
 			$html .= '<li class="rc-admin-hint" data-hint="' . esc_attr( $hint['id'] ) . '"><span class="rc-admin-hint-badge">' . esc_html__( 'Pro', 'review-captain' ) . '</span> <strong>' . esc_html( $hint['title'] ) . ':</strong> ' . esc_html( $hint['text'] );
 			if ( '' !== $hint['link'] ) {
-				$html .= ' <a href="' . esc_url( $hint['link'] ) . '">' . esc_html__( 'Mehr erfahren', 'review-captain' ) . '</a>';
+				/* translators: %s: title of the hint line */
+				$html .= ' <a href="' . esc_url( $hint['link'] ) . '" aria-label="' . esc_attr( sprintf( __( 'Mehr erfahren: %s', 'review-captain' ), $hint['title'] ) ) . '">' . esc_html__( 'Mehr erfahren', 'review-captain' ) . '</a>';
 			}
 			$html .= '</li>';
 		}
