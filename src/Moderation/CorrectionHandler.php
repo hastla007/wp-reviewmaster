@@ -208,6 +208,13 @@ class CorrectionHandler {
 		$url      = isset( $post['rc_return'] ) ? esc_url_raw( (string) $post['rc_return'] ) : '';
 		$url      = '' !== $url ? wp_validate_redirect( $url, $fallback ) : $fallback;
 		$url      = strtok( (string) $url, '#' );
-		return remove_query_arg( array( self::QUERY_TOKEN, self::QUERY_RESULT ), false !== $url ? $url : $fallback );
+		$url      = false !== $url ? $url : $fallback;
+		if ( str_starts_with( $url, '/' ) && ! str_starts_with( $url, '//' ) ) {
+			// The form posts the current request path (relative). The link goes out by e-mail, so it
+			// needs scheme and host: those of the site, never of the request (review P2).
+			$origin = (string) preg_replace( '#^(https?://[^/?\#]+).*$#i', '$1', $fallback );
+			$url    = $origin . $url;
+		}
+		return remove_query_arg( array( self::QUERY_TOKEN, self::QUERY_RESULT ), $url );
 	}
 }

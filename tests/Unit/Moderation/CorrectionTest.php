@@ -206,4 +206,18 @@ final class CorrectionTest extends TestCase {
 		$this->assertStringContainsString( 'name="rc_body"', $html );
 		$this->assertStringNotContainsString( 'name="rc_title"', $html );
 	}
+
+	public function test_link_in_the_mail_is_absolute_when_the_form_posts_a_path(): void {
+		$this->enable();
+		$this->review();
+		// The shortcode posts the current request path as rc_return (relative, as in WordPress).
+		$res = ( new CorrectionHandler( Plugin::instance() ) )->process( array( 'op' => 'request', 'rc_email' => 'erika@example.org', 'rc_return' => '/bewertung-korrigieren/?lang=de', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
+		$this->assertSame( 'link_sent', $res['result'] );
+		$this->assertCount( 1, \RC_Test_State::$mails );
+		$this->assertMatchesRegularExpression( '#\nhttps://example\.test/bewertung-korrigieren/\?lang=de&rc_correct=[A-Za-z0-9_-]+\n#', \RC_Test_State::$mails[0]['message'], 'a clickable link with the site host' );
+		$this->assertStringStartsWith( 'https://example.test/bewertung-korrigieren/', $res['redirect'] );
+		// A foreign host is still refused (wp_validate_redirect), protocol-relative too.
+		$res = ( new CorrectionHandler( Plugin::instance() ) )->process( array( 'op' => 'request', 'rc_email' => 'x@example.org', 'rc_return' => '//evil.test/x', CorrectionHandler::NONCE_FIELD => $this->nonce() ) );
+		$this->assertStringStartsWith( 'https://example.test/', $res['redirect'] );
+	}
 }
