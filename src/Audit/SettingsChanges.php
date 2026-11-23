@@ -73,7 +73,12 @@ final class SettingsChanges {
 			return $value;
 		}
 		if ( is_array( $value ) ) {
-			return self::shorten( implode( ', ', array_map( static fn( $v ): string => is_scalar( $v ) ? (string) $v : '', $value ) ), 100 );
+			if ( 'personal' === ( $field['privacy'] ?? 'none' ) ) {
+				return array() === $value ? '' : self::HIDDEN;
+			}
+			// Lists may hold addresses (submissions.notify_recipients): each one is masked like a single value.
+			$items = array_map( static fn( $v ): string => ! is_scalar( $v ) ? '' : ( is_email( (string) $v ) ? self::mask_email( (string) $v ) : (string) $v ), $value );
+			return self::shorten( implode( ', ', $items ), 100 );
 		}
 		if ( ! is_scalar( $value ) ) {
 			return null;
