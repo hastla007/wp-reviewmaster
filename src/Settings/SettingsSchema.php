@@ -552,6 +552,15 @@ final class SettingsSchema {
 				if ( ! is_scalar( $value ) && null !== $value ) {
 					return array( null, __( 'Ungültiger Wert.', 'review-captain' ) );
 				}
+				if ( isset( $field['max_length'] ) ) {
+					// Too long is reported, not cut (texts such as the consent text must never end mid-sentence).
+					$clean = 'textarea' === $field['type'] ? sanitize_textarea_field( (string) $value ) : sanitize_text_field( (string) $value );
+					$max   = max( 0, (int) $field['max_length'] );
+					if ( mb_strlen( $clean ) > $max ) {
+						/* translators: 1: maximum number of characters, 2: number of characters given */
+						return array( null, sprintf( __( 'Bitte kürze den Text auf höchstens %1$s Zeichen (derzeit %2$s).', 'review-captain' ), number_format_i18n( $max ), number_format_i18n( mb_strlen( $clean ) ) ) );
+					}
+				}
 				return array( self::sanitize_value( $field, (string) $value ), null );
 		}
 	}

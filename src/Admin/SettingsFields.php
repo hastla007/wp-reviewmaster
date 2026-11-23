@@ -26,7 +26,7 @@ final class SettingsFields {
 	public static function texts(): array {
 		return array(
 			'general'     => array(
-				'brand_name'        => array( __( 'Marken- bzw. Firmenname', 'review-captain' ), __( 'Erscheint in Hinweisen und Formularen. Leer = Titel deiner Website.', 'review-captain' ) ),
+				'brand_name'        => array( __( 'Marken- bzw. Firmenname', 'review-captain' ), __( 'Erscheint in E-Mails an Bewertende (z. B. Korrektur-Link) und mit Review Captain Pro als Absender der Einladungen. Leer = Titel deiner Website.', 'review-captain' ) ),
 				'date_format'       => array( __( 'Datumsformat', 'review-captain' ), __( 'PHP-Datumsformat, z. B. d.m.Y. Leer = WordPress-Datumsformat. Es gilt die WordPress-Zeitzone.', 'review-captain' ) ),
 				'new_review_status' => array( __( 'Status neuer Reviews', 'review-captain' ), __( 'Gilt für Einreichungen über das Formular. „Sofort freigeben“ veröffentlicht ungeprüfte Texte – empfohlen nur mit aktiver Moderation.', 'review-captain' ) ),
 				'show_pro_hints'    => array( __( 'Pro-Hinweise zeigen', 'review-captain' ), __( 'Zeigt am Ende einzelner Einstellungsbereiche graue Hinweiszeilen zu Funktionen von Review Captain Pro und den Kasten „In Review Captain Pro“ in der Übersicht. Aus = keine Hinweise. Am Funktionsumfang ändert das nichts.', 'review-captain' ) ),

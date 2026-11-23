@@ -1338,8 +1338,8 @@ msgid "Marken- bzw. Firmenname"
 msgstr "Brand or company name"
 
 #: src/Admin/SettingsFields.php:26
-msgid "Erscheint in Hinweisen und Formularen. Leer = Titel deiner Website."
-msgstr "Appears in notices and forms. Empty = your site title."
+msgid "Erscheint in E-Mails an Bewertende (z. B. Korrektur-Link) und mit Review Captain Pro als Absender der Einladungen. Leer = Titel deiner Website."
+msgstr "Appears in e-mails to reviewers (e.g. the correction link) and, with Review Captain Pro, as the sender of invitations. Empty = your site title."
 
 #: src/Admin/SettingsFields.php:27
 msgid "Standardsprache"

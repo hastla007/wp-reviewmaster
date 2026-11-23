@@ -73,8 +73,12 @@ final class SettingsChanges {
 			return $value;
 		}
 		if ( is_array( $value ) ) {
+			if ( 'personal' === ( $field['privacy'] ?? 'none' ) ) {
+				// Personal lists (e.g. names): only "changed" is logged (SET-RC-P1).
+				return array() === $value ? '' : self::HIDDEN;
+			}
 			// Lists (roles, e-mail recipients, …): every element passes the same rules as a single
-			// value, so addresses in submissions.notify_recipients are masked as well (P4-2).
+			// value, so addresses in submissions.notify_recipients are masked as well (P4-2, SET-RC-P1).
 			$item  = array( 'type' => 'email_list' === $type ? 'email' : 'list_item' ) + $field;
 			$parts = array_map( static fn( $v ): string => is_scalar( $v ) ? (string) self::value( $key, $item, (string) $v ) : '', $value );
 			return self::shorten( implode( ', ', $parts ), 100 );

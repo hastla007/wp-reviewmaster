@@ -4,7 +4,7 @@ Status: an den implementierten Stand angeglichen (Standards und Wertebereiche ex
 
 Jeder Eintrag nennt: **Zweck** · **Gilt für** · **Standard** · **Folgen** · **Datenschutz** · **Voraussetzung**.
 
-**Prüfung beim Speichern (SET-RC-19):** Ungültige Eingaben werden nicht still korrigiert. Die Seite listet sie oben mit Sprunglinks zum Feld auf, markiert das Feld (auch für Screenreader) und zeigt Ihre Eingabe zum Korrigieren erneut an; das Feld behält seinen bisherigen Wert, alle gültigen Änderungen des Bereichs werden gespeichert. Zusätzlich geprüft: Mindestlänge < Höchstlänge, Beginn ≠ Ende bei Versand- und Synchronisierungsfenster, Freigabe hängender Aufgaben > Zeitbudget je Lauf. Beim Import einer Konfiguration werden Werte dagegen wie bisher auf den erlaubten Bereich gesetzt (die Vorschau zeigt das Ergebnis).
+**Prüfung beim Speichern (SET-RC-19):** Ungültige Eingaben werden nicht still korrigiert. Die Seite listet sie oben mit Sprunglinks zum Feld auf, markiert das Feld (auch für Screenreader) und zeigt Ihre Eingabe zum Korrigieren erneut an; das Feld behält seinen bisherigen Wert, alle gültigen Änderungen des Bereichs werden gespeichert. Zusätzlich geprüft: Mindestlänge < Höchstlänge, Beginn ≠ Ende bei Versand- und Synchronisierungsfenster, Freigabe hängender Aufgaben > Zeitbudget je Lauf. Beim Import einer Konfiguration werden Werte dagegen wie bisher auf den erlaubten Bereich gesetzt (die Vorschau zeigt das Ergebnis); Texte über der Höchstlänge werden dort gekürzt. Die Zusatzprüfungen gelten auch beim Import: Schlägt eine fehl, behalten die beteiligten Felder ihren bisherigen Wert, und die Vorschau nennt sie („Nicht übernommen …“).
 
 **Änderungsprotokoll (SET-RC-17):** Jede Änderung wird mit Benutzer, Zeit, altem und neuem Wert protokolliert (Werkzeuge › Diagnose › Protokoll, Filter „Einstellungen“). Texte werden gekürzt, E-Mail-Adressen maskiert, Absendernamen und Zugangsdaten nie gespeichert.
 
@@ -13,9 +13,9 @@ Jeder Eintrag nennt: **Zweck** · **Gilt für** · **Standard** · **Folgen** ·
 ## Allgemein
 
 ### Marken- bzw. Firmenname (`brand_name`)
-- **Zweck:** Name in Hinweisen, Formularen und (mit Pro) Einladungen.
+- **Zweck:** Name in E-Mails an Bewertende und (mit Pro) als Absendername der Einladungen.
 - **Gilt für:** ganze Website. **Standard:** leer = Titel Ihrer Website.
-- **Folgen:** erscheint z. B. im Text „Ihre Bewertung für {Name}“.
+- **Folgen:** erscheint z. B. in der E-Mail mit dem Korrektur-Link („Ihre Bewertung bei {Name} bearbeiten“). Benachrichtigungen an Sie selbst und strukturierte Daten nutzen weiter den Titel der Website.
 - **Datenschutz:** ist bei Einzelunternehmen oft ein Personenname; wird beim Konfigurationsexport nur nach Rückfrage mitgenommen.
 - **Voraussetzung:** keine.
 

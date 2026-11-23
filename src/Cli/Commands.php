@@ -559,7 +559,12 @@ class Commands {
 		}
 		$done = $this->settings_page()->reset_tabs( $tabs );
 		$this->plugin->settings()->flush();
-		$skipped = array_diff( $tabs, $done );
+		$own = array_diff( $tabs, SettingsPage::resettable_tabs() );
+		if ( $own && empty( $assoc['all'] ) ) {
+			/* translators: %s: tabs */
+			$this->out->warning( sprintf( __( 'Nur Einstellungen von Erweiterungen, die beim Zurücksetzen erhalten bleiben: %s', 'review-captain' ), implode( ', ', $own ) ) );
+		}
+		$skipped = array_diff( $tabs, $done, $own );
 		if ( $skipped ) {
 			/* translators: %s: tabs */
 			$this->out->warning( sprintf( __( 'Ohne Berechtigung übersprungen: %s', 'review-captain' ), implode( ', ', $skipped ) ) );
@@ -633,13 +638,18 @@ class Commands {
 		}
 		$tabs     = SettingsPage::writable_tabs();
 		$transfer = new ConfigTransfer( $this->plugin->settings() );
-		$preview  = $transfer->preview( $json, $tabs );
+		$preview  = $transfer->preview( $json, $tabs, SettingsPage::pro_writable() );
 		if ( null === $preview ) {
 			$this->out->error( __( 'Kein gültiger Review-Captain-Konfigurationsexport oder nicht unterstützte Version.', 'review-captain' ) );
 			return $none;
 		}
 		if ( SettingsPage::migrate_access( $this->plugin->settings() ) ) {
-			$preview = (array) $transfer->preview( $json, $tabs );
+			$preview = (array) $transfer->preview( $json, $tabs, SettingsPage::pro_writable() );
+		}
+		foreach ( (array) ( $preview['kept'] ?? array() ) as $kept ) {
+			$names = array_map( static fn( $key ): string => $kept['tab'] . '.' . $key, (array) $kept['fields'] );
+			/* translators: 1: settings keys, 2: reason */
+			$this->out->warning( sprintf( __( 'Nicht übernommen, bisherige Werte bleiben: %1$s. %2$s', 'review-captain' ), implode( ', ', $names ), (string) $kept['message'] ) );
 		}
 		$rows = array();
 		foreach ( $preview['diff'] as $row ) {

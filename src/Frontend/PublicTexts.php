@@ -112,6 +112,16 @@ final class PublicTexts {
 	}
 
 	/**
+	 * Name shown to reviewers (general.brand_name; empty = site title), plain text.
+	 *
+	 * @param Settings $settings Settings.
+	 */
+	public static function brand_name( Settings $settings ): string {
+		$name = trim( (string) $settings->get( 'general', 'brand_name', '' ) );
+		return '' !== $name ? $name : wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
+	}
+
+	/**
 	 * URL of the privacy policy page ('' = none).
 	 */
 	public static function privacy_url(): string {

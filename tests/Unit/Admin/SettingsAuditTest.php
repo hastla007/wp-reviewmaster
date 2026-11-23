@@ -111,6 +111,19 @@ final class SettingsAuditTest extends AdminTestCase {
 		$this->assertStringNotContainsString( 'bis du sie löschen', $this->audit_rows( 'settings.changed' )[0]['context'] );
 	}
 
+	public function test_address_lists_are_masked_in_the_log(): void {
+		// SET-RC-P1: submissions.notify_recipients (email_list) was logged in plain text.
+		$this->assertSame( 'a***@example.test, b***@example.test', SettingsChanges::value( 'notify_recipients', array( 'type' => 'email_list', 'privacy' => 'config' ), array( 'anna.mueller@example.test', 'bob@example.test' ) ) );
+		$this->assertSame( SettingsChanges::HIDDEN, SettingsChanges::value( 'owners', array( 'type' => 'array', 'privacy' => 'personal' ), array( 'Erika' ) ) );
+		$this->assertSame( '', SettingsChanges::value( 'owners', array( 'type' => 'array', 'privacy' => 'personal' ), array() ) );
+
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		$this->page()->save_tab( 'submissions', array( 'submissions' => array( 'notify_recipients' => 'anna.mueller@example.test, bob@example.test' ) ) );
+		$rows = $this->audit_rows( 'settings.changed' );
+		$this->assertStringNotContainsString( 'anna.mueller', (string) end( $rows )['context'] );
+		$this->assertSame( 'a***@example.test, b***@example.test', $this->changes()['submissions.notify_recipients']['to'] );
+	}
+
 	public function test_reset_and_import_log_changes(): void {
 		update_option( Settings::OPTION, array( 'display' => array( 'show_date' => false ) ) );
 		$this->login_with( Capabilities::MANAGE_SETTINGS );

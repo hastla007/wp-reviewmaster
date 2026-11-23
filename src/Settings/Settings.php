@@ -25,14 +25,23 @@ class Settings {
 	private ?array $cache = null;
 
 	/**
+	 * Site the cache belongs to (Multisite: settings are per site, also after switch_to_blog()).
+	 *
+	 * @var int
+	 */
+	private int $cache_site = 0;
+
+	/**
 	 * All effective values (stored merged over defaults).
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	public function all(): array {
-		if ( null === $this->cache ) {
-			$stored      = get_option( self::OPTION, array() );
-			$this->cache = self::merge( SettingsSchema::defaults(), is_array( $stored ) ? $stored : array() );
+		$site = function_exists( 'get_current_blog_id' ) ? (int) get_current_blog_id() : 0;
+		if ( null === $this->cache || $site !== $this->cache_site ) {
+			$stored           = get_option( self::OPTION, array() );
+			$this->cache      = self::merge( SettingsSchema::defaults(), is_array( $stored ) ? $stored : array() );
+			$this->cache_site = $site;
 		}
 		return $this->cache;
 	}
