@@ -154,7 +154,7 @@ class Renderer {
 		}
 		$cards = array();
 		foreach ( $reviews as $review ) {
-			$cards[] = TemplateLoader::render( 'review-card.php', $this->card_data( $review, $d ) );
+			$cards[] = $this->render_card( $review, $d );
 			if ( ! $preview ) {
 				$this->visible->add( $review, $id );
 			}
@@ -240,6 +240,36 @@ class Renderer {
 	}
 
 	/**
+	 * Render one review card (template review-card.php).
+	 *
+	 * SET-RC-12: the label "received in exchange for a benefit" cannot be hidden. If a theme
+	 * template drops it, the label is inserted at the start of the card.
+	 *
+	 * @param Review           $r Review.
+	 * @param WidgetDefinition $d Definition.
+	 */
+	public function render_card( Review $r, WidgetDefinition $d ): string {
+		$data = $this->card_data( $r, $d );
+		$html = TemplateLoader::render( 'review-card.php', $data );
+		return self::ensure_incentivised_label( $html, (string) $data['incentivised'] );
+	}
+
+	/**
+	 * Insert the benefit label into card HTML that lacks it (SET-RC-12).
+	 *
+	 * @param string $html  Rendered card.
+	 * @param string $label Label text ('' = review not flagged).
+	 */
+	public static function ensure_incentivised_label( string $html, string $label ): string {
+		if ( '' === $label || str_contains( $html, 'rc-badge--incentivised' ) ) {
+			return $html;
+		}
+		$badge = '<p class="rc-badge rc-badge--incentivised">' . esc_html( $label ) . '</p>';
+		$end   = strpos( $html, '>' );
+		return false === $end ? $badge . $html : substr( $html, 0, $end + 1 ) . $badge . substr( $html, $end + 1 );
+	}
+
+	/**
 	 * Prepared data for one review card.
 	 *
 	 * @param Review           $r Review.
@@ -273,6 +303,32 @@ class Renderer {
 			$badges[] = array(
 				'class' => $level_class,
 				'text'  => PublicTexts::level_label( $settings, $r->verification->value ),
+			);
+		}
+
+		// SET-RC-12: "received in exchange for a benefit" – always first, no switch.
+		$incentivised = $r->incentivised ? PublicTexts::incentivised_label( $settings ) : '';
+		if ( '' !== $incentivised ) {
+			array_unshift(
+				$badges,
+				array(
+					'class' => 'rc-badge rc-badge--incentivised',
+					'text'  => $incentivised,
+				)
+			);
+		}
+
+		// SET-RC-13: merchant reply to an own review (never for platform reviews, see E4).
+		$reply = null;
+		if ( ! $external && $r->has_reply() && $settings->get( 'display', 'show_replies', true ) ) {
+			$reply_ts = null !== $r->reply_at ? strtotime( $r->reply_at . ' UTC' ) : false;
+			$reply    = array(
+				'label' => PublicTexts::reply_label( $settings ),
+				'html'  => wpautop( esc_html( trim( (string) $r->reply_body ) ) ),
+				'date'  => false === $reply_ts ? null : array(
+					'iso'  => gmdate( 'c', $reply_ts ),
+					'text' => wp_date( $this->date_format(), $reply_ts ),
+				),
 			);
 		}
 
@@ -374,6 +430,10 @@ class Renderer {
 			'edited'    => $edited,
 			'source'    => $source,
 			'badges'    => $badges,
+			// Plain text of the benefit label ('' = not flagged); also in badges (SET-RC-12).
+			'incentivised' => $incentivised,
+			// {label, html, date{iso,text}|null} or null (SET-RC-13).
+			'reply'     => $reply,
 		);
 	}
 

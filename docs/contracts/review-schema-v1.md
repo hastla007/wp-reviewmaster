@@ -43,6 +43,9 @@ Reihenfolge und Typen exakt nach conventions.md. „Provider liefert“ = Feld d
 | `consent_publish` | TINYINT | ja | `1` = Veröffentlichung erlaubt; Pflicht `1` für Sichtbarkeit bei `local_submission`, `testimonial` | nein |
 | `consent_at` | DATETIME NULL | wenn `consent_publish=1` lokal | Zeitpunkt der Einwilligung | nein |
 | `import_batch_id` | BIGINT NULL | bei `csv_import` | FK `import_batches.id` | nein |
+| `incentivised` | TINYINT | ja (Default `0`) | `1` = „Gegen einen Vorteil erhalten“ (SET-RC-12, ab Schema v5). Setzen: Moderierende (Editor), Workflows/Kampagnen (`create_draft(…, incentivised: true)`, Filter `review_captain_submission_incentivised`), CSV-Import. Ein Abgleich kann das Merkmal setzen, nie entfernen. Gesetzt → Kennzeichen an der Karte immer sichtbar, nie strukturierte Daten (E3b) | nein |
+| `reply_body` | TEXT NULL | nein | öffentliche Antwort des Händlers auf eine **eigene** Bewertung (SET-RC-13, ab Schema v5), Klartext, max. 5 000 Zeichen; bei `platform ≠ local` Validierungsfehler `reply_on_external` (Antworten der Plattform stehen in `meta.reply`) | nein |
+| `reply_at` | DATETIME NULL | mit `reply_body` | Datum der Antwort (UTC) | nein |
 | `experience_id` | VARCHAR(191) NULL | nein | Referenz auf das Erlebnis (siehe `experience-event-v1.md`), z. B. bei Review nach Einladung | nein |
 | `meta` | LONGTEXT (JSON) | ja (`{}`) | siehe „meta-Schlüssel“; max. 64 KiB; **keine Secrets, keine E-Mail** | teilweise |
 | `created_at` / `updated_at` | DATETIME (UTC) | ja | Core | nein |
@@ -113,7 +116,7 @@ Unbekannte Schlüssel werden beim Speichern verworfen. Alle Werte JSON-serialisi
 
 | Auslöser | Aktion | `status` | Inhalt |
 |---|---|---|---|
-| Provider meldet Löschung (`tombstones` in `sync_page`) oder Full-Reconcile findet Datensatz nicht mehr | Tombstone | `removed` | `title`, `body`, `author_name`, `meta.avatar_url`, `meta.reply` werden **geleert**; `rating_value` auf NULL |
+| Provider meldet Löschung (`tombstones` in `sync_page`) oder Full-Reconcile findet Datensatz nicht mehr | Tombstone | `removed` | `title`, `body`, `author_name`, `meta.avatar_url`, `meta.reply`, `reply_body`/`reply_at` werden **geleert**; `rating_value` auf NULL |
 | Privacy-Eraser für lokale Einreichung | Tombstone | `removed` | zusätzlich `author_email`, `author_user_id` = NULL |
 | Admin „endgültig löschen“ | Hard-Delete inkl. `review_events` (Audit-Eintrag bleibt ohne Inhalt) | – | – |
 | Aufbewahrungsfrist für Tombstones abgelaufen (RC-027, Default-Vorschlag 30 Tage) | Hard-Delete | – | – |

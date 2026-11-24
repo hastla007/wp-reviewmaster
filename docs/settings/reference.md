@@ -233,6 +233,18 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 - **Zweck:** Wortlaut der Kennzeichen an den Bewertungskarten. **Standard:** leer = „Verifizierter Kauf“, „Teilnahme bestätigt“, „Externe Plattformbewertung“, „Erfahrungsbericht dieser Website“, „Ungeprüft“; je höchstens 60 Zeichen. Filter `review_captain_public_text` (ID `display.label_…`) gewinnt.
 - **Folgen:** Nur der Text ist einstellbar. Welche Stufe eine Bewertung hat, setzt allein eine angebundene, vertrauenswürdige Quelle (Kauf/Teilnahme) bzw. der Abgleich (externe Plattform); keine Einstellung ändert die Stufe. „Ungeprüft“ erscheint nur mit `show_unverified_label` (Standard aus).
 
+### Kennzeichen „Gegen einen Vorteil erhalten“ (`label_incentivised`) – SET-RC-12
+- **Zweck:** Wortlaut des Kennzeichens an Bewertungen, für die die Person einen Vorteil erhalten hat (Gutschein, Rabatt, Gratisprodukt, Gewinnspiel). Das Merkmal setzen Moderierende im Bearbeiten-Fenster der Bewertung („Gegen einen Vorteil erhalten“), Kampagnen und Workflows über die Schnittstelle (`incentivised: true`) sowie der CSV-Import (Spalte `incentivised`).
+- **Standard:** leer = „Für diese Bewertung wurde ein Vorteil gewährt“, höchstens 60 Zeichen. Filter `review_captain_public_text` (ID `display.label_incentivised`) kann den Text ändern, aber nicht leeren.
+- **Folgen:** Ist das Merkmal gesetzt, steht das Kennzeichen **immer** an der Karte – es gibt bewusst keinen Schalter, und auch eine eigene Theme-Vorlage kann es nicht entfernen. Solche Bewertungen erhalten nie Bewertungs-Markup (schema.org); angezeigt werden sie weiterhin.
+- **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen** (Kennzeichnungspflicht für gekaufte bzw. belohnte Bewertungen, je Land). Die Freigabe des Standardtextes steht aus.
+
+### Antworten unter Bewertungen (`show_replies`, `reply_label`) – SET-RC-13
+- **Zweck:** Ihre öffentliche Antwort auf eigene, auf dieser Website abgegebene Bewertungen. Die Antwort (Text und Datum) schreiben Sie im Bearbeiten-Fenster der Bewertung; leerer Text entfernt sie.
+- **Standard:** an; Überschrift leer = „Antwort von {brand}“ (`{brand}` = Marken- bzw. Firmenname, sonst Titel der Website), höchstens 80 Zeichen.
+- **Folgen:** Die Antwort ändert weder die Bewertung noch Durchschnitte und wird nicht ausgezeichnet. Sie steht in der Datenauskunft und im CSV-Export; anonymisiert der Eraser die Bewertung, wird die Antwort mit gelöscht. Aus = Antworten bleiben gespeichert, werden aber nicht angezeigt.
+- **Pro:** Antworten auf Plattformbewertungen (Google, Trustpilot …) über deren Schnittstellen sind eine Pro-Funktion (Recht `review.platform_replies`), noch nicht gebaut.
+
 ### Fotos anzeigen (`show_photos`)
 - **Standard:** aus. An = Fotos freigegebener Bewertungen erscheinen in den Karten. **Datenschutz:** Fotos können Personen zeigen.
 

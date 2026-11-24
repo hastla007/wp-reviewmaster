@@ -43,7 +43,7 @@ Kategorien: **Core** (kostenlos, ohne Lizenz) · **Pro 1.0** · **Pro-Folge** (1
 | P4 | Plattformübergreifende Review-Inbox mit erweiterten Filtern | Pro 1.0 | `review.platform_sync` (Inbox ist Sicht auf synchronisierte Daten; Basisliste bleibt Core) |
 | P5 | Automatische Review-Anfragen, Vorlagen, Verzögerung, Opt-out, Audit | Pro 1.0 | `review.review_requests` |
 | P6 | WooCommerce-Integration für Anfragen und Produktzuordnung | Pro 1.0 | `review.review_requests` |
-| P7 | Antwort-Hilfen über Plattform-APIs | Pro-Folge | `review.platform_replies` |
+| P7 | Antwort-Hilfen über Plattform-APIs (nur Plattformbewertungen; Antworten auf eigene Bewertungen sind Free, SET-RC-13, Entscheidung E4 vom 24.11.2026) | Pro-Folge | `review.platform_replies` (Name entschieden, nicht gebaut) |
 | P8 | Zusätzliche Widgets (Karussell, Badge, Masonry, Produkt-/App-Rating, Trustbar, CTA) | Pro 1.0 (Karussell, Badge, Trustbar, Produkt-/App-Rating) / Pro-Folge (Masonry) | `review.advanced_widgets` |
 | P9 | Design-Controls, „Mehr laden“ | Pro 1.0 | `review.advanced_widgets` |
 | P10 | Analytics | Pro-Folge (Basisreport in 1.0 optional) | `review.analytics` |

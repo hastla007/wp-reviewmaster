@@ -180,6 +180,35 @@
 	color: var(--rc-color-success);
 }
 
+/* "Received in exchange for a benefit" (SET-RC-12): always visible, full text colour. */
+.rc-badge--incentivised {
+	margin: 0;
+	color: var(--rc-color-text);
+}
+
+/* Merchant reply to an own review (SET-RC-13) */
+.rc-reply {
+	margin-top: var(--rc-space-3);
+	padding: var(--rc-space-2) var(--rc-space-3);
+	border-left: 3px solid var(--rc-color-border);
+	font-size: var(--rc-font-size-sm);
+}
+
+.rc-reply__label {
+	margin: 0 0 var(--rc-space-1);
+	font-weight: 600;
+}
+
+.rc-reply__date {
+	margin-left: var(--rc-space-2);
+	font-weight: 400;
+	color: var(--rc-color-muted);
+}
+
+.rc-reply__body p {
+	margin: 0 0 var(--rc-space-1);
+}
+
 /* Verification notice "So prüfen wir Bewertungen" (SET-RC-01) */
 .rc-verification {
 	margin: var(--rc-space-3) 0;

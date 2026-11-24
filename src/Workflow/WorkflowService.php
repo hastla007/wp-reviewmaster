@@ -85,7 +85,8 @@ class WorkflowService {
 	 * review_text, display_name, title?, context_type?, context_id?, source_plugin?,
 	 * source_entry_id?, review_type?, verified? (must be false), consent? ({ publish: bool,
 	 * given_at: ISO 8601 } – the documented publication consent of the author; it is stored, but
-	 * never approves anything).
+	 * never approves anything), incentivised? (bool, SET-RC-12: the author received a benefit for
+	 * the review; shown as a label that cannot be hidden, never structured data).
 	 *
 	 * @param array<string, mixed> $draft Input.
 	 * @return array{success: bool, status: string, code: ?string, data: array<string, mixed>}
@@ -138,6 +139,11 @@ class WorkflowService {
 			return self::result( false, 'rejected', ErrorCode::DATA_INVALID_PAYLOAD, array( 'field' => 'context' ) );
 		}
 
+		// SET-RC-12: a campaign that rewards reviews (voucher, discount …) must say so; strict bool.
+		if ( array_key_exists( 'incentivised', $draft ) && ! is_bool( $draft['incentivised'] ) ) {
+			return self::result( false, 'rejected', ErrorCode::DATA_INVALID_PAYLOAD, array( 'field' => 'incentivised' ) );
+		}
+
 		$review                  = new Review();
 		$review->kind            = Kind::REVIEW;
 		$review->origin          = Origin::CONNECTOR;
@@ -152,6 +158,7 @@ class WorkflowService {
 		$review->context_type    = '' !== $type ? $type : null;
 		$review->context_id      = '' !== $type && '' !== $cid ? $cid : null;
 		$review->language        = substr( (string) determine_locale(), 0, 20 );
+		$review->incentivised    = true === ( $draft['incentivised'] ?? false );
 		$review->consent_publish = false;
 		$consent                 = $draft['consent'] ?? null;
 		if ( is_array( $consent ) && true === ( $consent['publish'] ?? null ) ) {

@@ -49,6 +49,7 @@ Die Kennungen und Tabs der Tabelle sind Vertrag mit Review Captain Pro (`CoreBri
 | requests | Testempfänger, Bounce-/Beschwerdeverhalten, Versandweg (SMTP/Dienst) | `review.review_requests` |
 | privacy | Aufbewahrung Einladungs-/Empfängerdaten, Medien-Testimonials | `review.review_requests` / OFFEN (Testimonials-Entitlement nicht im Katalogvorschlag) |
 | sources | Standard-Sync-Intervall neuer Profile | `review.platform_sync` |
+| display/Editor | Antworten auf Plattformbewertungen über deren Schnittstellen (nicht gebaut; Antworten auf eigene Bewertungen sind Core: `display.show_replies`, `display.reply_label`, SET-RC-13) | `review.platform_replies` (entschieden 24.11.2026, E4) |
 | display | Pro-Layoutvoreinstellungen | `review.advanced_widgets` |
 | advanced | Connector-Queue-Diagnose | `review.custom_connectors` |
 

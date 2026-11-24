@@ -158,6 +158,13 @@ class ReviewRepository {
 		$review->created_at = $existing->created_at;
 		// Never carry identity/uniqueness of the incoming object over the stored one.
 		$review->submission_key = $existing->submission_key;
+		// SET-RC-12/-13: a source can add the "benefit" flag but never remove one a moderator set,
+		// and it never overwrites the merchant reply.
+		$review->incentivised = $review->incentivised || $existing->incentivised;
+		if ( ! $review->has_reply() ) {
+			$review->reply_body = $existing->reply_body;
+			$review->reply_at   = $existing->reply_at;
+		}
 		// Content and moderation status are written independently (TEC-005 R-12b): the content
 		// update never touches status, so a moderation decision taken concurrently survives.
 		$incoming_status = $review->status;
@@ -310,7 +317,8 @@ class ReviewRepository {
 
 	/**
 	 * Tombstone content scrub (SET-RC-05, docs/contracts/review-schema-v1.md "Tombstone"): clears
-	 * title, text, author name, contact address and account link (P4-4), rating, avatar/reply and
+	 * title, text, author name, contact address and account link (P4-4), rating, merchant reply
+	 * (SET-RC-13), avatar/reply and
 	 * personal meta and deletes the photo of a
 	 * review that already has status `removed`. Identity (uuid, platform, profile, external_id,
 	 * dedupe_key), source link and dates stay so a later sync hits the same row and retention can
@@ -337,7 +345,7 @@ class ReviewRepository {
 		$updated = $wpdb->query(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				"UPDATE {$this->table()} SET title = '', body = '', author_name = '', author_email = NULL, author_user_id = NULL, submission_key = NULL, rating_value = NULL, meta = %s, updated_at = %s, revision = revision + 1 WHERE id = %d AND status = %s",
+				"UPDATE {$this->table()} SET title = '', body = '', author_name = '', author_email = NULL, author_user_id = NULL, submission_key = NULL, rating_value = NULL, reply_body = NULL, reply_at = NULL, meta = %s, updated_at = %s, revision = revision + 1 WHERE id = %d AND status = %s",
 				(string) wp_json_encode( (object) $meta ),
 				gmdate( 'Y-m-d H:i:s' ),
 				$id,

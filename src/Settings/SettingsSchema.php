@@ -277,6 +277,23 @@ final class SettingsSchema {
 					'type'    => 'bool',
 					'default' => false,
 				),
+				// SET-RC-12 (E7): text of the "received in exchange for a benefit" label. Only the text is
+				// configurable; on a flagged review the label is always shown (no switch, by design).
+				'label_incentivised' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 60,
+				),
+				// SET-RC-13 (E4): merchant replies to own reviews under the review.
+				'show_replies' => array(
+					'type'    => 'bool',
+					'default' => true,
+				),
+				'reply_label'  => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 80,
+				),
 				// SET-RC-22: colours as CSS custom properties (empty = theme/CSS default); own reviews keep the 1–5 scale.
 				'star_color'     => array( 'type' => 'color', 'default' => '' ),
 				'accent_color'   => array( 'type' => 'color', 'default' => '' ),

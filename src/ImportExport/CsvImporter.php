@@ -472,6 +472,14 @@ class CsvImporter {
 			$errors[] = array( 'too_long', 'context_id' );
 		}
 
+		// SET-RC-12: benefit flag; an unreadable value is an error, never silently "no".
+		$flag = strtolower( $cell( 'incentivised' ) );
+		if ( in_array( $flag, array( '1', 'yes', 'true', 'ja', 'x' ), true ) ) {
+			$r->incentivised = true;
+		} elseif ( ! in_array( $flag, array( '', '0', 'no', 'false', 'nein' ), true ) ) {
+			$errors[] = array( 'invalid_flag', 'incentivised' );
+		}
+
 		$r->consent_publish = false;
 		$r->author_email    = null;
 
@@ -599,6 +607,7 @@ class CsvImporter {
 			'source_url_not_https'     => __( 'Quellenlink muss mit https:// beginnen.', 'review-captain' ),
 			'testimonial_must_be_local' => __( 'Testimonials sind nur mit Plattform local erlaubt.', 'review-captain' ),
 			'invalid_context_type'     => __( 'Ungültiger Kontexttyp.', 'review-captain' ),
+			'invalid_flag'             => __( 'Ungültiger Ja/Nein-Wert (erlaubt: 1, 0, yes, no, true, false, ja, nein).', 'review-captain' ),
 			default                    => __( 'Ungültiger Wert.', 'review-captain' ),
 		};
 		if ( '' !== $field ) {
