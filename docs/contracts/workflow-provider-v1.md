@@ -173,7 +173,7 @@ Aufruf über `\ReviewCaptain\Plugin::instance()->workflow()->plan_request()` (Wo
 
 - Pflicht: `idempotency_key` (≤ 191 Zeichen, druckbares ASCII, ohne Leerzeichen, `|`, `@`), `campaign_id`, `subject` (`product`, `type`, `id`; `event_id`/`event_type` optional). Übrige Felder optional.
 - **Kein** `experience_id` und **kein** `recipient_ref`: Workflow kennt beide nicht und darf `experience_id` nicht weitergeben (R-4.29). Der Planer ermittelt Erlebnis und Empfänger selbst aus `subject` + Kampagne; werden die Felder trotzdem mitgeschickt, liest er sie nicht.
-- Auflösbare Subjekte (Pro, Stand 23.11.2026): WooCommerce `order`, Pass Captain `ticket`. Andere → `rc.source.unavailable`.
+- Auflösbare Subjekte (Pro): WooCommerce `order`, Pass Captain `ticket`, Voucher Captain `voucher` (seit 24.11.2026, Entscheidung der Inhaberin). Voucher: `subject {product:'voucher-captain', type:'voucher', id:'<voucher_id>'}`; Pro fragt Voucher Captain über `vcap_review_source_v1` → `open_reference( voucher_id )` nach der offenen Einlösung und braucht dazu ein eigenes abgeschlossenes Erlebnis `voucher-captain:{site}:redemption:{ref}`; ohne offene Einlösung `rc.experience.not_completed`, Voucher Captain inaktiv `rc.source.unavailable`. Andere Subjekte → `rc.source.unavailable`.
 - Gleicher `idempotency_key` → dasselbe Ergebnis wie beim ersten Aufruf, keine zweite Anfrage.
 
 Erzwungene Prüfungen (identisch zur nativen Queue, nicht konfigurierbar durch Workflow):
