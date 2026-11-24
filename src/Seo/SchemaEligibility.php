@@ -34,6 +34,7 @@ final class SchemaEligibility {
 		'external_platform',
 		'not_review',
 		'not_approved',
+		'incentivised',
 		'self_serving',
 		'context_not_supported',
 		'context_disabled',
@@ -83,6 +84,10 @@ final class SchemaEligibility {
 		// E3 – status.
 		if ( ReviewStatus::APPROVED !== $r->status ) {
 			return self::no( 'not_approved' );
+		}
+		// E3b – received in exchange for a benefit (SET-RC-12): shown with its label, never marked up.
+		if ( $r->incentivised ) {
+			return self::no( 'incentivised' );
 		}
 		// E4 – context. Organization/LocalBusiness reviews never get markup; there is no switch for it.
 		if ( null === $r->context_type || '' === $r->context_type || 'organization' === $r->context_type ) {
@@ -161,6 +166,7 @@ final class SchemaEligibility {
 			'external_platform'     => __( 'Externe Plattformbewertung – wird angezeigt, aber nie ausgezeichnet.', 'review-captain' ),
 			'not_review'            => __( 'Erfahrungsbericht (Testimonial) – kein Bewertungs-Markup.', 'review-captain' ),
 			'not_approved'          => __( 'Nicht freigegeben.', 'review-captain' ),
+			'incentivised'          => __( 'Gegen einen Vorteil erhalten – wird mit Kennzeichen angezeigt, aber nie ausgezeichnet.', 'review-captain' ),
 			'self_serving'          => __( 'Bewertung über das eigene Unternehmen – selbstbezogen, kein Markup.', 'review-captain' ),
 			'context_not_supported' => __( 'Kontext wird für Bewertungs-Markup nicht unterstützt.', 'review-captain' ),
 			'context_disabled'      => __( 'Markup für diesen Inhaltstyp ist in den Einstellungen abgeschaltet.', 'review-captain' ),

@@ -31,12 +31,13 @@ Stand: 2026-11-23. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme*
 - MINOR steigt, wenn Hooks, Felder, Methoden oder optionale Argumente dazukommen.
 - PATCH steigt bei Klarstellungen ohne Änderung des Verhaltens.
 
-Stand: `1.1.0`.
+Stand: `1.2.0`.
 
 | Version | Änderung |
 |---|---|
 | 1.0.0 | erster öffentlicher Vertrag (RC-2) |
 | 1.1.0 | Payload `review_captain.review.v1` additiv um `rating_value`, `rating_scale_min`, `rating_scale_max` ergänzt (RC-4); `rating_value` ist `null`, wenn die Bewertung keine Sterne hat; außerdem `removal` (`tombstoned` = Status „entfernt“, Zeile bleibt; `deleted` = Zeile gelöscht) bei `review_captain_review_removed_v1`, sonst `null` |
+| 1.2.0 | Antwort über den Einladungslink (P2-10, Entscheidung der Inhaberin 24.11.2026): Filter `review_captain_request_token_v1` (Pro löst ein signiertes Einladungs-Token in die Anfrage-Referenz auf), Aktion `review_captain_request_responded_v1` mit Payload `review_captain.request_response.v1`, Feld `rc_request` des Bewertungsformulars, `meta.request_uuid` an der Bewertung ([request-lifecycle.md](request-lifecycle.md), „Antwort über den Einladungslink“) |
 
 Neue Felder in einem Payload sind additiv und optional: Empfänger müssen unbekannte Schlüssel ignorieren (siehe [ADR-0007](../adr/0007-oeffentliche-hooks-v1.md), Ergänzung vom 23.11.2026).
 
@@ -59,7 +60,7 @@ Diese Namen wurden konsistent zum Präfix `review_captain_` ergänzt. Hook-Namen
 | Art | Name | Definiert in |
 |---|---|---|
 | action | `review_captain_experience_event_v1` | experience-event-v1.md |
-| action | `review_captain_request_status_changed_v1`, `review_captain_request_reminder_sent_v1`, `review_captain_request_responded_v1`, `review_captain_recipient_opted_out_v1` | request-lifecycle.md, workflow-provider-v1.md |
+| action | `review_captain_request_status_changed_v1`, `review_captain_request_reminder_sent_v1`, `review_captain_request_responded_v1` (seit Vertrag 1.2.0 implementiert), `review_captain_recipient_opted_out_v1` | request-lifecycle.md, workflow-provider-v1.md |
 | Funktion | `review_captain_submit_experience_event_v1()` | experience-event-v1.md |
 | Funktion | `review_captain_plan_request_v1()`, `review_captain_cancel_request_v1()`, `review_captain_create_local_review_v1()`, `review_captain_delete_local_review_draft_v1()`, `review_captain_get_review_summary_v1()` | workflow-provider-v1.md |
 | Klasse/API | `ReviewCaptain\Contracts\Provider\*`, `ReviewCaptain\Contracts\Connector\RecipientResolverInterface`, `ReviewCaptain\Api::register_request_service()`, `::workflow_descriptor_v1()` | provider-v1.md, recipient-resolver-v1.md, workflow-provider-v1.md |

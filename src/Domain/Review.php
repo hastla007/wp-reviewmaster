@@ -54,6 +54,24 @@ final class Review {
 	public int $revision = 0;
 
 	/**
+	 * "Received in exchange for a benefit" (SET-RC-12, owner decision E7). Set by moderators, by
+	 * workflows/campaigns (API) and by the CSV import. When set, the label is always shown on the
+	 * card and the review never gets structured data (SchemaEligibility E3b).
+	 */
+	public bool $incentivised = false;
+
+	/**
+	 * Public reply of the merchant to an own (local) review (SET-RC-13, owner decision E4). Plain
+	 * text; null = no reply. Replies to platform reviews are not stored here (meta.reply).
+	 */
+	public ?string $reply_body = null;
+
+	/**
+	 * Date of the merchant reply (UTC), null without reply.
+	 */
+	public ?string $reply_at = null;
+
+	/**
 	 * Free-form JSON metadata (never secrets).
 	 *
 	 * @var array<string, mixed>
@@ -106,6 +124,9 @@ final class Review {
 		$r->experience_id    = self::nullable_string( $row['experience_id'] ?? null );
 		$r->submission_key   = self::nullable_string( $row['submission_key'] ?? null );
 		$r->revision         = isset( $row['revision'] ) ? (int) $row['revision'] : 0;
+		$r->incentivised     = ! empty( $row['incentivised'] );
+		$r->reply_body       = self::nullable_string( $row['reply_body'] ?? null );
+		$r->reply_at         = null === $r->reply_body ? null : self::nullable_string( $row['reply_at'] ?? null );
 		$meta                = isset( $row['meta'] ) && is_string( $row['meta'] ) ? json_decode( $row['meta'], true ) : array();
 		$r->meta             = is_array( $meta ) ? $meta : array();
 		$r->created_at       = (string) ( $row['created_at'] ?? '' );
@@ -151,11 +172,21 @@ final class Review {
 			'experience_id'    => $this->experience_id,
 			'submission_key'   => $this->submission_key,
 			'revision'         => $this->revision,
+			'incentivised'     => $this->incentivised ? 1 : 0,
+			'reply_body'       => $this->has_reply() ? $this->reply_body : null,
+			'reply_at'         => $this->has_reply() ? $this->reply_at : null,
 			'meta'             => wp_json_encode( (object) $this->meta ),
 			'created_at'       => $this->created_at,
 			'updated_at'       => $this->updated_at,
 			'removed_at'       => $this->removed_at,
 		);
+	}
+
+	/**
+	 * Whether a merchant reply is stored (SET-RC-13).
+	 */
+	public function has_reply(): bool {
+		return null !== $this->reply_body && '' !== trim( $this->reply_body );
 	}
 
 	/**
@@ -208,6 +239,10 @@ final class Review {
 		}
 		if ( null !== $this->context_type && ! in_array( $this->context_type, self::CONTEXT_TYPES, true ) ) {
 			$errors[] = 'invalid_context_type';
+		}
+		if ( $this->has_reply() && $this->platform->is_external() ) {
+			// SET-RC-13: replies to platform reviews belong to the platform (Pro, not built).
+			$errors[] = 'reply_on_external';
 		}
 		if ( Verification::EXTERNAL_PLATFORM === $this->verification && ! $this->platform->is_external() ) {
 			$errors[] = 'external_verification_on_local';

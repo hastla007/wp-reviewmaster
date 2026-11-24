@@ -28,7 +28,7 @@ Defaults exakt nach `WidgetDefinition`. Ungültige Werte fallen auf den Default 
 | `columns` | Ganzzahl 1–4 | `3` | Default | außerhalb/nicht numerisch → `3`; wird als CSS-Variable `--rc-columns` ausgegeben |
 | `platform` | **kommagetrennte Liste** aus `local`, `google`, `trustpilot`, `trusted_shops`, `app_store`, `google_play`, `other` (Groß-/Kleinschreibung egal, Leerzeichen erlaubt) | `""` | alle Plattformen | unbekannte Einträge werden verworfen, Duplikate entfernt. Bleibt **kein** gültiger Eintrag übrig, entfällt der Filter (= alle Plattformen) |
 | `kind` | `review` \| `testimonial` \| `all` | `all` | Default | unbekannt → `all` |
-| `min_rating` | Zahl 1–5 (Dezimalpunkt oder -komma) | `""` | kein Filter | Vergleich auf normalisierter Skala (`(min_rating − 1) / 4` gegen `(rating_value − scale_min) / (scale_max − scale_min)`), `>=`. Ungültig/außerhalb → ignoriert |
+| `min_rating` | Zahl 1–5 (Dezimalpunkt oder -komma) | `""` | kein Filter | Vergleich auf normalisierter Skala (`(min_rating − 1) / 4` gegen `(rating_value − scale_min) / (scale_max − scale_min)`), `>=`. Ungültig/außerhalb → ignoriert. Mit `display.allow_min_rating = false` (Filter `review_captain_allow_min_rating`) immer ignoriert. Ein Filter > 1 (wie `platform`) zeigt den Hinweis `rc-filter-notice` (SET-RC-03); die Zusammenfassung rechnet nie über die Sternauswahl |
 | `limit` | Ganzzahl 1–50 (`WidgetDefinition::MAX_LIMIT`) | `6` (`DEFAULT_LIMIT`) | Default | außerhalb/nicht numerisch → `6` (kein Clamp); bei `paginate="1"` = Einträge pro Seite |
 | `context_type` | `post` \| `product` \| `event` \| `voucher` \| `app` \| `form` \| `course` \| `organization` (`WidgetDefinition::CONTEXT_TYPES`) | `""` | kein Kontextfilter | unbekannt → ignoriert |
 | `context_id` | String ≤ 64, `[A-Za-z0-9_.:-]`, oder `current` (= ID des aktuellen Beitrags) | `""` | kein Filter auf ID | nur wirksam mit gültigem `context_type`, sonst ignoriert. Mit `context_type`, aber ohne `context_id` → alle Datensätze dieses Typs |
@@ -84,6 +84,7 @@ Templates (Theme-Override unter `{theme}/review-captain/…`, siehe `Frontend\Te
 
 ```html
 <div id="rc-widget-1" class="rc-widget rc-widget--grid rc-widget--reduced-motion" style="--rc-columns: 3">
+  <p class="rc-filter-notice">Es werden nur Bewertungen ab 4 Sternen angezeigt.</p>  <!-- nur mit min_rating > 1 oder platform -->
   <ul class="rc-summary" aria-label="Zusammenfassung je Plattform">
     <li class="rc-summary__item rc-source--google">…</li>
   </ul>

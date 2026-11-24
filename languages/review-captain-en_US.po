@@ -4863,3 +4863,224 @@ msgstr "Next page"
 #: templates/reviews-grid.php:43
 msgid "Weitere Bewertungen"
 msgstr "More reviews"
+
+#: src/Admin/SettingsFields.php:78
+msgid "Nur Käufer dürfen bewerten"
+msgstr "Only buyers may review"
+
+#: src/Admin/SettingsFields.php:78
+msgid "Das Formular nimmt nur Bewertungen an, deren Kauf oder Teilnahme eine vertrauenswürdige Quelle bestätigt: bei WooCommerce angemeldete Kundinnen und Kunden, die das Produkt gekauft haben, oder der Link aus einer Bewertungseinladung. Alle anderen sehen statt des Formulars einen Hinweis; nichts wird still verworfen. Solche Bewertungen tragen die Prüfstufe „Verifizierter Kauf“ bzw. „Teilnahme bestätigt“. Formulare ohne Produkt funktionieren dann nur über einen Einladungslink."
+msgstr "The form only accepts reviews whose purchase or attendance is confirmed by a trusted source: customers logged in to WooCommerce who bought the product, or the link from a review invitation. Everyone else sees a notice instead of the form; nothing is silently discarded. Such reviews carry the verification level “Verified purchase” or “Attendance confirmed”. Forms without a product then only work through an invitation link."
+
+#: src/Admin/SettingsFields.php:79
+msgid "Kauf höchstens so viele Tage her"
+msgstr "Purchase at most this many days ago"
+
+#: src/Admin/SettingsFields.php:79
+msgid "Wirkt nur mit „Nur Käufer dürfen bewerten“. Liegt der Kauf länger zurück, erscheint ein Hinweis statt des Formulars. 0 = keine Frist."
+msgstr "Only applies with “Only buyers may review”. If the purchase was longer ago, a notice is shown instead of the form. 0 = no limit."
+
+#: src/Admin/SettingsFields.php:114
+msgid "Filter „Mindestbewertung“ erlauben"
+msgstr "Allow the “Minimum rating” filter"
+
+#: src/Admin/SettingsFields.php:114
+msgid "Widgets dürfen nur Bewertungen ab einer Sternzahl zeigen. Besucher sehen dann immer den Hinweis auf den Filter; die Zusammenfassung rechnet weiter über alle freigegebenen Bewertungen. Aus = die Einstellung „Mindestbewertung“ wird in allen Shortcodes, Blöcken und Elementor-Widgets ignoriert."
+msgstr "Widgets may show only reviews from a number of stars upwards. Visitors then always see a notice about the filter; the summary keeps counting all approved reviews. Off = the “Minimum rating” option is ignored in all shortcodes, blocks and Elementor widgets."
+
+#: src/Admin/SettingsFields.php:115
+msgid "Hinweis bei gefilterter Anzeige"
+msgstr "Notice for filtered display"
+
+#: src/Admin/SettingsFields.php:115
+msgid "Rechtstext – bitte prüfen lassen. Erscheint an jedem Widget, das nach Sternen oder Plattform filtert. Platzhalter: {stars} = Mindeststernzahl (ohne Sternfilter 1), {platform} = gefilterte Plattformen (ohne Plattformfilter „allen Plattformen“). Leer = „Es werden nur Bewertungen ab {stars} Sternen angezeigt.“ bzw. passender Standardtext."
+msgstr "Legal text – please have it reviewed. Shown on every widget that filters by stars or platform. Placeholders: {stars} = minimum number of stars (1 without a star filter), {platform} = filtered platforms (“all platforms” without a platform filter). Empty = “Only reviews with {stars} stars or more are shown.” or a matching default text."
+
+#: src/Admin/SettingsFields.php:173
+msgid "Nur bestätigte Käufer"
+msgstr "Confirmed buyers only"
+
+#: src/Frontend/FormHandler.php:667
+msgid "Bewertungen können hier nur Kundinnen und Kunden mit bestätigtem Kauf abgeben. Bitte melden Sie sich mit Ihrem Kundenkonto an oder öffnen Sie den Link aus Ihrer Bewertungseinladung."
+msgstr "Only customers with a confirmed purchase can leave a review here. Please log in with your customer account or open the link from your review invitation."
+
+#: src/Frontend/FormHandler.php:668
+msgid "Für diese Bewertung liegt kein bestätigter Kauf vor. Bewertungen sind hier nur nach einem bestätigten Kauf oder über den Link aus einer Bewertungseinladung möglich."
+msgstr "There is no confirmed purchase for this review. Reviews are only possible here after a confirmed purchase or through the link from a review invitation."
+
+#. translators: %s: number of days
+#: src/Frontend/FormHandler.php:671
+msgid "Bewertungen sind hier nur bis %s Tag nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
+msgid_plural "Bewertungen sind hier nur bis %s Tage nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
+msgstr[0] "Reviews are only possible here up to %s day after the purchase. Your purchase was longer ago."
+msgstr[1] "Reviews are only possible here up to %s days after the purchase. Your purchase was longer ago."
+
+#: src/Frontend/Renderer.php:487
+msgid "Es werden nur Bewertungen von {platform} ab {stars} Sternen angezeigt."
+msgstr "Only reviews from {platform} with {stars} stars or more are shown."
+
+#: src/Frontend/Renderer.php:489
+msgid "Es werden nur Bewertungen ab {stars} Sternen angezeigt."
+msgstr "Only reviews with {stars} stars or more are shown."
+
+#: src/Frontend/Renderer.php:491
+msgid "Es werden nur Bewertungen von {platform} angezeigt."
+msgstr "Only reviews from {platform} are shown."
+
+#: src/Frontend/Renderer.php:501
+msgid "allen Plattformen"
+msgstr "all platforms"
+
+#: src/Admin/DashboardPage.php:70
+msgid "Kontaktadressen zu Bewertungen und Produktfragen werden unbegrenzt gespeichert. Lege im Reiter Datenschutz eine Aufbewahrungsfrist fest (neue Installationen: 365 Tage) und lass sie rechtlich prüfen."
+msgstr "Contact addresses of reviews and product questions are stored without a time limit. Set a retention period in the Privacy tab (new installations: 365 days) and have it reviewed legally."
+
+#: src/Admin/SettingsFields.php:115
+msgid "Abgelehnte und zurückgezogene Reviews (Tage)"
+msgstr "Rejected and withdrawn reviews (days)"
+
+#: src/Admin/SettingsFields.php:115
+msgid "Abgelehnte Bewertungen und Fragen sowie von der Autorin oder dem Autor zurückgezogene Bewertungen werden danach endgültig gelöscht, inklusive Verlauf."
+msgstr "Rejected reviews and questions as well as reviews withdrawn by their author are then deleted permanently, including their history."
+
+#: src/Admin/SettingsFields.php:121
+msgid "Kontaktadresse zu Bewertungen und Produktfragen (Tage)"
+msgstr "Contact address of reviews and product questions (days)"
+
+#: src/Admin/SettingsFields.php:121
+msgid "Danach wird die E-Mail-Adresse zur Bewertung bzw. Produktfrage entfernt; Bewertung und Frage bleiben. 0 = unbegrenzt. Standard für neue Installationen: 365 Tage. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen."
+msgstr "After this the email address of the review or product question is removed; the review and the question stay. 0 = unlimited. Default for new installations: 365 days. Without an address, correction links are no longer possible for this review. Please have the period reviewed legally."
+
+#: src/Admin/SettingsPage.php:949
+msgid "Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt; sie bleiben unbegrenzt gespeichert. Neue Installationen entfernen sie nach 365 Tagen. Welche Frist passt, lass bitte rechtlich prüfen."
+msgstr "No retention period is set for the email addresses of reviews and product questions; they are stored without a time limit. New installations remove them after 365 days. Please have the right period reviewed legally."
+
+#: src/Admin/SettingsPage.php:1166
+msgid "Mit Kontaktangaben exportieren"
+msgstr "Export with contact details"
+
+#: src/Admin/SettingsPage.php:1167
+msgid "Nimmt Empfängeradressen der Benachrichtigungen, den Markennamen und die Absenderangaben mit in die Datei. Ohne Häkchen fehlen diese Felder; ein Import lässt sie dann unverändert. Zugangsdaten werden nie exportiert."
+msgstr "Includes the notification recipients, the brand name and the sender details in the file. Without the tick these fields are left out; an import then leaves them unchanged. Credentials are never exported."
+
+#: src/Admin/SettingsPage.php:945
+msgid "Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfrage. Die Frage bleibt."
+msgid_plural "Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfragen. Die Fragen bleiben."
+msgstr[0] "Contact address: the next clean-up also removes the email address from %s product question. The question stays."
+msgstr[1] "Contact address: the next clean-up also removes the email address from %s product questions. The questions stay."
+
+#: src/Cli/CliModule.php:263
+msgid "Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten; Kontaktangaben nur mit --with-contacts)."
+msgstr "Print the configuration as JSON or write it to a file (without credentials; contact details only with --with-contacts)."
+
+#: src/Cli/CliModule.php:274
+msgid "Mit Kontaktangaben exportieren (Empfängeradressen, Markenname, Absenderangaben)."
+msgstr "Export with contact details (recipient addresses, brand name, sender details)."
+
+#: src/Privacy/PrivacyModule.php:62
+msgid "Für die Kontaktadressen zu Bewertungen und Produktfragen ist eine Aufbewahrungsfrist eingestellt"
+msgstr "A retention period is set for the contact addresses of reviews and product questions"
+
+#: src/Privacy/PrivacyModule.php:69
+msgid "Review Captain entfernt die E-Mail-Adresse zu einer Bewertung oder Produktfrage %s Tage nach Eingang. Bewertung und Frage bleiben."
+msgstr "Review Captain removes the email address of a review or product question %s days after receipt. The review and the question stay."
+
+#: src/Privacy/PrivacyModule.php:77
+msgid "Review Captain speichert Kontaktadressen zu Bewertungen und Produktfragen unbegrenzt"
+msgstr "Review Captain stores contact addresses of reviews and product questions without a time limit"
+
+#: src/Privacy/PrivacyModule.php:158
+msgid "Abgelehnte Einreichungen, von Ihnen zurückgezogene Bewertungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht."
+msgstr "Rejected submissions, reviews you withdrew and technical logs are deleted automatically after the configured retention periods."
+
+#: src/Privacy/PrivacyModule.php:164
+msgid "Die E-Mail-Adresse zu einer Bewertung oder Produktfrage löschen wir %s Tage nach deren Eingang; Bewertung und Frage selbst bleiben erhalten."
+msgstr "We delete the email address of a review or product question %s days after it was received; the review and the question themselves are kept."
+
+#: src/Privacy/PrivacyModule.php:79
+msgid "Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; Bewertungen und Fragen bleiben. Neue Installationen sind auf 365 Tage voreingestellt. Welche Frist für deine Website passt, lass bitte rechtlich prüfen."
+msgstr "No retention period is set for the email addresses of reviews and product questions. Set in the Privacy tab after how many days they are removed; reviews and questions stay. New installations are preset to 365 days. Please have the period that fits your website reviewed legally."
+
+#: src/Admin/Notices.php:108
+msgid "Antworten auf Plattformbewertungen sind hier nicht möglich"
+msgstr "Replies to platform reviews are not possible here"
+
+#: src/Admin/Notices.php:109
+msgid "Antwort ist zu lang (höchstens 5000 Zeichen)"
+msgstr "Reply is too long (at most 5000 characters)"
+
+#: src/Admin/ReviewsPage.php:641
+msgid "Datum der Antwort"
+msgstr "Reply date"
+
+#: src/Admin/ReviewsPage.php:624 src/Privacy/PersonalData.php:302
+msgid "Gegen einen Vorteil erhalten"
+msgstr "Received in exchange for a benefit"
+
+#: src/Admin/ReviewsPage.php:627
+msgid "Die Person hat für diese Bewertung einen Vorteil erhalten (z. B. Gutschein, Rabatt, Gratisprodukt, Gewinnspiel)."
+msgstr "The person received a benefit for this review (e.g. voucher, discount, free product, prize draw)."
+
+#: src/Admin/ReviewsPage.php:628
+msgid "Die Bewertung zeigt dann immer ein Kennzeichen (Text unter Einstellungen → Darstellung) und erhält kein Bewertungs-Markup für Suchmaschinen."
+msgstr "The review then always shows a label (text under Settings → Display) and gets no review markup for search engines."
+
+#: src/Admin/ReviewsPage.php:638
+msgid "Deine Antwort"
+msgstr "Your reply"
+
+#: src/Admin/ReviewsPage.php:640
+msgid "Öffentliche Antwort, erscheint unter der Bewertung. Leer = keine Antwort. Die Antwort ändert die Bewertung und Durchschnitte nicht."
+msgstr "Public reply, shown below the review. Empty = no reply. The reply does not change the review or any averages."
+
+#: src/Admin/SettingsFields.php:101
+msgid "Kennzeichen „Gegen einen Vorteil erhalten“"
+msgstr "Label “Received in exchange for a benefit”"
+
+#: src/Admin/SettingsFields.php:101
+msgid "Rechtstext – bitte prüfen lassen. Leer = „Für diese Bewertung wurde ein Vorteil gewährt“. Bewertungen mit diesem Merkmal zeigen das Kennzeichen immer; es lässt sich nicht ausblenden. Sie erhalten nie Bewertungs-Markup."
+msgstr "Legal text – please have it reviewed. Empty = “A benefit was granted for this review”. Reviews with this flag always show the label; it cannot be hidden. They never get review markup."
+
+#: src/Admin/SettingsFields.php:102
+msgid "Antworten unter Bewertungen anzeigen"
+msgstr "Show replies below reviews"
+
+#: src/Admin/SettingsFields.php:102
+msgid "Zeigt deine Antwort auf eigene Bewertungen unter der Bewertung. Die Antwort schreibst du im Bearbeiten-Fenster der Bewertung. Sie zählt nie in Durchschnitte."
+msgstr "Shows your reply to your own reviews below the review. You write the reply in the review's edit screen. It never counts towards averages."
+
+#: src/Admin/SettingsFields.php:103
+msgid "Überschrift der Antwort"
+msgstr "Reply heading"
+
+#: src/Admin/SettingsFields.php:103
+msgid "Platzhalter {brand} = Marken- bzw. Firmenname (sonst Titel der Website). Leer = „Antwort von {brand}“."
+msgstr "Placeholder {brand} = brand or company name (otherwise the site title). Empty = “Reply from {brand}”."
+
+#: src/Admin/SettingsFields.php:179
+msgid "Antworten"
+msgstr "Replies"
+
+#: src/Frontend/PublicTexts.php:53
+msgid "Für diese Bewertung wurde ein Vorteil gewährt"
+msgstr "A benefit was granted for this review"
+
+#: src/Frontend/PublicTexts.php:55
+msgid "Antwort von {brand}"
+msgstr "Reply from {brand}"
+
+#: src/ImportExport/CsvImporter.php:610
+msgid "Ungültiger Ja/Nein-Wert (erlaubt: 1, 0, yes, no, true, false, ja, nein)."
+msgstr "Invalid yes/no value (allowed: 1, 0, yes, no, true, false, ja, nein)."
+
+#: src/Privacy/PersonalData.php:304
+msgid "Antwort des Händlers"
+msgstr "Merchant reply"
+
+#: src/Privacy/PersonalData.php:305
+msgid "Antwort am (UTC)"
+msgstr "Replied on (UTC)"
+
+#: src/Seo/SchemaEligibility.php:169
+msgid "Gegen einen Vorteil erhalten – wird mit Kennzeichen angezeigt, aber nie ausgezeichnet."
+msgstr "Received in exchange for a benefit – shown with a label, but never marked up."

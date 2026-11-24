@@ -14,7 +14,7 @@ use ReviewCaptain\Repository\ReviewRepository;
 
 /**
  * Exports reviews as UTF-8 CSV with BOM in the import format (docs/migration.md) plus uuid,
- * origin and created_at. author_email is only exported when explicitly requested.
+ * origin, created_at and the merchant reply (reply_body, reply_at). author_email is only exported when explicitly requested.
  */
 class CsvExporter {
 
@@ -108,9 +108,12 @@ class CsvExporter {
 			$r->status->value,
 			(string) $r->context_type,
 			(string) $r->context_id,
+			$r->incentivised ? '1' : '0',
 			$r->uuid,
 			$r->origin->value,
 			self::iso( '' === $r->created_at ? null : $r->created_at ),
+			$r->has_reply() ? (string) $r->reply_body : '',
+			$r->has_reply() ? self::iso( $r->reply_at ) : '',
 		);
 		if ( $include_personal ) {
 			$cells[] = (string) $r->author_email;

@@ -17,7 +17,8 @@ namespace ReviewCaptain\Settings;
  * Field keys: type (string|int|bool|enum|array|time|email|email_list|textarea|color), default, choices
  * (enum; for array: allowed values), min/max (int), max_length (string/textarea, characters),
  * max_items (array/email_list), min_items (array: fewer → default), owner (core|pro),
- * privacy (none|personal|config), advanced (bool, progressive disclosure), scope (site|network),
+ * privacy (none|personal|config: 'personal' = never exported; 'config' = contact data of the operator
+ * (P1), exported only on request "mit Kontaktangaben exportieren", P1-8 – add-on fields opt in the same way), advanced (bool, progressive disclosure), scope (site|network),
  * internal (bool: written by the plugin itself, never rendered, imported, exported or set from input),
  * export (bool, default true: false keeps a field out of configuration exports and imports, e.g. the
  * uninstall switch – suite uninstall standard S10).
@@ -26,7 +27,12 @@ namespace ReviewCaptain\Settings;
  */
 final class SettingsSchema {
 
-	public const VERSION = 1;
+	/**
+	 * Settings schema version (Settings::OPTION_VERSION). Raise it together with a step in
+	 * SettingsMigrator whenever a new default must not change existing installations.
+	 * 2: E5 contact retention default, P2-13 notification migration.
+	 */
+	public const VERSION = 2;
 
 	/**
 	 * Accepted confirmation words for privacy.delete_data_on_uninstall (SET-RC-20, as in Form Captain).
@@ -59,7 +65,8 @@ final class SettingsSchema {
 	public static function fields(): array {
 		$core = array(
 			'general'     => array(
-				'brand_name'        => array( 'type' => 'string', 'default' => '' ),
+				// P1: often a person's name – exported only with "mit Kontaktangaben exportieren" (P1-8).
+				'brand_name'        => array( 'type' => 'string', 'default' => '', 'privacy' => 'config' ),
 				'date_format'       => array( 'type' => 'string', 'default' => '' ),
 				'new_review_status' => array(
 					'type'    => 'enum',
@@ -198,6 +205,11 @@ final class SettingsSchema {
 					'default' => 'none',
 					'choices' => array( 'none', 'pow' ),
 				),
+				// SET-RC-32 (owner decision E6, Free): only buyers/participants confirmed by a trusted source
+				// (WooCommerce order of the logged-in customer, or a source answering review_captain_purchase_proof,
+				// e.g. an invitation link) may submit; otherwise the form shows a message. 0 days = no age limit.
+				'require_purchase'           => array( 'type' => 'bool', 'default' => false ),
+				'purchase_max_age_days'      => array( 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 3650 ),
 			),
 			'display'     => array(
 				'show_stars'     => array( 'type' => 'bool', 'default' => true ),
@@ -265,6 +277,23 @@ final class SettingsSchema {
 					'type'    => 'bool',
 					'default' => false,
 				),
+				// SET-RC-12 (E7): text of the "received in exchange for a benefit" label. Only the text is
+				// configurable; on a flagged review the label is always shown (no switch, by design).
+				'label_incentivised' => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 60,
+				),
+				// SET-RC-13 (E4): merchant replies to own reviews under the review.
+				'show_replies' => array(
+					'type'    => 'bool',
+					'default' => true,
+				),
+				'reply_label'  => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 80,
+				),
 				// SET-RC-22: colours as CSS custom properties (empty = theme/CSS default); own reviews keep the 1–5 scale.
 				'star_color'     => array( 'type' => 'color', 'default' => '' ),
 				'accent_color'   => array( 'type' => 'color', 'default' => '' ),
@@ -291,6 +320,14 @@ final class SettingsSchema {
 				'widget_columns'       => array( 'type' => 'int', 'default' => 3, 'min' => 1, 'max' => 4 ),
 				'widget_heading_level' => array( 'type' => 'int', 'default' => 2, 'min' => 2, 'max' => 6 ),
 				'widget_new_tab'       => array( 'type' => 'bool', 'default' => false ),
+				// SET-RC-03 (owner decision E3): star filter of widgets stays, but is disclosed; off = the
+				// min_rating attribute is ignored everywhere (shortcode, block, Elementor). Notice: empty = default.
+				'allow_min_rating'     => array( 'type' => 'bool', 'default' => true ),
+				'filter_notice'        => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 300,
+				),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),
@@ -299,8 +336,10 @@ final class SettingsSchema {
 				'retention_jobs_days'      => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),
 				// SET-RC-17: settings and role changes are kept longer than the other logs.
 				'retention_audit_days'     => array( 'type' => 'int', 'default' => 365, 'min' => 1, 'max' => 3650 ),
-				// SET-RC-08: 0 = unlimited (behaviour up to now). The future default awaits owner decision E5 and a legal review.
-				'retention_contact_days'   => array( 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 3650 ),
+				// SET-RC-08 / E5 (owner decision 24.11.2026, legal review pending): 365 days for new
+				// installations; existing ones keep 0 = unlimited (SettingsMigrator step 2). Also applies
+				// to the e-mail address of product questions (P4-6).
+				'retention_contact_days'   => array( 'type' => 'int', 'default' => 365, 'min' => 0, 'max' => 3650 ),
 				'retention_approved_days'  => array( 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 3650 ),
 				// SET-RC-21: decided author-correction versions.
 				'retention_corrections_days' => array( 'type' => 'int', 'default' => 90, 'min' => 1, 'max' => 3650 ),

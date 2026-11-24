@@ -59,14 +59,14 @@ final class PrivacyModule implements Module {
 		$plugin = $this->plugin ?? Plugin::instance();
 		$days   = (int) $plugin->settings()->get( 'privacy', 'retention_contact_days', 0 );
 		$result = array(
-			'label'       => __( 'Für die Kontaktadressen zu Bewertungen ist eine Aufbewahrungsfrist eingestellt', 'review-captain' ),
+			'label'       => __( 'Für die Kontaktadressen zu Bewertungen und Produktfragen ist eine Aufbewahrungsfrist eingestellt', 'review-captain' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => __( 'Datenschutz', 'review-captain' ),
 				'color' => 'blue',
 			),
 			/* translators: %s: number of days */
-			'description' => '<p>' . esc_html( sprintf( __( 'Review Captain entfernt die E-Mail-Adresse zu einer Bewertung %s Tage nach Eingang. Die Bewertung bleibt.', 'review-captain' ), number_format_i18n( $days ) ) ) . '</p>',
+			'description' => '<p>' . esc_html( sprintf( __( 'Review Captain entfernt die E-Mail-Adresse zu einer Bewertung oder Produktfrage %s Tage nach Eingang. Bewertung und Frage bleiben.', 'review-captain' ), number_format_i18n( $days ) ) ) . '</p>',
 			'actions'     => '',
 			'test'        => 'review_captain_retention',
 		);
@@ -74,9 +74,9 @@ final class PrivacyModule implements Module {
 			return $result;
 		}
 		$result['badge']['color'] = 'orange';
-		$result['label']          = __( 'Review Captain speichert Kontaktadressen zu Bewertungen unbegrenzt', 'review-captain' );
+		$result['label']          = __( 'Review Captain speichert Kontaktadressen zu Bewertungen und Produktfragen unbegrenzt', 'review-captain' );
 		$result['status']         = 'recommended';
-		$result['description']    = '<p>' . esc_html__( 'Für die E-Mail-Adressen zu Bewertungen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; die Bewertungen bleiben. Welche Frist für deine Website passt, lass bitte rechtlich prüfen.', 'review-captain' ) . '</p>';
+		$result['description']    = '<p>' . esc_html__( 'Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; Bewertungen und Fragen bleiben. Neue Installationen sind auf 365 Tage voreingestellt. Welche Frist für deine Website passt, lass bitte rechtlich prüfen.', 'review-captain' ) . '</p>';
 		$result['actions']        = '<p><a href="' . esc_url( \ReviewCaptain\Admin\View::page_url( \ReviewCaptain\Admin\SettingsPage::SLUG, array( 'tab' => 'privacy' ) ) ) . '">' . esc_html__( 'Aufbewahrung einstellen', 'review-captain' ) . '</a></p>';
 		return $result;
 	}
@@ -155,13 +155,13 @@ final class PrivacyModule implements Module {
 			'<p>' . ( $moderated
 				? __( 'Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird erst nach Prüfung angezeigt und mit der Bewertung gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person.', 'review-captain' )
 				: __( 'Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird mit der Bewertung angezeigt und mit ihr gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person.', 'review-captain' ) ) . '</p>',
-			'<p>' . __( 'Abgelehnte Einreichungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht.', 'review-captain' ) . '</p>',
+			'<p>' . __( 'Abgelehnte Einreichungen, von Ihnen zurückgezogene Bewertungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht.', 'review-captain' ) . '</p>',
 		);
 		// SET-RC-08: only when the operator set a retention period for the contact address.
 		$contact_days = (int) $settings->get( 'privacy', 'retention_contact_days', 0 );
 		if ( $contact_days > 0 ) {
 			/* translators: %s: number of days */
-			$parts[] = '<p>' . sprintf( __( 'Die E-Mail-Adresse zu einer Bewertung löschen wir %s Tage nach Eingang der Bewertung; die Bewertung selbst bleibt erhalten.', 'review-captain' ), number_format_i18n( $contact_days ) ) . '</p>';
+			$parts[] = '<p>' . sprintf( __( 'Die E-Mail-Adresse zu einer Bewertung oder Produktfrage löschen wir %s Tage nach deren Eingang; Bewertung und Frage selbst bleiben erhalten.', 'review-captain' ), number_format_i18n( $contact_days ) ) . '</p>';
 		}
 		// P3: the period for approved own reviews (SET-RC-08) belongs into the suggestion as well.
 		$approved_days = (int) $settings->get( 'privacy', 'retention_approved_days', 0 );

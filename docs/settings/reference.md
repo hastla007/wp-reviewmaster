@@ -16,7 +16,7 @@ Jeder Eintrag nennt: **Zweck** · **Gilt für** · **Standard** · **Folgen** ·
 - **Zweck:** Name in E-Mails an Bewertende und (mit Pro) als Absendername der Einladungen.
 - **Gilt für:** ganze Website. **Standard:** leer = Titel Ihrer Website.
 - **Folgen:** erscheint z. B. in der E-Mail mit dem Korrektur-Link („Ihre Bewertung bei {Name} bearbeiten“). Benachrichtigungen an Sie selbst und strukturierte Daten nutzen weiter den Titel der Website.
-- **Datenschutz:** ist bei Einzelunternehmen oft ein Personenname; wird beim Konfigurationsexport nur nach Rückfrage mitgenommen.
+- **Datenschutz:** ist bei Einzelunternehmen oft ein Personenname; wird beim Konfigurationsexport nur mit „Mit Kontaktangaben exportieren“ mitgenommen (wie die Empfängeradressen der Benachrichtigungen und die Absenderangaben). Im Änderungsprotokoll steht nur „geändert“.
 - **Voraussetzung:** keine.
 
 Eine eigene Standardsprache gibt es nicht (mehr): Plugin-Texte folgen der Sprache der Website bzw. des Benutzerprofils (WordPress-Einstellungen). Die frühere Einstellung `default_language` wurde nie ausgewertet und ist entfernt (SET-RC-05); ein gespeicherter Wert stört nicht und wird ignoriert.
@@ -112,6 +112,12 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Externe Anbieter:** nur über den Filter `review_captain_spam_checks_v1` und **nur nach Rechtsprüfung** (externe Dienste übertragen in der Regel personenbezogene Daten). Ein Grund aus dem Filter lehnt neutral ab (`spam_check`).
 - **Datenschutz:** keiner beim eingebauten Verfahren; gespeichert wird bis zum Ablauf der Aufgabe (30 Minuten + 60 s) nur ein Hash der benutzten Aufgabe (Option `review_captain_pow_used_…`, von der täglichen Wartung entfernt).
 
+### Nur Käufer dürfen bewerten (`require_purchase`, `purchase_max_age_days`) – SET-RC-32
+- **Zweck:** Das Bewertungsformular nimmt nur Bewertungen an, deren Kauf oder Teilnahme eine vertrauenswürdige Quelle bestätigt. **Standard:** aus; Frist 0 = keine Frist (erlaubt 0–3650 Tage). Kostenlos (Entscheidung der Inhaberin E6, 24.11.2026).
+- **Quellen:** WooCommerce – angemeldete Kundinnen und Kunden mit bezahlter Bestellung des Produkts (Formular mit `context_type="product"`); ein Einladungslink (Review Captain Pro) oder andere angebundene Systeme über den Filter `review_captain_purchase_proof`. Formulare ohne Produkt funktionieren dann nur über einen Einladungslink.
+- **Folgen:** Wer nicht bestätigt ist, sieht statt des Formulars einen klaren Hinweis (anmelden bzw. Einladungslink nutzen; kein bestätigter Kauf; Kauf zu lange her). Auch ein direkt abgeschicktes Formular wird mit diesem Hinweis abgelehnt; nichts wird still verworfen oder gespeichert. Angenommene Bewertungen tragen die Stufe „Verifizierter Kauf“ bzw. „Teilnahme bestätigt“. Die Sternskala bleibt fest 1–5.
+- **Nicht enthalten:** automatische Freigaberegeln (z. B. „verifizierte Käufer sofort freigeben“) – Pro, SET-RC-35.
+
 ### Mindest-Ausfüllzeit (`min_seconds`)
 - **Zweck:** Formulare, die schneller als nach dieser Zeit abgeschickt werden, gelten als automatisiert und werden mit einem neutralen Hinweis abgewiesen. **Standard:** 3 Sekunden, erlaubt 1–120 (erweiterte Einstellung). Filter `review_captain_form_min_seconds` (0–120) hat Vorrang.
 
@@ -152,7 +158,8 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Zweck:** E-Mail an die Moderation bei neuer Bewertung (`notify_admin`, Standard an), bei neuer Produktfrage (`notify_questions`, Standard an, wirkt nur mit „Produktfragen“) und bei Meldungen (siehe `report_notify`).
 - **Empfänger:** `notify_recipients` – bis zu 10 Adressen, eine je Zeile oder durch Komma getrennt; ungültige Adressen werden verworfen und beim Speichern gemeldet. **Standard:** leer = Administrator-Adresse der Website. Filter `review_captain_notify_recipients` gewinnt.
 - **Betreff/Text (nur Bewertungen):** leer = Standardtext. Platzhalter `{site}` (Website-Name), `{moderation_url}` (Link zur Moderation), `{status}` („wartet auf Moderation“ / „freigegeben“). Betreff höchstens 200, Text höchstens 2 000 Zeichen. Filter `review_captain_notification` kann jede Mail ändern oder unterdrücken.
-- **Datenschutz:** Die Mails enthalten nie den Text der Bewertung oder Frage und keine Kontaktdaten der Verfasser oder Meldenden – auch nicht mit eigenem Text, denn dafür gibt es keinen Platzhalter.
+- **Datenschutz:** Die Mails enthalten nie den Text der Bewertung oder Frage und keine Kontaktdaten der Verfasser oder Meldenden – auch nicht mit eigenem Text, denn dafür gibt es keinen Platzhalter. Die Empfängeradressen kommen nur mit „Mit Kontaktangaben exportieren“ in einen Konfigurationsexport.
+- **Nach dem Update (P2-13):** War die Benachrichtigung bei neuen Bewertungen vor dem Update aus, sind auch die Mails bei Meldungen (`report_notify` = „Niemand“) und bei Produktfragen aus; neue Installationen erhalten beide Mails standardmäßig.
 
 ### Erweiterte Funktionen nach 1.0 (alle standardmäßig aus)
 - **Interne Tags (`tags_enabled`):** Schlagwörter für die Moderation, filterbar, nie öffentlich oder im Export.
@@ -202,6 +209,12 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 - **Zweck:** Vorgaben für Widgets, Blöcke, Shortcodes und Elementor-Widgets, die keinen eigenen Wert haben. **Standard:** 6 Bewertungen (1–50), Raster, 3 Spalten (1–4), Überschriftenebene h2 (h2–h6), Links zum Original im selben Tab.
 - **Folgen:** Ein Wert am einzelnen Widget hat immer Vorrang. Blöcke und Elementor-Widgets ohne eigenen Wert („Vorgabe aus den Einstellungen“ bzw. „Standard“) folgen diesen Vorgaben. Filter `review_captain_widget_defaults` hat Vorrang vor den Einstellungen.
 
+### Gefilterte Anzeige (`allow_min_rating`, `filter_notice`) – SET-RC-03
+- **Zweck:** Widgets dürfen nach Mindestbewertung und Plattform filtern; Besucher sehen dann immer einen Hinweis, z. B. „Es werden nur Bewertungen ab 4 Sternen angezeigt.“ (Entscheidung der Inhaberin E3, 24.11.2026).
+- **Standard:** Filter erlaubt; Hinweis leer = Standardtext je Fall (Sterne, Plattform oder beides). Eigener Text höchstens 300 Zeichen mit den Platzhaltern `{stars}` (Mindeststernzahl, ohne Sternfilter 1) und `{platform}` (Plattformnamen, ohne Plattformfilter „allen Plattformen“). Filter `review_captain_public_text` (ID `display.filter_notice`) gewinnt; `review_captain_allow_min_rating` gewinnt über den Schalter.
+- **Folgen:** Die Zusammenfassung (Durchschnitt und Anzahl) rechnet immer über alle freigegebenen Bewertungen, nie über die nach Sternen gefilterte Auswahl. Schalter aus = „Mindestbewertung“ wird in allen Shortcodes, Blöcken und Elementor-Widgets ignoriert.
+- **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen** (ob Filter und Hinweis genügen, offen).
+
 ### Bewertungs-Markup ausgeben (`schema_enabled`, `schema_contexts`, `schema_min_reviews`)
 - **Zweck:** Ob Review Captain strukturierte Daten (schema.org) für eigene, auf dieser Website abgegebene und freigegebene Bewertungen ausgibt.
 - **Standard:** an, für Produkte, Beiträge und Veranstaltungen, ab 1 Bewertung. **Folgen:** aus = keinerlei Bewertungs-Markup durch Review Captain; die sichtbare Ausgabe bleibt gleich. Externe Bewertungen und Erfahrungsberichte (Testimonials) erhalten unabhängig davon nie Markup – dafür gibt es bewusst keinen Schalter.
@@ -212,13 +225,25 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 
 ### Hinweis „So prüfen wir Bewertungen“ (`verification_notice_show`, `verification_notice_title`, `verification_notice`, `verification_notice_position`) – SET-RC-01
 - **Zweck:** aufklappbarer Hinweis (Link „So prüfen wir Bewertungen“) an jedem Bewertungs-Widget und am Bewertungsformular, der erklärt, ob und wie Bewertungen geprüft werden (Transparenzpflicht, z. B. EU-Omnibus-Richtlinie).
-- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten. Die Überschrift (Text des aufklappbaren Links) ist mit `verification_notice_title` einstellbar (höchstens 80 Zeichen, leer = „So prüfen wir Bewertungen“; Filter `review_captain_public_text` mit ID `display.verification_notice_title`).
+- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind; mit „Nur Käufer dürfen bewerten“ stattdessen „Verifizierter Kauf“). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten. Die Überschrift (Text des aufklappbaren Links) ist mit `verification_notice_title` einstellbar (höchstens 80 Zeichen, leer = „So prüfen wir Bewertungen“; Filter `review_captain_public_text` mit ID `display.verification_notice_title`).
 - **Filter:** `review_captain_verification_notice` (`$text`, `$context` = `widget`|`form`, `$levels`) gewinnt; leerer Rückgabewert blendet den Hinweis aus. Pro-Widgets können `Renderer::verification_notice()` nutzen.
 - **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen.** Der Entwurf macht keine rechtlichen Aussagen; beschreiben Sie nur, was Sie tatsächlich prüfen.
 
 ### Texte der Prüfstufen (`label_purchase_verified`, `label_attendance_confirmed`, `label_external`, `label_testimonial`, `label_unverified`, `show_unverified_label`) – SET-RC-02
 - **Zweck:** Wortlaut der Kennzeichen an den Bewertungskarten. **Standard:** leer = „Verifizierter Kauf“, „Teilnahme bestätigt“, „Externe Plattformbewertung“, „Erfahrungsbericht dieser Website“, „Ungeprüft“; je höchstens 60 Zeichen. Filter `review_captain_public_text` (ID `display.label_…`) gewinnt.
 - **Folgen:** Nur der Text ist einstellbar. Welche Stufe eine Bewertung hat, setzt allein eine angebundene, vertrauenswürdige Quelle (Kauf/Teilnahme) bzw. der Abgleich (externe Plattform); keine Einstellung ändert die Stufe. „Ungeprüft“ erscheint nur mit `show_unverified_label` (Standard aus).
+
+### Kennzeichen „Gegen einen Vorteil erhalten“ (`label_incentivised`) – SET-RC-12
+- **Zweck:** Wortlaut des Kennzeichens an Bewertungen, für die die Person einen Vorteil erhalten hat (Gutschein, Rabatt, Gratisprodukt, Gewinnspiel). Das Merkmal setzen Moderierende im Bearbeiten-Fenster der Bewertung („Gegen einen Vorteil erhalten“), Kampagnen und Workflows über die Schnittstelle (`incentivised: true`) sowie der CSV-Import (Spalte `incentivised`).
+- **Standard:** leer = „Für diese Bewertung wurde ein Vorteil gewährt“, höchstens 60 Zeichen. Filter `review_captain_public_text` (ID `display.label_incentivised`) kann den Text ändern, aber nicht leeren.
+- **Folgen:** Ist das Merkmal gesetzt, steht das Kennzeichen **immer** an der Karte – es gibt bewusst keinen Schalter, und auch eine eigene Theme-Vorlage kann es nicht entfernen. Solche Bewertungen erhalten nie Bewertungs-Markup (schema.org); angezeigt werden sie weiterhin.
+- **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen** (Kennzeichnungspflicht für gekaufte bzw. belohnte Bewertungen, je Land). Die Freigabe des Standardtextes steht aus.
+
+### Antworten unter Bewertungen (`show_replies`, `reply_label`) – SET-RC-13
+- **Zweck:** Ihre öffentliche Antwort auf eigene, auf dieser Website abgegebene Bewertungen. Die Antwort (Text und Datum) schreiben Sie im Bearbeiten-Fenster der Bewertung; leerer Text entfernt sie.
+- **Standard:** an; Überschrift leer = „Antwort von {brand}“ (`{brand}` = Marken- bzw. Firmenname, sonst Titel der Website), höchstens 80 Zeichen.
+- **Folgen:** Die Antwort ändert weder die Bewertung noch Durchschnitte und wird nicht ausgezeichnet. Sie steht in der Datenauskunft und im CSV-Export; anonymisiert der Eraser die Bewertung, wird die Antwort mit gelöscht. Aus = Antworten bleiben gespeichert, werden aber nicht angezeigt.
+- **Pro:** Antworten auf Plattformbewertungen (Google, Trustpilot …) über deren Schnittstellen sind eine Pro-Funktion (Recht `review.platform_replies`), noch nicht gebaut.
 
 ### Fotos anzeigen (`show_photos`)
 - **Standard:** aus. An = Fotos freigegebener Bewertungen erscheinen in den Karten. **Datenschutz:** Fotos können Personen zeigen.
@@ -234,8 +259,8 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 - **Zweck:** Wie lange ein importiertes Plattform-Review gespeichert bleibt, wenn es nicht mehr erfolgreich von der Quelle bestätigt wurde (z. B. getrennte Verbindung). **Standard:** 30 Tage, erlaubt 1–3650.
 - **Folgen:** danach wird der Inhalt entfernt. Strengere Anbietervorgaben gelten automatisch.
 
-### Abgelehnte Reviews (`retention_rejected_days`)
-- **Standard:** 90 Tage nach Ablehnung (erlaubt 1–3650), dann endgültige Löschung inklusive Verlauf.
+### Abgelehnte und zurückgezogene Reviews (`retention_rejected_days`)
+- **Standard:** 90 Tage nach Ablehnung (erlaubt 1–3650), dann endgültige Löschung inklusive Verlauf. Dieselbe Frist gilt für abgelehnte Produktfragen und für Bewertungen, die ihre Autorin oder ihr Autor zurückgezogen hat (Frist ab dem Zurückziehen); von der Moderation archivierte Bewertungen bleiben.
 
 ### Protokolle (`retention_logs_days`) und erledigte Hintergrundjobs (`retention_jobs_days`)
 - **Standard:** 90 bzw. 30 Tage, jeweils erlaubt 1–3650. Protokolle enthalten keine Reviewtexte oder Zugangsdaten. Änderungen an Einstellungen und Rollen haben eine eigene Frist (nächster Eintrag).
@@ -245,10 +270,10 @@ Lassen Sie Fristen und Texte von Ihrer Datenschutzberatung prüfen. Diese Einste
 - **Folgen:** Sie können länger nachvollziehen, wer wann was geändert hat, ohne die übrigen Protokolle länger zu speichern.
 - **Datenschutz:** enthält die Benutzer-ID; Texte gekürzt, E-Mail-Adressen maskiert, Absendernamen und Zugangsdaten nie.
 
-### Kontaktadresse zu Bewertungen (`retention_contact_days`)
-- **Zweck:** Nach so vielen Tagen ab Eingang wird die E-Mail-Adresse einer Bewertung entfernt (dazu der daraus abgeleitete Schlüssel gegen Doppelbewertungen); die Bewertung, ihr Status und eine Verknüpfung mit einem Benutzerkonto bleiben. **Standard:** 0 = unbegrenzt (bisheriges Verhalten), erlaubt 0–3650.
-- **Folgen:** Ohne Adresse sind Korrektur-Links und die Zuordnung per E-Mail bei Auskunfts-/Löschanfragen für diese Bewertung nicht mehr möglich. Der Reiter zeigt vorab, bei wie vielen Bewertungen die nächste Bereinigung die Adresse entfernt. Jede betroffene Bewertung erhält im Verlauf „contact_removed“, das Änderungsprotokoll den Eintrag `retention.contacts_removed` mit Anzahl. Der Textvorschlag für die Datenschutzerklärung nennt die Frist, sobald sie gesetzt ist.
-- **Rechtsprüfung:** Eine Standardfrist ist bewusst nicht gesetzt (wartet auf Entscheidung E5 der Inhaberin); lassen Sie die passende Frist rechtlich prüfen.
+### Kontaktadresse zu Bewertungen und Produktfragen (`retention_contact_days`)
+- **Zweck:** Nach so vielen Tagen ab Eingang wird die E-Mail-Adresse einer Bewertung entfernt (dazu der daraus abgeleitete Schlüssel gegen Doppelbewertungen); die Bewertung, ihr Status und eine Verknüpfung mit einem Benutzerkonto bleiben. Dieselbe Frist entfernt die E-Mail-Adresse einer Produktfrage; Frage, Antwort und Name bleiben. **Standard:** 365 Tage für neue Installationen; bestehende Installationen behalten nach dem Update 0 = unbegrenzt, bis Sie die Frist selbst einstellen (Entscheidung E5 vom 24.11.2026). Erlaubt 0–3650.
+- **Folgen:** Ohne Adresse sind Korrektur-Links und die Zuordnung per E-Mail bei Auskunfts-/Löschanfragen für diese Bewertung bzw. Frage nicht mehr möglich. Der Reiter zeigt vorab, bei wie vielen Bewertungen und Produktfragen die nächste Bereinigung die Adresse entfernt. Jede betroffene Bewertung erhält im Verlauf „contact_removed“, das Änderungsprotokoll den Eintrag `retention.contacts_removed` (Fragen: `retention.question_contacts_removed`) mit Anzahl. Solange 0 = unbegrenzt gilt, mahnen der Website-Zustand, das Dashboard und der Reiter Datenschutz. Der Textvorschlag für die Datenschutzerklärung nennt die Frist, sobald sie gesetzt ist.
+- **Rechtsprüfung:** Die Vorgabe von 12 Monaten ist eine Entscheidung der Inhaberin, keine Rechtsauskunft; die Rechtsprüfung steht aus. Lassen Sie die passende Frist rechtlich prüfen.
 
 ### Freigegebene eigene Bewertungen (`retention_approved_days`)
 - **Zweck:** Freigegebene Bewertungen dieser Website werden so viele Tage nach Eingang endgültig gelöscht. **Standard:** 0 = unbegrenzt, erlaubt 0–3650.
@@ -312,7 +337,7 @@ Seit SET-RC-18 lassen sich alle Einstellungen auch auf der Kommandozeile verwalt
 | `wp review-captain settings get <bereich.schlüssel> [--format=plain\|json]` | einen Wert ausgeben, z. B. `submissions.min_text_length` |
 | `wp review-captain settings set <bereich.schlüssel> <wert> [--confirm-word=LÖSCHEN] --user=<admin>` | einen Wert setzen; Ja/Nein als `1`/`0` (auch `true`/`false`, `on`/`off`, `ja`/`nein`), Rollen durch Komma getrennt. Ungültige Werte brechen mit Fehlermeldung ab, nichts wird korrigiert. |
 | `wp review-captain settings reset <bereich>… \| --all --yes --user=<admin>` | Bereiche oder alles auf den Standard zurücksetzen; der vorherige Stand wird gesichert. Bereiche ohne Berechtigung werden übersprungen. |
-| `wp review-captain settings export [--file=<pfad>]` | Konfiguration als JSON (ohne Zugangsdaten, wie der Download auf der Seite) |
+| `wp review-captain settings export [--file=<pfad>] [--with-contacts]` | Konfiguration als JSON (ohne Zugangsdaten, wie der Download auf der Seite); Kontaktangaben (Markenname, Empfängeradressen, Absenderangaben) nur mit `--with-contacts` |
 | `wp review-captain settings import <datei> --dry-run --user=<admin>` | Vorschau „bisher/neu“ wie auf der Seite, nichts wird gespeichert |
 | `wp review-captain settings import <datei> --yes --user=<admin>` | übernehmen, vorher wird gesichert (wiederherstellbar unter Einstellungen › Erweitert) |
 

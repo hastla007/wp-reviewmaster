@@ -17,6 +17,7 @@
 | `sent` | an Transport übergeben; **Zustellung unbekannt** (`delivery_state = unknown`) – das ist der Normalfall ohne Zustell-Feedback | nein | **nein** (nur optionale Erinnerung) |
 | `delivered` | Transport hat Zustellung bestätigt (`delivery_state = delivered`) | nein | nein (nur Erinnerung) |
 | `clicked` | Empfänger hat den Bewertungslink geöffnet – **nur** wenn Klickerfassung für die Kampagne erlaubt und aktiviert ist (Default aus) | nein | nein |
+| `responded` | über den signierten Einladungslink ist eine lokale Bewertung eingegangen (`responded_at`); seit 24.11.2026 (P2-10) | nein | **nein** (auch keine Erinnerung) |
 | `skipped` | nicht versendet, weil eine Regel es verbietet (Grund in `status_code`) | ja¹ | nein |
 | `cancelled` | durch widerrufendes Ereignis, Admin oder Workflow abgebrochen | ja | nein |
 | `failed` | technischer Endfehler (Transport permanent, Retries erschöpft, Hard-Bounce) | ja² | nein |
@@ -28,7 +29,7 @@
 
 „delivered/unknown“ aus dem TODO ist so abgebildet: `delivered` ist ein eigener Status; „unknown“ ist der Status `sent` mit `delivery_state = unknown`.
 
-Zusätzlich (kein Status): `hold_code` (z. B. `rc.source.unavailable`, `rc.entitlement.missing`, Kampagne pausiert) hält `planned`/`eligible` an, ohne den Status zu ändern. `responded_at` wird gesetzt, wenn über den Anfragelink eine lokale Review entsteht (Hook `review_captain_request_responded_v1`).
+Zusätzlich (kein Status): `hold_code` (z. B. `rc.source.unavailable`, `rc.entitlement.missing`, Kampagne pausiert) hält `planned`/`eligible` an, ohne den Status zu ändern. `responded_at` wird mit dem Übergang T17 nach `responded` gesetzt, wenn über den Anfragelink eine lokale Review entsteht (Hook `review_captain_request_responded_v1`, siehe „Antwort über den Einladungslink“).
 
 ## Zustandsdiagramm
 
@@ -56,6 +57,9 @@ stateDiagram-v2
     sent --> unsubscribed: Abmeldelink
     delivered --> unsubscribed: Abmeldelink
     clicked --> unsubscribed: Abmeldelink
+    sent --> responded: lokale Review über Einladungslink
+    delivered --> responded: lokale Review über Einladungslink
+    clicked --> responded: lokale Review über Einladungslink
     skipped --> [*]
     cancelled --> [*]
     failed --> [*]
@@ -84,10 +88,37 @@ stateDiagram-v2
 | T14 | `sent`, `delivered` | `failed` | Hard-Bounce | – | Transport-Callback/Job | `rc.transport.bounced` (+ Suppression `bounce_hard`) | ja |
 | T15 | `sent`, `delivered` | `clicked` | Aufruf des signierten Anfragelinks | Klickerfassung erlaubt und aktiv | Frontend-Redirect (nur Statusupdate, keine PII) | – | ja |
 | T16 | `sent`, `delivered`, `clicked` | `unsubscribed` | Abmeldelink | gültiges Token | Frontend (`admin-post.php`, Token statt Nonce) | – | ja + `recipient_opted_out_v1` |
+| T17 | `sent`, `delivered`, `clicked` | `responded` | `review_captain_request_responded_v1` (Core, nach dem Speichern einer lokalen Review mit gültigem Einladungs-Token) | Token von Pro bestätigt (`review_captain_request_token_v1`); einmalig (CAS) | Pro (Listener) | – | – |
 
 Nicht erlaubt (Validator lehnt mit `rc.request.invalid_transition` ab): jeder Übergang aus einem Terminalstatus außer T11/T12; `sent → planned/eligible`; jeder zweite Übergang nach `sent` für dieselbe Zeile.
 
-**Erinnerung** (RC-092, Default aus): Job `request.remind` für `sent`/`delivered` (nicht `clicked`, falls Klickerfassung aktiv und Kampagne „nicht bei Klick“ wählt); führt Resolver und Guards erneut aus; Erfolg erhöht `reminder_count`, setzt `last_reminder_at`, Hook `review_captain_request_reminder_sent_v1`; Status bleibt. Max. 1 Erinnerung in v1.
+**Erinnerung** (RC-092, Default aus): Job `request.remind` für `sent`/`delivered` (nicht `clicked`, falls Klickerfassung aktiv und Kampagne „nicht bei Klick“ wählt; nie für `responded` oder gesetztes `responded_at`, P2-10); führt Resolver und Guards erneut aus; Erfolg erhöht `reminder_count`, setzt `last_reminder_at`, Hook `review_captain_request_reminder_sent_v1`; Status bleibt. Max. 1 Erinnerung in v1.
+
+## Antwort über den Einladungslink (P2-10, Entscheidung der Inhaberin 24.11.2026)
+
+Ziel: keine Erinnerung, wenn die Person schon bewertet hat. Verknüpfung über ein Token im Link, nicht über den Adress-Hash.
+
+1. **Link (Pro):** Zielt eine Kampagne auf das eigene Bewertungsformular (`target_type = local`), trägt der Link in Einladung und Erinnerung `rc_request={request_uuid}.{sig}` (`sig` = die ersten 32 Hex-Zeichen von HMAC-SHA256 über `respond|{request_uuid}` mit `wp_salt('auth')`, eigener Zweck, nicht austauschbar mit dem Abmelde-Token). Das Token wird nicht gespeichert.
+2. **Formular (Core, ab Vertrag 1.2.0):** Steht `rc_request` in der Adresse der Seite, gibt das Formular es als verstecktes Feld `rc_request` weiter (`Frontend\RequestResponse`). Der Core prüft nur die Form (`[A-Za-z0-9._~-]{1,200}`), nie die Signatur.
+3. **Prüfung (Pro):** Nach dem Speichern der Review fragt der Core den Filter `review_captain_request_token_v1` (`null`, `string $token`) → Anfrage-Referenz (UUID) oder `null`. Pro antwortet nur bei gültiger Signatur und vorhandener Anfrage.
+4. **Verknüpfung (Core):** `reviews.meta.request_uuid` = Referenz (personenbezogenes Meta: Export und Löschung), dann einmal je Einreichung `review_captain_request_responded_v1` mit Payload `review_captain.request_response.v1`:
+
+```json
+{
+  "schema": "review_captain.request_response.v1",
+  "event_id": "4f1c2d3e-5a6b-4c7d-8e9f-0a1b2c3d4e5f",
+  "request_uuid": "7a8b9c0d-1e2f-4a3b-8c4d-5e6f7a8b9c0d",
+  "review_uuid": "0b7e9a3c-51a2-4c1e-8f3e-2a9d7c6b5e44",
+  "review_uuids": ["0b7e9a3c-51a2-4c1e-8f3e-2a9d7c6b5e44"],
+  "review_status": "pending",
+  "occurred_at": "2026-11-24T09:00:04+00:00"
+}
+```
+
+   Niemals enthalten: Text, Name, E-Mail, Token. Abgelehnte Einreichungen, Honeypot-Treffer und Wiederholungen derselben Einreichung feuern nichts.
+5. **Zustand (Pro):** T17 `sent`/`delivered` → `responded` mit `responded_at` (CAS, einmalig); andere Zustände bleiben. Die Suite-Sperre bleibt belegt. `RequestSender::remind()` sendet für `responded` nichts.
+
+Ohne Pro, mit älterem Pro oder mit ungültigem Token geschieht nichts; die Review wird wie bisher gespeichert. Ältere Kerne ignorieren den Parameter. **Externe Plattformen:** Eine Bewertung bei Google, Trustpilot usw. ist nicht erkennbar; Profilziele bekommen kein Token, die Erinnerung geht dort wie bisher (Schalter je Kampagne). Die Moderation spielt keine Rolle: auch eine zurückgehaltene oder später abgelehnte Review zählt als Antwort (keine Bewertungshöhe, kein Review-Gating).
 
 ## Atomare Übergänge
 
@@ -125,7 +156,7 @@ Der Versand (T8) läuft zweiphasig: (1) CAS `eligible → eligible` mit `send_cl
 | `locale` | VARCHAR(20) | |
 | `contact_hash` | CHAR(64) NULL | erst ab T8, für Frequenz/Suppression |
 | `due_at`, `expires_at` | DATETIME | |
-| `eligible_at`, `sent_at`, `delivered_at`, `clicked_at`, `responded_at`, `closed_at` | DATETIME NULL | |
+| `eligible_at`, `sent_at`, `delivered_at`, `clicked_at`, `responded_at`, `closed_at` | DATETIME NULL | `responded_at` in Pro seit Schema 5 (P2-10) |
 | `reminder_count` | TINYINT | |
 | `last_reminder_at` | DATETIME NULL | |
 | `send_claim`, `send_claim_expires_at` | VARCHAR(64) NULL, DATETIME NULL | |

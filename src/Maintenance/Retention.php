@@ -13,6 +13,7 @@ use ReviewCaptain\Audit\AuditLog;
 use ReviewCaptain\Install\Schema;
 use ReviewCaptain\Jobs\JobQueue;
 use ReviewCaptain\Plugin;
+use ReviewCaptain\Questions\QuestionRepository;
 
 /**
  * Daily purge according to the privacy.* settings. Batched (max 500 rows per category and run)
@@ -34,21 +35,23 @@ class Retention {
 	 * Run all purges.
 	 *
 	 * @param float $time_budget Seconds.
-	 * @return array{rejected_deleted:int, external_deleted:int, logs_deleted:int, jobs_deleted:int, questions_deleted:int, revisions_deleted:int, contacts_removed:int, approved_deleted:int, complete:bool}
+	 * @return array{rejected_deleted:int, external_deleted:int, logs_deleted:int, jobs_deleted:int, questions_deleted:int, revisions_deleted:int, contacts_removed:int, question_contacts_removed:int, withdrawn_deleted:int, approved_deleted:int, complete:bool}
 	 */
 	public function run( float $time_budget = 20.0 ): array {
 		$deadline = microtime( true ) + max( 1.0, $time_budget );
 		$settings = $this->plugin->settings();
 		$out      = array(
-			'rejected_deleted'  => 0,
-			'external_deleted'  => 0,
-			'logs_deleted'      => 0,
-			'jobs_deleted'      => 0,
-			'questions_deleted' => 0,
-			'revisions_deleted' => 0,
-			'contacts_removed'  => 0,
-			'approved_deleted'  => 0,
-			'complete'          => true,
+			'rejected_deleted'          => 0,
+			'external_deleted'          => 0,
+			'logs_deleted'              => 0,
+			'jobs_deleted'              => 0,
+			'questions_deleted'         => 0,
+			'revisions_deleted'         => 0,
+			'contacts_removed'          => 0,
+			'question_contacts_removed' => 0,
+			'withdrawn_deleted'         => 0,
+			'approved_deleted'          => 0,
+			'complete'                  => true,
 		);
 
 		$rejected_days = (int) $settings->get( 'privacy', 'retention_rejected_days', 90 );
@@ -78,6 +81,14 @@ class Retention {
 		$questions = Schema::table( 'questions' );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 		$out['questions_deleted'] = max( 0, (int) $wpdb->query( $wpdb->prepare( "DELETE FROM {$questions} WHERE status = 'rejected' AND updated_at < %s", self::cutoff( $rejected_days ) ) ) );
+
+		// 1c. Reviews withdrawn by their author (P2-14, CorrectionService::withdraw() archives them):
+		// deleted like rejected ones, privacy.retention_rejected_days after the withdrawal.
+		if ( microtime( true ) < $deadline ) {
+			$out['withdrawn_deleted'] = $this->delete_reviews( self::withdrawn_ids( $rejected_days, self::BATCH ), $deadline, $out['complete'] );
+		} else {
+			$out['complete'] = false;
+		}
 
 		// 2. Removed external snapshots (tombstones) past their retention.
 		if ( microtime( true ) < $deadline ) {
@@ -131,6 +142,29 @@ class Retention {
 			}
 		}
 
+		// 6b. Contact address of product questions (P4-6): same period, the question stays.
+		if ( $contact_days > 0 ) {
+			if ( microtime( true ) < $deadline ) {
+				$out['question_contacts_removed'] = ( new QuestionRepository() )->remove_contact_before( self::cutoff( $contact_days ), self::BATCH );
+				if ( $out['question_contacts_removed'] >= self::BATCH ) {
+					$out['complete'] = false;
+				}
+				if ( $out['question_contacts_removed'] > 0 ) {
+					$this->plugin->audit()->record(
+						'retention.question_contacts_removed',
+						'retention',
+						'',
+						array(
+							'count'  => $out['question_contacts_removed'],
+							'reason' => 'retention_contact_days:' . $contact_days,
+						)
+					);
+				}
+			} else {
+				$out['complete'] = false;
+			}
+		}
+
 		// 7. Approved local reviews (SET-RC-08, optional): deleted N days after receipt.
 		if ( $approved_days > 0 ) {
 			if ( microtime( true ) < $deadline ) {
@@ -141,7 +175,7 @@ class Retention {
 			}
 		}
 
-		$total = $out['rejected_deleted'] + $out['external_deleted'] + $out['logs_deleted'] + $out['jobs_deleted'] + $out['questions_deleted'] + $out['revisions_deleted'] + $out['contacts_removed'] + $out['approved_deleted'];
+		$total = $out['rejected_deleted'] + $out['external_deleted'] + $out['logs_deleted'] + $out['jobs_deleted'] + $out['questions_deleted'] + $out['revisions_deleted'] + $out['contacts_removed'] + $out['question_contacts_removed'] + $out['withdrawn_deleted'] + $out['approved_deleted'];
 		if ( $total > 0 ) {
 			$this->plugin->audit()->record(
 				'retention.purged',
@@ -149,7 +183,7 @@ class Retention {
 				'',
 				array(
 					'count'  => $total,
-					'fields' => array( $out['rejected_deleted'], $out['external_deleted'], $out['logs_deleted'], $out['jobs_deleted'], $out['contacts_removed'], $out['approved_deleted'] ),
+					'fields' => array( $out['rejected_deleted'], $out['external_deleted'], $out['logs_deleted'], $out['jobs_deleted'], $out['contacts_removed'], $out['approved_deleted'], $out['question_contacts_removed'], $out['withdrawn_deleted'] ),
 				)
 			);
 		}
@@ -158,20 +192,23 @@ class Retention {
 
 	/**
 	 * Preview for the privacy tab (SET-RC-08): how many reviews the next runs would touch with the
-	 * given periods (0 = unlimited → 0). Two COUNT queries, no changes.
+	 * given periods (0 = unlimited → 0). COUNT queries only, no changes. `questions` counts product
+	 * questions whose e-mail address the contact period removes (P4-6).
 	 *
 	 * @param int $contact_days  privacy.retention_contact_days.
 	 * @param int $approved_days privacy.retention_approved_days.
-	 * @return array{contacts: int, approved: int}
+	 * @return array{contacts: int, approved: int, questions: int}
 	 */
 	public static function preview( int $contact_days, int $approved_days ): array {
 		global $wpdb;
 		$table = Schema::table( 'reviews' );
 		$out   = array(
-			'contacts' => 0,
-			'approved' => 0,
+			'contacts'  => 0,
+			'approved'  => 0,
+			'questions' => 0,
 		);
 		if ( $contact_days > 0 ) {
+			$out['questions'] = ( new QuestionRepository() )->count_contact_before( self::cutoff( $contact_days ) );
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 			$out['contacts'] = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE author_email IS NOT NULL AND author_email <> '' AND created_at < %s", self::cutoff( $contact_days ) ) );
 		}
@@ -209,6 +246,23 @@ class Retention {
 		$table = Schema::table( 'reviews' );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
 		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE platform = 'local' AND kind = 'review' AND status = 'approved' AND created_at < %s ORDER BY id ASC LIMIT %d", self::cutoff( $days ), $limit ) );
+		return is_array( $ids ) ? $ids : array();
+	}
+
+	/**
+	 * Local reviews withdrawn by their author (P2-14) longer than $days ago: archived, and the last
+	 * status change was the withdrawal (a review archived by the moderation is not affected).
+	 *
+	 * @param int $days  Days (privacy.retention_rejected_days).
+	 * @param int $limit Batch size.
+	 * @return array<int, mixed>
+	 */
+	private static function withdrawn_ids( int $days, int $limit ): array {
+		global $wpdb;
+		$table  = Schema::table( 'reviews' );
+		$events = Schema::table( 'review_events' );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT r.id FROM {$table} r JOIN {$events} e ON e.id = ( SELECT MAX(e2.id) FROM {$events} e2 WHERE e2.review_id = r.id AND e2.action = 'status_changed' ) WHERE r.platform = 'local' AND r.status = 'archived' AND e.to_status = 'archived' AND e.reason = 'author_withdrawn' AND e.created_at < %s ORDER BY r.id ASC LIMIT %d", self::cutoff( $days ), $limit ) );
 		return is_array( $ids ) ? $ids : array();
 	}
 

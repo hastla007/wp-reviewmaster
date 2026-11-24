@@ -51,7 +51,7 @@ final class CsvExporterTest extends TestCase {
 		$this->review();
 		[ $raw, $rows ] = $this->export();
 		$this->assertStringStartsWith( Csv::BOM, $raw );
-		$this->assertSame( array_merge( Csv::IMPORT_COLUMNS, array( 'uuid', 'origin', 'created_at' ) ), $rows[0] );
+		$this->assertSame( array_merge( Csv::IMPORT_COLUMNS, array( 'uuid', 'origin', 'created_at', 'reply_body', 'reply_at' ) ), $rows[0] );
 		$this->assertCount( 2, $rows );
 		$row = array_combine( $rows[0], $rows[1] );
 		$this->assertSame( 'review', $row['kind'] );

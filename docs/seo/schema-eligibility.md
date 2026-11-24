@@ -24,6 +24,7 @@ Für **jede einzelne Review**, die in einer Block-/Shortcode-Instanz gerendert w
 | E1 | Plattform | `platform = 'local'` | gesperrt: externe Plattform (`external_platform`) |
 | E2 | Art | `kind = 'review'` | gesperrt: Testimonial (`not_review`) |
 | E3 | Status | `status = 'approved'` | gesperrt: nicht freigegeben (`not_approved`) |
+| E3b | Vorteil | `incentivised = 0` (SET-RC-12, Entscheidung E7 vom 24.11.2026) | gesperrt: gegen einen Vorteil erhalten (`incentivised`) – sichtbar mit Kennzeichen, nie Markup |
 | E4 | Kontext | `context_type ∈ {'product', 'post', 'event'}` | gesperrt: Kontext ungeeignet; `context_type` leer/NULL = Review über Unternehmen/Organisation → `self_serving`; `voucher`, `app`, `form` → `context_not_supported` |
 | E5 | Sichtbarkeit | Review wird im aktuellen Request serverseitig im HTML gerendert (nicht ausgeblendet, nicht nur per Pagination auf anderer Seite, nicht im Editor/Vorschau/REST) | gesperrt: nicht sichtbar (`not_rendered`) |
 | E5b | Hauptobjekt der Seite | Die Seite ist die Einzelseite des bewerteten Objekts (`is_singular()` und `context_id` = ID des Hauptobjekts). Übersichts-, Archiv- und fremde Seiten erhalten kein Review-Markup, auch wenn das Widget dort Reviews zeigt (QA-Befund F-09 vom 16.11.2026; löst SEO-OPEN-5) | gesperrt: `not_main_entity` |
@@ -46,6 +47,7 @@ function is_schema_eligible( Review $r, RenderContext $ctx ): bool {
     if ( 'local'    !== $r->platform ) return false;                       // E1
     if ( 'review'   !== $r->kind )     return false;                       // E2
     if ( 'approved' !== $r->status )   return false;                       // E3
+    if ( $r->incentivised )            return false;                       // E3b (SET-RC-12)
     if ( ! in_array( $r->context_type, [ 'product', 'post', 'event' ], true ) ) return false; // E4 (NULL = self-serving)
     if ( ! $ctx->is_rendered( $r ) )   return false;                       // E5
     if ( 'product' === $r->context_type && $ctx->is_woo_product( $r->context_id ) && $ctx->woo_schema_active() ) return false; // E6
@@ -68,6 +70,8 @@ function is_schema_eligible( Review $r, RenderContext $ctx ): bool {
 | Lokale Kurs-/Event-Review (`event`), freigegeben, sichtbar | Markup möglich | E1–E8 |
 | Lokale Review zu Beitrag/Seite (`post`), z. B. Kursseite | Markup möglich | E1–E8 (Typ siehe Ausgabeaufbau) |
 | Review `pending`/`flagged`/`removed` | kein Markup | E3 |
+| Lokale Produktreview „gegen einen Vorteil erhalten“ (Gutschein, Rabatt …) | kein Markup, Kennzeichen sichtbar | E3b `incentivised` |
+| Lokale Review mit Händlerantwort | Markup wie ohne Antwort; die Antwort selbst wird nie ausgezeichnet | – (SET-RC-13) |
 | Review existiert, aber Widget zeigt Seite 2 (`rc_page=2`) | nur die auf dieser Seite gerenderten | E5; Seite trägt zudem `noindex` |
 | Widget im Editor/REST-Vorschau | kein Markup | E5 |
 | Gemischtes Widget (lokal + extern) | nur lokale geeignete Reviews einzeln, **kein** AggregateRating | E1 + Ausgabeaufbau A2 |

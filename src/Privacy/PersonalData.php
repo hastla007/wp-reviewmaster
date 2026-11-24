@@ -201,6 +201,9 @@ class PersonalData {
 			\ReviewCaptain\Moderation\CorrectionService::delete_for_review( $r->id );
 		}
 		$r->submission_key        = null; // Derived from the e-mail (HMAC) – personal.
+		// SET-RC-13: the merchant reply may address the person by name – removed with the person's data.
+		$r->reply_body = null;
+		$r->reply_at   = null;
 		try {
 			return $this->reviews->update( $r );
 		} catch ( \InvalidArgumentException $e ) {
@@ -223,6 +226,8 @@ class PersonalData {
 				'author_email'   => null,
 				'author_user_id' => null,
 				'submission_key' => null,
+				'reply_body'     => null,
+				'reply_at'       => null,
 				'title'          => $r->title,
 				'body'           => $r->body,
 				'meta'           => wp_json_encode( (object) $r->meta ),
@@ -294,6 +299,10 @@ class PersonalData {
 			__( 'Status', 'review-captain' )                      => $r->status->label(),
 			__( 'Verifizierung', 'review-captain' )               => $r->verification->label(),
 			__( 'Kontext', 'review-captain' )                     => null === $r->context_type ? '' : $r->context_type . ':' . (string) $r->context_id,
+			__( 'Gegen einen Vorteil erhalten', 'review-captain' ) => $r->incentivised ? __( 'ja', 'review-captain' ) : '',
+			// SET-RC-13: the merchant's public reply to this review.
+			__( 'Antwort des Händlers', 'review-captain' )       => $r->has_reply() ? (string) $r->reply_body : '',
+			__( 'Antwort am (UTC)', 'review-captain' )           => $r->has_reply() ? (string) $r->reply_at : '',
 			__( 'Einwilligung zur Veröffentlichung', 'review-captain' ) => $r->consent_publish ? __( 'ja', 'review-captain' ) . ( $r->consent_at ? ' (' . $r->consent_at . ' UTC)' : '' ) : __( 'nein', 'review-captain' ),
 			__( 'Veröffentlicht am', 'review-captain' )           => (string) $r->published_at,
 			__( 'Erstellt am (UTC)', 'review-captain' )           => $r->created_at,
