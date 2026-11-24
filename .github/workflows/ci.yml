@@ -31,7 +31,7 @@ jobs:
           - php: '8.6'
             experimental: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -53,7 +53,7 @@ jobs:
   coding-standards:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
@@ -67,9 +67,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: bin/build-zip.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: review-captain-zip
           path: build/*.zip
@@ -98,7 +98,7 @@ jobs:
         options: >-
           --health-cmd="${{ matrix.db.health }}" --health-interval=5s --health-timeout=5s --health-retries=30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
@@ -128,7 +128,7 @@ jobs:
       matrix:
         wp: ['7.0', '7.1']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: pro
         env:
           HAS_TOKEN: ${{ secrets.CAPTAIN_PRO_TOKEN != '' }}
@@ -141,7 +141,7 @@ jobs:
           fi
       - name: Checkout Review Captain Pro (captain-pro, main)
         if: steps.pro.outputs.ready == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: hastla007/captain-pro
           token: ${{ secrets.CAPTAIN_PRO_TOKEN }}
@@ -153,7 +153,7 @@ jobs:
           extensions: sodium, pdo_sqlite, mbstring, zip
           coverage: none
           tools: composer:v2
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       - name: Playwright (Chromium)
@@ -170,7 +170,7 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/node/node_modules
         run: tests/e2e/ci-e2e.sh
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-wp-${{ matrix.wp }}
           path: |
