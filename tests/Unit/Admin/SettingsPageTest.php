@@ -50,8 +50,8 @@ final class SettingsPageTest extends AdminTestCase {
 		$this->assertCount( 1, $audit );
 		$context = json_decode( $audit[0]['context'], true );
 		$this->assertSame( array( 'general.brand_name' ), $context['fields'] );
-		// SET-RC-17: old and new value are logged (short texts in full).
-		$this->assertSame( array( array( 'field' => 'general.brand_name', 'from' => '', 'to' => 'Musterladen' ) ), $context['changes'] );
+		// SET-RC-17: old and new value are logged; the brand name is contact data (P1, P1-8) and only shown as changed.
+		$this->assertSame( array( array( 'field' => 'general.brand_name', 'from' => '', 'to' => '[verborgen]' ) ), $context['changes'] );
 	}
 
 	public function test_pro_tab_cannot_be_written_without_pro(): void {

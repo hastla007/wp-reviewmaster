@@ -32,6 +32,13 @@ class Settings {
 	private int $cache_site = 0;
 
 	/**
+	 * Sites whose settings version was checked in this request (SettingsMigrator).
+	 *
+	 * @var array<int, true>
+	 */
+	private array $migrated = array();
+
+	/**
 	 * All effective values (stored merged over defaults).
 	 *
 	 * @return array<string, array<string, mixed>>
@@ -39,6 +46,11 @@ class Settings {
 	public function all(): array {
 		$site = function_exists( 'get_current_blog_id' ) ? (int) get_current_blog_id() : 0;
 		if ( null === $this->cache || $site !== $this->cache_site ) {
+			if ( ! isset( $this->migrated[ $site ] ) ) {
+				// Bring stored values up to the current schema before anyone reads a new default (E5, P2-13).
+				$this->migrated[ $site ] = true;
+				SettingsMigrator::maybe_run();
+			}
 			$stored           = get_option( self::OPTION, array() );
 			$this->cache      = self::merge( SettingsSchema::defaults(), is_array( $stored ) ? $stored : array() );
 			$this->cache_site = $site;

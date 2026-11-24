@@ -260,12 +260,18 @@ final class CliModule implements Module {
 			),
 			'settings export'    => array(
 				'method'    => 'settings_export',
-				'shortdesc' => __( 'Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten).', 'review-captain' ),
+				'shortdesc' => __( 'Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten; Kontaktangaben nur mit --with-contacts).', 'review-captain' ),
 				'synopsis'  => array(
 					array(
 						'type'     => 'assoc',
 						'name'     => 'file',
 						'optional' => true,
+					),
+					array(
+						'type'        => 'flag',
+						'name'        => 'with-contacts',
+						'optional'    => true,
+						'description' => __( 'Mit Kontaktangaben exportieren (Empfängeradressen, Markenname, Absenderangaben).', 'review-captain' ),
 					),
 				),
 			),

@@ -511,8 +511,18 @@ final class SettingsPage {
 	 */
 	public function handle_export(): void {
 		Capabilities::verify_request( Capabilities::MANAGE_SETTINGS, 'export_settings' );
-		$doc = $this->transfer()->export();
-		$this->plugin->audit()->record( 'settings.exported', 'settings', '', array( 'version' => SettingsSchema::VERSION ) );
+		// P1-8: contact data of the operator only when the box was ticked.
+		$with_contacts = '1' === View::req( $_POST, 'with_contacts' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above.
+		$doc           = $this->transfer()->export( $with_contacts );
+		$this->plugin->audit()->record(
+			'settings.exported',
+			'settings',
+			'',
+			array(
+				'version'       => SettingsSchema::VERSION,
+				'with_contacts' => $with_contacts,
+			)
+		);
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename="review-captain-settings-' . gmdate( 'Y-m-d' ) . '.json"' );
@@ -930,6 +940,13 @@ final class SettingsPage {
 			if ( $contact_days > 0 ) {
 				/* translators: %s: number of reviews */
 				$notes[] = array( 'info', sprintf( _n( 'Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertung. Die Bewertung bleibt.', 'Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertungen. Die Bewertungen bleiben.', $preview['contacts'], 'review-captain' ), number_format_i18n( $preview['contacts'] ) ) );
+				if ( $preview['questions'] > 0 ) {
+					/* translators: %s: number of product questions */
+					$notes[] = array( 'info', sprintf( _n( 'Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfrage. Die Frage bleibt.', 'Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfragen. Die Fragen bleiben.', $preview['questions'], 'review-captain' ), number_format_i18n( $preview['questions'] ) ) );
+				}
+			} else {
+				// S9: remind while no period is set (existing installations keep "unlimited", E5).
+				$notes[] = array( 'warning', __( 'Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt; sie bleiben unbegrenzt gespeichert. Neue Installationen entfernen sie nach 365 Tagen. Welche Frist passt, lass bitte rechtlich prüfen.', 'review-captain' ) );
 			}
 			if ( $approved_days > 0 ) {
 				/* translators: %s: number of reviews */
@@ -1146,6 +1163,8 @@ final class SettingsPage {
 		echo '<p>' . esc_html__( 'Lädt die Einstellungen als JSON-Datei herunter – ohne Zugangsdaten und ohne personenbezogene Angaben. Reviews sind nicht enthalten.', 'review-captain' ) . '</p>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo View::form_fields( 'export_settings' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<p><label><input type="checkbox" name="with_contacts" value="1" aria-describedby="rc-export-contacts-help" /> ' . esc_html__( 'Mit Kontaktangaben exportieren', 'review-captain' ) . '</label></p>';
+		echo '<p class="description" id="rc-export-contacts-help">' . esc_html__( 'Nimmt Empfängeradressen der Benachrichtigungen, den Markennamen und die Absenderangaben mit in die Datei. Ohne Häkchen fehlen diese Felder; ein Import lässt sie dann unverändert. Zugangsdaten werden nie exportiert.', 'review-captain' ) . '</p>';
 		echo '<p><button type="submit" class="button">' . esc_html__( 'Konfiguration herunterladen', 'review-captain' ) . '</button></p></form>';
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.

@@ -579,16 +579,25 @@ class Commands {
 	}
 
 	/**
-	 * `settings export [--file=<path>]`.
+	 * `settings export [--file=<path>] [--with-contacts]` – contact data of the operator only with the flag (P1-8).
 	 *
 	 * @param list<string>          $args  Args.
 	 * @param array<string, string> $assoc Assoc args.
 	 * @return array<string, mixed>
 	 */
 	public function settings_export( array $args, array $assoc ): array {
-		$doc  = ( new ConfigTransfer( $this->plugin->settings() ) )->export();
-		$json = (string) wp_json_encode( $doc, JSON_PRETTY_PRINT );
-		$this->plugin->audit()->record( 'settings.exported', 'settings', 'cli', array( 'version' => SettingsSchema::VERSION ) );
+		$with_contacts = ! empty( $assoc['with-contacts'] );
+		$doc           = ( new ConfigTransfer( $this->plugin->settings() ) )->export( $with_contacts );
+		$json          = (string) wp_json_encode( $doc, JSON_PRETTY_PRINT );
+		$this->plugin->audit()->record(
+			'settings.exported',
+			'settings',
+			'cli',
+			array(
+				'version'       => SettingsSchema::VERSION,
+				'with_contacts' => $with_contacts,
+			)
+		);
 		if ( empty( $assoc['file'] ) ) {
 			$this->out->log( $json );
 			return $doc;

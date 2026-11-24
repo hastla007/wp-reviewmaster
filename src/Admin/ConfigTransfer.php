@@ -16,6 +16,9 @@ use ReviewCaptain\Settings\SettingsSchema;
  * Pure logic, no output. Export never contains secrets or personal data:
  * fields with privacy 'personal', fields with 'export' => false (the uninstall switch, S10) and
  * keys that look like secrets are omitted; an import never touches them either.
+ * Contact data of the operator (privacy 'config', P1: notification recipients, brand name and
+ * add-on fields such as the sender address) is only exported on request ("mit Kontaktangaben
+ * exportieren", P1-8); an import takes such fields when the file contains them.
  */
 final class ConfigTransfer {
 
@@ -31,12 +34,16 @@ final class ConfigTransfer {
 	public function __construct( private Settings $settings ) {}
 
 	/**
-	 * Whether a field may leave the site in a configuration export.
+	 * Whether a field may leave the site in a configuration export (or be taken from an import).
 	 *
-	 * @param string               $key   Key.
-	 * @param array<string, mixed> $field Field definition.
+	 * @param string               $key           Key.
+	 * @param array<string, mixed> $field         Field definition.
+	 * @param bool                 $with_contacts Include contact data of the operator (privacy 'config', P1-8).
 	 */
-	public static function exportable( string $key, array $field ): bool {
+	public static function exportable( string $key, array $field, bool $with_contacts = true ): bool {
+		if ( ! $with_contacts && self::is_contact( $field ) ) {
+			return false;
+		}
 		if ( 'personal' === ( $field['privacy'] ?? 'none' ) || ! empty( $field['internal'] ) || false === ( $field['export'] ?? true ) ) {
 			return false;
 		}
@@ -47,11 +54,21 @@ final class ConfigTransfer {
 	}
 
 	/**
-	 * Build the export document.
+	 * Whether a field holds contact data of the operator (P1, privacy 'config').
 	 *
+	 * @param array<string, mixed> $field Field definition.
+	 */
+	public static function is_contact( array $field ): bool {
+		return 'config' === ( $field['privacy'] ?? 'none' );
+	}
+
+	/**
+	 * Build the export document. Contact data (privacy 'config') only with $with_contacts (P1-8).
+	 *
+	 * @param bool $with_contacts Include contact data of the operator.
 	 * @return array<string, mixed>
 	 */
-	public function export(): array {
+	public function export( bool $with_contacts = false ): array {
 		$values = $this->settings->all();
 		$out    = array();
 		foreach ( SettingsSchema::fields() as $tab => $fields ) {
@@ -59,7 +76,7 @@ final class ConfigTransfer {
 				continue;
 			}
 			foreach ( $fields as $key => $field ) {
-				if ( ! self::exportable( (string) $key, $field ) ) {
+				if ( ! self::exportable( (string) $key, $field, $with_contacts ) ) {
 					continue;
 				}
 				$out[ $tab ][ $key ] = $values[ $tab ][ $key ] ?? $field['default'];
@@ -70,6 +87,7 @@ final class ConfigTransfer {
 			'schema_version' => SettingsSchema::VERSION,
 			'plugin_version' => defined( 'REVIEW_CAPTAIN_VERSION' ) ? REVIEW_CAPTAIN_VERSION : '',
 			'exported_at'    => gmdate( 'c' ),
+			'with_contacts'  => $with_contacts,
 			'settings'       => $out,
 		);
 	}
@@ -232,8 +250,13 @@ final class ConfigTransfer {
 		if ( null === $backup ) {
 			return null;
 		}
-		$current = get_option( Settings::OPTION, array() );
-		$changed = $this->settings->save( $backup['settings'] );
+		$current  = get_option( Settings::OPTION, array() );
+		$restored = $backup['settings'];
+		if ( (int) ( $backup['version'] ?? 1 ) < SettingsSchema::VERSION ) {
+			// A snapshot from before a settings migration keeps that site's behaviour (E5, P2-13).
+			$restored = \ReviewCaptain\Settings\SettingsMigrator::migrate( $restored, max( 1, (int) ( $backup['version'] ?? 1 ) ) );
+		}
+		$changed = $this->settings->save( $restored );
 		// Keep the replaced state as the new backup so a rollback can itself be undone.
 		update_option(
 			self::BACKUP_OPTION,

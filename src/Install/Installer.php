@@ -99,6 +99,8 @@ final class Installer {
 	 */
 	public static function install_site(): void {
 		$from = (int) get_option( Schema::OPTION_VERSION, 0 );
+		// Settings migration first: before the DB version is written, a new site is still recognisable (E5).
+		\ReviewCaptain\Settings\SettingsMigrator::maybe_run();
 		Schema::install();
 		Migrator::run( $from, Schema::VERSION );
 		Capabilities::install();
