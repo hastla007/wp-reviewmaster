@@ -198,6 +198,11 @@ final class SettingsSchema {
 					'default' => 'none',
 					'choices' => array( 'none', 'pow' ),
 				),
+				// SET-RC-32 (owner decision E6, Free): only buyers/participants confirmed by a trusted source
+				// (WooCommerce order of the logged-in customer, or a source answering review_captain_purchase_proof,
+				// e.g. an invitation link) may submit; otherwise the form shows a message. 0 days = no age limit.
+				'require_purchase'           => array( 'type' => 'bool', 'default' => false ),
+				'purchase_max_age_days'      => array( 'type' => 'int', 'default' => 0, 'min' => 0, 'max' => 3650 ),
 			),
 			'display'     => array(
 				'show_stars'     => array( 'type' => 'bool', 'default' => true ),
@@ -291,6 +296,14 @@ final class SettingsSchema {
 				'widget_columns'       => array( 'type' => 'int', 'default' => 3, 'min' => 1, 'max' => 4 ),
 				'widget_heading_level' => array( 'type' => 'int', 'default' => 2, 'min' => 2, 'max' => 6 ),
 				'widget_new_tab'       => array( 'type' => 'bool', 'default' => false ),
+				// SET-RC-03 (owner decision E3): star filter of widgets stays, but is disclosed; off = the
+				// min_rating attribute is ignored everywhere (shortcode, block, Elementor). Notice: empty = default.
+				'allow_min_rating'     => array( 'type' => 'bool', 'default' => true ),
+				'filter_notice'        => array(
+					'type'       => 'string',
+					'default'    => '',
+					'max_length' => 300,
+				),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( 'type' => 'int', 'default' => 30, 'min' => 1, 'max' => 3650 ),

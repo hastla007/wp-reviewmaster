@@ -112,6 +112,12 @@ Immer gilt, unabhängig von Einstellungen: höchstens eine Einladung je tatsäch
 - **Externe Anbieter:** nur über den Filter `review_captain_spam_checks_v1` und **nur nach Rechtsprüfung** (externe Dienste übertragen in der Regel personenbezogene Daten). Ein Grund aus dem Filter lehnt neutral ab (`spam_check`).
 - **Datenschutz:** keiner beim eingebauten Verfahren; gespeichert wird bis zum Ablauf der Aufgabe (30 Minuten + 60 s) nur ein Hash der benutzten Aufgabe (Option `review_captain_pow_used_…`, von der täglichen Wartung entfernt).
 
+### Nur Käufer dürfen bewerten (`require_purchase`, `purchase_max_age_days`) – SET-RC-32
+- **Zweck:** Das Bewertungsformular nimmt nur Bewertungen an, deren Kauf oder Teilnahme eine vertrauenswürdige Quelle bestätigt. **Standard:** aus; Frist 0 = keine Frist (erlaubt 0–3650 Tage). Kostenlos (Entscheidung der Inhaberin E6, 24.11.2026).
+- **Quellen:** WooCommerce – angemeldete Kundinnen und Kunden mit bezahlter Bestellung des Produkts (Formular mit `context_type="product"`); ein Einladungslink (Review Captain Pro) oder andere angebundene Systeme über den Filter `review_captain_purchase_proof`. Formulare ohne Produkt funktionieren dann nur über einen Einladungslink.
+- **Folgen:** Wer nicht bestätigt ist, sieht statt des Formulars einen klaren Hinweis (anmelden bzw. Einladungslink nutzen; kein bestätigter Kauf; Kauf zu lange her). Auch ein direkt abgeschicktes Formular wird mit diesem Hinweis abgelehnt; nichts wird still verworfen oder gespeichert. Angenommene Bewertungen tragen die Stufe „Verifizierter Kauf“ bzw. „Teilnahme bestätigt“. Die Sternskala bleibt fest 1–5.
+- **Nicht enthalten:** automatische Freigaberegeln (z. B. „verifizierte Käufer sofort freigeben“) – Pro, SET-RC-35.
+
 ### Mindest-Ausfüllzeit (`min_seconds`)
 - **Zweck:** Formulare, die schneller als nach dieser Zeit abgeschickt werden, gelten als automatisiert und werden mit einem neutralen Hinweis abgewiesen. **Standard:** 3 Sekunden, erlaubt 1–120 (erweiterte Einstellung). Filter `review_captain_form_min_seconds` (0–120) hat Vorrang.
 
@@ -202,6 +208,12 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 - **Zweck:** Vorgaben für Widgets, Blöcke, Shortcodes und Elementor-Widgets, die keinen eigenen Wert haben. **Standard:** 6 Bewertungen (1–50), Raster, 3 Spalten (1–4), Überschriftenebene h2 (h2–h6), Links zum Original im selben Tab.
 - **Folgen:** Ein Wert am einzelnen Widget hat immer Vorrang. Blöcke und Elementor-Widgets ohne eigenen Wert („Vorgabe aus den Einstellungen“ bzw. „Standard“) folgen diesen Vorgaben. Filter `review_captain_widget_defaults` hat Vorrang vor den Einstellungen.
 
+### Gefilterte Anzeige (`allow_min_rating`, `filter_notice`) – SET-RC-03
+- **Zweck:** Widgets dürfen nach Mindestbewertung und Plattform filtern; Besucher sehen dann immer einen Hinweis, z. B. „Es werden nur Bewertungen ab 4 Sternen angezeigt.“ (Entscheidung der Inhaberin E3, 24.11.2026).
+- **Standard:** Filter erlaubt; Hinweis leer = Standardtext je Fall (Sterne, Plattform oder beides). Eigener Text höchstens 300 Zeichen mit den Platzhaltern `{stars}` (Mindeststernzahl, ohne Sternfilter 1) und `{platform}` (Plattformnamen, ohne Plattformfilter „allen Plattformen“). Filter `review_captain_public_text` (ID `display.filter_notice`) gewinnt; `review_captain_allow_min_rating` gewinnt über den Schalter.
+- **Folgen:** Die Zusammenfassung (Durchschnitt und Anzahl) rechnet immer über alle freigegebenen Bewertungen, nie über die nach Sternen gefilterte Auswahl. Schalter aus = „Mindestbewertung“ wird in allen Shortcodes, Blöcken und Elementor-Widgets ignoriert.
+- **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen** (ob Filter und Hinweis genügen, offen).
+
 ### Bewertungs-Markup ausgeben (`schema_enabled`, `schema_contexts`, `schema_min_reviews`)
 - **Zweck:** Ob Review Captain strukturierte Daten (schema.org) für eigene, auf dieser Website abgegebene und freigegebene Bewertungen ausgibt.
 - **Standard:** an, für Produkte, Beiträge und Veranstaltungen, ab 1 Bewertung. **Folgen:** aus = keinerlei Bewertungs-Markup durch Review Captain; die sichtbare Ausgabe bleibt gleich. Externe Bewertungen und Erfahrungsberichte (Testimonials) erhalten unabhängig davon nie Markup – dafür gibt es bewusst keinen Schalter.
@@ -212,7 +224,7 @@ Diese Werte sind die **Voreinstellung für neue Widgets**. Einzelne Widgets kön
 
 ### Hinweis „So prüfen wir Bewertungen“ (`verification_notice_show`, `verification_notice_title`, `verification_notice`, `verification_notice_position`) – SET-RC-01
 - **Zweck:** aufklappbarer Hinweis (Link „So prüfen wir Bewertungen“) an jedem Bewertungs-Widget und am Bewertungsformular, der erklärt, ob und wie Bewertungen geprüft werden (Transparenzpflicht, z. B. EU-Omnibus-Richtlinie).
-- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten. Die Überschrift (Text des aufklappbaren Links) ist mit `verification_notice_title` einstellbar (höchstens 80 Zeichen, leer = „So prüfen wir Bewertungen“; Filter `review_captain_public_text` mit ID `display.verification_notice_title`).
+- **Standard:** an, unter der Liste bzw. dem Formular. Text leer = neutraler Entwurf, der **nur die Prüfstufen beschreibt, die auf Ihrer Website vorkommen** (am Formular zusätzlich „ohne Prüfkennzeichen“, weil Formular-Bewertungen ungeprüft sind; mit „Nur Käufer dürfen bewerten“ stattdessen „Verifizierter Kauf“). Eigener Text höchstens 3 000 Zeichen, reiner Text, Absätze bleiben erhalten. Die Überschrift (Text des aufklappbaren Links) ist mit `verification_notice_title` einstellbar (höchstens 80 Zeichen, leer = „So prüfen wir Bewertungen“; Filter `review_captain_public_text` mit ID `display.verification_notice_title`).
 - **Filter:** `review_captain_verification_notice` (`$text`, `$context` = `widget`|`form`, `$levels`) gewinnt; leerer Rückgabewert blendet den Hinweis aus. Pro-Widgets können `Renderer::verification_notice()` nutzen.
 - **Rechtsprüfung:** **Rechtstext – bitte prüfen lassen.** Der Entwurf macht keine rechtlichen Aussagen; beschreiben Sie nur, was Sie tatsächlich prüfen.
 

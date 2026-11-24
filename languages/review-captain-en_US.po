@@ -4863,3 +4863,70 @@ msgstr "Next page"
 #: templates/reviews-grid.php:43
 msgid "Weitere Bewertungen"
 msgstr "More reviews"
+
+#: src/Admin/SettingsFields.php:78
+msgid "Nur Käufer dürfen bewerten"
+msgstr "Only buyers may review"
+
+#: src/Admin/SettingsFields.php:78
+msgid "Das Formular nimmt nur Bewertungen an, deren Kauf oder Teilnahme eine vertrauenswürdige Quelle bestätigt: bei WooCommerce angemeldete Kundinnen und Kunden, die das Produkt gekauft haben, oder der Link aus einer Bewertungseinladung. Alle anderen sehen statt des Formulars einen Hinweis; nichts wird still verworfen. Solche Bewertungen tragen die Prüfstufe „Verifizierter Kauf“ bzw. „Teilnahme bestätigt“. Formulare ohne Produkt funktionieren dann nur über einen Einladungslink."
+msgstr "The form only accepts reviews whose purchase or attendance is confirmed by a trusted source: customers logged in to WooCommerce who bought the product, or the link from a review invitation. Everyone else sees a notice instead of the form; nothing is silently discarded. Such reviews carry the verification level “Verified purchase” or “Attendance confirmed”. Forms without a product then only work through an invitation link."
+
+#: src/Admin/SettingsFields.php:79
+msgid "Kauf höchstens so viele Tage her"
+msgstr "Purchase at most this many days ago"
+
+#: src/Admin/SettingsFields.php:79
+msgid "Wirkt nur mit „Nur Käufer dürfen bewerten“. Liegt der Kauf länger zurück, erscheint ein Hinweis statt des Formulars. 0 = keine Frist."
+msgstr "Only applies with “Only buyers may review”. If the purchase was longer ago, a notice is shown instead of the form. 0 = no limit."
+
+#: src/Admin/SettingsFields.php:114
+msgid "Filter „Mindestbewertung“ erlauben"
+msgstr "Allow the “Minimum rating” filter"
+
+#: src/Admin/SettingsFields.php:114
+msgid "Widgets dürfen nur Bewertungen ab einer Sternzahl zeigen. Besucher sehen dann immer den Hinweis auf den Filter; die Zusammenfassung rechnet weiter über alle freigegebenen Bewertungen. Aus = die Einstellung „Mindestbewertung“ wird in allen Shortcodes, Blöcken und Elementor-Widgets ignoriert."
+msgstr "Widgets may show only reviews from a number of stars upwards. Visitors then always see a notice about the filter; the summary keeps counting all approved reviews. Off = the “Minimum rating” option is ignored in all shortcodes, blocks and Elementor widgets."
+
+#: src/Admin/SettingsFields.php:115
+msgid "Hinweis bei gefilterter Anzeige"
+msgstr "Notice for filtered display"
+
+#: src/Admin/SettingsFields.php:115
+msgid "Rechtstext – bitte prüfen lassen. Erscheint an jedem Widget, das nach Sternen oder Plattform filtert. Platzhalter: {stars} = Mindeststernzahl (ohne Sternfilter 1), {platform} = gefilterte Plattformen (ohne Plattformfilter „allen Plattformen“). Leer = „Es werden nur Bewertungen ab {stars} Sternen angezeigt.“ bzw. passender Standardtext."
+msgstr "Legal text – please have it reviewed. Shown on every widget that filters by stars or platform. Placeholders: {stars} = minimum number of stars (1 without a star filter), {platform} = filtered platforms (“all platforms” without a platform filter). Empty = “Only reviews with {stars} stars or more are shown.” or a matching default text."
+
+#: src/Admin/SettingsFields.php:173
+msgid "Nur bestätigte Käufer"
+msgstr "Confirmed buyers only"
+
+#: src/Frontend/FormHandler.php:667
+msgid "Bewertungen können hier nur Kundinnen und Kunden mit bestätigtem Kauf abgeben. Bitte melden Sie sich mit Ihrem Kundenkonto an oder öffnen Sie den Link aus Ihrer Bewertungseinladung."
+msgstr "Only customers with a confirmed purchase can leave a review here. Please log in with your customer account or open the link from your review invitation."
+
+#: src/Frontend/FormHandler.php:668
+msgid "Für diese Bewertung liegt kein bestätigter Kauf vor. Bewertungen sind hier nur nach einem bestätigten Kauf oder über den Link aus einer Bewertungseinladung möglich."
+msgstr "There is no confirmed purchase for this review. Reviews are only possible here after a confirmed purchase or through the link from a review invitation."
+
+#. translators: %s: number of days
+#: src/Frontend/FormHandler.php:671
+msgid "Bewertungen sind hier nur bis %s Tag nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
+msgid_plural "Bewertungen sind hier nur bis %s Tage nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
+msgstr[0] "Reviews are only possible here up to %s day after the purchase. Your purchase was longer ago."
+msgstr[1] "Reviews are only possible here up to %s days after the purchase. Your purchase was longer ago."
+
+#: src/Frontend/Renderer.php:487
+msgid "Es werden nur Bewertungen von {platform} ab {stars} Sternen angezeigt."
+msgstr "Only reviews from {platform} with {stars} stars or more are shown."
+
+#: src/Frontend/Renderer.php:489
+msgid "Es werden nur Bewertungen ab {stars} Sternen angezeigt."
+msgstr "Only reviews with {stars} stars or more are shown."
+
+#: src/Frontend/Renderer.php:491
+msgid "Es werden nur Bewertungen von {platform} angezeigt."
+msgstr "Only reviews from {platform} are shown."
+
+#: src/Frontend/Renderer.php:501
+msgid "allen Plattformen"
+msgstr "all platforms"

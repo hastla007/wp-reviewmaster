@@ -4863,3 +4863,70 @@ msgstr "Nächste Seite"
 #: templates/reviews-grid.php:43
 msgid "Weitere Bewertungen"
 msgstr "Weitere Bewertungen"
+
+#: src/Admin/SettingsFields.php:78
+msgid "Nur Käufer dürfen bewerten"
+msgstr "Nur Käufer dürfen bewerten"
+
+#: src/Admin/SettingsFields.php:78
+msgid "Das Formular nimmt nur Bewertungen an, deren Kauf oder Teilnahme eine vertrauenswürdige Quelle bestätigt: bei WooCommerce angemeldete Kundinnen und Kunden, die das Produkt gekauft haben, oder der Link aus einer Bewertungseinladung. Alle anderen sehen statt des Formulars einen Hinweis; nichts wird still verworfen. Solche Bewertungen tragen die Prüfstufe „Verifizierter Kauf“ bzw. „Teilnahme bestätigt“. Formulare ohne Produkt funktionieren dann nur über einen Einladungslink."
+msgstr "Das Formular nimmt nur Bewertungen an, deren Kauf oder Teilnahme eine vertrauenswürdige Quelle bestätigt: bei WooCommerce angemeldete Kundinnen und Kunden, die das Produkt gekauft haben, oder der Link aus einer Bewertungseinladung. Alle anderen sehen statt des Formulars einen Hinweis; nichts wird still verworfen. Solche Bewertungen tragen die Prüfstufe „Verifizierter Kauf“ bzw. „Teilnahme bestätigt“. Formulare ohne Produkt funktionieren dann nur über einen Einladungslink."
+
+#: src/Admin/SettingsFields.php:79
+msgid "Kauf höchstens so viele Tage her"
+msgstr "Kauf höchstens so viele Tage her"
+
+#: src/Admin/SettingsFields.php:79
+msgid "Wirkt nur mit „Nur Käufer dürfen bewerten“. Liegt der Kauf länger zurück, erscheint ein Hinweis statt des Formulars. 0 = keine Frist."
+msgstr "Wirkt nur mit „Nur Käufer dürfen bewerten“. Liegt der Kauf länger zurück, erscheint ein Hinweis statt des Formulars. 0 = keine Frist."
+
+#: src/Admin/SettingsFields.php:114
+msgid "Filter „Mindestbewertung“ erlauben"
+msgstr "Filter „Mindestbewertung“ erlauben"
+
+#: src/Admin/SettingsFields.php:114
+msgid "Widgets dürfen nur Bewertungen ab einer Sternzahl zeigen. Besucher sehen dann immer den Hinweis auf den Filter; die Zusammenfassung rechnet weiter über alle freigegebenen Bewertungen. Aus = die Einstellung „Mindestbewertung“ wird in allen Shortcodes, Blöcken und Elementor-Widgets ignoriert."
+msgstr "Widgets dürfen nur Bewertungen ab einer Sternzahl zeigen. Besucher sehen dann immer den Hinweis auf den Filter; die Zusammenfassung rechnet weiter über alle freigegebenen Bewertungen. Aus = die Einstellung „Mindestbewertung“ wird in allen Shortcodes, Blöcken und Elementor-Widgets ignoriert."
+
+#: src/Admin/SettingsFields.php:115
+msgid "Hinweis bei gefilterter Anzeige"
+msgstr "Hinweis bei gefilterter Anzeige"
+
+#: src/Admin/SettingsFields.php:115
+msgid "Rechtstext – bitte prüfen lassen. Erscheint an jedem Widget, das nach Sternen oder Plattform filtert. Platzhalter: {stars} = Mindeststernzahl (ohne Sternfilter 1), {platform} = gefilterte Plattformen (ohne Plattformfilter „allen Plattformen“). Leer = „Es werden nur Bewertungen ab {stars} Sternen angezeigt.“ bzw. passender Standardtext."
+msgstr "Rechtstext – bitte prüfen lassen. Erscheint an jedem Widget, das nach Sternen oder Plattform filtert. Platzhalter: {stars} = Mindeststernzahl (ohne Sternfilter 1), {platform} = gefilterte Plattformen (ohne Plattformfilter „allen Plattformen“). Leer = „Es werden nur Bewertungen ab {stars} Sternen angezeigt.“ bzw. passender Standardtext."
+
+#: src/Admin/SettingsFields.php:173
+msgid "Nur bestätigte Käufer"
+msgstr "Nur bestätigte Käufer"
+
+#: src/Frontend/FormHandler.php:667
+msgid "Bewertungen können hier nur Kundinnen und Kunden mit bestätigtem Kauf abgeben. Bitte melden Sie sich mit Ihrem Kundenkonto an oder öffnen Sie den Link aus Ihrer Bewertungseinladung."
+msgstr "Bewertungen können hier nur Kundinnen und Kunden mit bestätigtem Kauf abgeben. Bitte melden Sie sich mit Ihrem Kundenkonto an oder öffnen Sie den Link aus Ihrer Bewertungseinladung."
+
+#: src/Frontend/FormHandler.php:668
+msgid "Für diese Bewertung liegt kein bestätigter Kauf vor. Bewertungen sind hier nur nach einem bestätigten Kauf oder über den Link aus einer Bewertungseinladung möglich."
+msgstr "Für diese Bewertung liegt kein bestätigter Kauf vor. Bewertungen sind hier nur nach einem bestätigten Kauf oder über den Link aus einer Bewertungseinladung möglich."
+
+#. translators: %s: number of days
+#: src/Frontend/FormHandler.php:671
+msgid "Bewertungen sind hier nur bis %s Tag nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
+msgid_plural "Bewertungen sind hier nur bis %s Tage nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
+msgstr[0] "Bewertungen sind hier nur bis %s Tag nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
+msgstr[1] "Bewertungen sind hier nur bis %s Tage nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
+
+#: src/Frontend/Renderer.php:487
+msgid "Es werden nur Bewertungen von {platform} ab {stars} Sternen angezeigt."
+msgstr "Es werden nur Bewertungen von {platform} ab {stars} Sternen angezeigt."
+
+#: src/Frontend/Renderer.php:489
+msgid "Es werden nur Bewertungen ab {stars} Sternen angezeigt."
+msgstr "Es werden nur Bewertungen ab {stars} Sternen angezeigt."
+
+#: src/Frontend/Renderer.php:491
+msgid "Es werden nur Bewertungen von {platform} angezeigt."
+msgstr "Es werden nur Bewertungen von {platform} angezeigt."
+
+#: src/Frontend/Renderer.php:501
+msgid "allen Plattformen"
+msgstr "allen Plattformen"

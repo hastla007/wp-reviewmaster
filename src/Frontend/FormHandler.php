@@ -26,7 +26,7 @@ use ReviewCaptain\Widgets\WidgetDefinition;
  *
  * Protection: nonce, honeypot, signed render timestamp (min. `submissions.min_seconds`, default
  * 3 s), optional proof-of-work check and external spam checks (SET-RC-11, PowCaptcha), rate limit per IP hash (wp_hash; the plain IP is never stored), signed context, strict
- * field validation, blocked e-mail domains. Moderation rules (hold words, links) only ever hold a
+ * field validation, blocked e-mail domains, optionally a confirmed purchase (SET-RC-32, PurchaseGate). Moderation rules (hold words, links) only ever hold a
  * review for moderation (SET-RC-10); nothing is silently dropped.
  * Result is communicated via redirect back (rc_submitted / rc_error).
  */
@@ -195,6 +195,20 @@ class FormHandler {
 			}
 		}
 
+		// SET-RC-32: only confirmed buyers/participants (trusted source). Clear message, nothing stored.
+		$proofs = array();
+		$gate   = new PurchaseGate( $this->plugin );
+		if ( $gate->required() ) {
+			$invite = PurchaseGate::invite_token( $post );
+			foreach ( null === $multi ? array( $cid ) : $multi as $check_id ) {
+				$check = $gate->check( $type, (string) $check_id, $invite );
+				if ( ! $check['ok'] ) {
+					return $fail( array( $check['code'] ) );
+				}
+				$proofs[ (string) $check_id ] = $check;
+			}
+		}
+
 		// Field validation.
 		$errors  = array();
 		$rating  = (string) ( $post['rc_rating'] ?? '' );
@@ -303,6 +317,11 @@ class FormHandler {
 		foreach ( $targets as $target_id => $item ) {
 			$target_id = (string) $target_id;
 			$review    = $this->build_review( $settings, $item['rating'], $title, $item['body'], $name, $email, $consent, $type, $target_id );
+			if ( isset( $proofs[ $target_id ] ) && null !== $proofs[ $target_id ]['level'] ) {
+				// Level confirmed by a trusted source (SET-RC-32, RC-041) – never by the visitor's input.
+				$review->verification                = $proofs[ $target_id ]['level'];
+				$review->meta['verification_source'] = $proofs[ $target_id ]['source'];
+			}
 			if ( $unique && '' !== $target_id ) {
 				$review->submission_key = self::submission_key( $email, $type, $target_id );
 			} elseif ( null === $multi ) {
@@ -623,6 +642,7 @@ class FormHandler {
 	 * @return array<string, string>
 	 */
 	public static function error_messages(): array {
+		$days = max( 1, ( new PurchaseGate( Plugin::instance() ) )->max_age_days() );
 		return array(
 			'disabled'     => __( 'Bewertungen können derzeit nicht abgegeben werden.', 'review-captain' ),
 			'nonce'        => __( 'Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und senden Sie das Formular erneut.', 'review-captain' ),
@@ -644,6 +664,13 @@ class FormHandler {
 			'item_rating'     => __( 'Bitte wählen Sie für jedes bewertete Produkt 1 bis 5 Sterne.', 'review-captain' ),
 			'item_body_short' => __( 'Der Text zu einem bewerteten Produkt ist zu kurz.', 'review-captain' ),
 			'item_body_long'  => __( 'Der Text zu einem bewerteten Produkt ist zu lang.', 'review-captain' ),
+			'purchase_login'    => __( 'Bewertungen können hier nur Kundinnen und Kunden mit bestätigtem Kauf abgeben. Bitte melden Sie sich mit Ihrem Kundenkonto an oder öffnen Sie den Link aus Ihrer Bewertungseinladung.', 'review-captain' ),
+			'purchase_required' => __( 'Für diese Bewertung liegt kein bestätigter Kauf vor. Bewertungen sind hier nur nach einem bestätigten Kauf oder über den Link aus einer Bewertungseinladung möglich.', 'review-captain' ),
+			'purchase_too_old'  => sprintf(
+				/* translators: %s: number of days */
+				_n( 'Bewertungen sind hier nur bis %s Tag nach dem Kauf möglich. Ihr Kauf liegt länger zurück.', 'Bewertungen sind hier nur bis %s Tage nach dem Kauf möglich. Ihr Kauf liegt länger zurück.', $days, 'review-captain' ),
+				number_format_i18n( $days )
+			),
 			'photo_upload'      => PhotoStore::message( 'photo_upload' ),
 			'photo_size'        => PhotoStore::message( 'photo_size' ),
 			'photo_type'        => PhotoStore::message( 'photo_type' ),

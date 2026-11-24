@@ -80,6 +80,8 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 | `review_captain_pro_field_writable` | filter | S | Schreibrecht **je Pro-Feld** (`bool $writable`, `string $tab`, `string $key`); Vorgabe ist die Antwort von `review_captain_pro_settings_writable`. Gilt für Speichern, Import (Seite und WP-CLI) und `settings set`; jede Pro-Funktion antwortet nur für ihre eigenen Felder. `manage_settings` und Tab-Rechte gelten unabhängig davon (Entscheidung der Inhaberin 24.11.2026) |
 | `review_captain_show_pro_info` | filter | S | Pro-Hinweis im Dashboard ausblenden (Default `true`) |
 | `review_captain_setup_checklist_detected` | filter | S | erkannte Integrationen der Einrichtungs-Checkliste |
+| `review_captain_purchase_proof` | filter | S | Vertrauenswürdige Quelle bestätigt Kauf/Teilnahme für „Nur Käufer dürfen bewerten“ (SET-RC-32): `array\|null $proof` (`level` purchase_verified\|attendance_confirmed, `confirmed_at`, `source`), `array $context` (`context_type`, `context_id`, `user_id`, `invite` aus `rc_invite`, `max_age_days`). Vorgabe: WooCommerce-Bestellung des angemeldeten Kunden; Pro beantwortet Einladungslinks |
+| `review_captain_allow_min_rating` | filter | B | Widget-Filter `min_rating` erlaubt (Vorgabe `display.allow_min_rating`, SET-RC-03) |
 | `review_captain_diagnostics_sections` | filter | S | Abschnitte der Diagnoseseite (`title`, `render`) |
 | `review_captain_schema_eligible` | filter | S | nur verschärfen (true→false), nie lockern |
 | `review_captain_schema_post_item_type` | filter | S | schema.org-Typ des bewerteten Objekts je Beitrag |

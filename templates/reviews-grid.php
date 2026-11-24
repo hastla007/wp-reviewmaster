@@ -9,7 +9,9 @@
  * @var array<string, mixed> $rc Widget data: id, classes, layout, columns, cards (rendered card HTML),
  *                               summary (list of {platform, text}), empty_text, pagination {prev, next},
  *                               notice (status text after a public report, may be empty),
- *                               verification {html, position: above|below} (SET-RC-01, html may be empty).
+ *                               verification {html, position: above|below} (SET-RC-01, html may be empty),
+ *                               filter_notice (plain text, set when the widget filters by stars or platform,
+ *                               SET-RC-03 – keep it visible).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -20,6 +22,9 @@ defined( 'ABSPATH' ) || exit;
 	<?php endif; ?>
 	<?php if ( ! empty( $rc['verification']['html'] ) && 'above' === $rc['verification']['position'] ) : ?>
 		<?php echo $rc['verification']['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in verification-notice.php. ?>
+	<?php endif; ?>
+	<?php if ( ! empty( $rc['filter_notice'] ) ) : ?>
+		<p class="rc-filter-notice"><?php echo esc_html( $rc['filter_notice'] ); ?></p>
 	<?php endif; ?>
 	<?php if ( ! empty( $rc['summary'] ) ) : ?>
 		<ul class="rc-summary" aria-label="<?php esc_attr_e( 'Zusammenfassung je Plattform', 'review-captain' ); ?>">

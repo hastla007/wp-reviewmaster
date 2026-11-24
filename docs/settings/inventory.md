@@ -44,6 +44,7 @@ Legende
 | `submissions.hold_links` | Bewertungen mit Links zur Prüfung zurückhalten? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `false` | manage_settings | S |
 | `submissions.block_email_domains` | Welche E-Mail-Domains dürfen nicht bewerten? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `''` | manage_settings | S |
 | `submissions.captcha_provider` | Zusätzlicher Spam-Schutz (eingebaute Rechenprüfung ohne Dritte)? | Einstellungen › Einreichungen & Moderation | global | Core | `none` | manage_settings | S |
+| `submissions.require_purchase`, `submissions.purchase_max_age_days` | Dürfen nur bestätigte Käufer bewerten, und wie lange nach dem Kauf? | Einstellungen › Einreichungen & Moderation | global (Quelle per Filter) | Core | aus, 0 = keine Frist | manage_settings | S |
 | `submissions.trusted_proxy_header` | Welche Kopfzeile nennt die echte Absenderadresse hinter einem Proxy? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `none` | manage_settings | S |
 | `submissions.correction_link_hours` | Wie lange gilt ein Korrektur-Link? | Einstellungen › Einreichungen & Moderation | global | Core | `1` | manage_settings | S |
 | `submissions.photo_max_edge` | Auf welche längste Kante werden Fotos verkleinert? | Einstellungen › Einreichungen & Moderation | global (Filter gewinnt) | Core | `1600` | manage_settings | S |
@@ -59,6 +60,7 @@ Legende
 | `display.decimal_places` | Wie viele Nachkommastellen bei Durchschnitten? | Einstellungen › Darstellung | global | Core | `1` | manage_settings | S |
 | `display.star_color`, `display.accent_color` | Welche Stern- und Akzentfarbe? | Einstellungen › Darstellung | global | Core | `''` → Theme/CSS | manage_settings | S |
 | `display.widget_limit`, `widget_layout`, `widget_columns`, `widget_heading_level`, `widget_new_tab` | Was gilt für Widgets ohne eigenen Wert? | Einstellungen › Darstellung | global → widget (Widget gewinnt, Filter vor Einstellung) | Core | 6, grid, 3, h2, aus | manage_settings | S |
+| `display.allow_min_rating`, `display.filter_notice` | Dürfen Widgets nach Sternen filtern, und welcher Hinweis steht dann dabei? | Einstellungen › Darstellung | global (Filter gewinnt) | Core | an, `''` → Standardtext | manage_settings | S |
 | `display.schema_contexts`, `display.schema_min_reviews` | Für welche Inhalte und ab wie vielen Bewertungen strukturierte Daten? | Einstellungen › Darstellung | global (nur einschränken) | Core | alle drei, 1 | manage_settings | S |
 | `privacy.retention_external_days` | Wie lange bleiben externe Reviews ohne Bestätigung gespeichert? | Einstellungen › Datenschutz & Aufbewahrung | global (Adapter darf verkürzen) | Core | `30` | manage_settings + manage_privacy | S |
 | `privacy.retention_rejected_days` | Wann werden abgelehnte Reviews gelöscht? | Einstellungen › Datenschutz & Aufbewahrung | global | Core | `90` | manage_settings + manage_privacy | S |

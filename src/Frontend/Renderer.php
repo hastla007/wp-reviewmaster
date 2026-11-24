@@ -184,6 +184,7 @@ class Renderer {
 				'empty_text'   => '' !== $empty_text ? $empty_text : __( 'Es sind noch keine Bewertungen vorhanden.', 'review-captain' ),
 				'pagination'   => $d->paginate ? $this->pagination( $d, $page, count( $reviews ) ) : array(),
 				'notice'       => 1 === $this->instances['widget'] ? self::report_notice( PublicTexts::get( $settings, 'submissions', 'report_confirmation' ) ) : '',
+				'filter_notice' => $this->filter_notice( $d ),
 				'verification' => $this->verification_notice( 'widget' ),
 			)
 		);
@@ -209,7 +210,8 @@ class Renderer {
 		}
 		$levels = $this->plugin->reviews()->levels_in_use();
 		if ( 'form' === $context ) {
-			$levels[] = Verification::UNVERIFIED->value;
+			// With "only buyers" (SET-RC-32) new submissions carry a confirmed level.
+			$levels[] = ( new PurchaseGate( $this->plugin ) )->required() ? Verification::PURCHASE_VERIFIED->value : Verification::UNVERIFIED->value;
 		}
 		$levels = array_values( array_unique( $levels ) );
 		$text   = trim( (string) $settings->get( 'display', 'verification_notice', '' ) );
@@ -464,6 +466,49 @@ class Renderer {
 	}
 
 	/**
+	 * Notice for a filtered selection (SET-RC-03, owner decision E3): shown whenever a widget filters
+	 * by minimum rating or platform. Text: display.filter_notice (placeholders {stars}, {platform}),
+	 * empty = translated default for the case; `review_captain_public_text` ("display.filter_notice")
+	 * has the last word. Legal review of the wording pending.
+	 *
+	 * @param WidgetDefinition $d Definition.
+	 * @return string Plain text ('' = no filter or hidden by the filter).
+	 */
+	public function filter_notice( WidgetDefinition $d ): string {
+		if ( ! $d->is_filtered() ) {
+			return '';
+		}
+		$stars_filter = null !== $d->min_rating && $d->min_rating > 1.0;
+		$stars        = $stars_filter ? (float) $d->min_rating : 1.0;
+		$platforms    = array_map( static fn( string $p ): string => ( Platform::tryFrom( $p ) ?? Platform::OTHER )->label(), $d->platforms );
+		$text         = trim( (string) $this->plugin->settings()->get( 'display', 'filter_notice', '' ) );
+		if ( '' === $text ) {
+			if ( $stars_filter && $platforms ) {
+				$text = __( 'Es werden nur Bewertungen von {platform} ab {stars} Sternen angezeigt.', 'review-captain' );
+			} elseif ( $stars_filter ) {
+				$text = __( 'Es werden nur Bewertungen ab {stars} Sternen angezeigt.', 'review-captain' );
+			} else {
+				$text = __( 'Es werden nur Bewertungen von {platform} angezeigt.', 'review-captain' );
+			}
+		}
+		/**
+		 * Filter a configurable public text (see PublicTexts::get()); here the filter notice.
+		 *
+		 * @param string $text Text (setting or translated default, placeholders not yet replaced).
+		 * @param string $id   "display.filter_notice".
+		 */
+		$filtered = apply_filters( 'review_captain_public_text', $text, 'display.filter_notice' );
+		$text     = is_string( $filtered ) ? trim( $filtered ) : $text;
+		return strtr(
+			$text,
+			array(
+				'{stars}'    => number_format_i18n( $stars, floor( $stars ) === $stars ? 0 : 1 ),
+				'{platform}' => $platforms ? implode( ', ', $platforms ) : __( 'allen Plattformen', 'review-captain' ),
+			)
+		);
+	}
+
+	/**
 	 * Render the submission form (RC-039).
 	 *
 	 * @param WidgetDefinition $d Definition (context_type/context_id used).
@@ -510,6 +555,48 @@ class Renderer {
 					'rc_context_ids'     => implode( ',', $ids ),
 					'rc_context_ids_sig' => FormHandler::sign_context_list( $type, $ids ),
 				);
+			}
+		}
+
+		// SET-RC-32: only confirmed buyers/participants see the form; everybody else a clear message.
+		$gate = new PurchaseGate( $this->plugin );
+		if ( $gate->required() ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- token is checked by the trusted source.
+			$invite = PurchaseGate::invite_token( wp_unslash( $_GET ) );
+			$denied = '';
+			if ( $items ) {
+				$allowed = array();
+				foreach ( $items as $item ) {
+					$check = $gate->check( $type, $item['id'], $invite );
+					if ( $check['ok'] ) {
+						$allowed[] = $item;
+					} else {
+						$denied = $check['code'];
+					}
+				}
+				$items = $allowed;
+				if ( $items ) {
+					$ids                          = array_map( static fn( array $i ): string => $i['id'], $items );
+					$hidden['rc_context_ids']     = implode( ',', $ids );
+					$hidden['rc_context_ids_sig'] = FormHandler::sign_context_list( $type, $ids );
+					$denied                       = '';
+				}
+			} else {
+				$check  = $gate->check( $type, $cid, $invite );
+				$denied = $check['ok'] ? '' : $check['code'];
+			}
+			if ( '' !== $denied ) {
+				return TemplateLoader::render(
+					'review-form.php',
+					array(
+						'disabled' => true,
+						'id'       => 'rc-form-' . $number,
+						'message'  => FormHandler::error_message( $denied ),
+					)
+				);
+			}
+			if ( '' !== $invite ) {
+				$hidden[ PurchaseGate::INVITE_FIELD ] = $invite;
 			}
 		}
 		$photos = ! $items && (bool) $settings->get( 'submissions', 'photos_enabled', false );

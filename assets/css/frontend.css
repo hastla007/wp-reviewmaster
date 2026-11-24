@@ -204,6 +204,13 @@
 	text-underline-offset: 0.15em;
 }
 
+/* Notice for a filtered selection (SET-RC-03) – plain text, always readable */
+.rc-filter-notice {
+	margin: 0 0 var(--rc-space-3);
+	font-size: var(--rc-font-size-sm);
+	color: var(--rc-color-text);
+}
+
 /* Summary per platform – separate entries, never a combined score */
 .rc-summary {
 	display: flex;

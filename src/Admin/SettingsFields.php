@@ -75,6 +75,8 @@ final class SettingsFields {
 				'block_email_domains'        => array( __( 'Gesperrte E-Mail-Domains', 'review-captain' ), __( 'Eine Domain je Zeile, z. B. wegwerfmail.example. Einreichungen mit Adressen dieser Domains (auch Subdomains) werden mit einem neutralen Hinweis abgelehnt und nicht gespeichert.', 'review-captain' ) ),
 				'photo_max_edge'             => array( __( 'Längste Fotokante (Pixel)', 'review-captain' ), __( 'Größere Fotos werden beim Neukodieren verkleinert. Je Bewertung bleibt es bei einem Foto.', 'review-captain' ) ),
 				'captcha_provider'           => array( __( 'Spam-Schutz (Captcha)', 'review-captain' ), __( '„Eingebaute Rechenprüfung“ lässt den Browser im Hintergrund kurz rechnen (Proof of Work), bevor Bewertungen, Meldungen und Fragen angenommen werden. Kein Rätsel, keine Cookies, keine Anfrage an Dritte, keine personenbezogenen Daten. Ohne JavaScript kann das Formular dann nicht abgeschickt werden; Besucher sehen einen Hinweis. Externe Anbieter nur per Filter und nur nach Rechtsprüfung.', 'review-captain' ) ),
+				'require_purchase'           => array( __( 'Nur Käufer dürfen bewerten', 'review-captain' ), __( 'Das Formular nimmt nur Bewertungen an, deren Kauf oder Teilnahme eine vertrauenswürdige Quelle bestätigt: bei WooCommerce angemeldete Kundinnen und Kunden, die das Produkt gekauft haben, oder der Link aus einer Bewertungseinladung. Alle anderen sehen statt des Formulars einen Hinweis; nichts wird still verworfen. Solche Bewertungen tragen die Prüfstufe „Verifizierter Kauf“ bzw. „Teilnahme bestätigt“. Formulare ohne Produkt funktionieren dann nur über einen Einladungslink.', 'review-captain' ) ),
+				'purchase_max_age_days'      => array( __( 'Kauf höchstens so viele Tage her', 'review-captain' ), __( 'Wirkt nur mit „Nur Käufer dürfen bewerten“. Liegt der Kauf länger zurück, erscheint ein Hinweis statt des Formulars. 0 = keine Frist.', 'review-captain' ) ),
 				'trusted_proxy_header'       => array( __( 'Absenderadresse hinter einem Proxy', 'review-captain' ), __( 'Nur einstellen, wenn deine Website hinter einem Reverse Proxy oder CDN liegt, der diese Kopfzeile selbst setzt. Sonst können Absender die Sendebegrenzung umgehen. Verwendet wird die letzte Adresse der Kopfzeile, gespeichert nur als Hash.', 'review-captain' ) ),
 			),
 			'display'     => array(
@@ -109,6 +111,8 @@ final class SettingsFields {
 				'widget_columns'       => array( __( 'Spalten im Raster', 'review-captain' ), __( 'Auf schmalen Bildschirmen werden es automatisch weniger.', 'review-captain' ) ),
 				'widget_heading_level' => array( __( 'Überschriftenebene der Karten', 'review-captain' ), __( 'h2 bis h6. Wähle die Ebene passend zur Gliederung deiner Seite.', 'review-captain' ) ),
 				'widget_new_tab'       => array( __( 'Links zum Original in neuem Tab', 'review-captain' ), __( 'Öffnet Links zur Bewertung bei der Plattform in einem neuen Tab. Der Link kündigt das für Screenreader an.', 'review-captain' ) ),
+				'allow_min_rating'     => array( __( 'Filter „Mindestbewertung“ erlauben', 'review-captain' ), __( 'Widgets dürfen nur Bewertungen ab einer Sternzahl zeigen. Besucher sehen dann immer den Hinweis auf den Filter; die Zusammenfassung rechnet weiter über alle freigegebenen Bewertungen. Aus = die Einstellung „Mindestbewertung“ wird in allen Shortcodes, Blöcken und Elementor-Widgets ignoriert.', 'review-captain' ) ),
+				'filter_notice'        => array( __( 'Hinweis bei gefilterter Anzeige', 'review-captain' ), __( 'Rechtstext – bitte prüfen lassen. Erscheint an jedem Widget, das nach Sternen oder Plattform filtert. Platzhalter: {stars} = Mindeststernzahl (ohne Sternfilter 1), {platform} = gefilterte Plattformen (ohne Plattformfilter „allen Plattformen“). Leer = „Es werden nur Bewertungen ab {stars} Sternen angezeigt.“ bzw. passender Standardtext.', 'review-captain' ) ),
 			),
 			'privacy'     => array(
 				'retention_external_days'  => array( __( 'Externe Reviews ohne Bestätigung (Tage)', 'review-captain' ), __( 'Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde.', 'review-captain' ) ),
@@ -166,13 +170,14 @@ final class SettingsFields {
 				__( 'Benachrichtigung', 'review-captain' )  => array( 'notify_admin', 'notify_recipients', 'notify_subject', 'notify_body', 'notify_questions' ),
 				__( 'Moderationsregeln', 'review-captain' ) => array( 'hold_words', 'hold_links', 'block_email_domains', 'min_seconds' ),
 				__( 'Schutz vor Missbrauch', 'review-captain' ) => array( 'honeypot', 'captcha_provider', 'rate_limit_per_hour', 'trusted_proxy_header' ),
+				__( 'Nur bestätigte Käufer', 'review-captain' ) => array( 'require_purchase', 'purchase_max_age_days' ),
 				__( 'Korrekturen', 'review-captain' )       => array( 'corrections_enabled', 'correction_link_hours' ),
 				__( 'Erweiterte Funktionen (nach 1.0)', 'review-captain' ) => array( 'tags_enabled', 'reports_enabled', 'report_threshold', 'report_rate_limit_per_hour', 'photos_enabled', 'photo_max_kb', 'photo_max_edge', 'multi_product_enabled', 'qa_enabled', 'feedback_campaigns_enabled' ),
 				__( 'Meldungen', 'review-captain' )         => array( 'report_reasons', 'report_notify', 'report_confirmation' ),
 			),
 			'display'     => array(
 				__( 'Inhalte', 'review-captain' )          => array( 'show_stars', 'show_date', 'date_style', 'show_author', 'show_avatar' ),
-				__( 'Prüfung & Transparenz', 'review-captain' ) => array( 'verification_notice_show', 'verification_notice_title', 'verification_notice', 'verification_notice_position', 'show_unverified_label', 'label_purchase_verified', 'label_attendance_confirmed', 'label_external', 'label_testimonial', 'label_unverified' ),
+				__( 'Prüfung & Transparenz', 'review-captain' ) => array( 'verification_notice_show', 'verification_notice_title', 'verification_notice', 'verification_notice_position', 'show_unverified_label', 'label_purchase_verified', 'label_attendance_confirmed', 'label_external', 'label_testimonial', 'label_unverified', 'allow_min_rating', 'filter_notice' ),
 				__( 'Bewertung und Farben', 'review-captain' ) => array( 'rating_display', 'decimal_places', 'star_color', 'accent_color' ),
 				__( 'Widget-Vorgaben', 'review-captain' )  => array( 'widget_limit', 'widget_layout', 'widget_columns', 'widget_heading_level', 'widget_new_tab' ),
 				__( 'Strukturierte Daten', 'review-captain' ) => array( 'schema_enabled', 'schema_contexts', 'schema_min_reviews' ),
