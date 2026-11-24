@@ -76,7 +76,8 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 | `review_captain_spam_checks_v1` | filter | V | zusätzliche Spam-Prüfungen/externe Captcha-Anbieter für Bewertungs-, Melde- und Frageformular (SET-RC-11); Rückgabe Liste von Gründen, jeder Grund lehnt neutral ab. **Nur nach Rechtsprüfung.** Angelehnt an Form Captains `form_captain_spam_checks_v1` |
 | `review_captain_pow_max_number_v1` | filter | V | Schwierigkeit der eingebauten Rechenprüfung (Standard 50 000, 1 000–1 000 000, wie `form_captain_pow_max_number_v1`); Name mit Versionsendung aus Form Captain, daher versionierter Vertrag: Bedeutung und Grenzen ändern sich nur mit `_v2` |
 | `review_captain_settings_schema` | filter | S | Pro ergänzt Einstellungsfelder (Core-Felder nicht entfern-/änderbar) |
-| `review_captain_pro_settings_writable` | filter | S | Pro erlaubt das Schreiben von Pro-Feldern (Default `false`) |
+| `review_captain_pro_settings_writable` | filter | S | Pro erlaubt das Schreiben von Pro-Feldern pauschal (Default `false`); seit 24.11.2026 nur noch Vorgabe für `review_captain_pro_field_writable` (ältere Pro-Versionen) |
+| `review_captain_pro_field_writable` | filter | S | Schreibrecht **je Pro-Feld** (`bool $writable`, `string $tab`, `string $key`); Vorgabe ist die Antwort von `review_captain_pro_settings_writable`. Gilt für Speichern, Import (Seite und WP-CLI) und `settings set`; jede Pro-Funktion antwortet nur für ihre eigenen Felder. `manage_settings` und Tab-Rechte gelten unabhängig davon (Entscheidung der Inhaberin 24.11.2026) |
 | `review_captain_show_pro_info` | filter | S | Pro-Hinweis im Dashboard ausblenden (Default `true`) |
 | `review_captain_setup_checklist_detected` | filter | S | erkannte Integrationen der Einrichtungs-Checkliste |
 | `review_captain_diagnostics_sections` | filter | S | Abschnitte der Diagnoseseite (`title`, `render`) |
