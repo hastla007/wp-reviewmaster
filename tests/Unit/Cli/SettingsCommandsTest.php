@@ -221,6 +221,32 @@ final class SettingsCommandsTest extends TestCase {
 		$this->expect_error( fn() => $c->settings_import( array( '/nonexistent/file.json' ), array( 'dry-run' => true ) ) );
 	}
 
+	public function test_set_and_import_ask_per_addon_field(): void {
+		// Decision of 24.11.2026: write permission per add-on field.
+		$c = $this->commands();
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		ProRequestsFields::register();
+		add_filter(
+			'review_captain_pro_field_writable',
+			static fn( bool $writable, string $tab, string $key ): bool => $writable && 'sender_email' !== $key,
+			10,
+			3
+		);
+		$c->settings_set( array( 'requests.daily_limit', '10' ), array() );
+		$this->assertSame( 10, $this->settings()->get( 'requests', 'daily_limit' ) );
+		$this->expect_error( fn() => $c->settings_set( array( 'requests.sender_email', 'x@example.test' ), array() ), 'Erweiterung' );
+
+		$file = $this->temp_file();
+		$doc  = $c->settings_export( array(), array( 'file' => $file ) );
+		$doc['settings']['requests']['daily_limit']  = 20;
+		$doc['settings']['requests']['sender_email'] = 'x@example.test';
+		file_put_contents( $file, (string) wp_json_encode( $doc ) );
+		$res = $c->settings_import( array( $file ), array( 'yes' => true ) );
+		$this->assertContains( 'requests.daily_limit', $res['changed'] );
+		$this->assertNotContains( 'requests.sender_email', $res['changed'] );
+		$this->assertSame( '', $this->settings()->get( 'requests', 'sender_email' ) );
+	}
+
 	public function test_export_to_stdout_needs_no_user(): void {
 		$c = $this->commands();
 		$c->settings_export( array(), array() );
