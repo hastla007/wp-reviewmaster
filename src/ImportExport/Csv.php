@@ -33,12 +33,14 @@ final class Csv {
 		'status',
 		'context_type',
 		'context_id',
+		// SET-RC-12: "received in exchange for a benefit" (1/0, yes/no, true/false; empty = no).
+		'incentivised',
 	);
 
 	/**
-	 * Additional export-only columns.
+	 * Additional export-only columns. reply_body/reply_at: merchant reply (SET-RC-13); not imported.
 	 */
-	public const EXPORT_EXTRA_COLUMNS = array( 'uuid', 'origin', 'created_at' );
+	public const EXPORT_EXTRA_COLUMNS = array( 'uuid', 'origin', 'created_at', 'reply_body', 'reply_at' );
 
 	/**
 	 * Personal column (only exported on explicit request).

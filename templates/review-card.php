@@ -4,6 +4,8 @@
  *
  * Override: copy to {theme}/review-captain/review-card.php. All values in $rc are raw and
  * must be escaped here. Keep the source label and original link for external reviews (SET-014).
+ * Keep the badges: the label "received in exchange for a benefit" (rc-badge--incentivised,
+ * SET-RC-12) cannot be hidden – if it is missing, Renderer::render_card() inserts it.
  *
  * @package ReviewCaptain
  *
@@ -66,6 +68,16 @@ $rc_star_path = 'M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.
 			<?php endif; ?>
 		<?php endif; ?>
 	</footer>
+	<?php if ( ! empty( $rc['reply'] ) ) : ?>
+		<section class="rc-reply" aria-label="<?php echo esc_attr( $rc['reply']['label'] ); ?>">
+			<p class="rc-reply__label"><?php echo esc_html( $rc['reply']['label'] ); ?>
+				<?php if ( ! empty( $rc['reply']['date'] ) ) : ?>
+					<time class="rc-reply__date" datetime="<?php echo esc_attr( $rc['reply']['date']['iso'] ); ?>"><?php echo esc_html( $rc['reply']['date']['text'] ); ?></time>
+				<?php endif; ?>
+			</p>
+			<div class="rc-reply__body"><?php echo wp_kses( $rc['reply']['html'], $rc['allowed'] ); ?></div>
+		</section>
+	<?php endif; ?>
 	<?php if ( ! empty( $rc['report'] ) ) : ?>
 		<details class="rc-report">
 			<summary class="rc-report__toggle"><?php esc_html_e( 'Melden', 'review-captain' ); ?></summary>

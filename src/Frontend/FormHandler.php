@@ -388,6 +388,14 @@ class FormHandler {
 		$review->author_user_id  = is_user_logged_in() ? (int) get_current_user_id() : null;
 		$review->context_type    = '' !== $type ? $type : null;
 		$review->context_id      = '' !== $type && '' !== $cid ? $cid : null;
+		/**
+		 * Whether this submission was received in exchange for a benefit (SET-RC-12), e.g. when an
+		 * invitation campaign of an add-on promised a voucher. Only strict `true` sets the flag.
+		 *
+		 * @param bool   $incentivised Default false.
+		 * @param Review $review       Review (not yet stored).
+		 */
+		$review->incentivised    = true === apply_filters( 'review_captain_submission_incentivised', false, $review );
 		return $review;
 	}
 

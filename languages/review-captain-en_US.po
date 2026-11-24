@@ -4863,3 +4863,87 @@ msgstr "Next page"
 #: templates/reviews-grid.php:43
 msgid "Weitere Bewertungen"
 msgstr "More reviews"
+
+#: src/Admin/Notices.php:108
+msgid "Antworten auf Plattformbewertungen sind hier nicht möglich"
+msgstr "Replies to platform reviews are not possible here"
+
+#: src/Admin/Notices.php:109
+msgid "Antwort ist zu lang (höchstens 5000 Zeichen)"
+msgstr "Reply is too long (at most 5000 characters)"
+
+#: src/Admin/ReviewsPage.php:641
+msgid "Datum der Antwort"
+msgstr "Reply date"
+
+#: src/Admin/ReviewsPage.php:624 src/Privacy/PersonalData.php:302
+msgid "Gegen einen Vorteil erhalten"
+msgstr "Received in exchange for a benefit"
+
+#: src/Admin/ReviewsPage.php:627
+msgid "Die Person hat für diese Bewertung einen Vorteil erhalten (z. B. Gutschein, Rabatt, Gratisprodukt, Gewinnspiel)."
+msgstr "The person received a benefit for this review (e.g. voucher, discount, free product, prize draw)."
+
+#: src/Admin/ReviewsPage.php:628
+msgid "Die Bewertung zeigt dann immer ein Kennzeichen (Text unter Einstellungen → Darstellung) und erhält kein Bewertungs-Markup für Suchmaschinen."
+msgstr "The review then always shows a label (text under Settings → Display) and gets no review markup for search engines."
+
+#: src/Admin/ReviewsPage.php:638
+msgid "Deine Antwort"
+msgstr "Your reply"
+
+#: src/Admin/ReviewsPage.php:640
+msgid "Öffentliche Antwort, erscheint unter der Bewertung. Leer = keine Antwort. Die Antwort ändert die Bewertung und Durchschnitte nicht."
+msgstr "Public reply, shown below the review. Empty = no reply. The reply does not change the review or any averages."
+
+#: src/Admin/SettingsFields.php:101
+msgid "Kennzeichen „Gegen einen Vorteil erhalten“"
+msgstr "Label “Received in exchange for a benefit”"
+
+#: src/Admin/SettingsFields.php:101
+msgid "Rechtstext – bitte prüfen lassen. Leer = „Für diese Bewertung wurde ein Vorteil gewährt“. Bewertungen mit diesem Merkmal zeigen das Kennzeichen immer; es lässt sich nicht ausblenden. Sie erhalten nie Bewertungs-Markup."
+msgstr "Legal text – please have it reviewed. Empty = “A benefit was granted for this review”. Reviews with this flag always show the label; it cannot be hidden. They never get review markup."
+
+#: src/Admin/SettingsFields.php:102
+msgid "Antworten unter Bewertungen anzeigen"
+msgstr "Show replies below reviews"
+
+#: src/Admin/SettingsFields.php:102
+msgid "Zeigt deine Antwort auf eigene Bewertungen unter der Bewertung. Die Antwort schreibst du im Bearbeiten-Fenster der Bewertung. Sie zählt nie in Durchschnitte."
+msgstr "Shows your reply to your own reviews below the review. You write the reply in the review's edit screen. It never counts towards averages."
+
+#: src/Admin/SettingsFields.php:103
+msgid "Überschrift der Antwort"
+msgstr "Reply heading"
+
+#: src/Admin/SettingsFields.php:103
+msgid "Platzhalter {brand} = Marken- bzw. Firmenname (sonst Titel der Website). Leer = „Antwort von {brand}“."
+msgstr "Placeholder {brand} = brand or company name (otherwise the site title). Empty = “Reply from {brand}”."
+
+#: src/Admin/SettingsFields.php:179
+msgid "Antworten"
+msgstr "Replies"
+
+#: src/Frontend/PublicTexts.php:53
+msgid "Für diese Bewertung wurde ein Vorteil gewährt"
+msgstr "A benefit was granted for this review"
+
+#: src/Frontend/PublicTexts.php:55
+msgid "Antwort von {brand}"
+msgstr "Reply from {brand}"
+
+#: src/ImportExport/CsvImporter.php:610
+msgid "Ungültiger Ja/Nein-Wert (erlaubt: 1, 0, yes, no, true, false, ja, nein)."
+msgstr "Invalid yes/no value (allowed: 1, 0, yes, no, true, false, ja, nein)."
+
+#: src/Privacy/PersonalData.php:304
+msgid "Antwort des Händlers"
+msgstr "Merchant reply"
+
+#: src/Privacy/PersonalData.php:305
+msgid "Antwort am (UTC)"
+msgstr "Replied on (UTC)"
+
+#: src/Seo/SchemaEligibility.php:169
+msgid "Gegen einen Vorteil erhalten – wird mit Kennzeichen angezeigt, aber nie ausgezeichnet."
+msgstr "Received in exchange for a benefit – shown with a label, but never marked up."

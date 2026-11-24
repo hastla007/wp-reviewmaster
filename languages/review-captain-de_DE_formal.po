@@ -4863,3 +4863,87 @@ msgstr "Nächste Seite"
 #: templates/reviews-grid.php:43
 msgid "Weitere Bewertungen"
 msgstr "Weitere Bewertungen"
+
+#: src/Admin/Notices.php:108
+msgid "Antworten auf Plattformbewertungen sind hier nicht möglich"
+msgstr "Antworten auf Plattformbewertungen sind hier nicht möglich"
+
+#: src/Admin/Notices.php:109
+msgid "Antwort ist zu lang (höchstens 5000 Zeichen)"
+msgstr "Antwort ist zu lang (höchstens 5000 Zeichen)"
+
+#: src/Admin/ReviewsPage.php:641
+msgid "Datum der Antwort"
+msgstr "Datum der Antwort"
+
+#: src/Admin/ReviewsPage.php:624 src/Privacy/PersonalData.php:302
+msgid "Gegen einen Vorteil erhalten"
+msgstr "Gegen einen Vorteil erhalten"
+
+#: src/Admin/ReviewsPage.php:627
+msgid "Die Person hat für diese Bewertung einen Vorteil erhalten (z. B. Gutschein, Rabatt, Gratisprodukt, Gewinnspiel)."
+msgstr "Die Person hat für diese Bewertung einen Vorteil erhalten (z. B. Gutschein, Rabatt, Gratisprodukt, Gewinnspiel)."
+
+#: src/Admin/ReviewsPage.php:628
+msgid "Die Bewertung zeigt dann immer ein Kennzeichen (Text unter Einstellungen → Darstellung) und erhält kein Bewertungs-Markup für Suchmaschinen."
+msgstr "Die Bewertung zeigt dann immer ein Kennzeichen (Text unter Einstellungen → Darstellung) und erhält kein Bewertungs-Markup für Suchmaschinen."
+
+#: src/Admin/ReviewsPage.php:638
+msgid "Deine Antwort"
+msgstr "Ihre Antwort"
+
+#: src/Admin/ReviewsPage.php:640
+msgid "Öffentliche Antwort, erscheint unter der Bewertung. Leer = keine Antwort. Die Antwort ändert die Bewertung und Durchschnitte nicht."
+msgstr "Öffentliche Antwort, erscheint unter der Bewertung. Leer = keine Antwort. Die Antwort ändert die Bewertung und Durchschnitte nicht."
+
+#: src/Admin/SettingsFields.php:101
+msgid "Kennzeichen „Gegen einen Vorteil erhalten“"
+msgstr "Kennzeichen „Gegen einen Vorteil erhalten“"
+
+#: src/Admin/SettingsFields.php:101
+msgid "Rechtstext – bitte prüfen lassen. Leer = „Für diese Bewertung wurde ein Vorteil gewährt“. Bewertungen mit diesem Merkmal zeigen das Kennzeichen immer; es lässt sich nicht ausblenden. Sie erhalten nie Bewertungs-Markup."
+msgstr "Rechtstext – bitte prüfen lassen. Leer = „Für diese Bewertung wurde ein Vorteil gewährt“. Bewertungen mit diesem Merkmal zeigen das Kennzeichen immer; es lässt sich nicht ausblenden. Sie erhalten nie Bewertungs-Markup."
+
+#: src/Admin/SettingsFields.php:102
+msgid "Antworten unter Bewertungen anzeigen"
+msgstr "Antworten unter Bewertungen anzeigen"
+
+#: src/Admin/SettingsFields.php:102
+msgid "Zeigt deine Antwort auf eigene Bewertungen unter der Bewertung. Die Antwort schreibst du im Bearbeiten-Fenster der Bewertung. Sie zählt nie in Durchschnitte."
+msgstr "Zeigt Ihre Antwort auf eigene Bewertungen unter der Bewertung. Die Antwort schreiben Sie im Bearbeiten-Fenster der Bewertung. Sie zählt nie in Durchschnitte."
+
+#: src/Admin/SettingsFields.php:103
+msgid "Überschrift der Antwort"
+msgstr "Überschrift der Antwort"
+
+#: src/Admin/SettingsFields.php:103
+msgid "Platzhalter {brand} = Marken- bzw. Firmenname (sonst Titel der Website). Leer = „Antwort von {brand}“."
+msgstr "Platzhalter {brand} = Marken- bzw. Firmenname (sonst Titel der Website). Leer = „Antwort von {brand}“."
+
+#: src/Admin/SettingsFields.php:179
+msgid "Antworten"
+msgstr "Antworten"
+
+#: src/Frontend/PublicTexts.php:53
+msgid "Für diese Bewertung wurde ein Vorteil gewährt"
+msgstr "Für diese Bewertung wurde ein Vorteil gewährt"
+
+#: src/Frontend/PublicTexts.php:55
+msgid "Antwort von {brand}"
+msgstr "Antwort von {brand}"
+
+#: src/ImportExport/CsvImporter.php:610
+msgid "Ungültiger Ja/Nein-Wert (erlaubt: 1, 0, yes, no, true, false, ja, nein)."
+msgstr "Ungültiger Ja/Nein-Wert (erlaubt: 1, 0, yes, no, true, false, ja, nein)."
+
+#: src/Privacy/PersonalData.php:304
+msgid "Antwort des Händlers"
+msgstr "Antwort des Händlers"
+
+#: src/Privacy/PersonalData.php:305
+msgid "Antwort am (UTC)"
+msgstr "Antwort am (UTC)"
+
+#: src/Seo/SchemaEligibility.php:169
+msgid "Gegen einen Vorteil erhalten – wird mit Kennzeichen angezeigt, aber nie ausgezeichnet."
+msgstr "Gegen einen Vorteil erhalten – wird mit Kennzeichen angezeigt, aber nie ausgezeichnet."

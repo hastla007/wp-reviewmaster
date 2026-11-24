@@ -181,6 +181,9 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 | `label_external` | string | `''` (= „Externe Plattformbewertung“) | `max_length` 60 | site | P0 | — |
 | `label_testimonial` | string | `''` (= „Erfahrungsbericht dieser Website“) | `max_length` 60 | site | P0 | — |
 | `show_unverified_label` | bool | `false` | bool | site | P0 | — |
+| `label_incentivised` | string | `''` (= „Für diese Bewertung wurde ein Vorteil gewährt“) | `max_length` 60; leerer oder gefilterter Leertext → übersetzter Standard | site | P0 | — |
+| `show_replies` | bool | `true` | bool | site | P0 | — |
+| `reply_label` | string | `''` (= „Antwort von {brand}“) | `max_length` 80; Platzhalter `{brand}` | site | P0 | — |
 | `star_color` | color | `''` (= Theme/CSS) | Hex `#rgb`/`#rrggbb` | site | P0 | — |
 | `accent_color` | color | `''` (= Theme/CSS) | Hex `#rgb`/`#rrggbb` | site | P0 | — |
 | `rating_display` | enum `stars`\|`number`\|`both` | `both` | Enum | site | P0 | — |
@@ -203,6 +206,8 @@ Nicht als Einstellung vorhanden (feste Regeln): eine Einladung je Erlebnis + Emp
 - `load_css = false`: `assets/css/frontend.css` wird nicht eingereiht; Markup und Klassen bleiben gleich (Theme stylt selbst).
 - `show_photos` (RC-121, Schema v2): Fotos nur bei `status = approved` und diesem Schalter; Moderierende sehen sie immer im Editor.
 - `verification_notice*` (SET-RC-01): `<details class="rc-verification">` (Vorlage `verification-notice.php`) in `reviews-grid.php` und `review-form.php`, über oder unter dem Inhalt. Der Entwurf nennt nur Stufen aus `ReviewRepository::levels_in_use()` (freigegebene, nicht entfernte Reviews; zwischengespeichert je Cache-Generation), am Formular zusätzlich `unverified`. Filter `review_captain_verification_notice` gewinnt. Rechtstext, Rechtsprüfung offen.
+- `label_incentivised` (SET-RC-12, Entscheidung E7 vom 24.11.2026): Text des Kennzeichens `rc-badge--incentivised` für Bewertungen mit `reviews.incentivised = 1` (Schema v5). Bewusst **kein Schalter**: gesetzt = immer sichtbar (erstes Kennzeichen; fehlt es in einer Theme-Vorlage, fügt `Renderer::render_card()` es am Kartenanfang ein), und diese Bewertungen erhalten nie strukturierte Daten (`SchemaEligibility` E3b, Grund `incentivised`). Rechtstext, Rechtsprüfung offen.
+- `show_replies`, `reply_label` (SET-RC-13, Entscheidung E4 vom 24.11.2026): Händlerantwort (`reviews.reply_body`/`reply_at`, Schema v5) als `<section class="rc-reply">` unter eigenen Bewertungen (`templates/review-card.php`, `$rc['reply']`); `{brand}` = `general.brand_name`, sonst Titel der Website (`PublicTexts::reply_label()`). Antworten auf Plattformbewertungen sind Pro (Recht `review.platform_replies`, entschieden, nicht gebaut) und stehen nicht im Kern.
 - `label_*`, `show_unverified_label` (SET-RC-02): nur Anzeige-Texte der Badges `rc-verified`, `rc-verified--attendance`, `rc-badge--external`, `rc-badge--testimonial`, `rc-badge--unverified`; die Stufe (`reviews.verification`) bleibt unverändert und wird nie aus Einstellungen gesetzt.
 
 ### 4.6 `privacy` – Datenschutz & Aufbewahrung

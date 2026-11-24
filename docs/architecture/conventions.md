@@ -106,6 +106,7 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 | `review_captain_notify_recipients` | filter | S | Empfänger der Benachrichtigungen je Ereignis |
 | `review_captain_report_reasons` | filter | S | angebotene Meldegründe (nur Werte aus `ReportStore::REASONS`) |
 | `review_captain_submission_hold_reasons` | filter | S | Gründe, eine Einreichung zur Moderation zurückzuhalten (Codes, kein Inhalt) |
+| `review_captain_submission_incentivised` | filter | S | Einreichung „gegen einen Vorteil erhalten“ markieren (SET-RC-12; nur strikt `true` setzt das Merkmal, z. B. Einladungs-Kampagne mit Gutschein) |
 | `review_captain_blocked_email_domains` | filter | S | gesperrte E-Mail-Domains des Formulars |
 | `review_captain_widget_defaults` | filter | S | globale Widget-Vorgaben (`limit`, `layout`, `columns`, `heading_level`, `new_tab`) |
 | `review_captain_removed_review_behavior` | filter | S | Umgang mit an der Quelle entfernten Reviews; nur `tombstone` erzwingbar |

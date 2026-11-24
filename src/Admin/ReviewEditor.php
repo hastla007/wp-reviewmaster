@@ -19,6 +19,8 @@ use ReviewCaptain\Domain\Verification;
 /**
  * Pure input → Review mapping. Never sets purchase_verified/attendance_confirmed (RC-041):
  * any verification value in the input is ignored; the state is derived from the entry type.
+ * Moderators set the benefit flag (SET-RC-12, every entry type) and the merchant reply
+ * (SET-RC-13, own reviews only).
  */
 final class ReviewEditor {
 
@@ -29,12 +31,17 @@ final class ReviewEditor {
 	/**
 	 * Fields editable on local (website-owned) records.
 	 */
-	public const LOCAL_EDITABLE = array( 'title', 'body', 'author_name', 'rating_value', 'language', 'published_at', 'context_type', 'context_id' );
+	public const LOCAL_EDITABLE = array( 'title', 'body', 'author_name', 'rating_value', 'language', 'published_at', 'context_type', 'context_id', 'incentivised', 'reply_body', 'reply_at' );
 
 	/**
 	 * Fields editable on external records (no content changes, only assignment).
 	 */
-	public const EXTERNAL_EDITABLE = array( 'context_type', 'context_id', 'profile_id' );
+	public const EXTERNAL_EDITABLE = array( 'context_type', 'context_id', 'profile_id', 'incentivised' );
+
+	/**
+	 * Maximum length of a merchant reply (SET-RC-13).
+	 */
+	public const REPLY_MAX_LENGTH = 5000;
 
 	/**
 	 * Entry types.
@@ -139,6 +146,10 @@ final class ReviewEditor {
 			$errors[] = 'missing_date';
 		}
 		$review->published_at = $date ?? ( self::TYPE_EXTERNAL === $type ? null : gmdate( 'Y-m-d H:i:s' ) );
+		$review->incentivised = self::flag( $input['incentivised'] ?? false );
+		if ( self::TYPE_EXTERNAL !== $type && array_key_exists( 'reply_body', $input ) ) {
+			$errors = array_merge( $errors, self::apply_reply( $review, $input ) );
+		}
 
 		$errors = array_values( array_unique( array_merge( $errors, self::domain_errors( $review, $errors ) ) ) );
 		return array( $errors ? null : $review, $errors );
@@ -160,6 +171,10 @@ final class ReviewEditor {
 		[ $ctx_type, $ctx_id ] = self::context( $input );
 		$review->context_type  = $ctx_type;
 		$review->context_id    = $ctx_id;
+		// SET-RC-12: the moderator sets or removes the benefit flag (all entry types).
+		if ( array_key_exists( 'incentivised', $input ) ) {
+			$review->incentivised = self::flag( $input['incentivised'] );
+		}
 
 		if ( $external ) {
 			$profile_id         = absint( $input['profile_id'] ?? 0 );
@@ -180,6 +195,9 @@ final class ReviewEditor {
 			if ( array_key_exists( 'published_at', $input ) ) {
 				$review->published_at = self::date_or_null( $input['published_at'] ) ?? $review->published_at;
 			}
+			if ( array_key_exists( 'reply_body', $input ) ) {
+				$errors = array_merge( $errors, self::apply_reply( $review, $input ) );
+			}
 			if ( '' === trim( $review->body ) ) {
 				$errors[] = 'missing_body';
 			}
@@ -196,6 +214,44 @@ final class ReviewEditor {
 			}
 		}
 		return array( $fields, $errors );
+	}
+
+	/**
+	 * Merchant reply from input (SET-RC-13): empty text removes the reply. The date is the given
+	 * day (reply_at, Y-m-d), else the stored date while the text is unchanged, else now.
+	 *
+	 * @param Review               $review Review (modified in place).
+	 * @param array<string, mixed> $input  Input with reply_body and optional reply_at.
+	 * @return list<string> Errors.
+	 */
+	private static function apply_reply( Review $review, array $input ): array {
+		$text = trim( sanitize_textarea_field( (string) ( $input['reply_body'] ?? '' ) ) );
+		if ( '' === $text ) {
+			$review->reply_body = null;
+			$review->reply_at   = null;
+			return array();
+		}
+		if ( mb_strlen( $text ) > self::REPLY_MAX_LENGTH ) {
+			return array( 'reply_too_long' );
+		}
+		$date = self::date_or_null( $input['reply_at'] ?? '' );
+		if ( null === $date ) {
+			$date = null !== $review->reply_at && $text === $review->reply_body ? $review->reply_at : gmdate( 'Y-m-d H:i:s' );
+		} elseif ( null !== $review->reply_at && substr( $review->reply_at, 0, 10 ) === substr( $date, 0, 10 ) ) {
+			$date = $review->reply_at; // Same day as stored: keep the exact time.
+		}
+		$review->reply_body = $text;
+		$review->reply_at   = $date;
+		return array();
+	}
+
+	/**
+	 * Checkbox / flag value.
+	 *
+	 * @param mixed $value Value.
+	 */
+	private static function flag( mixed $value ): bool {
+		return in_array( is_scalar( $value ) ? strtolower( trim( (string) $value ) ) : '', array( '1', 'true', 'yes', 'on' ), true ) || true === $value;
 	}
 
 	/**

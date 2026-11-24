@@ -66,8 +66,9 @@ Kein spezifischer Importer in 1.0. Weg: Export aus dem Fremdsystem → Umwandlun
 | `status` | nein | `pending` \| `approved` \| `rejected` \| `archived` | Default `pending`; `flagged`/`removed` nicht importierbar |
 | `context_type` | nein | `post` \| `product` \| `event` \| `voucher` \| `app` \| `form` | |
 | `context_id` | mit `context_type` | max. 64 | Existenz wird bei `post`/`product` geprüft (Warnung, kein Fehler) |
+| `incentivised` | nein | `1`/`0`, `yes`/`no`, `true`/`false`, `ja`/`nein`, leer = nein | SET-RC-12: „Gegen einen Vorteil erhalten“ (z. B. Gutschein für die Bewertung); andere Werte → Fehler `invalid_flag`. Das Kennzeichen erscheint immer an der Karte, die Bewertung erhält nie strukturierte Daten |
 
-Bewusst **keine** Spalte für `author_email`, Avatar, Anhänge oder Antworten: keine Kontaktdaten per Massenimport, keine Medien in 1.0.
+Bewusst **keine** Spalte für `author_email`, Avatar, Anhänge oder Antworten: keine Kontaktdaten per Massenimport, keine Medien in 1.0. Die Händlerantwort (SET-RC-13) steht im Export (`reply_body`, `reply_at`), wird beim Import aber als unbekannte Spalte ignoriert (Warnung).
 Gespeichert wird `origin = csv_import`, `import_batch_id`, `consent_publish = 0` (Hinweis im Prüflauf: „Für importierte Reviews liegt keine im Plugin dokumentierte Einwilligung vor“).
 
 ### Prüflauf (Dry-run)
@@ -93,7 +94,7 @@ Pflichtschritt vor jedem Import. Ergebnis je Zeile: `ok` · `Warnung` · `Fehler
 - Keine Aktualisierung bestehender Reviews per CSV (nur Neuanlage) in 1.0.
 - Importierte externe Reviews sind **manuelle Auszüge**: sie werden nicht automatisch aktualisiert und unterliegen nicht `retention_external_days` (gilt nur für `provider_sync`/`connector`); Plattformbedingungen zur Weiterverwendung von Texten muss der Betreiber selbst prüfen.
 - Kein Schema-Markup für importierte externe Reviews.
-- Export (RC-044) nutzt dieselben Spaltennamen plus `uuid`, `origin`, `created_at`; Zellen, die mit `= + - @ Tab CR` beginnen, werden mit `'` präfixiert.
+- Export (RC-044) nutzt dieselben Spaltennamen plus `uuid`, `origin`, `created_at`, `reply_body`, `reply_at` (Händlerantwort, SET-RC-13; leer ohne Antwort); Zellen, die mit `= + - @ Tab CR` beginnen, werden mit `'` präfixiert.
 
 ## Abnahme
 

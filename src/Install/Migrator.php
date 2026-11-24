@@ -67,6 +67,16 @@ final class Migrator {
 			4 => static function (): void {
 				// Schema v4 (RC-125A): dbDelta creates review_revisions; no data to migrate.
 			},
+			5 => static function (): void {
+				// Schema v5 (SET-RC-12, SET-RC-13): dbDelta adds reviews.incentivised ("received in
+				// exchange for a benefit") and the merchant reply reviews.reply_body/reply_at. Data step:
+				// rows written by hosts whose ALTER did not apply the default get incentivised = 0 (never
+				// guessed as 1). Replies are not backfilled: platform replies stay in meta.reply.
+				global $wpdb;
+				$reviews = Schema::table( 'reviews' );
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+				$wpdb->query( "UPDATE {$reviews} SET incentivised = 0 WHERE incentivised IS NULL" );
+			},
 		);
 	}
 }

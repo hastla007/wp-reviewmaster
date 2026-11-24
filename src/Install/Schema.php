@@ -17,7 +17,7 @@ final class Schema {
 	/**
 	 * Bump on every schema change and add a migration step in Migrator.
 	 */
-	public const VERSION = 4;
+	public const VERSION = 5;
 
 	public const OPTION_VERSION = 'review_captain_db_version';
 
@@ -91,6 +91,9 @@ final class Schema {
   experience_id varchar(191) NULL,
   submission_key char(40) NULL,
   revision int(10) unsigned NOT NULL DEFAULT 0,
+  incentivised tinyint(1) NOT NULL DEFAULT 0,
+  reply_body text NULL,
+  reply_at datetime NULL,
   meta longtext NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
