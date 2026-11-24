@@ -21,8 +21,8 @@ Status: Entwurf zur Abnahme, Stand 2026-11-16; alter/neuer Wert, eigene Aufbewah
 | `settings.changed` | Speichern eines Tabs mit mindestens einer Änderung; ein Eintrag je geändertem Feld |
 | `settings.reset` | Reset eines Tabs/gesamt |
 | `settings.imported` | Konfigurationsimport |
-| `settings.exported` | Konfigurationsexport (ohne Inhalt) |
-| `settings.migrated` | Versionsmigration |
+| `settings.exported` | Konfigurationsexport (ohne Inhalt; `with_contacts` = mit Kontaktangaben, P1-8) |
+| `settings.migrated` | Einstellungsmigration (`from`, `to`, `fields`; `Settings\SettingsMigrator`) |
 | `roles.capabilities_changed` | Änderung `access.*` (zusätzlich zu `settings.changed`: Liste der Rollen +/-) |
 | `data.erase_all` | „Alle Plugin-Daten löschen“ (vor Ausführung) |
 
@@ -51,7 +51,7 @@ Alle übrigen Felder werden ebenfalls protokolliert (einheitliche Logik), sind a
 Gilt vor den Vorschlägen oben, wo diese abweichen.
 
 - **Ein Eintrag je Vorgang**, nicht je Feld: `settings.changed` (Speichern eines Tabs, auch per WP-CLI), `settings.reset`, `settings.imported`, `settings.restored` tragen `fields` (Liste `tab.key`) und `changes` (Liste `{field, from, to}`). `roles.capabilities_changed` je Capability, deren Rollen sich wirklich ändern (`from` = Rollen vorher, `roles` = nachher). `object_type` ist `settings` bzw. `capability`.
-- **Werte im Protokoll** (`Audit\SettingsChanges::value()`): Zahlen, Ja/Nein, Auswahl, Uhrzeit und Rollenlisten vollständig; E-Mail-Adressen maskiert (`a***@example.com`, auch in Textfeldern); Felder mit `privacy` `personal` oder `config` (z. B. `requests.sender_name`) nur als `[verborgen]`; übrige Texte (`brand_name`, `empty_text`, `privacy_notice` …) auf 40 Zeichen gekürzt; Geheimnisse (Typ `secret` oder Schlüssel mit `secret|token|key|password|passwd`) nie, nur `[verborgen]`. `AuditLog::sanitize_context()` lässt in `changes` nur flache Datensätze zu und filtert deren Schlüssel mit derselben Sperrliste.
+- **Werte im Protokoll** (`Audit\SettingsChanges::value()`): Zahlen, Ja/Nein, Auswahl, Uhrzeit und Rollenlisten vollständig; E-Mail-Adressen maskiert (`a***@example.com`, auch in Textfeldern); Felder mit `privacy` `personal` oder `config` (z. B. `requests.sender_name`) nur als `[verborgen]`; `general.brand_name` ist seit P1-8 ebenfalls `privacy = config` und erscheint nur als `[verborgen]`; übrige Texte (`empty_text`, `privacy_notice` …) auf 40 Zeichen gekürzt; Geheimnisse (Typ `secret` oder Schlüssel mit `secret|token|key|password|passwd`) nie, nur `[verborgen]`. `AuditLog::sanitize_context()` lässt in `changes` nur flache Datensätze zu und filtert deren Schlüssel mit derselben Sperrliste.
 - **Aufbewahrung:** `privacy.retention_audit_days` (Standard 365, Filter `review_captain_retention_audit_days`) für `object_type` `settings`/`capability`; alle anderen Einträge weiter nach `retention_logs_days` (`Maintenance\Retention`).
 - **Anzeige:** Werkzeuge › Diagnose › „Letzte Protokolleinträge“ mit Filter „Alle | Einstellungen“ (`?audit=settings`); die Einstellungsansicht zeigt je Eintrag „Feld: alt → neu“. Der Diagnose-Export enthält wie bisher nur Ereignis und Kontext-Schlüssel, keine Werte.
 - Offen aus §4: Link „Änderungsverlauf“ je Tab, Privacy-Exporter/-Eraser für Audit-Einträge eines Nutzers.

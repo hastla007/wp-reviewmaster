@@ -2013,14 +2013,6 @@ msgstr "Unconfirmed external reviews (days)"
 msgid "Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde."
 msgstr "How long a platform review stays stored once the source no longer confirms it."
 
-#: src/Admin/SettingsFields.php:115
-msgid "Abgelehnte Reviews (Tage)"
-msgstr "Rejected reviews (days)"
-
-#: src/Admin/SettingsFields.php:115
-msgid "Danach endgültige Löschung inklusive Verlauf."
-msgstr "Then permanently deleted, including history."
-
 #: src/Admin/SettingsFields.php:116
 msgid "Datenschutzhinweis im Formular"
 msgstr "Privacy notice in form"
@@ -2060,14 +2052,6 @@ msgstr "Settings change log (days)"
 #: src/Admin/SettingsFields.php:120
 msgid "Wie lange Einträge zu Einstellungen und Rollenrechten mit altem und neuem Wert aufbewahrt werden. Texte sind gekürzt, E-Mail-Adressen maskiert, Zugangsdaten nie enthalten."
 msgstr "How long entries about settings and role rights are kept with old and new value. Texts are shortened, email addresses masked, credentials never included."
-
-#: src/Admin/SettingsFields.php:121
-msgid "Kontaktadresse zu Bewertungen (Tage)"
-msgstr "Contact address of reviews (days)"
-
-#: src/Admin/SettingsFields.php:121
-msgid "Danach wird die E-Mail-Adresse zur Bewertung entfernt; die Bewertung bleibt. 0 = unbegrenzt. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen."
-msgstr "After this the email address of the review is removed; the review stays. 0 = unlimited. Without an address, correction links are no longer possible for this review. Please have the period legally reviewed."
 
 #: src/Admin/SettingsFields.php:122
 msgid "Freigegebene eigene Bewertungen (Tage)"
@@ -2992,10 +2976,6 @@ msgstr "Alias for --confirm."
 #: src/Cli/CliModule.php:241
 msgid "Bereiche oder alle Einstellungen auf den Standard zurücksetzen (Sicherung wird angelegt; braucht --user)."
 msgstr "Reset sections or all settings to the defaults (a backup is created; needs --user)."
-
-#: src/Cli/CliModule.php:263
-msgid "Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten)."
-msgstr "Print the configuration as JSON or write it to a file (without credentials)."
 
 #: src/Cli/CliModule.php:274
 msgid "Konfiguration aus einer JSON-Datei importieren; --dry-run zeigt nur die Vorschau (braucht --user)."
@@ -4268,21 +4248,9 @@ msgstr "Versions (corrections)"
 msgid "Review Captain: Aufbewahrung der Kontaktadressen"
 msgstr "Review Captain: retention of contact addresses"
 
-#: src/Privacy/PrivacyModule.php:62
-msgid "Für die Kontaktadressen zu Bewertungen ist eine Aufbewahrungsfrist eingestellt"
-msgstr "A retention period is set for the contact addresses of reviews"
-
 #: src/Privacy/PrivacyModule.php:65
 msgid "Datenschutz"
 msgstr "Privacy"
-
-#: src/Privacy/PrivacyModule.php:69
-msgid "Review Captain entfernt die E-Mail-Adresse zu einer Bewertung %s Tage nach Eingang. Die Bewertung bleibt."
-msgstr "Review Captain removes the email address of a review %s days after it was received. The review stays."
-
-#: src/Privacy/PrivacyModule.php:77
-msgid "Review Captain speichert Kontaktadressen zu Bewertungen unbegrenzt"
-msgstr "Review Captain stores the contact addresses of reviews indefinitely"
 
 #: src/Privacy/PrivacyModule.php:141
 msgid "Ihre Bewertung wird erst nach Prüfung und nur dann veröffentlicht, wenn Sie der Veröffentlichung zugestimmt haben. Den Zeitpunkt Ihrer Einwilligung speichern wir als Nachweis."
@@ -4320,21 +4288,9 @@ msgstr "If enabled: A photo uploaded with a review is re-encoded before storage,
 msgid "Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird mit der Bewertung angezeigt und mit ihr gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person."
 msgstr "If enabled: a photo uploaded with the review is re-encoded before it is stored, which removes image metadata such as the location where it was taken; it is shown with the review and deleted with it. We store product questions with a name and, optionally, an email address; we store reports of reviews without any details about the person reporting."
 
-#: src/Privacy/PrivacyModule.php:158
-msgid "Abgelehnte Einreichungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht."
-msgstr "Rejected submissions and technical logs are automatically deleted according to the configured retention periods."
-
-#: src/Privacy/PrivacyModule.php:164
-msgid "Die E-Mail-Adresse zu einer Bewertung löschen wir %s Tage nach Eingang der Bewertung; die Bewertung selbst bleibt erhalten."
-msgstr "We delete the email address of a review %s days after the review was received; the review itself is kept."
-
 #: src/Privacy/PrivacyModule.php:170
 msgid "Bewertungen, die Sie auf dieser Website abgegeben haben, löschen wir %s Tage nach Eingang vollständig."
 msgstr "We completely delete reviews you have submitted on this website %s days after they were received."
-
-#: src/Privacy/PrivacyModule.php:79
-msgid "Für die E-Mail-Adressen zu Bewertungen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; die Bewertungen bleiben. Welche Frist für deine Website passt, lass bitte rechtlich prüfen."
-msgstr "No retention period is set for the email addresses of reviews. Set in the Privacy tab after how many days they are removed; the reviews stay. Please have the period that suits your website checked legally."
 
 #: src/Privacy/PrivacyModule.php:80
 msgid "Aufbewahrung einstellen"
@@ -4863,3 +4819,73 @@ msgstr "Next page"
 #: templates/reviews-grid.php:43
 msgid "Weitere Bewertungen"
 msgstr "More reviews"
+
+#: src/Admin/DashboardPage.php:70
+msgid "Kontaktadressen zu Bewertungen und Produktfragen werden unbegrenzt gespeichert. Lege im Reiter Datenschutz eine Aufbewahrungsfrist fest (neue Installationen: 365 Tage) und lass sie rechtlich prüfen."
+msgstr "Contact addresses of reviews and product questions are stored without a time limit. Set a retention period in the Privacy tab (new installations: 365 days) and have it reviewed legally."
+
+#: src/Admin/SettingsFields.php:115
+msgid "Abgelehnte und zurückgezogene Reviews (Tage)"
+msgstr "Rejected and withdrawn reviews (days)"
+
+#: src/Admin/SettingsFields.php:115
+msgid "Abgelehnte Bewertungen und Fragen sowie von der Autorin oder dem Autor zurückgezogene Bewertungen werden danach endgültig gelöscht, inklusive Verlauf."
+msgstr "Rejected reviews and questions as well as reviews withdrawn by their author are then deleted permanently, including their history."
+
+#: src/Admin/SettingsFields.php:121
+msgid "Kontaktadresse zu Bewertungen und Produktfragen (Tage)"
+msgstr "Contact address of reviews and product questions (days)"
+
+#: src/Admin/SettingsFields.php:121
+msgid "Danach wird die E-Mail-Adresse zur Bewertung bzw. Produktfrage entfernt; Bewertung und Frage bleiben. 0 = unbegrenzt. Standard für neue Installationen: 365 Tage. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen."
+msgstr "After this the email address of the review or product question is removed; the review and the question stay. 0 = unlimited. Default for new installations: 365 days. Without an address, correction links are no longer possible for this review. Please have the period reviewed legally."
+
+#: src/Admin/SettingsPage.php:949
+msgid "Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt; sie bleiben unbegrenzt gespeichert. Neue Installationen entfernen sie nach 365 Tagen. Welche Frist passt, lass bitte rechtlich prüfen."
+msgstr "No retention period is set for the email addresses of reviews and product questions; they are stored without a time limit. New installations remove them after 365 days. Please have the right period reviewed legally."
+
+#: src/Admin/SettingsPage.php:1166
+msgid "Mit Kontaktangaben exportieren"
+msgstr "Export with contact details"
+
+#: src/Admin/SettingsPage.php:1167
+msgid "Nimmt Empfängeradressen der Benachrichtigungen, den Markennamen und die Absenderangaben mit in die Datei. Ohne Häkchen fehlen diese Felder; ein Import lässt sie dann unverändert. Zugangsdaten werden nie exportiert."
+msgstr "Includes the notification recipients, the brand name and the sender details in the file. Without the tick these fields are left out; an import then leaves them unchanged. Credentials are never exported."
+
+#: src/Admin/SettingsPage.php:945
+msgid "Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfrage. Die Frage bleibt."
+msgid_plural "Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfragen. Die Fragen bleiben."
+msgstr[0] "Contact address: the next clean-up also removes the email address from %s product question. The question stays."
+msgstr[1] "Contact address: the next clean-up also removes the email address from %s product questions. The questions stay."
+
+#: src/Cli/CliModule.php:263
+msgid "Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten; Kontaktangaben nur mit --with-contacts)."
+msgstr "Print the configuration as JSON or write it to a file (without credentials; contact details only with --with-contacts)."
+
+#: src/Cli/CliModule.php:274
+msgid "Mit Kontaktangaben exportieren (Empfängeradressen, Markenname, Absenderangaben)."
+msgstr "Export with contact details (recipient addresses, brand name, sender details)."
+
+#: src/Privacy/PrivacyModule.php:62
+msgid "Für die Kontaktadressen zu Bewertungen und Produktfragen ist eine Aufbewahrungsfrist eingestellt"
+msgstr "A retention period is set for the contact addresses of reviews and product questions"
+
+#: src/Privacy/PrivacyModule.php:69
+msgid "Review Captain entfernt die E-Mail-Adresse zu einer Bewertung oder Produktfrage %s Tage nach Eingang. Bewertung und Frage bleiben."
+msgstr "Review Captain removes the email address of a review or product question %s days after receipt. The review and the question stay."
+
+#: src/Privacy/PrivacyModule.php:77
+msgid "Review Captain speichert Kontaktadressen zu Bewertungen und Produktfragen unbegrenzt"
+msgstr "Review Captain stores contact addresses of reviews and product questions without a time limit"
+
+#: src/Privacy/PrivacyModule.php:158
+msgid "Abgelehnte Einreichungen, von Ihnen zurückgezogene Bewertungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht."
+msgstr "Rejected submissions, reviews you withdrew and technical logs are deleted automatically after the configured retention periods."
+
+#: src/Privacy/PrivacyModule.php:164
+msgid "Die E-Mail-Adresse zu einer Bewertung oder Produktfrage löschen wir %s Tage nach deren Eingang; Bewertung und Frage selbst bleiben erhalten."
+msgstr "We delete the email address of a review or product question %s days after it was received; the review and the question themselves are kept."
+
+#: src/Privacy/PrivacyModule.php:79
+msgid "Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; Bewertungen und Fragen bleiben. Neue Installationen sind auf 365 Tage voreingestellt. Welche Frist für deine Website passt, lass bitte rechtlich prüfen."
+msgstr "No retention period is set for the email addresses of reviews and product questions. Set in the Privacy tab after how many days they are removed; reviews and questions stay. New installations are preset to 365 days. Please have the period that fits your website reviewed legally."

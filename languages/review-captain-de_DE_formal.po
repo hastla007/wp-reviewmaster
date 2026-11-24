@@ -2013,14 +2013,6 @@ msgstr "Externe Reviews ohne Bestätigung (Tage)"
 msgid "Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde."
 msgstr "Wie lange ein Plattform-Review gespeichert bleibt, wenn es nicht mehr von der Quelle bestätigt wurde."
 
-#: src/Admin/SettingsFields.php:115
-msgid "Abgelehnte Reviews (Tage)"
-msgstr "Abgelehnte Reviews (Tage)"
-
-#: src/Admin/SettingsFields.php:115
-msgid "Danach endgültige Löschung inklusive Verlauf."
-msgstr "Danach endgültige Löschung inklusive Verlauf."
-
 #: src/Admin/SettingsFields.php:116
 msgid "Datenschutzhinweis im Formular"
 msgstr "Datenschutzhinweis im Formular"
@@ -2060,14 +2052,6 @@ msgstr "Änderungsprotokoll der Einstellungen (Tage)"
 #: src/Admin/SettingsFields.php:120
 msgid "Wie lange Einträge zu Einstellungen und Rollenrechten mit altem und neuem Wert aufbewahrt werden. Texte sind gekürzt, E-Mail-Adressen maskiert, Zugangsdaten nie enthalten."
 msgstr "Wie lange Einträge zu Einstellungen und Rollenrechten mit altem und neuem Wert aufbewahrt werden. Texte sind gekürzt, E-Mail-Adressen maskiert, Zugangsdaten nie enthalten."
-
-#: src/Admin/SettingsFields.php:121
-msgid "Kontaktadresse zu Bewertungen (Tage)"
-msgstr "Kontaktadresse zu Bewertungen (Tage)"
-
-#: src/Admin/SettingsFields.php:121
-msgid "Danach wird die E-Mail-Adresse zur Bewertung entfernt; die Bewertung bleibt. 0 = unbegrenzt. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen."
-msgstr "Danach wird die E-Mail-Adresse zur Bewertung entfernt; die Bewertung bleibt. 0 = unbegrenzt. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen."
 
 #: src/Admin/SettingsFields.php:122
 msgid "Freigegebene eigene Bewertungen (Tage)"
@@ -2992,10 +2976,6 @@ msgstr "Alias für --confirm."
 #: src/Cli/CliModule.php:241
 msgid "Bereiche oder alle Einstellungen auf den Standard zurücksetzen (Sicherung wird angelegt; braucht --user)."
 msgstr "Bereiche oder alle Einstellungen auf den Standard zurücksetzen (Sicherung wird angelegt; braucht --user)."
-
-#: src/Cli/CliModule.php:263
-msgid "Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten)."
-msgstr "Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten)."
 
 #: src/Cli/CliModule.php:274
 msgid "Konfiguration aus einer JSON-Datei importieren; --dry-run zeigt nur die Vorschau (braucht --user)."
@@ -4268,21 +4248,9 @@ msgstr "Fassungen (Korrekturen)"
 msgid "Review Captain: Aufbewahrung der Kontaktadressen"
 msgstr "Review Captain: Aufbewahrung der Kontaktadressen"
 
-#: src/Privacy/PrivacyModule.php:62
-msgid "Für die Kontaktadressen zu Bewertungen ist eine Aufbewahrungsfrist eingestellt"
-msgstr "Für die Kontaktadressen zu Bewertungen ist eine Aufbewahrungsfrist eingestellt"
-
 #: src/Privacy/PrivacyModule.php:65
 msgid "Datenschutz"
 msgstr "Datenschutz"
-
-#: src/Privacy/PrivacyModule.php:69
-msgid "Review Captain entfernt die E-Mail-Adresse zu einer Bewertung %s Tage nach Eingang. Die Bewertung bleibt."
-msgstr "Review Captain entfernt die E-Mail-Adresse zu einer Bewertung %s Tage nach Eingang. Die Bewertung bleibt."
-
-#: src/Privacy/PrivacyModule.php:77
-msgid "Review Captain speichert Kontaktadressen zu Bewertungen unbegrenzt"
-msgstr "Review Captain speichert Kontaktadressen zu Bewertungen unbegrenzt"
 
 #: src/Privacy/PrivacyModule.php:141
 msgid "Ihre Bewertung wird erst nach Prüfung und nur dann veröffentlicht, wenn Sie der Veröffentlichung zugestimmt haben. Den Zeitpunkt Ihrer Einwilligung speichern wir als Nachweis."
@@ -4320,21 +4288,9 @@ msgstr "Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem S
 msgid "Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird mit der Bewertung angezeigt und mit ihr gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person."
 msgstr "Falls aktiviert: Ein mit der Bewertung hochgeladenes Foto wird vor dem Speichern neu kodiert, wobei Bildmetadaten wie der Aufnahmeort entfernt werden; es wird mit der Bewertung angezeigt und mit ihr gelöscht. Produktfragen speichern wir mit Name und optional E-Mail-Adresse; Meldungen von Bewertungen speichern wir ohne Angaben zur meldenden Person."
 
-#: src/Privacy/PrivacyModule.php:158
-msgid "Abgelehnte Einreichungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht."
-msgstr "Abgelehnte Einreichungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht."
-
-#: src/Privacy/PrivacyModule.php:164
-msgid "Die E-Mail-Adresse zu einer Bewertung löschen wir %s Tage nach Eingang der Bewertung; die Bewertung selbst bleibt erhalten."
-msgstr "Die E-Mail-Adresse zu einer Bewertung löschen wir %s Tage nach Eingang der Bewertung; die Bewertung selbst bleibt erhalten."
-
 #: src/Privacy/PrivacyModule.php:170
 msgid "Bewertungen, die Sie auf dieser Website abgegeben haben, löschen wir %s Tage nach Eingang vollständig."
 msgstr "Bewertungen, die Sie auf dieser Website abgegeben haben, löschen wir %s Tage nach Eingang vollständig."
-
-#: src/Privacy/PrivacyModule.php:79
-msgid "Für die E-Mail-Adressen zu Bewertungen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; die Bewertungen bleiben. Welche Frist für deine Website passt, lass bitte rechtlich prüfen."
-msgstr "Für die E-Mail-Adressen zu Bewertungen ist keine Aufbewahrungsfrist eingestellt. Legen Sie im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; die Bewertungen bleiben. Welche Frist für Ihre Website passt, lassen Sie bitte rechtlich prüfen."
 
 #: src/Privacy/PrivacyModule.php:80
 msgid "Aufbewahrung einstellen"
@@ -4863,3 +4819,73 @@ msgstr "Nächste Seite"
 #: templates/reviews-grid.php:43
 msgid "Weitere Bewertungen"
 msgstr "Weitere Bewertungen"
+
+#: src/Admin/DashboardPage.php:70
+msgid "Kontaktadressen zu Bewertungen und Produktfragen werden unbegrenzt gespeichert. Lege im Reiter Datenschutz eine Aufbewahrungsfrist fest (neue Installationen: 365 Tage) und lass sie rechtlich prüfen."
+msgstr "Kontaktadressen zu Bewertungen und Produktfragen werden unbegrenzt gespeichert. Legen Sie im Reiter Datenschutz eine Aufbewahrungsfrist fest (neue Installationen: 365 Tage) und lassen Sie sie rechtlich prüfen."
+
+#: src/Admin/SettingsFields.php:115
+msgid "Abgelehnte und zurückgezogene Reviews (Tage)"
+msgstr "Abgelehnte und zurückgezogene Reviews (Tage)"
+
+#: src/Admin/SettingsFields.php:115
+msgid "Abgelehnte Bewertungen und Fragen sowie von der Autorin oder dem Autor zurückgezogene Bewertungen werden danach endgültig gelöscht, inklusive Verlauf."
+msgstr "Abgelehnte Bewertungen und Fragen sowie von der Autorin oder dem Autor zurückgezogene Bewertungen werden danach endgültig gelöscht, inklusive Verlauf."
+
+#: src/Admin/SettingsFields.php:121
+msgid "Kontaktadresse zu Bewertungen und Produktfragen (Tage)"
+msgstr "Kontaktadresse zu Bewertungen und Produktfragen (Tage)"
+
+#: src/Admin/SettingsFields.php:121
+msgid "Danach wird die E-Mail-Adresse zur Bewertung bzw. Produktfrage entfernt; Bewertung und Frage bleiben. 0 = unbegrenzt. Standard für neue Installationen: 365 Tage. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen."
+msgstr "Danach wird die E-Mail-Adresse zur Bewertung bzw. Produktfrage entfernt; Bewertung und Frage bleiben. 0 = unbegrenzt. Standard für neue Installationen: 365 Tage. Ohne Adresse sind Korrektur-Links für diese Bewertung nicht mehr möglich. Frist bitte rechtlich prüfen lassen."
+
+#: src/Admin/SettingsPage.php:949
+msgid "Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt; sie bleiben unbegrenzt gespeichert. Neue Installationen entfernen sie nach 365 Tagen. Welche Frist passt, lass bitte rechtlich prüfen."
+msgstr "Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt; sie bleiben unbegrenzt gespeichert. Neue Installationen entfernen sie nach 365 Tagen. Welche Frist passt, lassen Sie bitte rechtlich prüfen."
+
+#: src/Admin/SettingsPage.php:1166
+msgid "Mit Kontaktangaben exportieren"
+msgstr "Mit Kontaktangaben exportieren"
+
+#: src/Admin/SettingsPage.php:1167
+msgid "Nimmt Empfängeradressen der Benachrichtigungen, den Markennamen und die Absenderangaben mit in die Datei. Ohne Häkchen fehlen diese Felder; ein Import lässt sie dann unverändert. Zugangsdaten werden nie exportiert."
+msgstr "Nimmt Empfängeradressen der Benachrichtigungen, den Markennamen und die Absenderangaben mit in die Datei. Ohne Häkchen fehlen diese Felder; ein Import lässt sie dann unverändert. Zugangsdaten werden nie exportiert."
+
+#: src/Admin/SettingsPage.php:945
+msgid "Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfrage. Die Frage bleibt."
+msgid_plural "Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfragen. Die Fragen bleiben."
+msgstr[0] "Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfrage. Die Frage bleibt."
+msgstr[1] "Kontaktadresse: Die nächste Bereinigung entfernt außerdem die E-Mail-Adresse bei %s Produktfragen. Die Fragen bleiben."
+
+#: src/Cli/CliModule.php:263
+msgid "Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten; Kontaktangaben nur mit --with-contacts)."
+msgstr "Konfiguration als JSON ausgeben oder in eine Datei schreiben (ohne Zugangsdaten; Kontaktangaben nur mit --with-contacts)."
+
+#: src/Cli/CliModule.php:274
+msgid "Mit Kontaktangaben exportieren (Empfängeradressen, Markenname, Absenderangaben)."
+msgstr "Mit Kontaktangaben exportieren (Empfängeradressen, Markenname, Absenderangaben)."
+
+#: src/Privacy/PrivacyModule.php:62
+msgid "Für die Kontaktadressen zu Bewertungen und Produktfragen ist eine Aufbewahrungsfrist eingestellt"
+msgstr "Für die Kontaktadressen zu Bewertungen und Produktfragen ist eine Aufbewahrungsfrist eingestellt"
+
+#: src/Privacy/PrivacyModule.php:69
+msgid "Review Captain entfernt die E-Mail-Adresse zu einer Bewertung oder Produktfrage %s Tage nach Eingang. Bewertung und Frage bleiben."
+msgstr "Review Captain entfernt die E-Mail-Adresse zu einer Bewertung oder Produktfrage %s Tage nach Eingang. Bewertung und Frage bleiben."
+
+#: src/Privacy/PrivacyModule.php:77
+msgid "Review Captain speichert Kontaktadressen zu Bewertungen und Produktfragen unbegrenzt"
+msgstr "Review Captain speichert Kontaktadressen zu Bewertungen und Produktfragen unbegrenzt"
+
+#: src/Privacy/PrivacyModule.php:158
+msgid "Abgelehnte Einreichungen, von Ihnen zurückgezogene Bewertungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht."
+msgstr "Abgelehnte Einreichungen, von Ihnen zurückgezogene Bewertungen und technische Protokolle werden nach den eingestellten Aufbewahrungsfristen automatisch gelöscht."
+
+#: src/Privacy/PrivacyModule.php:164
+msgid "Die E-Mail-Adresse zu einer Bewertung oder Produktfrage löschen wir %s Tage nach deren Eingang; Bewertung und Frage selbst bleiben erhalten."
+msgstr "Die E-Mail-Adresse zu einer Bewertung oder Produktfrage löschen wir %s Tage nach deren Eingang; Bewertung und Frage selbst bleiben erhalten."
+
+#: src/Privacy/PrivacyModule.php:79
+msgid "Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt. Lege im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; Bewertungen und Fragen bleiben. Neue Installationen sind auf 365 Tage voreingestellt. Welche Frist für deine Website passt, lass bitte rechtlich prüfen."
+msgstr "Für die E-Mail-Adressen zu Bewertungen und Produktfragen ist keine Aufbewahrungsfrist eingestellt. Legen Sie im Reiter Datenschutz fest, nach wie vielen Tagen sie entfernt werden; Bewertungen und Fragen bleiben. Neue Installationen sind auf 365 Tage voreingestellt. Welche Frist für Ihre Website passt, lassen Sie bitte rechtlich prüfen."

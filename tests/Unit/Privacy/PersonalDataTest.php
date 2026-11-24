@@ -176,7 +176,7 @@ final class PersonalDataTest extends TestCase {
 		$text = PrivacyModule::policy_text();
 		$this->assertStringNotContainsString( 'erst nach Prüfung', $text, 'no moderation claimed when new reviews are published at once' );
 		$this->assertStringNotContainsString( 'Veröffentlichung zugestimmt haben', $text, 'no consent claimed when it is not asked for' );
-		$this->assertStringContainsString( '365 Tage nach Eingang der Bewertung', $text );
+		$this->assertStringContainsString( 'Bewertung oder Produktfrage löschen wir 365 Tage nach deren Eingang', $text );
 		$this->assertStringContainsString( '730 Tage nach Eingang vollständig', $text );
 
 		$this->set_settings( array( 'general' => array( 'new_review_status' => 'approved' ) ) );
@@ -193,7 +193,13 @@ final class PersonalDataTest extends TestCase {
 		$this->assertArrayHasKey( 'review_captain_retention', $tests['direct'] );
 
 		$result = $module->retention_status();
-		$this->assertSame( 'recommended', $result['status'], 'default "never" (S9) is reminded' );
+		$this->assertSame( 'good', $result['status'], 'new installations start with 365 days (E5)' );
+		$this->assertStringContainsString( '365', $result['description'] );
+
+		$this->set_settings( array( 'privacy' => array( 'retention_contact_days' => 0 ) ) );
+		$result = $module->retention_status();
+		$this->assertSame( 'recommended', $result['status'], '"never" (S9, existing installations) is reminded' );
+		$this->assertStringContainsString( 'Produktfragen', $result['label'] );
 		$this->assertSame( 'review_captain_retention', $result['test'] );
 		$this->assertStringContainsString( 'tab=privacy', $result['actions'] );
 		$this->assertStringContainsString( 'rechtlich prüfen', $result['description'], 'no period is suggested as legally fine' );

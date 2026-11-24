@@ -65,6 +65,10 @@ final class DashboardPage {
 		echo '<div class="wrap rc-admin">';
 		echo View::header( 'Review Captain', View::page_url( ReviewsPage::SLUG, array( 'action' => 'new' ) ), __( 'Review hinzufügen', 'review-captain' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo Notices::render_current(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( current_user_can( Capabilities::MANAGE_PRIVACY ) && 0 === (int) $this->plugin->settings()->get( 'privacy', 'retention_contact_days', 0 ) ) {
+			// S9 / E5: remind while no retention period for contact addresses is set.
+			echo '<div class="notice notice-warning inline rc-admin-retention-notice"><p>' . esc_html__( 'Kontaktadressen zu Bewertungen und Produktfragen werden unbegrenzt gespeichert. Lege im Reiter Datenschutz eine Aufbewahrungsfrist fest (neue Installationen: 365 Tage) und lass sie rechtlich prüfen.', 'review-captain' ) . ' <a href="' . esc_url( SettingsPage::tab_url( 'privacy' ) ) . '">' . esc_html__( 'Aufbewahrung einstellen', 'review-captain' ) . '</a></p></div>';
+		}
 
 		echo ( new SetupChecklist( $this->plugin ) )->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 

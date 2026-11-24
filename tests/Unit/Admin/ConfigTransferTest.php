@@ -107,7 +107,8 @@ final class ConfigTransferTest extends AdminTestCase {
 		// Add-on registered but not writable (e.g. no license): exported, a re-import keeps them unchanged.
 		ProRequestsFields::register( false );
 		$transfer = new ConfigTransfer( new Settings() );
-		$doc      = $transfer->export();
+		$this->assertArrayNotHasKey( 'sender_email', $transfer->export()['settings']['requests'], 'add-on contact fields (privacy config) only on request (P1-8)' );
+		$doc = $transfer->export( true );
 		$this->assertEquals( $requests, $doc['settings']['requests'] );
 		$doc['settings']['requests']['daily_limit'] = 1;
 		$doc['settings']['display']['show_avatar']  = false;
@@ -244,5 +245,49 @@ final class ConfigTransferTest extends AdminTestCase {
 		$preview = $transfer->preview( (string) wp_json_encode( $doc ) );
 		$this->assertFalse( $preview['values']['privacy']['delete_data_on_uninstall'] );
 		$this->assertSame( '', $preview['values']['privacy']['delete_data_confirmed_at'] );
+	}
+
+	public function test_contact_fields_need_the_checkbox_secrets_never(): void {
+		// P1-8: notification recipients, brand name and add-on contact fields (privacy 'config').
+		$this->add_sensitive_fields();
+		ProRequestsFields::register();
+		update_option(
+			Settings::OPTION,
+			array(
+				'general'     => array( 'brand_name' => 'Erika Muster', 'owner_phone' => '+43 1 234' ),
+				'submissions' => array( 'notify_recipients' => array( 'mod@example.test' ) ),
+				'requests'    => array( 'sender_email' => 'shop@example.test' ),
+				'sources'     => array( 'api_token' => 'tok_live_123' ),
+			)
+		);
+		$transfer = new ConfigTransfer( new Settings() );
+		$plain    = (string) wp_json_encode( $transfer->export() );
+		foreach ( array( 'Erika Muster', 'mod@example.test', 'shop@example.test', '+43 1 234', 'tok_live_123' ) as $needle ) {
+			$this->assertStringNotContainsString( $needle, $plain );
+		}
+		$full = $transfer->export( true );
+		$this->assertTrue( $full['with_contacts'] );
+		$this->assertSame( 'Erika Muster', $full['settings']['general']['brand_name'] );
+		$this->assertSame( array( 'mod@example.test' ), $full['settings']['submissions']['notify_recipients'] );
+		$this->assertSame( 'shop@example.test', $full['settings']['requests']['sender_email'] );
+		$json = (string) wp_json_encode( $full );
+		$this->assertStringNotContainsString( '+43 1 234', $json, 'privacy personal stays out' );
+		$this->assertStringNotContainsString( 'tok_live_123', $json, 'secrets stay out' );
+		$this->assertTrue( ConfigTransfer::is_contact( SettingsSchema::fields()['general']['brand_name'] ) );
+
+		// A file without contact data leaves the stored addresses alone.
+		update_option( Settings::OPTION, array( 'submissions' => array( 'notify_recipients' => array( 'other@example.test' ) ) ) );
+		$preview = ( new ConfigTransfer( new Settings() ) )->preview( $plain );
+		$this->assertSame( array( 'other@example.test' ), $preview['values']['submissions']['notify_recipients'] );
+
+		// The page offers the checkbox, unticked.
+		$this->login_with( Capabilities::MANAGE_SETTINGS );
+		$_GET = array( 'page' => SettingsPage::SLUG, 'tab' => 'advanced' );
+		ob_start();
+		( new SettingsPage( $this->plugin() ) )->render();
+		$html = (string) ob_get_clean();
+		$this->assertStringContainsString( 'name="with_contacts" value="1"', $html );
+		$this->assertStringNotContainsString( 'name="with_contacts" value="1" checked', $html );
+		$this->assertStringContainsString( 'Mit Kontaktangaben exportieren', $html );
 	}
 }

@@ -18,7 +18,7 @@ Anzahl: 58 Aufrufstellen, 56 Hooks.
 | `review_captain_embed_hosts` | filter | `list<string> $hosts` – Hosts | `src/Security/EmbedPolicy.php:48` |
 | `review_captain_form_max_items` | filter | `int $max` – Maximum | `src/Frontend/FormHandler.php:495` |
 | `review_captain_form_min_seconds` | filter | `int $value` – Seconds from the setting | `src/Frontend/FormHandler.php:508` |
-| `review_captain_installed` | action | `int $from` – Previous schema version<br>`int $to` – New schema version | `src/Install/Installer.php:115` |
+| `review_captain_installed` | action | `int $from` – Previous schema version<br>`int $to` – New schema version | `src/Install/Installer.php:117` |
 | `review_captain_instance_confirmed` | action | `bool $is_copy` – Copy | `src/Maintenance/Reconciler.php:230` |
 | `review_captain_loaded` | action | `Plugin $plugin` – Plugin instance | `src/Plugin.php:132` |
 | `review_captain_max_feedback_links` | filter | `int $max` – Maximum | `src/Feedback/CampaignStore.php:53` |
@@ -41,7 +41,7 @@ Anzahl: 58 Aufrufstellen, 56 Hooks.
 | `review_captain_report_reasons` | filter | `list<string> $reasons` – Reason codes | `src/Moderation/ReportStore.php:52` |
 | `review_captain_request_planner_v1` | filter | `RequestPlannerInterface\|null $planner` – Planner (null = none) | `src/Workflow/WorkflowService.php:380` |
 | `review_captain_request_planner_v1` | filter | `null` | `src/Workflow/WorkflowService.php:393` |
-| `review_captain_retention_audit_days` | filter | `int $days` – Days (setting privacy.retention_audit_days, default 365) | `src/Maintenance/Retention.php:63` |
+| `review_captain_retention_audit_days` | filter | `int $days` – Days (setting privacy.retention_audit_days, default 365) | `src/Maintenance/Retention.php:66` |
 | `review_captain_review_created_v1` | action | `self::payload( $review )` | `src/Events/Events.php:61` |
 | `review_captain_review_removed_v1` | action | `self::payload( $review, null, 'tombstoned' === $removal ? 'tombstoned' : 'deleted' )` | `src/Events/Events.php:81` |
 | `review_captain_review_status_changed_v1` | action | `self::payload( $review, $previous )` | `src/Events/Events.php:71` |
@@ -50,12 +50,12 @@ Anzahl: 58 Aufrufstellen, 56 Hooks.
 | `review_captain_schema_eligible` | filter | `bool $eligible` – Always true here<br>`Review $r` – Review<br>`array<string, mixed> $ctx` – Context | `src/Seo/SchemaEligibility.php:134` |
 | `review_captain_schema_min_reviews` | filter | `int $min` – Minimum from the setting | `src/Seo/SeoModule.php:143` |
 | `review_captain_schema_post_item_type` | filter | `$type`<br>`$r` | `src/Seo/SchemaBuilder.php:126` |
-| `review_captain_settings_cross_check` | filter | `list<array{fields: list<string>, message: string}> $out` – Failed checks<br>`string $tab` – Tab<br>`array<string, mixed> $values` – Tab values | `src/Settings/SettingsSchema.php:634` |
+| `review_captain_settings_cross_check` | filter | `list<array{fields: list<string>, message: string}> $out` – Failed checks<br>`string $tab` – Tab<br>`array<string, mixed> $values` – Tab values | `src/Settings/SettingsSchema.php:643` |
 | `review_captain_settings_hint_link` | filter | `string $link` – Default ''<br>`string $id` – Hint id | `src/Admin/SettingsHints.php:70` |
 | `review_captain_settings_hints` | filter | `list<array{id: string, tab: string, title: string, text: string, link: string}> $hints` – Hint lines | `src/Admin/SettingsHints.php:94` |
-| `review_captain_settings_schema` | filter | `array $core` – Schema | `src/Settings/SettingsSchema.php:352` |
+| `review_captain_settings_schema` | filter | `array $core` – Schema | `src/Settings/SettingsSchema.php:361` |
 | `review_captain_setup_checklist_detected` | filter | `array<string, bool> $detected` – Detected steps | `src/Admin/SetupChecklist.php:112` |
-| `review_captain_show_pro_info` | filter | `bool $show` – Default: setting general.show_pro_hints (on); the Pro add-on returns false | `src/Admin/DashboardPage.php:173` |
+| `review_captain_show_pro_info` | filter | `bool $show` – Default: setting general.show_pro_hints (on); the Pro add-on returns false | `src/Admin/DashboardPage.php:177` |
 | `review_captain_side_effect_free_job_prefixes` | filter | `self::SIDE_EFFECT_FREE_PREFIXES` | `src/Jobs/Runner.php:235` |
 | `review_captain_spam_checks_v1` | filter | `list<string> $reasons` – Reasons found so far (empty)<br>`array<string, mixed> $context` – Keys: form (review\|report\|question), provider (none\|pow), post (unslashed POST data) | `src/Security/PowCaptcha.php:218` |
 | `review_captain_submission_hold_reasons` | filter | `list<string> $reasons` – Reasons found by the settings<br>`Review $review` – Review (not yet stored) | `src/Frontend/FormHandler.php:422` |
