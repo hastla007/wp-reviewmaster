@@ -676,7 +676,7 @@ class Renderer {
 					'rc_context_id'   => $cid,
 					'rc_context_sig'  => FormHandler::sign_context( $type, $cid ),
 					'rc_return'       => self::current_url(),
-				) + $hidden,
+				) + $hidden + RequestResponse::hidden_field(),
 				'items'           => $items,
 				'photos'          => $photos,
 				'photo_max_kb'    => (int) $settings->get( 'submissions', 'photo_max_kb', 2048 ),

@@ -370,6 +370,7 @@ class FormHandler {
 		if ( $settings->get( 'submissions', 'notify_admin', true ) ) {
 			$this->notify_admin( $first );
 		}
+		RequestResponse::record( $this->plugin, $saved, $post ); // P2-10: review over an invitation link.
 		$out            = $success( $first, ReviewStatus::APPROVED === $first->status );
 		$out['reviews'] = $saved;
 		return $out;

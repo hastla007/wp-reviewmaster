@@ -133,7 +133,7 @@ msgstr ""
 msgid "nur 5 Sterne"
 msgstr ""
 
-#: blocks/reviews/editor.js:111 src/Admin/DashboardPage.php:123 src/Admin/WidgetsPage.php:181
+#: blocks/reviews/editor.js:111 src/Admin/DashboardPage.php:132 src/Admin/WidgetsPage.php:181
 msgid "Anzahl"
 msgstr ""
 
@@ -238,7 +238,7 @@ msgstr ""
 msgid "Einstellungen"
 msgstr ""
 
-#: src/Admin/AdminModule.php:108 src/Admin/DashboardPage.php:161 src/Admin/DiagnosticsPage.php:314
+#: src/Admin/AdminModule.php:108 src/Admin/DashboardPage.php:170 src/Admin/DiagnosticsPage.php:314
 msgid "Diagnose"
 msgstr ""
 
@@ -274,7 +274,7 @@ msgstr ""
 msgid "Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden."
 msgstr ""
 
-#: src/Admin/CorrectionsPage.php:72 src/Admin/DashboardPage.php:57 src/Admin/DiagnosticsPage.php:311 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:697 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144
+#: src/Admin/CorrectionsPage.php:72 src/Admin/DashboardPage.php:66 src/Admin/DiagnosticsPage.php:311 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:697 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144
 msgid "Dafür fehlt dir die Berechtigung."
 msgstr ""
 
@@ -306,39 +306,39 @@ msgstr ""
 msgid "Aktion"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:66 src/Admin/DashboardPage.php:78
+#: src/Admin/DashboardPage.php:75 src/Admin/DashboardPage.php:87
 msgid "Review hinzufügen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:85
+#: src/Admin/DashboardPage.php:94
 msgid "Warten auf Prüfung"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:85
+#: src/Admin/DashboardPage.php:94
 msgid "Jetzt prüfen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:85
+#: src/Admin/DashboardPage.php:94
 msgid "Alles erledigt"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:86
+#: src/Admin/DashboardPage.php:95
 msgid "Freigegeben (sichtbar)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:86 src/Admin/DashboardPage.php:144 src/Admin/ReviewsListTable.php:271
+#: src/Admin/DashboardPage.php:95 src/Admin/DashboardPage.php:153 src/Admin/ReviewsListTable.php:271
 msgid "Ansehen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:87
+#: src/Admin/DashboardPage.php:96
 msgid "Neu (30 Tage)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:87
+#: src/Admin/DashboardPage.php:96
 msgid "Zur Liste"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:144
+#: src/Admin/DashboardPage.php:153
 msgid "Prüfen"
 msgstr ""
 
@@ -358,79 +358,79 @@ msgstr ""
 msgid "Captain-Suite-Integrationen und Connectoren"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:70
+#: src/Admin/DashboardPage.php:79
 msgid "Kontaktadressen zu Bewertungen und Produktfragen werden unbegrenzt gespeichert. Lege im Reiter Datenschutz eine Aufbewahrungsfrist fest (neue Installationen: 365 Tage) und lass sie rechtlich prüfen."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:70 src/Privacy/PrivacyModule.php:80
+#: src/Admin/DashboardPage.php:79 src/Privacy/PrivacyModule.php:80
 msgid "Aufbewahrung einstellen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:76
+#: src/Admin/DashboardPage.php:85
 msgid "Noch keine Reviews"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:77
+#: src/Admin/DashboardPage.php:86
 msgid "Lege dein erstes Review an oder sammle Bewertungen mit einem Formular auf deiner Website."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:79
+#: src/Admin/DashboardPage.php:88
 msgid "Formular einbinden"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:117
+#: src/Admin/DashboardPage.php:126
 msgid "Bewertungen nach Quelle"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:120
+#: src/Admin/DashboardPage.php:129
 msgid "Noch keine freigegebenen Bewertungen."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:123
+#: src/Admin/DashboardPage.php:132
 msgid "Quelle"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:123
+#: src/Admin/DashboardPage.php:132
 msgid "Durchschnitt (Originalskala)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:128
+#: src/Admin/DashboardPage.php:137
 msgid "Werte je Quelle getrennt und nur aus gespeicherten, freigegebenen Einträgen. Es wird bewusst kein plattformübergreifender Gesamtschnitt gebildet."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:136
+#: src/Admin/DashboardPage.php:145
 msgid "Zuletzt eingegangen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:138 src/Admin/DiagnosticsPage.php:469 src/Admin/ReviewsPage.php:518
+#: src/Admin/DashboardPage.php:147 src/Admin/DiagnosticsPage.php:469 src/Admin/ReviewsPage.php:518
 msgid "Noch keine Einträge."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:147
+#: src/Admin/DashboardPage.php:156
 msgid "Zur Review-Liste"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:154
+#: src/Admin/DashboardPage.php:163
 msgid "Schnellaktionen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:156
+#: src/Admin/DashboardPage.php:165
 msgid "Profil-Link hinzufügen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:158 src/Admin/SetupChecklist.php:62
+#: src/Admin/DashboardPage.php:167 src/Admin/SetupChecklist.php:62
 msgid "Widget erstellen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:159
+#: src/Admin/DashboardPage.php:168
 msgid "Externe Bewertung übernehmen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:180
+#: src/Admin/DashboardPage.php:229
 msgid "In Review Captain Pro"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:190
+#: src/Admin/DashboardPage.php:234
 msgid "Alle Kernfunktionen bleiben ohne Pro vollständig nutzbar."
 msgstr ""
 
@@ -3509,104 +3509,104 @@ msgstr ""
 msgid "QR-Code für Feedback: %s"
 msgstr ""
 
-#: src/Frontend/FormHandler.php:629
+#: src/Frontend/FormHandler.php:630
 msgid "Danke! Ihre Bewertung ist jetzt sichtbar."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:630
+#: src/Frontend/FormHandler.php:631
 msgid "Danke! Ihre Bewertung wird nach Prüfung veröffentlicht."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:655 src/Frontend/Renderer.php:586
+#: src/Frontend/FormHandler.php:656 src/Frontend/Renderer.php:586
 msgid "Bewertungen können derzeit nicht abgegeben werden."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:656
+#: src/Frontend/FormHandler.php:657
 msgid "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und senden Sie das Formular erneut."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:657 src/Questions/QuestionHandler.php:172
+#: src/Frontend/FormHandler.php:658 src/Questions/QuestionHandler.php:172
 msgid "Das Formular wurde zu schnell abgeschickt. Bitte versuchen Sie es erneut."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:658 src/Questions/QuestionHandler.php:173
+#: src/Frontend/FormHandler.php:659 src/Questions/QuestionHandler.php:173
 msgid "Das Formular ist abgelaufen. Bitte laden Sie die Seite neu."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:659 src/Questions/QuestionHandler.php:174
+#: src/Frontend/FormHandler.php:660 src/Questions/QuestionHandler.php:174
 msgid "Das Formular ist ungültig. Bitte laden Sie die Seite neu."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:660
+#: src/Frontend/FormHandler.php:661
 msgid "Sie haben bereits mehrere Bewertungen gesendet. Bitte versuchen Sie es später erneut."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:661
+#: src/Frontend/FormHandler.php:662
 msgid "Bitte wählen Sie eine Bewertung von 1 bis 5 Sternen."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:662
+#: src/Frontend/FormHandler.php:663
 msgid "Der Titel ist zu lang (höchstens 150 Zeichen)."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:663
+#: src/Frontend/FormHandler.php:664
 msgid "Der Bewertungstext ist zu kurz."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:664
+#: src/Frontend/FormHandler.php:665
 msgid "Der Bewertungstext ist zu lang."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:665 src/Questions/QuestionHandler.php:178
+#: src/Frontend/FormHandler.php:666 src/Questions/QuestionHandler.php:178
 msgid "Bitte geben Sie Ihren Namen an (höchstens 100 Zeichen)."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:666
+#: src/Frontend/FormHandler.php:667
 msgid "Bitte geben Sie eine gültige E-Mail-Adresse an."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:667
+#: src/Frontend/FormHandler.php:668
 msgid "Mit dieser E-Mail-Adresse kann keine Bewertung abgegeben werden. Bitte verwenden Sie eine andere Adresse."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:668 src/Questions/QuestionHandler.php:180
+#: src/Frontend/FormHandler.php:669 src/Questions/QuestionHandler.php:180
 msgid "Bitte bestätigen Sie die Einwilligung zur Veröffentlichung."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:669
+#: src/Frontend/FormHandler.php:670
 msgid "Ihre Bewertung konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:670
+#: src/Frontend/FormHandler.php:671
 msgid "Sie haben dieses Produkt bereits bewertet."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:671
+#: src/Frontend/FormHandler.php:672
 msgid "Bitte bewerten Sie mindestens ein Produkt."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:672
+#: src/Frontend/FormHandler.php:673
 msgid "Bitte wählen Sie für jedes bewertete Produkt 1 bis 5 Sterne."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:673
+#: src/Frontend/FormHandler.php:674
 msgid "Der Text zu einem bewerteten Produkt ist zu kurz."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:674
+#: src/Frontend/FormHandler.php:675
 msgid "Der Text zu einem bewerteten Produkt ist zu lang."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:675
+#: src/Frontend/FormHandler.php:676
 msgid "Bewertungen können hier nur Kundinnen und Kunden mit bestätigtem Kauf abgeben. Bitte melden Sie sich mit Ihrem Kundenkonto an oder öffnen Sie den Link aus Ihrer Bewertungseinladung."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:676
+#: src/Frontend/FormHandler.php:677
 msgid "Für diese Bewertung liegt kein bestätigter Kauf vor. Bewertungen sind hier nur nach einem bestätigten Kauf oder über den Link aus einer Bewertungseinladung möglich."
 msgstr ""
 
 #. translators: %s: number of days
-#: src/Frontend/FormHandler.php:679
+#: src/Frontend/FormHandler.php:680
 msgid "Bewertungen sind hier nur bis %s Tag nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
 msgid_plural "Bewertungen sind hier nur bis %s Tage nach dem Kauf möglich. Ihr Kauf liegt länger zurück."
 msgstr[0] ""

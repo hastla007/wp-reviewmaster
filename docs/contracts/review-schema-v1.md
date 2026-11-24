@@ -71,6 +71,7 @@ Unbekannte Schlüssel werden beim Speichern verworfen. Alle Werte JSON-serialisi
 | `source_plugin`, `source_entry_id` | string | Herkunft bei `origin=connector` (z. B. `form-captain`) |
 | `idempotency_key` | string | Idempotenz bei `connector`/`local_submission` |
 | `tombstone` | object `{reason, at}` | siehe „Tombstone“ |
+| `request_uuid` | string | Anfrage von Review Captain Pro, über deren Einladungslink die lokale Bewertung abgegeben wurde (P2-10, Vertrag 1.2.0); personenbezogen (Export/Löschung) |
 | `testimonial` | object | nur `kind=testimonial`, siehe `testimonial-schema-v1.md` |
 | `moderation_note` | string | interne Notiz, nie öffentlich |
 

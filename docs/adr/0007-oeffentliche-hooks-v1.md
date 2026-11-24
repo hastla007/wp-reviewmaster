@@ -45,6 +45,9 @@ Interne Cron-Hooks (`review_captain_run_jobs`, `review_captain_daily_maintenance
 | `review_captain_pro_settings_writable` | filter | S | `src/Admin/SettingsPage.php` |
 | `review_captain_pro_field_writable` | filter | S | `src/Admin/SettingsPage.php` |
 | `review_captain_show_pro_info` | filter | S | `src/Admin/DashboardPage.php` |
+| `review_captain_pro_info_items` | filter | S | `src/Admin/DashboardPage.php` (P6-7, 24.11.2026) |
+| `review_captain_request_token_v1` | filter | V | `src/Frontend/RequestResponse.php` (P2-10, Vertrag 1.2.0) |
+| `review_captain_request_responded_v1` | action | V | `src/Frontend/RequestResponse.php` (P2-10, Vertrag 1.2.0) |
 | `review_captain_setup_checklist_detected` | filter | S | `src/Admin/SetupChecklist.php` |
 | `review_captain_purchase_proof` | filter | S | `src/Frontend/PurchaseGate.php` |
 | `review_captain_diagnostics_sections` | filter | S | `src/Admin/DiagnosticsPage.php` |

@@ -23,6 +23,15 @@ final class DashboardPage {
 	public const SLUG = 'review-captain';
 
 	/**
+	 * Ids of the lines of the dashboard box "In Review Captain Pro" (P6-7). The Pro add-on removes
+	 * the line of a function from the filter review_captain_pro_info_items while it is licensed.
+	 */
+	public const PRO_INFO_REQUESTS  = 'requests';
+	public const PRO_INFO_ANALYTICS = 'analytics';
+	public const PRO_INFO_PLATFORM  = 'platform_sync';
+	public const PRO_INFO_SUITE     = 'suite';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Plugin $plugin Plugin.
@@ -164,27 +173,62 @@ final class DashboardPage {
 	}
 
 	/**
+	 * Lines of the dashboard box "In Review Captain Pro" after the filter, validated: id => label,
+	 * known ids only, non-empty labels, core order.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function pro_info_items(): array {
+		$defaults = array(
+			self::PRO_INFO_REQUESTS  => __( 'Review-Anfragen nach echten Erlebnissen', 'review-captain' ),
+			self::PRO_INFO_ANALYTICS => __( 'Analytics je Quelle', 'review-captain' ),
+			self::PRO_INFO_PLATFORM  => __( 'Automatische Synchronisierung über offizielle Schnittstellen', 'review-captain' ),
+			self::PRO_INFO_SUITE     => __( 'Captain-Suite-Integrationen und Connectoren', 'review-captain' ),
+		);
+		/**
+		 * Lines of the dashboard box "In Review Captain Pro" (P6-7). The Pro add-on removes the
+		 * lines of licensed functions; the box disappears when no line is left. Only known ids
+		 * count; a label may be replaced by a non-empty text.
+		 *
+		 * @param array<string, string> $items Id (DashboardPage::PRO_INFO_*) => label.
+		 */
+		$items = apply_filters( 'review_captain_pro_info_items', $defaults );
+		if ( ! is_array( $items ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( array_keys( $defaults ) as $id ) {
+			$label = $items[ $id ] ?? null;
+			if ( is_string( $label ) && '' !== trim( $label ) ) {
+				$out[ $id ] = trim( $label );
+			}
+		}
+		return $out;
+	}
+
+	/**
 	 * Quiet, locked Pro info (no upsell wall, nothing clickable). Only while the setting
-	 * general.show_pro_hints is on (SET-RC-06); hidden once Pro registers itself.
+	 * general.show_pro_hints is on (SET-RC-06); lists only functions that are not licensed yet
+	 * (filter review_captain_pro_info_items, P6-7) and disappears when none is left.
 	 */
 	private function render_pro_info(): void {
 		/**
 		 * Whether to show the locked "In Review Captain Pro" info on the dashboard. The filter wins
 		 * over the setting.
 		 *
-		 * @param bool $show Default: setting general.show_pro_hints (on); the Pro add-on returns false.
+		 * @param bool $show Default: setting general.show_pro_hints (on); the Pro add-on returns
+		 *                   false once all listed functions are licensed.
 		 */
 		if ( ! apply_filters( 'review_captain_show_pro_info', SettingsHints::enabled( $this->plugin->settings() ) ) ) {
 			return;
 		}
+		$items = self::pro_info_items();
+		if ( ! $items ) {
+			return;
+		}
 		echo '<div class="postbox rc-admin-pro-card"><div class="postbox-header"><h2>' . esc_html__( 'In Review Captain Pro', 'review-captain' ) . '</h2></div><div class="inside">';
 		echo '<ul class="rc-admin-pro-list">';
-		foreach ( array(
-			__( 'Review-Anfragen nach echten Erlebnissen', 'review-captain' ),
-			__( 'Analytics je Quelle', 'review-captain' ),
-			__( 'Automatische Synchronisierung über offizielle Schnittstellen', 'review-captain' ),
-			__( 'Captain-Suite-Integrationen und Connectoren', 'review-captain' ),
-		) as $feature ) {
+		foreach ( $items as $feature ) {
 			echo '<li>' . View::pro_lock( $feature ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 		echo '</ul><p class="description">' . esc_html__( 'Alle Kernfunktionen bleiben ohne Pro vollständig nutzbar.', 'review-captain' ) . '</p></div></div>';
