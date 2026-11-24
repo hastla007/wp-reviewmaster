@@ -25,7 +25,7 @@ Ein Recht kommt erst in den Lizenzkatalog, wenn die zugehörige Funktion **gebau
 | `review.custom_connectors` | Pro-Manager, automatisierte Runtime und Queue-Diagnose für kundenspezifische Connectoren | Pro 1.1 | nein |
 | `review.social_proof` | **neu:** Testimonial-Studio (Bild/Video/Audio), Testimonial-Wall/Carousels, Trustmarks/Awards, Floating Badge | Pro 1.2 | nein |
 | `review.analytics` | erweiterte Reports, geplante Exporte, Analytics-Seite | Pro-Folge | nein |
-| `review.platform_replies` | Antworten über offizielle Plattform-APIs | nach MVP | nein |
+| `review.platform_replies` | Antworten auf **Plattform**-Bewertungen über offizielle Plattform-APIs (Name entschieden 24.11.2026, E4; nicht gebaut) | nach MVP | nein |
 
 ## Änderungen gegenüber dem Konzept
 
@@ -45,4 +45,5 @@ Ein Recht kommt erst in den Lizenzkatalog, wenn die zugehörige Funktion **gebau
 - **Alle sechs gebauten Rechte werden ab Pro 1.0 verkauft:** `review.platform_sync`, `review.review_requests`, `review.advanced_widgets`, `review.suite_integrations`, `review.custom_connectors`, `review.analytics`. Die Spalte „Ab Release“ oben ist für diese sechs damit überholt.
 - Kein eigenes Recht `review.social_proof`: Testimonial-Wand, Trust-Badge und Auszeichnungen bleiben unter `review.advanced_widgets` (frühere Entscheidung bestätigt).
 - `review.platform_replies` bleibt nach MVP.
+- **Entscheidung E4 (Inhaber, 24.11.2026):** Der Name `review.platform_replies` ist endgültig (vorher „vorgeschlagen, nicht entschieden“). Er gilt nur für Antworten auf Plattformbewertungen über deren Schnittstellen und ist **nicht gebaut** – kein Katalogeintrag, bis die Funktion gebaut und freigegeben ist (Regel oben, S5). Antworten auf **eigene** (lokale) Bewertungen sind kostenlos im Core (SET-RC-13: `reviews.reply_body`/`reply_at`, `display.show_replies`, `display.reply_label`); der Core kennt den Rechtenamen nicht (keine Rechteschlüssel im Code).
 - **Umsetzung in Pro (offen, Pro-Branch):** `hold` in `addons/review-captain-pro/wplc-catalog.php` für die sechs Rechte entfernen; Katalogeintrag in WP License Captain mit allen sechs Rechten (RC-058). Release erst nach Preisen (RC-004) und Go/No-Go (RC-142).

@@ -210,6 +210,20 @@ Strukturänderungen per dbDelta, Datenschritt `Migrator::steps()[2]` (idempotent
 
 Referentielle Integrität: `ReviewRepository::delete()`/`delete_if_status()` löschen über `purge_related()` Verlauf, Tags, Meldungen und Fotos (inkl. Datei). Verwaiste Zeilen (z. B. ein Moderationsschreibvorgang, der nach einem Löschen ankommt) meldet und entfernt die Reconciliation (`orphan_rows`, `fixed.orphans_removed`).
 
+### 2.9 Schema v5 (Migrationsschritt 5, Stand 2026-11-24)
+
+Entscheidungen der Inhaberin E4 und E7 vom 24.11.2026 (SET-RC-12, SET-RC-13). Strukturänderung per dbDelta, Datenschritt `Migrator::steps()[5]` (idempotent: `incentivised = 0` für Zeilen ohne Wert; nie geraten als `1`; Antworten werden nicht nachgetragen – Plattform-Antworten bleiben in `meta.reply`). Kein neuer Index, keine neue Tabelle, keine neue Option.
+
+**`reviews` – neue Spalten**
+
+| Spalte | Typ | Anmerkung |
+|---|---|---|
+| `incentivised` | `tinyint(1) NOT NULL DEFAULT 0` | „Gegen einen Vorteil erhalten“. Gesetzt von Moderierenden (Editor), Workflows/Kampagnen (`WorkflowService::create_draft()`, Filter `review_captain_submission_incentivised`) und CSV-Import (Spalte `incentivised`). `upsert_external()` verknüpft per ODER: ein Abgleich entfernt das Merkmal nie. Kein personenbezogenes Datum (bleibt bei der Anonymisierung). |
+| `reply_body` | `text NULL` | öffentliche Händlerantwort auf eine **eigene** Bewertung (nur `platform = local`, sonst `reply_on_external`). Zählt nie in Durchschnitte (`summary_by_platform()` liest nur `rating_value`). |
+| `reply_at` | `datetime NULL` | Datum der Antwort (UTC), nur mit `reply_body`. |
+
+Datenschutz und Aufbewahrung: Beide Antwortspalten erscheinen in der Datenauskunft („Antwort des Händlers“, „Antwort am (UTC)“) und im CSV-Export (`reply_body`, `reply_at`). Die Anonymisierung des Erasers leert sie (die Antwort kann die Person ansprechen), ebenso der Tombstone (`scrub_removed()`). Aufbewahrungsfristen (`Maintenance\Retention`) löschen ganze Zeilen; Antwort und Merkmal gehen mit der Bewertung, ohne eigene Frist. Deinstallation mit Datenlöschung droppt die Tabelle (§4.4) – nichts Zusätzliches.
+
 ### 2.7 Kandidaten für weitere Indizes (nicht Teil von v1)
 
 Nur nach Messung ([scaling.md](scaling.md)) und per ADR: `reviews (profile_id, status)`, `reviews (status, created_at)` für sortierte Adminlisten, FULLTEXT `(title, body)` für Suche. (`reviews (refresh_due_at)` und `reviews (profile_id)` sind bereits in Schema v1 enthalten.)

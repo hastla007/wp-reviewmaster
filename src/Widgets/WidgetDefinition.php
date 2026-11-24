@@ -194,7 +194,10 @@ final class WidgetDefinition {
 
 		if ( isset( $raw['min_rating'] ) && '' !== $raw['min_rating'] ) {
 			$mr = str_replace( ',', '.', $raw['min_rating'] );
-			if ( is_numeric( $mr ) && (float) $mr >= 1.0 && (float) $mr <= 5.0 ) {
+			if ( ! self::min_rating_allowed() ) {
+				// SET-RC-03: display.allow_min_rating off → the star filter is ignored everywhere.
+				$d->notices[] = 'min_rating_disabled';
+			} elseif ( is_numeric( $mr ) && (float) $mr >= 1.0 && (float) $mr <= 5.0 ) {
 				$d->min_rating = (float) $mr;
 			} else {
 				$d->notices[] = 'min_rating';
@@ -277,6 +280,28 @@ final class WidgetDefinition {
 			'heading_level' => max( 2, min( 6, (int) $values['heading_level'] ) ),
 			'new_tab'       => (bool) $values['new_tab'],
 		);
+	}
+
+	/**
+	 * Whether widgets may filter by minimum rating (SET-RC-03, owner decision E3): setting
+	 * display.allow_min_rating (default on), then the filter `review_captain_allow_min_rating` (wins).
+	 */
+	public static function min_rating_allowed(): bool {
+		$allowed = (bool) \ReviewCaptain\Plugin::instance()->settings()->get( 'display', 'allow_min_rating', true );
+		/**
+		 * Whether the widget attribute min_rating is honoured (false = ignored in shortcodes, blocks, Elementor).
+		 *
+		 * @param bool $allowed Value of display.allow_min_rating.
+		 */
+		return (bool) apply_filters( 'review_captain_allow_min_rating', $allowed );
+	}
+
+	/**
+	 * Whether this widget shows a filtered selection that must be disclosed (SET-RC-03):
+	 * a minimum rating above 1 star or a platform filter.
+	 */
+	public function is_filtered(): bool {
+		return ( null !== $this->min_rating && $this->min_rating > 1.0 ) || array() !== $this->platforms;
 	}
 
 	/**

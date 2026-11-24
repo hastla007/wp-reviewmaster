@@ -42,6 +42,7 @@ final class RetentionTest extends TestCase {
 	}
 
 	public function test_purges_according_to_settings(): void {
+		update_option( 'review_captain_settings_version', \ReviewCaptain\Settings\SettingsSchema::VERSION );
 		update_option(
 			'review_captain_settings',
 			array(

@@ -278,6 +278,10 @@ final class ReviewsPage {
 		echo '<tr><th scope="row">' . esc_html__( 'Verifizierung', 'review-captain' ) . '</th><td>';
 		echo esc_html( ReviewEditor::TYPE_EXTERNAL === $type ? __( 'Externe Plattformbewertung', 'review-captain' ) : __( 'Ungeprüft', 'review-captain' ) );
 		echo '<p class="description">' . esc_html__( '„Kauf verifiziert“ oder „Teilnahme bestätigt“ kann nur eine angebundene Quelle setzen, nicht manuell.', 'review-captain' ) . '</p></td></tr>';
+		$this->row_incentivised( ! empty( $draft['incentivised'] ) );
+		if ( ReviewEditor::TYPE_EXTERNAL !== $type ) {
+			$this->row_reply( (string) ( $draft['reply_body'] ?? '' ), (string) ( $draft['reply_at'] ?? '' ) );
+		}
 
 		$this->row_select(
 			'status',
@@ -362,6 +366,10 @@ final class ReviewsPage {
 			$this->row_text( 'language', __( 'Sprache', 'review-captain' ), $val( 'language', $review->language ) );
 		}
 		$this->row_context( $val( 'context_type', (string) $review->context_type ), $val( 'context_id', (string) $review->context_id ) );
+		$this->row_incentivised( '1' === $val( 'incentivised', $review->incentivised ? '1' : '0' ) );
+		if ( ! $external ) {
+			$this->row_reply( $val( 'reply_body', (string) $review->reply_body ), $val( 'reply_at', null !== $review->reply_at ? substr( $review->reply_at, 0, 10 ) : '' ) );
+		}
 		echo '</tbody></table>';
 		echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'review-captain' ) . '</button></p>';
 		echo '</form>';
@@ -604,6 +612,33 @@ final class ReviewsPage {
 		echo '</select> <label class="screen-reader-text" for="rc-context_id">' . esc_html__( 'Bezugs-ID', 'review-captain' ) . '</label>';
 		echo '<input type="text" id="rc-context_id" name="review[context_id]" class="regular-text" value="' . esc_attr( $id ) . '" placeholder="' . esc_attr__( 'ID, z. B. Beitrags- oder Produkt-ID', 'review-captain' ) . '" />';
 		echo '<p class="description">' . esc_html__( 'Optional: Ordnet den Eintrag einer Seite, einem Produkt oder einer Veranstaltung zu (für Widgets mit Filter).', 'review-captain' ) . '</p></td></tr>';
+	}
+
+	/**
+	 * Row: flag "received in exchange for a benefit" (SET-RC-12). The hidden 0 makes an unticked
+	 * box an explicit "no".
+	 *
+	 * @param bool $checked Current value.
+	 */
+	private function row_incentivised( bool $checked ): void {
+		echo '<tr><th scope="row">' . esc_html__( 'Gegen einen Vorteil erhalten', 'review-captain' ) . '</th><td>';
+		echo '<input type="hidden" name="review[incentivised]" value="0" />';
+		echo '<label for="rc-incentivised"><input type="checkbox" id="rc-incentivised" name="review[incentivised]" value="1"' . checked( $checked, true, false ) . ' /> ';
+		echo esc_html__( 'Die Person hat für diese Bewertung einen Vorteil erhalten (z. B. Gutschein, Rabatt, Gratisprodukt, Gewinnspiel).', 'review-captain' ) . '</label>';
+		echo '<p class="description">' . esc_html__( 'Die Bewertung zeigt dann immer ein Kennzeichen (Text unter Einstellungen → Darstellung) und erhält kein Bewertungs-Markup für Suchmaschinen.', 'review-captain' ) . '</p></td></tr>';
+	}
+
+	/**
+	 * Rows: merchant reply and its date (SET-RC-13, own reviews only).
+	 *
+	 * @param string $body Reply text.
+	 * @param string $date Y-m-d or ''.
+	 */
+	private function row_reply( string $body, string $date ): void {
+		echo '<tr><th scope="row"><label for="rc-reply_body">' . esc_html__( 'Deine Antwort', 'review-captain' ) . '</label></th><td>';
+		echo '<textarea id="rc-reply_body" name="review[reply_body]" rows="4" class="large-text" maxlength="' . esc_attr( (string) ReviewEditor::REPLY_MAX_LENGTH ) . '" aria-describedby="rc-reply-help">' . esc_textarea( $body ) . '</textarea>';
+		echo '<p class="description" id="rc-reply-help">' . esc_html__( 'Öffentliche Antwort, erscheint unter der Bewertung. Leer = keine Antwort. Die Antwort ändert die Bewertung und Durchschnitte nicht.', 'review-captain' ) . '</p></td></tr>';
+		$this->row_date( 'reply_at', __( 'Datum der Antwort', 'review-captain' ), $date );
 	}
 
 	/**

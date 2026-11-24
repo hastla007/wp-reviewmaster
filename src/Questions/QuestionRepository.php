@@ -240,4 +240,37 @@ class QuestionRepository {
 			array( 'id' => $id )
 		);
 	}
+
+	/**
+	 * Retention (P4-6): remove the e-mail address of questions asked before $cutoff; the question,
+	 * its answer and the name stay. updated_at is left alone so the deletion of rejected
+	 * questions keeps its own deadline.
+	 *
+	 * @param string $cutoff UTC datetime.
+	 * @param int    $limit  Batch size.
+	 * @return int Questions changed.
+	 */
+	public function remove_contact_before( string $cutoff, int $limit ): int {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$this->table()} WHERE author_email IS NOT NULL AND author_email <> '' AND created_at < %s ORDER BY id ASC LIMIT %d", $cutoff, max( 1, $limit ) ) );
+		$ids = is_array( $ids ) ? array_map( 'intval', $ids ) : array();
+		if ( ! $ids ) {
+			return 0;
+		}
+		$in = implode( ',', $ids );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- integer list.
+		return max( 0, (int) $wpdb->query( "UPDATE {$this->table()} SET author_email = NULL WHERE id IN ({$in}) AND author_email IS NOT NULL" ) );
+	}
+
+	/**
+	 * Preview for the privacy tab (P4-6): questions with an e-mail address asked before $cutoff.
+	 *
+	 * @param string $cutoff UTC datetime.
+	 */
+	public function count_contact_before( string $cutoff ): int {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$this->table()} WHERE author_email IS NOT NULL AND author_email <> '' AND created_at < %s", $cutoff ) );
+	}
 }

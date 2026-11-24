@@ -50,6 +50,9 @@ final class PublicTexts {
 			'display.label_unverified'           => __( 'Ungeprüft', 'review-captain' ),
 			'display.label_external'             => __( 'Externe Plattformbewertung', 'review-captain' ),
 			'display.label_testimonial'          => __( 'Erfahrungsbericht dieser Website', 'review-captain' ),
+			'display.label_incentivised'         => __( 'Für diese Bewertung wurde ein Vorteil gewährt', 'review-captain' ),
+			/* translators: {brand} is a placeholder for the brand or site name and must stay as is. */
+			'display.reply_label'                => __( 'Antwort von {brand}', 'review-captain' ),
 		);
 	}
 
@@ -99,6 +102,31 @@ final class PublicTexts {
 	 */
 	public static function level_label( Settings $settings, string $level ): string {
 		return self::get( $settings, 'display', self::label_key( $level ) );
+	}
+
+	/**
+	 * Label "received in exchange for a benefit" (SET-RC-12). Never empty: a stored or filtered
+	 * empty text falls back to the translated default, because the label cannot be hidden.
+	 *
+	 * @param Settings $settings Settings.
+	 */
+	public static function incentivised_label( Settings $settings ): string {
+		$text = trim( self::get( $settings, 'display', 'label_incentivised' ) );
+		return '' !== $text ? $text : self::defaults()['display.label_incentivised'];
+	}
+
+	/**
+	 * Heading of a merchant reply (SET-RC-13): `display.reply_label` with {brand} replaced by
+	 * the brand name (general.brand_name, else the site title). Plain text.
+	 *
+	 * @param Settings $settings Settings.
+	 */
+	public static function reply_label( Settings $settings ): string {
+		$text = trim( self::get( $settings, 'display', 'reply_label' ) );
+		if ( '' === $text ) {
+			$text = self::defaults()['display.reply_label'];
+		}
+		return str_replace( '{brand}', self::brand_name( $settings ), $text );
 	}
 
 	/**

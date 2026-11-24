@@ -181,6 +181,46 @@ final class PagesTest extends AdminTestCase {
 		$this->assertStringNotContainsString( 'In Review Captain Pro', (string) ob_get_clean() );
 	}
 
+	public function test_pro_info_lists_only_functions_not_yet_licensed(): void {
+		$this->login_with( Capabilities::MODERATE );
+		$render = function (): string {
+			ob_start();
+			( new DashboardPage( $this->plugin() ) )->render();
+			return (string) ob_get_clean();
+		};
+		$html = $render();
+		$this->assertStringContainsString( 'In Review Captain Pro', $html );
+		$this->assertStringContainsString( 'Analytics je Quelle', $html );
+		$this->assertStringContainsString( 'Review-Anfragen nach echten Erlebnissen', $html );
+
+		// Pro removes the line of a licensed function (P6-7); unknown ids and empty labels are ignored.
+		add_filter(
+			'review_captain_pro_info_items',
+			static function ( $items ) {
+				unset( $items[ DashboardPage::PRO_INFO_ANALYTICS ] );
+				$items[ DashboardPage::PRO_INFO_SUITE ] = ' ';
+				$items['evil']                          = '<b>Werbung</b>';
+				return $items;
+			}
+		);
+		$this->assertSame( array( DashboardPage::PRO_INFO_REQUESTS, DashboardPage::PRO_INFO_PLATFORM ), array_keys( DashboardPage::pro_info_items() ) );
+		$html = $render();
+		$this->assertStringContainsString( 'In Review Captain Pro', $html );
+		$this->assertStringNotContainsString( 'Analytics je Quelle', $html );
+		$this->assertStringNotContainsString( 'Werbung', $html );
+		$this->assertStringContainsString( 'Review-Anfragen nach echten Erlebnissen', $html );
+
+		// All functions licensed: the box disappears.
+		add_filter(
+			'review_captain_pro_info_items',
+			static function (): array {
+				return array();
+			},
+			20
+		);
+		$this->assertStringNotContainsString( 'In Review Captain Pro', $render() );
+	}
+
 	public function test_widget_shortcode_builder(): void {
 		$this->assertSame( '[review_captain v="1"]', WidgetsPage::build_shortcode( array() ) );
 		$this->assertSame(

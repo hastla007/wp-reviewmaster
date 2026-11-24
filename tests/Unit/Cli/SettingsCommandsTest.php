@@ -130,7 +130,7 @@ final class SettingsCommandsTest extends TestCase {
 
 		$rows = $this->db->get_results( $this->db->prepare( 'SELECT context FROM ' . Schema::table( 'audit_log' ) . ' WHERE event = %s ORDER BY id ASC', 'settings.changed' ), ARRAY_A );
 		$ctx  = json_decode( $rows[0]['context'], true );
-		$this->assertSame( array( array( 'field' => 'general.brand_name', 'from' => '', 'to' => 'Laden' ) ), $ctx['changes'] );
+		$this->assertSame( array( array( 'field' => 'general.brand_name', 'from' => '', 'to' => '[verborgen]' ) ), $ctx['changes'] );
 	}
 
 	public function test_set_roles_and_confirmation_word(): void {
@@ -254,5 +254,43 @@ final class SettingsCommandsTest extends TestCase {
 		$this->assertSame( ConfigTransfer::SCHEMA, $json['schema'] );
 		$this->assertArrayNotHasKey( 'delete_data_confirmed_at', $json['settings']['privacy'] );
 		$this->assertArrayNotHasKey( 'delete_data_on_uninstall', $json['settings']['privacy'] );
+	}
+
+	public function test_export_with_contacts_only_on_request(): void {
+		// P1-8: contact data of the operator (privacy 'config', also add-on fields) only with --with-contacts.
+		ProRequestsFields::register();
+		update_option(
+			Settings::OPTION,
+			array(
+				'general'     => array( 'brand_name' => 'Erika Muster' ),
+				'submissions' => array( 'notify_recipients' => array( 'mod@example.test' ) ),
+				'requests'    => array( 'sender_email' => 'shop@example.test', 'sender_name' => 'Erika', 'daily_limit' => 77 ),
+			)
+		);
+		$c = $this->commands();
+		$c->settings_export( array(), array() );
+		$plain = (string) $this->out->lines[0][1];
+		$json  = json_decode( $plain, true );
+		$this->assertFalse( $json['with_contacts'] );
+		$this->assertArrayNotHasKey( 'brand_name', $json['settings']['general'] );
+		$this->assertArrayNotHasKey( 'notify_recipients', $json['settings']['submissions'] );
+		$this->assertArrayNotHasKey( 'sender_email', $json['settings']['requests'] );
+		$this->assertArrayNotHasKey( 'sender_name', $json['settings']['requests'] );
+		$this->assertSame( 77, $json['settings']['requests']['daily_limit'] );
+		foreach ( array( 'Erika', 'mod@example.test', 'shop@example.test' ) as $needle ) {
+			$this->assertStringNotContainsString( $needle, $plain );
+		}
+
+		$file = $this->temp_file();
+		$doc  = $c->settings_export( array(), array( 'file' => $file, 'with-contacts' => true ) );
+		$json = json_decode( (string) file_get_contents( $file ), true );
+		$this->assertTrue( $json['with_contacts'] );
+		$this->assertSame( 'Erika Muster', $json['settings']['general']['brand_name'] );
+		$this->assertSame( array( 'mod@example.test' ), $json['settings']['submissions']['notify_recipients'] );
+		$this->assertSame( 'shop@example.test', $doc['settings']['requests']['sender_email'] );
+		$this->assertArrayNotHasKey( 'delete_data_on_uninstall', $json['settings']['privacy'], 'switch and secrets never' );
+
+		$defs = \ReviewCaptain\Cli\CliModule::definitions();
+		$this->assertContains( 'with-contacts', array_column( $defs['settings export']['synopsis'], 'name' ) );
 	}
 }

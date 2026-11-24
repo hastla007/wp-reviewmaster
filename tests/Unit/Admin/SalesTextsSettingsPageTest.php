@@ -96,7 +96,8 @@ final class SalesTextsSettingsPageTest extends AdminTestCase {
 			)
 		);
 		$transfer = new ConfigTransfer( new Settings() );
-		$doc      = $transfer->export();
+		$this->assertArrayNotHasKey( 'notify_recipients', $transfer->export()['settings']['submissions'], 'contact data only on request (P1-8)' );
+		$doc = $transfer->export( true );
 		$this->assertSame( 'So prüfen wir.', $doc['settings']['display']['verification_notice'] );
 		$this->assertSame( array( 'mod@example.test' ), $doc['settings']['submissions']['notify_recipients'] );
 

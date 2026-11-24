@@ -12,6 +12,10 @@ Status: Entwurf zur Abnahme, Stand 2026-11-23 (Hinweiszeilen nach Entscheidung S
 6. **Kein Core-Feld wird durch Lizenzstatus verändert, geleert oder gesperrt.** Nichts, was heute frei ist, wandert hinter Pro.
 7. Add-on-Felder bleiben bei Lizenzablauf, Deaktivierung oder Deinstallation von Pro **gespeichert** und unverändert; sie werden nur nicht angewendet und nicht angezeigt. Reaktivierung stellt den letzten Stand her.
 
+### Kasten „In Review Captain Pro“ der Übersicht (P6-7, Entscheidung der Inhaberin 24.11.2026)
+
+Der Kasten nennt nur die Pro-Funktionen, die noch **nicht** lizenziert sind, und verschwindet erst, wenn alle genannten aktiv sind. Zeilen mit festen Kennungen (`DashboardPage::PRO_INFO_*`): `requests` (Review-Anfragen), `analytics` (Auswertungen), `platform_sync` (Synchronisierung), `suite` (Suite-Integrationen und Connectoren). Filter `review_captain_pro_info_items` (`id => Text`); Pro entfernt die Zeilen lizenzierter Funktionen (`suite` erst, wenn Suite-Integrationen **und** eigene Connectoren aktiv sind). Ohne Zeile kein Kasten. `review_captain_show_pro_info` bleibt und hat Vorrang (Pro antwortet `false` erst, wenn alle Funktionen aktiv sind; so verhalten sich auch Kerne vor Vertrag 1.2.0 richtig). Der Schalter `general.show_pro_hints` blendet den Kasten wie bisher ganz aus.
+
 ### Datenformat der Hinweiszeilen (gemeinsamer Suite-Vertrag, vorläufig)
 
 `{id, tab, title, text, link}` – `id` aus `[a-z0-9_.-]`, eindeutig, nie ein Lizenzschlüssel; `tab` ein bestehender Tab; `title` und `text` nicht leer; `link` leer oder `http(s)`. Quelle: `Admin\SettingsHints`, Filter `review_captain_settings_hints` (ganze Liste) und `review_captain_settings_hint_link` (Link einer Core-Zeile, Standard leer). Vorläufig, bis die Lizenz-Sitzung den Kernel-Vertrag veröffentlicht.
@@ -49,6 +53,7 @@ Die Kennungen und Tabs der Tabelle sind Vertrag mit Review Captain Pro (`CoreBri
 | requests | Testempfänger, Bounce-/Beschwerdeverhalten, Versandweg (SMTP/Dienst) | `review.review_requests` |
 | privacy | Aufbewahrung Einladungs-/Empfängerdaten, Medien-Testimonials | `review.review_requests` / OFFEN (Testimonials-Entitlement nicht im Katalogvorschlag) |
 | sources | Standard-Sync-Intervall neuer Profile | `review.platform_sync` |
+| display/Editor | Antworten auf Plattformbewertungen über deren Schnittstellen (nicht gebaut; Antworten auf eigene Bewertungen sind Core: `display.show_replies`, `display.reply_label`, SET-RC-13) | `review.platform_replies` (entschieden 24.11.2026, E4) |
 | display | Pro-Layoutvoreinstellungen | `review.advanced_widgets` |
 | advanced | Connector-Queue-Diagnose | `review.custom_connectors` |
 

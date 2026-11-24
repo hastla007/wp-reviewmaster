@@ -53,12 +53,14 @@ Einstellungen
 │   ├─ Benachrichtigung ..... notify_admin
 │   ├─ Moderationsregeln .... hold_words, hold_links, block_email_domains, ▸ min_seconds
 │   ├─ Schutz vor Missbrauch  ▸ honeypot, captcha_provider, ▸ rate_limit_per_hour, ▸ trusted_proxy_header
+│   ├─ Nur bestätigte Käufer  require_purchase, purchase_max_age_days
 │   ├─ Korrekturen .......... corrections_enabled, ▸ correction_link_hours
 │   └─ Erweiterte Funktionen  tags/reports/photos (▸ photo_max_edge)/multi_product/qa/feedback
 ├─ 5 Darstellung (display)
 │   ├─ Inhalte .............. show_stars, show_date, date_style, show_author, show_avatar
 │   ├─ Bewertung und Farben . rating_display, decimal_places, star_color, accent_color
 │   ├─ Widget-Vorgaben ...... widget_limit, widget_layout, widget_columns, widget_heading_level, widget_new_tab
+│   ├─ Gefilterte Anzeige ... allow_min_rating, filter_notice  (im Abschnitt „Prüfung & Transparenz“)
 │   ├─ Strukturierte Daten .. schema_enabled, schema_contexts, schema_min_reviews
 │   ├─ Leerer Zustand ....... empty_text
 │   ├─ Barrierefreiheit ..... reduced_motion

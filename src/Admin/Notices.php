@@ -105,6 +105,8 @@ final class Notices {
 			'invalid_context_type'         => __( 'Kontext ungültig', 'review-captain' ),
 			'testimonial_must_be_local'    => __( 'Erfahrungsberichte sind immer Website-eigen', 'review-captain' ),
 			'external_verification_on_local' => __( 'Verifizierung passt nicht zur Quelle', 'review-captain' ),
+			'reply_on_external'            => __( 'Antworten auf Plattformbewertungen sind hier nicht möglich', 'review-captain' ),
+			'reply_too_long'               => __( 'Antwort ist zu lang (höchstens 5000 Zeichen)', 'review-captain' ),
 			'missing_label'                => __( 'Bezeichnung fehlt', 'review-captain' ),
 			'invalid_platform'             => __( 'Plattform ungültig', 'review-captain' ),
 			'profile_url_not_https'        => __( 'Profil-URL muss mit https:// beginnen', 'review-captain' ),

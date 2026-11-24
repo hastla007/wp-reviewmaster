@@ -78,15 +78,15 @@ Diese Werte gibt es noch nicht; ein Profil muss sie setzen, sobald sie gebaut si
 
 | Aufgabe | Wert | Vorschlag für alle Profile | Wartet auf |
 |---|---|---|---|
-| SET-RC-03 | `display.allow_min_rating`, `display.filter_notice` | Filter an, Hinweis `''` (Standardtext) | Inhaberin E3, Rechtsprüfung |
+| SET-RC-03 | `display.allow_min_rating`, `display.filter_notice` (gebaut 24.11.2026) | Filter an, Hinweis `''` (Standardtext) | Rechtsprüfung (E3 entschieden) |
 | SET-RC-12 | `display.label_incentivised` (immer sichtbar, wenn gesetzt) | `''` (Standardtext) | Inhaberin E7, Rechtsprüfung |
 | SET-RC-11 | `submissions.captcha_provider` | `pow` (lokal, ohne Dritte) | Form-Sitzung, Rechtsprüfung |
-| SET-RC-32 | `submissions.require_purchase` | `false` | Inhaberin E6 |
+| SET-RC-32 | `submissions.require_purchase`, `purchase_max_age_days` (gebaut 24.11.2026) | `false`, `0` | – (E6 entschieden) |
 
 ## Fragen an die Rechtsprüfung (gesammelt)
 
 1. Transparenz (DE/AT/EU, CH gesondert): Reichen Hinweis „So prüfen wir Bewertungen“, Stufenbezeichnungen und Position? Gilt die Pflicht auch für Pro-Abzeichen, Plattform-Leiste und schwebendes Abzeichen, die nur Durchschnitt und Anzahl zeigen?
-2. Gefilterte Anzeige (`min_rating`): Ist der Filter zulässig, und welcher Hinweis ist nötig? (Der Durchschnitt wird seit P3 immer über alle freigegebenen Bewertungen gerechnet.)
+2. Gefilterte Anzeige (`min_rating`): Ist der Filter zulässig, und genügt der Hinweis `display.filter_notice` („Es werden nur Bewertungen ab X Sternen angezeigt“, seit 24.11.2026)? (Der Durchschnitt wird seit P3 immer über alle freigegebenen Bewertungen gerechnet.)
 3. Vorteile für Bewertungen: Kennzeichnung „gegen Vorteil erhalten“ (E7); Suite-Plugins dürfen Vorteile nie von der Höhe der Bewertung abhängig machen (`docs/contracts/README.md`, Verwendungsregel `rating_value`).
 4. Einwilligung zur Veröffentlichung: Wortlaut je Land, Nachweis (Zeitpunkt + Fassung des Textes, seit P3), Aufbewahrung des Textarchivs.
 5. Einladungs-E-Mails: Rechtsgrundlage je Land, Pflichtangaben, Erinnerung, Abmeldung (Ein-Klick-Abmeldung per `List-Unsubscribe-Post` vorhanden).
