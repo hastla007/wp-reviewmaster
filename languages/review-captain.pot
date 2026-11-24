@@ -133,7 +133,7 @@ msgstr ""
 msgid "nur 5 Sterne"
 msgstr ""
 
-#: blocks/reviews/editor.js:111 src/Admin/DashboardPage.php:119 src/Admin/WidgetsPage.php:181
+#: blocks/reviews/editor.js:111 src/Admin/DashboardPage.php:128 src/Admin/WidgetsPage.php:181
 msgid "Anzahl"
 msgstr ""
 
@@ -234,11 +234,11 @@ msgstr ""
 msgid "Quellen & Profile"
 msgstr ""
 
-#: src/Admin/AdminModule.php:107 src/Admin/DiagnosticsPage.php:461 src/Admin/SettingsPage.php:668
+#: src/Admin/AdminModule.php:107 src/Admin/DiagnosticsPage.php:461 src/Admin/SettingsPage.php:701
 msgid "Einstellungen"
 msgstr ""
 
-#: src/Admin/AdminModule.php:108 src/Admin/DashboardPage.php:157 src/Admin/DiagnosticsPage.php:314
+#: src/Admin/AdminModule.php:108 src/Admin/DashboardPage.php:166 src/Admin/DiagnosticsPage.php:314
 msgid "Diagnose"
 msgstr ""
 
@@ -274,7 +274,7 @@ msgstr ""
 msgid "Die Bewertung wurde inzwischen geändert oder die Korrektur ist nicht mehr offen. Bitte neu laden."
 msgstr ""
 
-#: src/Admin/CorrectionsPage.php:72 src/Admin/DashboardPage.php:57 src/Admin/DiagnosticsPage.php:311 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:654 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144
+#: src/Admin/CorrectionsPage.php:72 src/Admin/DashboardPage.php:66 src/Admin/DiagnosticsPage.php:311 src/Admin/FeedbackPage.php:36 src/Admin/QuestionsPage.php:59 src/Admin/ReviewsPage.php:42 src/Admin/SettingsPage.php:687 src/Admin/SourcesPage.php:36 src/Admin/WidgetsPage.php:139 src/ImportExport/ImportExportModule.php:144
 msgid "Dafür fehlt dir die Berechtigung."
 msgstr ""
 
@@ -294,11 +294,11 @@ msgstr ""
 msgid "Keine offenen Korrekturen."
 msgstr ""
 
-#: src/Admin/CorrectionsPage.php:81 src/Admin/SettingsPage.php:1126
+#: src/Admin/CorrectionsPage.php:81 src/Admin/SettingsPage.php:1160
 msgid "Bisher"
 msgstr ""
 
-#: src/Admin/CorrectionsPage.php:81 src/Admin/SettingsPage.php:1126
+#: src/Admin/CorrectionsPage.php:81 src/Admin/SettingsPage.php:1160
 msgid "Neu"
 msgstr ""
 
@@ -306,39 +306,39 @@ msgstr ""
 msgid "Aktion"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:66 src/Admin/DashboardPage.php:74
+#: src/Admin/DashboardPage.php:75 src/Admin/DashboardPage.php:83
 msgid "Review hinzufügen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:81
+#: src/Admin/DashboardPage.php:90
 msgid "Warten auf Prüfung"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:81
+#: src/Admin/DashboardPage.php:90
 msgid "Jetzt prüfen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:81
+#: src/Admin/DashboardPage.php:90
 msgid "Alles erledigt"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:82
+#: src/Admin/DashboardPage.php:91
 msgid "Freigegeben (sichtbar)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:82 src/Admin/DashboardPage.php:140 src/Admin/ReviewsListTable.php:271
+#: src/Admin/DashboardPage.php:91 src/Admin/DashboardPage.php:149 src/Admin/ReviewsListTable.php:271
 msgid "Ansehen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:83
+#: src/Admin/DashboardPage.php:92
 msgid "Neu (30 Tage)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:83
+#: src/Admin/DashboardPage.php:92
 msgid "Zur Liste"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:140
+#: src/Admin/DashboardPage.php:149
 msgid "Prüfen"
 msgstr ""
 
@@ -358,71 +358,71 @@ msgstr ""
 msgid "Captain-Suite-Integrationen und Connectoren"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:72
+#: src/Admin/DashboardPage.php:81
 msgid "Noch keine Reviews"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:73
+#: src/Admin/DashboardPage.php:82
 msgid "Lege dein erstes Review an oder sammle Bewertungen mit einem Formular auf deiner Website."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:75
+#: src/Admin/DashboardPage.php:84
 msgid "Formular einbinden"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:113
+#: src/Admin/DashboardPage.php:122
 msgid "Bewertungen nach Quelle"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:116
+#: src/Admin/DashboardPage.php:125
 msgid "Noch keine freigegebenen Bewertungen."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:119
+#: src/Admin/DashboardPage.php:128
 msgid "Quelle"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:119
+#: src/Admin/DashboardPage.php:128
 msgid "Durchschnitt (Originalskala)"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:124
+#: src/Admin/DashboardPage.php:133
 msgid "Werte je Quelle getrennt und nur aus gespeicherten, freigegebenen Einträgen. Es wird bewusst kein plattformübergreifender Gesamtschnitt gebildet."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:132
+#: src/Admin/DashboardPage.php:141
 msgid "Zuletzt eingegangen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:134 src/Admin/DiagnosticsPage.php:469 src/Admin/ReviewsPage.php:510
+#: src/Admin/DashboardPage.php:143 src/Admin/DiagnosticsPage.php:469 src/Admin/ReviewsPage.php:510
 msgid "Noch keine Einträge."
 msgstr ""
 
-#: src/Admin/DashboardPage.php:143
+#: src/Admin/DashboardPage.php:152
 msgid "Zur Review-Liste"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:150
+#: src/Admin/DashboardPage.php:159
 msgid "Schnellaktionen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:152
+#: src/Admin/DashboardPage.php:161
 msgid "Profil-Link hinzufügen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:154 src/Admin/SetupChecklist.php:62
+#: src/Admin/DashboardPage.php:163 src/Admin/SetupChecklist.php:62
 msgid "Widget erstellen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:155
+#: src/Admin/DashboardPage.php:164
 msgid "Externe Bewertung übernehmen"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:176
+#: src/Admin/DashboardPage.php:225
 msgid "In Review Captain Pro"
 msgstr ""
 
-#: src/Admin/DashboardPage.php:186
+#: src/Admin/DashboardPage.php:230
 msgid "Alle Kernfunktionen bleiben ohne Pro vollständig nutzbar."
 msgstr ""
 
@@ -546,7 +546,7 @@ msgstr ""
 msgid "Ereignis"
 msgstr ""
 
-#: src/Admin/DiagnosticsPage.php:442 src/Admin/SettingsPage.php:1126
+#: src/Admin/DiagnosticsPage.php:442 src/Admin/SettingsPage.php:1160
 msgid "Bereich"
 msgstr ""
 
@@ -662,7 +662,7 @@ msgstr ""
 msgid "Einstellungen gespeichert."
 msgstr ""
 
-#: src/Admin/Notices.php:49 src/Admin/SettingsPage.php:805
+#: src/Admin/Notices.php:49 src/Admin/SettingsPage.php:838
 msgid "Einige Werte wurden nicht gespeichert, weil sie ungültig sind. Alle anderen Änderungen sind gespeichert. Bitte prüfe:"
 msgstr ""
 
@@ -1034,7 +1034,7 @@ msgstr ""
 msgid "Quelle öffnen"
 msgstr ""
 
-#: src/Admin/ReviewsListTable.php:293 src/Admin/SourcesPage.php:103 src/Security/EmbedPolicy.php:94 templates/cta.php:16 templates/review-card.php:65
+#: src/Admin/ReviewsListTable.php:293 src/Admin/SourcesPage.php:103 src/Security/EmbedPolicy.php:96 templates/cta.php:16 templates/review-card.php:65
 msgid "(öffnet in neuem Tab)"
 msgstr ""
 
@@ -1290,7 +1290,7 @@ msgstr ""
 msgid "Original-Link"
 msgstr ""
 
-#: src/Admin/ReviewsPage.php:366 src/Admin/SettingsPage.php:750
+#: src/Admin/ReviewsPage.php:366 src/Admin/SettingsPage.php:783
 msgid "Änderungen speichern"
 msgstr ""
 
@@ -2278,7 +2278,7 @@ msgstr ""
 msgid "Deinstallation"
 msgstr ""
 
-#: src/Admin/SettingsFields.php:190 src/Admin/SettingsPage.php:824 src/Admin/SettingsPage.php:826
+#: src/Admin/SettingsFields.php:190 src/Admin/SettingsPage.php:857 src/Admin/SettingsPage.php:859
 msgid "Rechte je Rolle"
 msgstr ""
 
@@ -2446,209 +2446,209 @@ msgstr ""
 msgid "Weitere Funktionen in Review Captain Pro"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:686
+#: src/Admin/SettingsPage.php:719
 msgid "Rollen kann nur ändern, wer selbst Benutzerrollen vergeben darf."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:686
+#: src/Admin/SettingsPage.php:719
 msgid "Diese Einstellungen darf nur ändern, wer das Recht „Datenschutz verwalten“ hat."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:734
+#: src/Admin/SettingsPage.php:767
 msgid "Weitere Optionen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:848 src/Cli/Commands.php:495
+#: src/Admin/SettingsPage.php:881 src/Cli/Commands.php:495
 msgid "%1$s: %2$s"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:878
+#: src/Admin/SettingsPage.php:911
 msgid "Immer gilt: höchstens eine Einladung je tatsächlichem Erlebnis und Empfänger, kein Versand ohne bekannte Versanderlaubnis, Abmeldungen sperren jede weitere Einladung, keine Filterung nach Zufriedenheit."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:881
+#: src/Admin/SettingsPage.php:914
 msgid "Diese Werte wirken erst, wenn eine Quelle automatisch abgeglichen wird (Review Captain Pro oder ein Connector). Profile und Links verwaltest du unter „Quellen & Profile“."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:884
+#: src/Admin/SettingsPage.php:917
 msgid "Voreinstellung für neue Widgets. Die Quellenangabe externer Bewertungen wird immer angezeigt und lässt sich nicht abschalten."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:887
+#: src/Admin/SettingsPage.php:920
 msgid "Die Einwilligung zur Veröffentlichung wird nicht abgefragt. Stelle die Rechtsgrundlage anders sicher."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:890
+#: src/Admin/SettingsPage.php:923
 msgid "WP-Cron ist deaktiviert. Richte einen Server-Cron ein, z. B. „wp cron event run --due-now“ alle 5 Minuten."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:907
+#: src/Admin/SettingsPage.php:940
 msgid "Multisite: Diese Einstellungen gelten nur für diese Website. Jede Website des Netzwerks hat eigene Einstellungen, Rollen und Daten; Netzwerkadministratoren ändern sie je Website."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1018
+#: src/Admin/SettingsPage.php:1052
 msgid "Von einer Erweiterung verwaltet; derzeit nicht änderbar."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1077
+#: src/Admin/SettingsPage.php:1111
 msgid "Bestätigt am %s. Beim Löschen des Plugins werden alle Review-Captain-Daten dieser Website entfernt."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1124 src/Cli/Commands.php:652
+#: src/Admin/SettingsPage.php:1158 src/Cli/Commands.php:652
 msgid "Nicht übernommen, bisherige Werte bleiben: %1$s. %2$s"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1152
+#: src/Admin/SettingsPage.php:1186
 msgid "Sicherung vom %s. Beim Wiederherstellen wird der aktuelle Stand seinerseits gesichert."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:693
+#: src/Admin/SettingsPage.php:726
 msgid "Hier erscheinen Einstellungen von Erweiterungen."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:743
+#: src/Admin/SettingsPage.php:776
 msgid "Erweitert anzeigen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:825
+#: src/Admin/SettingsPage.php:858
 msgid "Hake an, welche Rolle welches Recht bekommt. Administratoren behalten immer alle Rechte. Rechte, die du selbst nicht hast, kannst du weder vergeben noch entziehen; jede Änderung wird protokolliert."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:826
+#: src/Admin/SettingsPage.php:859
 msgid "Rolle"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:831
+#: src/Admin/SettingsPage.php:864
 msgid "(nur lesen)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:850 src/Admin/SettingsPage.php:1060
+#: src/Admin/SettingsPage.php:883 src/Admin/SettingsPage.php:1094
 msgid "(immer)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:974
+#: src/Admin/SettingsPage.php:1008
 msgid "Aktiv"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1010
+#: src/Admin/SettingsPage.php:1044
 msgid "Fehler:"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1081
+#: src/Admin/SettingsPage.php:1115
 msgid "Eingeschaltet, aber noch nicht bestätigt: Beim Deinstallieren bleiben die Daten erhalten, bis du LÖSCHEN eintippst und speicherst."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1083
+#: src/Admin/SettingsPage.php:1117
 msgid "Zur Bestätigung LÖSCHEN eintippen (nur nötig beim Einschalten)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1091 src/Admin/SettingsPage.php:1100
+#: src/Admin/SettingsPage.php:1125 src/Admin/SettingsPage.php:1134
 msgid "Einstellungen zurücksetzen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1092
+#: src/Admin/SettingsPage.php:1126
 msgid "Setzt Einstellungen auf die Standardwerte zurück. Reviews, Profile, Verlauf und Protokolle bleiben erhalten. Der vorherige Stand wird gesichert und kann unter „Erweitert“ wiederhergestellt werden."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1096
+#: src/Admin/SettingsPage.php:1130
 msgid "Umfang"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1097
+#: src/Admin/SettingsPage.php:1131
 msgid "Nur „Datenschutz & Aufbewahrung“"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1098
+#: src/Admin/SettingsPage.php:1132
 msgid "Alle Einstellungen (Pro-Einstellungen bleiben unverändert)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1099
+#: src/Admin/SettingsPage.php:1133
 msgid "Ich möchte die Einstellungen zurücksetzen."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1102
+#: src/Admin/SettingsPage.php:1136
 msgid "Alle Plugin-Daten löschen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1103
+#: src/Admin/SettingsPage.php:1137
 msgid "Reviews, Profile, Verlauf und Einstellungen werden hier nicht gelöscht. Eine vollständige Löschung aller Review-Captain-Daten dieser Website erfolgt nur, wenn „Beim Löschen des Plugins alle Daten entfernen“ aktiviert ist und du das Plugin anschließend unter „Plugins“ deaktivierst und löschst. Exportiere vorher deine Reviews."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1104
+#: src/Admin/SettingsPage.php:1138
 msgid "Einzelne Personen betreffende Löschanfragen bearbeitest du unter"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1104
+#: src/Admin/SettingsPage.php:1138
 msgid "Werkzeuge › Personenbezogene Daten löschen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1111
+#: src/Admin/SettingsPage.php:1145
 msgid "Konfiguration exportieren"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1112
+#: src/Admin/SettingsPage.php:1146
 msgid "Lädt die Einstellungen als JSON-Datei herunter – ohne Zugangsdaten und ohne personenbezogene Angaben. Reviews sind nicht enthalten."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1115
+#: src/Admin/SettingsPage.php:1149
 msgid "Konfiguration herunterladen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1119
+#: src/Admin/SettingsPage.php:1153
 msgid "Konfiguration importieren"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1121
+#: src/Admin/SettingsPage.php:1155
 msgid "Folgende Werte werden geändert. Alle anderen Einstellungen bleiben unverändert."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1126 src/Seo/SeoStatus.php:71
+#: src/Admin/SettingsPage.php:1160 src/Seo/SeoStatus.php:71
 msgid "Einstellung"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1134
+#: src/Admin/SettingsPage.php:1168
 msgid "Import übernehmen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1135
+#: src/Admin/SettingsPage.php:1169
 msgid "Verwerfen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1137
+#: src/Admin/SettingsPage.php:1171
 msgid "Lade einen Export hoch oder füge den Inhalt ein. Vor dem Übernehmen siehst du eine Vorschau aller Änderungen; ungültige Werte werden wie beim Speichern korrigiert."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1140
+#: src/Admin/SettingsPage.php:1174
 msgid "Datei (JSON)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1141
+#: src/Admin/SettingsPage.php:1175
 msgid "oder Inhalt einfügen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1142
+#: src/Admin/SettingsPage.php:1176
 msgid "Vorschau anzeigen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1146 src/Admin/SettingsPage.php:1155
+#: src/Admin/SettingsPage.php:1180 src/Admin/SettingsPage.php:1189
 msgid "Sicherung wiederherstellen"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:1148
+#: src/Admin/SettingsPage.php:1182
 msgid "Es ist noch keine Sicherung vorhanden. Sie wird automatisch vor jedem Import und jedem Zurücksetzen angelegt."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:675
+#: src/Admin/SettingsPage.php:708
 msgid "Einstellungsbereiche"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:899
+#: src/Admin/SettingsPage.php:932
 msgid "Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertung. Die Bewertung bleibt."
 msgid_plural "Kontaktadresse: Die nächste Bereinigung entfernt die E-Mail-Adresse bei %s Bewertungen. Die Bewertungen bleiben."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/SettingsPage.php:903
+#: src/Admin/SettingsPage.php:936
 msgid "Freigegebene Bewertungen: Die nächste Bereinigung löscht %s Bewertung endgültig."
 msgid_plural "Freigegebene Bewertungen: Die nächste Bereinigung löscht %s Bewertungen endgültig."
 msgstr[0] ""
@@ -3383,91 +3383,91 @@ msgstr ""
 msgid "QR-Code für Feedback: %s"
 msgstr ""
 
-#: src/Frontend/FormHandler.php:602
+#: src/Frontend/FormHandler.php:603
 msgid "Danke! Ihre Bewertung ist jetzt sichtbar."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:603
+#: src/Frontend/FormHandler.php:604
 msgid "Danke! Ihre Bewertung wird nach Prüfung veröffentlicht."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:627 src/Frontend/Renderer.php:481
+#: src/Frontend/FormHandler.php:628 src/Frontend/Renderer.php:481
 msgid "Bewertungen können derzeit nicht abgegeben werden."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:628
+#: src/Frontend/FormHandler.php:629
 msgid "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und senden Sie das Formular erneut."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:629 src/Questions/QuestionHandler.php:172
+#: src/Frontend/FormHandler.php:630 src/Questions/QuestionHandler.php:172
 msgid "Das Formular wurde zu schnell abgeschickt. Bitte versuchen Sie es erneut."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:630 src/Questions/QuestionHandler.php:173
+#: src/Frontend/FormHandler.php:631 src/Questions/QuestionHandler.php:173
 msgid "Das Formular ist abgelaufen. Bitte laden Sie die Seite neu."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:631 src/Questions/QuestionHandler.php:174
+#: src/Frontend/FormHandler.php:632 src/Questions/QuestionHandler.php:174
 msgid "Das Formular ist ungültig. Bitte laden Sie die Seite neu."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:632
+#: src/Frontend/FormHandler.php:633
 msgid "Sie haben bereits mehrere Bewertungen gesendet. Bitte versuchen Sie es später erneut."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:633
+#: src/Frontend/FormHandler.php:634
 msgid "Bitte wählen Sie eine Bewertung von 1 bis 5 Sternen."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:634
+#: src/Frontend/FormHandler.php:635
 msgid "Der Titel ist zu lang (höchstens 150 Zeichen)."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:635
+#: src/Frontend/FormHandler.php:636
 msgid "Der Bewertungstext ist zu kurz."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:636
+#: src/Frontend/FormHandler.php:637
 msgid "Der Bewertungstext ist zu lang."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:637 src/Questions/QuestionHandler.php:178
+#: src/Frontend/FormHandler.php:638 src/Questions/QuestionHandler.php:178
 msgid "Bitte geben Sie Ihren Namen an (höchstens 100 Zeichen)."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:638
+#: src/Frontend/FormHandler.php:639
 msgid "Bitte geben Sie eine gültige E-Mail-Adresse an."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:639
+#: src/Frontend/FormHandler.php:640
 msgid "Mit dieser E-Mail-Adresse kann keine Bewertung abgegeben werden. Bitte verwenden Sie eine andere Adresse."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:640 src/Questions/QuestionHandler.php:180
+#: src/Frontend/FormHandler.php:641 src/Questions/QuestionHandler.php:180
 msgid "Bitte bestätigen Sie die Einwilligung zur Veröffentlichung."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:641
+#: src/Frontend/FormHandler.php:642
 msgid "Ihre Bewertung konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:642
+#: src/Frontend/FormHandler.php:643
 msgid "Sie haben dieses Produkt bereits bewertet."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:643
+#: src/Frontend/FormHandler.php:644
 msgid "Bitte bewerten Sie mindestens ein Produkt."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:644
+#: src/Frontend/FormHandler.php:645
 msgid "Bitte wählen Sie für jedes bewertete Produkt 1 bis 5 Sterne."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:645
+#: src/Frontend/FormHandler.php:646
 msgid "Der Text zu einem bewerteten Produkt ist zu kurz."
 msgstr ""
 
-#: src/Frontend/FormHandler.php:646
+#: src/Frontend/FormHandler.php:647
 msgid "Der Text zu einem bewerteten Produkt ist zu lang."
 msgstr ""
 
@@ -4426,21 +4426,21 @@ msgstr ""
 msgid "Danke! Ihre Frage wird nach Prüfung veröffentlicht."
 msgstr ""
 
-#: src/Security/EmbedPolicy.php:110
+#: src/Security/EmbedPolicy.php:112
 msgid "Eingebetteter Inhalt"
 msgstr ""
 
 #. translators: %s: third-party host name
-#: src/Security/EmbedPolicy.php:121
+#: src/Security/EmbedPolicy.php:123
 msgid "Beim Laden werden Daten an %s übertragen."
 msgstr ""
 
 #. translators: %s: content title
-#: src/Security/EmbedPolicy.php:128
+#: src/Security/EmbedPolicy.php:130
 msgid "Inhalt laden: %s"
 msgstr ""
 
-#: src/Security/EmbedPolicy.php:133
+#: src/Security/EmbedPolicy.php:135
 msgid "Beim Anbieter öffnen"
 msgstr ""
 

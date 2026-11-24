@@ -72,13 +72,16 @@ Jede schreibende Aktion: Capability-Prüfung **und** Nonce (`review_captain_{act
 | `review_captain_review_created_v1` | action | V | nach Commit, Payload ohne Text/E-Mail |
 | `review_captain_review_status_changed_v1` | action | V | nach Commit |
 | `review_captain_review_removed_v1` | action | V | nach Commit |
+| `review_captain_request_token_v1` | filter | V | Pro löst das signierte Token des Einladungslinks (`rc_request`) in die Anfrage-Referenz (UUID) auf; Default `null` = unbekannt, dann geschieht nichts (P2-10, Vertrag 1.2.0) |
+| `review_captain_request_responded_v1` | action | V | nach dem Speichern einer lokalen Bewertung über einen gültigen Einladungslink; Payload `review_captain.request_response.v1` (`request_uuid`, `review_uuid`, `review_uuids`, `review_status`, `event_id`, `occurred_at`), ohne Text, Name, E-Mail, Token (P2-10, Vertrag 1.2.0) |
 | `review_captain_request_planner_v1` | filter | V | Pro registriert den Anfrage-Planer für `WorkflowService` (`RequestPlannerInterface`, Vertrag 1.x); ohne → `rc.contract.unavailable` (RC-WF-03) |
 | `review_captain_spam_checks_v1` | filter | V | zusätzliche Spam-Prüfungen/externe Captcha-Anbieter für Bewertungs-, Melde- und Frageformular (SET-RC-11); Rückgabe Liste von Gründen, jeder Grund lehnt neutral ab. **Nur nach Rechtsprüfung.** Angelehnt an Form Captains `form_captain_spam_checks_v1` |
 | `review_captain_pow_max_number_v1` | filter | V | Schwierigkeit der eingebauten Rechenprüfung (Standard 50 000, 1 000–1 000 000, wie `form_captain_pow_max_number_v1`); Name mit Versionsendung aus Form Captain, daher versionierter Vertrag: Bedeutung und Grenzen ändern sich nur mit `_v2` |
 | `review_captain_settings_schema` | filter | S | Pro ergänzt Einstellungsfelder (Core-Felder nicht entfern-/änderbar) |
 | `review_captain_pro_settings_writable` | filter | S | Pro erlaubt das Schreiben von Pro-Feldern pauschal (Default `false`); seit 24.11.2026 nur noch Vorgabe für `review_captain_pro_field_writable` (ältere Pro-Versionen) |
 | `review_captain_pro_field_writable` | filter | S | Schreibrecht **je Pro-Feld** (`bool $writable`, `string $tab`, `string $key`); Vorgabe ist die Antwort von `review_captain_pro_settings_writable`. Gilt für Speichern, Import (Seite und WP-CLI) und `settings set`; jede Pro-Funktion antwortet nur für ihre eigenen Felder. `manage_settings` und Tab-Rechte gelten unabhängig davon (Entscheidung der Inhaberin 24.11.2026) |
-| `review_captain_show_pro_info` | filter | S | Pro-Hinweis im Dashboard ausblenden (Default `true`) |
+| `review_captain_show_pro_info` | filter | S | Pro-Hinweis im Dashboard ausblenden (Default `true`); Pro antwortet `false` erst, wenn alle genannten Funktionen lizenziert sind (P6-7) |
+| `review_captain_pro_info_items` | filter | S | Zeilen des Dashboard-Kastens „In Review Captain Pro“ (`id => Text`, Kennungen `DashboardPage::PRO_INFO_*`: `requests`, `analytics`, `platform_sync`, `suite`); Pro entfernt die Zeilen lizenzierter Funktionen, ohne Zeile verschwindet der Kasten (P6-7, 24.11.2026) |
 | `review_captain_setup_checklist_detected` | filter | S | erkannte Integrationen der Einrichtungs-Checkliste |
 | `review_captain_diagnostics_sections` | filter | S | Abschnitte der Diagnoseseite (`title`, `render`) |
 | `review_captain_schema_eligible` | filter | S | nur verschärfen (true→false), nie lockern |
@@ -131,7 +134,7 @@ Aus [`docs/contracts/README.md`](../contracts/README.md) („Ergänzungen gegen�
 | Art | Name | Spezifiziert in |
 |---|---|---|
 | action | `review_captain_experience_event_v1` | [experience-event-v1.md](../contracts/experience-event-v1.md) |
-| action | `review_captain_request_status_changed_v1`, `review_captain_request_reminder_sent_v1`, `review_captain_request_responded_v1`, `review_captain_recipient_opted_out_v1` | [request-lifecycle.md](../contracts/request-lifecycle.md), [workflow-provider-v1.md](../contracts/workflow-provider-v1.md) |
+| action | `review_captain_request_status_changed_v1`, `review_captain_request_reminder_sent_v1`, `review_captain_recipient_opted_out_v1` (`review_captain_request_responded_v1` ist seit Vertrag 1.2.0 implementiert, siehe oben) | [request-lifecycle.md](../contracts/request-lifecycle.md), [workflow-provider-v1.md](../contracts/workflow-provider-v1.md) |
 | Funktion | `review_captain_submit_experience_event_v1()` | experience-event-v1.md |
 | Funktion | `review_captain_plan_request_v1()`, `review_captain_cancel_request_v1()`, `review_captain_create_local_review_v1()`, `review_captain_delete_local_review_draft_v1()`, `review_captain_get_review_summary_v1()` (die Logik ist als Container-Service `workflow` = `ReviewCaptain\Workflow\WorkflowService` implementiert; die Funktions-Wrapper bleiben reserviert) | workflow-provider-v1.md |
 | Klasse/API | `ReviewCaptain\Contracts\Connector\RecipientResolverInterface` (Connector-Fassung implementiert als `ReviewCaptain\Connectors\Contract\RecipientResolverInterface`), `ReviewCaptain\Api::register_request_service()`, `::workflow_descriptor_v1()` | [recipient-resolver-v1.md](../contracts/recipient-resolver-v1.md), workflow-provider-v1.md |

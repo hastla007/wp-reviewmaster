@@ -68,7 +68,7 @@ Alle Trigger werden **nach Commit** aus den Review-Captain-Hooks abgeleitet. Ohn
 | `request.cancelled` | dto. | `status = cancelled` |
 | `request.expired` | dto. | `status = expired` |
 | `request.reminder_sent` | `review_captain_request_reminder_sent_v1` | – |
-| `request.responded` | `review_captain_request_responded_v1` | lokale Review über Anfragelink eingegangen |
+| `request.responded` | `review_captain_request_responded_v1` | lokale Review über Anfragelink eingegangen; Payload `review_captain.request_response.v1` (Core ab Vertrag 1.2.0, request-lifecycle.md „Antwort über den Einladungslink“) |
 | `review.created` | `review_captain_review_created_v1` | – |
 | `review.moderated` | `review_captain_review_status_changed_v1` | neuer Status ∈ {`rejected`, `flagged`, `archived`} |
 | `review.published` | dto. | neuer Status = `approved` |
