@@ -4,7 +4,7 @@
 
 Erfasst sind alle Aufrufe von `do_action()`/`apply_filters()` (inkl. `_ref_array`/`_deprecated`) mit Hook-Namen, die mit `review_captain_` beginnen, in `src/`, `templates/`, `blocks/`, `review-captain.php` und `uninstall.php`. Als Klassenkonstante angegebene Namen sind aufgelöst. Parameter stammen aus dem Docblock direkt über dem Aufruf, sonst aus den Argumenten. Welche Hooks öffentliche, versionierte Verträge sind, regelt [ADR-0007](adr/0007-oeffentliche-hooks-v1.md) bzw. die Hook-Tabelle in [conventions.md](architecture/conventions.md); alle übrigen sind Erweiterungspunkte ohne Stabilitätszusage ([ADR-0002](adr/0002-hook-praefix-review-captain.md)). Interne Cron-Hooks (`review_captain_run_jobs`, `review_captain_daily_maintenance`) werden von WP-Cron/Action Scheduler ausgelöst und erscheinen hier daher nicht.
 
-Anzahl: 58 Aufrufstellen, 56 Hooks.
+Anzahl: 57 Aufrufstellen, 55 Hooks.
 
 | Name | Typ | Parameter | Datei:Zeile |
 |---|---|---|---|
@@ -31,7 +31,6 @@ Anzahl: 58 Aufrufstellen, 56 Hooks.
 | `review_captain_pow_max_number_v1` | filter | `int $max_number` – Upper bound | `src/Security/PowCaptcha.php:88` |
 | `review_captain_privacy_personal_meta_keys` | filter | `list<string> $keys` – Keys | `src/Privacy/PersonalData.php:247` |
 | `review_captain_privacy_policy_url` | filter | `string $url` – URL ('' = no link) | `src/Frontend/PublicTexts.php:166` |
-| `review_captain_pro_field_writable` | filter | `bool $writable` – Default: answer of `review_captain_pro_settings_writable`<br>`string $tab` – Tab key<br>`string $key` – Field key | `src/Admin/SettingsPage.php:118` |
 | `review_captain_pro_settings_writable` | filter | `bool $writable` – Default false | `src/Admin/SettingsPage.php:96` |
 | `review_captain_process_job_v1` | filter | `array\|null $result` – null = not handled<br>`string $type` – Job type<br>`array $payload` – Payload | `src/Jobs/Runner.php:326` |
 | `review_captain_providers_v1` | action | `ProviderRegistry $registry` – Registry | `src/Providers/ProviderRegistry.php:65` |

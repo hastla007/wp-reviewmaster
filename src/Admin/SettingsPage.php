@@ -97,39 +97,6 @@ final class SettingsPage {
 	}
 
 	/**
-	 * Whether one add-on field (owner 'pro') may be written. Each add-on feature answers for its
-	 * own fields only; the answer of the shared filter above is the default, so an add-on that
-	 * only knows the shared filter keeps working (decision of 24.11.2026: write permission per field).
-	 *
-	 * @param string    $tab           Tab key.
-	 * @param string    $key           Field key.
-	 * @param bool|null $shared_answer Answer of the shared filter (null = ask it now).
-	 */
-	public static function pro_field_writable( string $tab, string $key, ?bool $shared_answer = null ): bool {
-		/**
-		 * Filter whether one add-on settings field (owner 'pro') may be written – on the settings
-		 * page, by the import (page and WP-CLI) and by `wp review-captain settings set`. The
-		 * manage_settings check and the tab rights stay in force regardless of the answer.
-		 *
-		 * @param bool   $writable Default: answer of `review_captain_pro_settings_writable`.
-		 * @param string $tab      Tab key.
-		 * @param string $key      Field key.
-		 */
-		return (bool) apply_filters( 'review_captain_pro_field_writable', $shared_answer ?? self::pro_writable(), $tab, $key );
-	}
-
-	/**
-	 * Per-field write check for add-on fields as a callable (tab, key) → bool. The shared filter
-	 * is asked once per call of this method; the per-field filter once per field.
-	 *
-	 * @return \Closure(string, string): bool
-	 */
-	public static function pro_field_gate(): \Closure {
-		$shared = self::pro_writable();
-		return static fn( string $tab, string $key ): bool => self::pro_field_writable( $tab, $key, $shared );
-	}
-
-	/**
 	 * Whether the current user may write a tab. Privacy needs manage_privacy, access needs
 	 * promote_users in addition to manage_settings (no privilege escalation via roles tab).
 	 *
@@ -224,7 +191,7 @@ final class SettingsPage {
 		}
 		$fields  = SettingsSchema::fields()[ $tab ] ?? array();
 		$raw     = isset( $input[ $tab ] ) && is_array( $input[ $tab ] ) ? $input[ $tab ] : array();
-		$pro     = self::pro_field_gate();
+		$pro     = self::pro_writable();
 		$current = $this->settings()->all();
 		$values  = $current;
 		$errors  = array();
@@ -232,7 +199,7 @@ final class SettingsPage {
 		$open    = array();
 
 		foreach ( $fields as $key => $field ) {
-			if ( ( 'pro' === $field['owner'] && ! $pro( $tab, $key ) ) || ! empty( $field['internal'] ) ) {
+			if ( ( 'pro' === $field['owner'] && ! $pro ) || ! empty( $field['internal'] ) ) {
 				continue;
 			}
 			$open[] = $key;
@@ -532,14 +499,14 @@ final class SettingsPage {
 			View::redirect( Notices::url( $back, 'import_invalid' ) );
 			return;
 		}
-		$preview = $this->transfer()->preview( $json, self::writable_tabs(), self::pro_field_gate() );
+		$preview = $this->transfer()->preview( $json, self::writable_tabs(), self::pro_writable() );
 		if ( null === $preview ) {
 			View::redirect( Notices::url( $back, 'import_invalid' ) );
 			return;
 		}
 		if ( self::migrate_access( $this->settings() ) ) {
 			// Role lists missing in the file must keep today's roles, not the defaults.
-			$preview = (array) $this->transfer()->preview( $json, self::writable_tabs(), self::pro_field_gate() );
+			$preview = (array) $this->transfer()->preview( $json, self::writable_tabs(), self::pro_writable() );
 		}
 		if ( ! $preview['diff'] ) {
 			View::redirect( Notices::url( $back, 'import_empty' ) );
@@ -585,13 +552,13 @@ final class SettingsPage {
 		self::migrate_access( $this->settings() );
 		$before  = $this->settings()->all();
 		$current = $before;
-		$pro     = self::pro_field_gate();
+		$pro     = self::pro_writable();
 		$schema  = SettingsSchema::fields();
 		foreach ( $tabs as $tab ) {
 			if ( isset( $values[ $tab ] ) && is_array( $values[ $tab ] ) ) {
 				$current[ $tab ] = $values[ $tab ];
 				foreach ( $schema[ $tab ] ?? array() as $key => $field ) {
-					if ( 'pro' === $field['owner'] && ! $pro( $tab, $key ) && array_key_exists( $key, (array) ( $before[ $tab ] ?? array() ) ) ) {
+					if ( 'pro' === $field['owner'] && ! $pro && array_key_exists( $key, (array) ( $before[ $tab ] ?? array() ) ) ) {
 						// The add-on stopped allowing writes since the preview: keep its stored value.
 						$current[ $tab ][ $key ] = $before[ $tab ][ $key ];
 					}
@@ -693,7 +660,7 @@ final class SettingsPage {
 		$tabs   = SettingsSchema::tabs();
 		$schema = SettingsSchema::fields();
 		$values = $this->settings()->all();
-		$pro    = self::pro_field_gate();
+		$pro    = self::pro_writable();
 
 		$this->field_errors = $this->pending_errors( $tab );
 
@@ -778,7 +745,7 @@ final class SettingsPage {
 			echo '</details>';
 		}
 
-		$any_writable = $writable && array_filter( $fields, static fn( $f, $k ) => 'pro' !== $f['owner'] || $pro( $tab, (string) $k ), ARRAY_FILTER_USE_BOTH );
+		$any_writable = $writable && array_filter( $fields, static fn( $f ) => 'pro' !== $f['owner'] || $pro );
 		if ( $any_writable ) {
 			echo '<p class="submit"><button type="submit" class="button button-primary">' . esc_html__( 'Änderungen speichern', 'review-captain' ) . '</button></p>';
 		}
@@ -953,18 +920,17 @@ final class SettingsPage {
 	 * @param array<string, array<string, mixed>> $fields   Fields.
 	 * @param array<string, array<string, mixed>> $values   Values.
 	 * @param bool                                $writable Tab writable.
-	 * @param \Closure                            $pro      Per-field write check for add-on fields (tab, key) → bool.
+	 * @param bool                                $pro      Pro fields writable.
 	 */
-	private function render_section( string $heading, string $tab, array $keys, array $fields, array $values, bool $writable, \Closure $pro ): void {
+	private function render_section( string $heading, string $tab, array $keys, array $fields, array $values, bool $writable, bool $pro ): void {
 		if ( '' !== $heading ) {
 			echo '<h2>' . esc_html( $heading ) . '</h2>';
 		}
 		echo '<table class="form-table" role="presentation"><tbody>';
 		foreach ( $keys as $key ) {
 			$field    = $fields[ $key ];
-			$locked   = 'pro' === $field['owner'] && ! $pro( $tab, $key );
-			$disabled = ! $writable || $locked;
-			$this->render_field( $tab, $key, $field, $values[ $tab ][ $key ] ?? $field['default'], $disabled, $locked );
+			$disabled = ! $writable || ( 'pro' === $field['owner'] && ! $pro );
+			$this->render_field( $tab, $key, $field, $values[ $tab ][ $key ] ?? $field['default'], $disabled, 'pro' === $field['owner'] && ! $pro );
 		}
 		echo '</tbody></table>';
 	}

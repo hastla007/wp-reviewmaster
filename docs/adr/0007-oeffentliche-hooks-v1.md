@@ -43,7 +43,6 @@ Interne Cron-Hooks (`review_captain_run_jobs`, `review_captain_daily_maintenance
 | `review_captain_review_removed_v1` | action | V | `src/Events/Events.php` |
 | `review_captain_settings_schema` | filter | S | `src/Settings/SettingsSchema.php` |
 | `review_captain_pro_settings_writable` | filter | S | `src/Admin/SettingsPage.php` |
-| `review_captain_pro_field_writable` | filter | S | `src/Admin/SettingsPage.php` |
 | `review_captain_show_pro_info` | filter | S | `src/Admin/DashboardPage.php` |
 | `review_captain_setup_checklist_detected` | filter | S | `src/Admin/SetupChecklist.php` |
 | `review_captain_diagnostics_sections` | filter | S | `src/Admin/DiagnosticsPage.php` |

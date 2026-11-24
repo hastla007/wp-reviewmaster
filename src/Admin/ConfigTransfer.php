@@ -80,16 +80,16 @@ final class ConfigTransfer {
 	 * Rules: schema must match and schema_version must not be newer than ours; only known,
 	 * exportable fields of the allowed tabs are taken; values pass the same sanitizer as the
 	 * settings page; add-on fields (owner 'pro') are only taken while the add-on lets them be
-	 * written ($allow_pro, per field as on the settings page), otherwise they stay untouched; unknown roles
+	 * written ($allow_pro, as on the settings page), otherwise they stay untouched; unknown roles
 	 * are dropped. Fields of a failed cross-field check (SettingsSchema::cross_check(), e.g.
 	 * minimum ≥ maximum text length) keep their current values; `kept` lists those checks.
 	 *
 	 * @param string            $json         JSON document.
 	 * @param list<string>|null $allowed_tabs Tabs the user may write (null = all).
-	 * @param bool|callable     $allow_pro    Whether add-on fields may be written (bool or callable(string $tab, string $key): bool).
+	 * @param bool              $allow_pro    Whether add-on fields may be written.
 	 * @return array{values: array<string, array<string, mixed>>, diff: list<array{tab: string, key: string, old: mixed, new: mixed}>, tabs: list<string>, kept: list<array{tab: string, fields: list<string>, message: string}>}|null
 	 */
-	public function preview( string $json, ?array $allowed_tabs = null, bool|callable $allow_pro = false ): ?array {
+	public function preview( string $json, ?array $allowed_tabs = null, bool $allow_pro = false ): ?array {
 		$doc = json_decode( $json, true );
 		if ( ! is_array( $doc ) || self::SCHEMA !== ( $doc['schema'] ?? null ) ) {
 			return null;

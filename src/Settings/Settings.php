@@ -87,16 +87,15 @@ class Settings {
 
 	/**
 	 * Sanitize a (partial) input for given tabs and merge into current values.
-	 * Pro-owned fields keep their stored value unless $allow_pro allows them, so a license
-	 * expiry or a core-only save never clears them (SET-006). $allow_pro is either one answer
-	 * for all add-on fields or a per-field check (tab, key) → bool.
+	 * Pro-owned fields keep their stored value unless $allow_pro is true, so a license
+	 * expiry or a core-only save never clears them (SET-006).
 	 *
 	 * @param array<string, mixed> $input     Raw input keyed by tab.
 	 * @param list<string>|null    $tabs      Tabs to accept (null = all).
-	 * @param bool|callable        $allow_pro Whether pro-owned fields may be written (bool or callable(string $tab, string $key): bool).
+	 * @param bool                 $allow_pro Whether pro-owned fields may be written.
 	 * @return array<string, array<string, mixed>>
 	 */
-	public function sanitize( array $input, ?array $tabs = null, bool|callable $allow_pro = false ): array {
+	public function sanitize( array $input, ?array $tabs = null, bool $allow_pro = false ): array {
 		$current = $this->all();
 		foreach ( SettingsSchema::fields() as $tab => $fields ) {
 			if ( null !== $tabs && ! in_array( $tab, $tabs, true ) ) {
@@ -104,7 +103,7 @@ class Settings {
 			}
 			$tab_input = isset( $input[ $tab ] ) && is_array( $input[ $tab ] ) ? $input[ $tab ] : array();
 			foreach ( $fields as $key => $field ) {
-				if ( ( 'pro' === $field['owner'] && ! self::pro_allowed( $allow_pro, (string) $tab, (string) $key ) ) || ! empty( $field['internal'] ) ) {
+				if ( ( 'pro' === $field['owner'] && ! $allow_pro ) || ! empty( $field['internal'] ) ) {
 					continue;
 				}
 				if ( 'bool' === $field['type'] ) {
@@ -115,17 +114,6 @@ class Settings {
 			}
 		}
 		return $current;
-	}
-
-	/**
-	 * Resolve an add-on write permission for one field.
-	 *
-	 * @param bool|callable $allow_pro Answer for all fields or per-field check (tab, key) → bool.
-	 * @param string        $tab       Tab key.
-	 * @param string        $key       Field key.
-	 */
-	public static function pro_allowed( bool|callable $allow_pro, string $tab, string $key ): bool {
-		return is_bool( $allow_pro ) ? $allow_pro : (bool) $allow_pro( $tab, $key );
 	}
 
 	/**

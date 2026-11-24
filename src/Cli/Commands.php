@@ -449,7 +449,7 @@ class Commands {
 			$this->out->error( __( 'Dieser Wert wird vom Plugin gesetzt und lässt sich nicht direkt ändern.', 'review-captain' ) );
 			return null;
 		}
-		if ( 'pro' === $field['owner'] && ! SettingsPage::pro_field_writable( $tab, $key ) ) {
+		if ( 'pro' === $field['owner'] && ! SettingsPage::pro_writable() ) {
 			$this->out->error( __( 'Diese Einstellung gehört zu einer Erweiterung und ist derzeit nicht änderbar.', 'review-captain' ) );
 			return null;
 		}
@@ -638,13 +638,13 @@ class Commands {
 		}
 		$tabs     = SettingsPage::writable_tabs();
 		$transfer = new ConfigTransfer( $this->plugin->settings() );
-		$preview  = $transfer->preview( $json, $tabs, SettingsPage::pro_field_gate() );
+		$preview  = $transfer->preview( $json, $tabs, SettingsPage::pro_writable() );
 		if ( null === $preview ) {
 			$this->out->error( __( 'Kein gültiger Review-Captain-Konfigurationsexport oder nicht unterstützte Version.', 'review-captain' ) );
 			return $none;
 		}
 		if ( SettingsPage::migrate_access( $this->plugin->settings() ) ) {
-			$preview = (array) $transfer->preview( $json, $tabs, SettingsPage::pro_field_gate() );
+			$preview = (array) $transfer->preview( $json, $tabs, SettingsPage::pro_writable() );
 		}
 		foreach ( (array) ( $preview['kept'] ?? array() ) as $kept ) {
 			$names = array_map( static fn( $key ): string => $kept['tab'] . '.' . $key, (array) $kept['fields'] );
