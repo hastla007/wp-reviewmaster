@@ -20,7 +20,7 @@ Stand: 2026-11-23. Alle Dokumente sind **Spezifikationen im Entwurf zur Abnahme*
 | [race-conditions.md](race-conditions.md) | TEC-005 | 12 Szenarien mit erwartetem Verhalten und Testfällen | Entwurf |
 | [cross-site-interfaces.md](cross-site-interfaces.md) | TEC-011 | Voraussetzungen für spätere signierte REST/Webhooks | Entwurf (v1: nicht implementiert) |
 | [widget-v1.md](widget-v1.md) | RC-049–RC-055, RC-039, RC-118 | Shortcode-/Block-/Formularvertrag | **verbindlich**, an Implementierung angeglichen |
-| [../settings/pro-matrix.md](../settings/pro-matrix.md) | SET-RC-06, SET-RC-07 | Add-on-Felder (`review_captain_settings_schema`, `owner => 'pro'`, `replaces_hint`), Schreibrecht (`review_captain_pro_settings_writable`), Hinweiszeilen `{id, tab, title, text, link}` (`review_captain_settings_hints`) mit festen Kennungen | Entwurf; Kennungen geprüft durch `tests/Unit/Admin/SettingsHintsContractTest.php` |
+| [../settings/pro-matrix.md](../settings/pro-matrix.md) | SET-RC-06, SET-RC-07 | Add-on-Felder (`review_captain_settings_schema`, `owner => 'pro'`, `replaces_hint`), Schreibrecht je Feld (`review_captain_pro_field_writable`, Vorgabe aus `review_captain_pro_settings_writable`), Hinweiszeilen `{id, tab, title, text, link}` (`review_captain_settings_hints`) mit festen Kennungen | Entwurf; Kennungen geprüft durch `tests/Unit/Admin/SettingsHintsContractTest.php` |
 | [../hooks.md](../hooks.md) | – | generierte Referenz aller `review_captain_*`-Hooks (`bin/list-hooks.php`) | generiert; Stabilitätsstufe jedes Hooks in [conventions.md](../architecture/conventions.md) (`tests/Unit/Support/HookTiersTest.php`) |
 
 ## Vertragsversion
