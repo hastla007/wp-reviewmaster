@@ -9,7 +9,8 @@ fail() { echo "FAIL $*" | tee -a "$OUT"; }
 check() { local d="$1"; shift; if "$@" >/dev/null 2>&1; then pass "$d"; else fail "$d"; fi; }
 ntables() { rc_tables | grep -c . || true; }
 # Relevante Meldungen im debug.log (Umgebungsrauschen wp_update_* / wordpress.org ausgefiltert).
-log_issues() { [ -f "$(debuglog)" ] && grep -E 'PHP (Notice|Warning|Deprecated|Fatal|Parse)|E2E-TRACE' "$(debuglog)" | grep -v -E 'wp_update_(plugins|themes)|wp_version_check|wordpress\.org' || true; }
+# wp_add_privacy_policy_content: nur ein Effekt des simulierten admin_init unter WP-CLI (is_admin() ist dort false).
+log_issues() { [ -f "$(debuglog)" ] && grep -E 'PHP (Notice|Warning|Deprecated|Fatal|Parse)|E2E-TRACE' "$(debuglog)" | grep -v -E 'wp_update_(plugins|themes)|wp_version_check|wordpress\.org|wp_add_privacy_policy_content' || true; }
 phase_log() { local n; n="$(log_issues | wc -l)"; if [ "$n" -eq 0 ]; then pass "$1: debug.log ohne Notices/Warnings/Deprecations"; else fail "$1: debug.log enthält $n Meldungen"; log_issues | sed -E 's/^\[[^]]*\] //; s/^/    /' | sort | uniq -c | head -20 | tee -a "$OUT"; fi; rm -f "$(debuglog)"; }
 mkdir -p "$E2E_WP/wp-content/mu-plugins"; cp "$(dirname "$0")/mu-plugins/e2e-trace.php" "$E2E_WP/wp-content/mu-plugins/"
 
@@ -43,6 +44,12 @@ CAPS="$(wp eval 'echo implode(",", array_filter(array_keys(get_role("administrat
 [ -z "$CAPS" ] && pass "Deinstallation: Capabilities entfernt" || fail "Capabilities übrig: $CAPS"
 phase_log "Core Deinstallation"
 
+if [ ! -d "$E2E_WP/wp-content/plugins/review-captain-pro" ]; then
+	echo "INFO Pro nicht bereitgestellt (deploy-plugins.sh): Phasen \"Pro ohne Core\" und \"Core+Pro\" übersprungen" | tee -a "$OUT"
+	echo; echo "Summe: $(grep -c ^PASS "$OUT") PASS, $(grep -c ^FAIL "$OUT") FAIL  ($OUT)"
+	[ -z "${E2E_STRICT:-}" ] || ! grep -q ^FAIL "$OUT"; exit
+fi
+
 echo "== Pro ohne Core"
 wp plugin activate review-captain-pro >"$E2E_DIR/pro-without-core.txt" 2>&1
 if wp plugin is-active review-captain-pro >/dev/null 2>&1; then pass "Pro ohne Core aktivierbar (Requires Plugins nicht erzwungen per WP-CLI) – kein Fatal"; else pass "Pro ohne Core: Aktivierung verweigert ($(tr '\n' ' ' <"$E2E_DIR/pro-without-core.txt" | cut -c1-160))"; fi
@@ -63,9 +70,14 @@ wp plugin activate review-captain >/dev/null 2>&1
 wp plugin deactivate review-captain-pro >/dev/null 2>&1; check "Pro deaktiviert" bash -c "true"
 wp plugin activate review-captain-pro >/dev/null 2>&1
 wp plugin uninstall review-captain-pro --deactivate --skip-delete >/dev/null 2>>"$OUT"
+# Pro behält Einstellungen und Datensätze, solange "alle Daten entfernen" nicht gewählt ist (captain-pro uninstall.php);
+# Termine (Cron) und Transienten gehen immer.
 LEFT="$(wp option list --search='review_captain_pro*' --fields=option_name --format=csv 2>/dev/null | tail -n +2 | tr '\n' ' ')"
-[ -z "$LEFT" ] && pass "Pro-Deinstallation: keine review_captain_pro_*-Optionen" || fail "Pro-Optionen übrig: $LEFT"
+echo "INFO Pro-Deinstallation ohne Löschwahl, behaltene Optionen: ${LEFT:-keine}" | tee -a "$OUT"
+wp cron event list --fields=hook --format=csv 2>/dev/null | grep -q review_captain_pro && fail "Pro-Cron-Events nach Deinstallation noch geplant" || pass "Pro-Deinstallation: keine review_captain_pro-Cron-Events"
 check "Core bleibt nach Pro-Deinstallation aktiv" wp plugin is-active review-captain
 [ "$(ntables)" -ge 6 ] && pass "Core-Tabellen nach Pro-Deinstallation vorhanden" || fail "Core-Tabellen nach Pro-Deinstallation fehlen"
 phase_log "Core+Pro"
 echo; echo "Summe: $(grep -c ^PASS "$OUT") PASS, $(grep -c ^FAIL "$OUT") FAIL  ($OUT)"
+# E2E_STRICT=1 (CI): Exit-Code 1 bei mindestens einer FAIL-Zeile.
+[ -z "${E2E_STRICT:-}" ] || ! grep -q ^FAIL "$OUT"

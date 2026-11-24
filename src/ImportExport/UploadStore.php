@@ -51,7 +51,6 @@ class UploadStore {
 			$finfo = finfo_open( FILEINFO_MIME_TYPE );
 			if ( false !== $finfo ) {
 				$mime = (string) finfo_file( $finfo, $tmp );
-				finfo_close( $finfo );
 			}
 		}
 		if ( '' === $mime || ! in_array( $mime, self::ALLOWED_MIME, true ) ) {

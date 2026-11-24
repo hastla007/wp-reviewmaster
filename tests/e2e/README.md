@@ -51,6 +51,12 @@ gibt es `php tests/e2e/php/sql.php <sqlite-datei> "<SQL>"` (`wp db query` brauch
 
 `E2E_CORE_REF=worktree tests/e2e/deploy-plugins.sh` testet statt `HEAD` den Arbeitsstand des Core.
 
+**In der CI (P6-6):** Job `e2e` in `.github/workflows/ci.yml` ruft `tests/e2e/ci-e2e.sh` für WordPress 7.0 und 7.1 auf
+(`WP_CONSTRAINT`, SQLite): `smoke.sh` und `functional.cjs`, Exit-Code 1 bei jeder FAIL-Zeile (`E2E_STRICT=1`). Pro nur mit
+dem Repository-Secret `CAPTAIN_PRO_TOKEN` (Lesezugriff auf `hastla007/captain-pro`); ohne Pro-Checkout (`E2E_PRO_SRC` ohne
+`build/build.php`, oder `E2E_SKIP_PRO=1`) stellt `deploy-plugins.sh` nur den Core bereit und `smoke.sh` überspringt die Pro-Phasen.
+Lokal: `E2E_DIR=… WP_CONSTRAINT='7.0.*' NODE_PATH=/opt/node-tools/node_modules tests/e2e/ci-e2e.sh`.
+
 ## Suite-E2E (RC-106) und Pro-Widgets (RC-137)
 
 Eigene Instanz mit WordPress 7.x, WooCommerce (GitHub-Release-ZIP, `E2E_WOO_ZIP`/`E2E_WOO_URL`) und den Suite-Kernen aus `E2E_SUITE_SRC` (`origin/main`):
